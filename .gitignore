@@ -1,3 +1,8 @@
+# More crap that needs to be ignored --eez
+*.opensdf
+*.sdf
+Game/codemp/ipch/*
+
 # Object files
 *.o
 
