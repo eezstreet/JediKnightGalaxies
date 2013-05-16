@@ -118,16 +118,16 @@ static unsigned int GetJumpTarget(ud_t *ud, int operand)
 {
 	switch (ud->operand[0].size) {
 		case 8:
-			return ud->pc + ud->operand[operand].lval.sbyte; 
+			return (unsigned int)ud->pc + ud->operand[operand].lval.sbyte; 
 			break;
 		case 16:
-			return ud->pc + ud->operand[operand].lval.sword; 
+			return (unsigned int)ud->pc + ud->operand[operand].lval.sword; 
 			break;
 		case 32:
-			return ud->pc + ud->operand[operand].lval.sdword; 
+			return (unsigned int)ud->pc + ud->operand[operand].lval.sdword; 
 			break;
 		default:
-			return 0;
+			return (unsigned int)0;
 			break;
 	}
 }
@@ -637,7 +637,7 @@ static void JKG_Crash_DisAsm(struct _EXCEPTION_POINTERS *EI, fileHandle_t f) {
 	JKG_FS_WriteString("^^^^^^^^^^\n", f);
 	for(i=0; i<21; i++) {
 		sz = ud_disassemble(&da);
-		addr = ud_insn_off(&da);
+		addr = (unsigned long)ud_insn_off(&da);
 		if (sz < 1) {
 			JKG_FS_WriteString(va("ERROR: Could not disassemble code at 0x%08X, aborting...\n", addr), f);
 			return;
