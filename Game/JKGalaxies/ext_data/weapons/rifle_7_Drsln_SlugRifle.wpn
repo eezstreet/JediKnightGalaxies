@@ -1,0 +1,97 @@
+{
+    "name":             "@JKG_ITEMS_rifle_Drsln_SlugRifle",
+    "type":             "WP_DISRUPTOR",
+    "variation":        7,
+    "classname":        "rifle_Dressy",
+    "description":      "@JKG_ITEMS_rifle_Drsln_SlugRifle",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/Drsln_SlugRifle/viewmodel.md3",
+        "worldmodel":       "models/weapons/Drsln_SlugRifle/model.glm",
+        "hudicon":          "models/weapons/Drsln_SlugRifle/icon_default",
+        "hudnaicon":        "models/weapons/Drsln_SlugRifle/icon_default",
+        "selectsound":      "sound/weapons/select_carbine.wav",
+                
+        "gunposition":      "6.0 -3.0 -4.0",
+        "ironsightsposition": "4.0 0.0 -2.9",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash",
+            "firesound":    [
+                "sound/weapons/slugthrowers/slugrifle1.mp3",
+                "sound/weapons/slugthrowers/slugrifle2.mp3",
+                "sound/weapons/slugthrowers/slugrifle3.mp3",
+                "sound/weapons/slugthrowers/slugrifle4.mp3"
+            ],
+            "projectilemodel": "models/ammo/quarrel_projectile.md3",
+            "projectilefx": "slugthrowers/slug_shot",
+            "miss":         { "impactfx": "slugthrowers/impactsmall" },
+            "hit":          { "impactfx": "weapons/slug_impact_flesh_blood" }
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash",
+            "firesound":    [
+                "sound/weapons/slugthrowers/slugrifle1.mp3",
+                "sound/weapons/slugthrowers/slugrifle2.mp3",
+                "sound/weapons/slugthrowers/slugrifle3.mp3",
+                "sound/weapons/slugthrowers/slugrifle4.mp3"
+            ],
+            "projectilemodel": "models/ammo/quarrel_projectile.md3",
+            "projectilefx": "slugthrowers/slug_shot",
+            "miss":         { "impactfx": "slugthrowers/impactsmall" },
+            "hit":          { "impactfx": "weapons/slug_impact_flesh_blood" }
+        },
+
+        "scope": {
+                "mask":     "models/weapons/dlt-19_heavyblaster/scope_mask"
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   2000,
+        "ammoIndex":         "7.92slugs",
+        "ammoOnSpawn":   120,
+        "ammoOnPickup":   24,
+        "clipSize":              12,
+        "flags":        [ "roll" ],
+        "startzoomfov": 20.0,
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       97,
+        "ballistic":    true,
+        "ammocost":     1,
+        "firedelay":    1500,
+        "firingtype":   "semi",
+        "range":        40000.0,
+        "recoil":       1.5,
+        "spread":       0.0,
+        "projectilespeed": 26000.0,	// 7.92 x 57 mm Mauser velocity 2600 ft/s
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADR" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "5"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

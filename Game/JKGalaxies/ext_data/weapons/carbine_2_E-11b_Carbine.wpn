@@ -1,0 +1,112 @@
+{
+    "name":             "@JKG_ITEMS_carbine_E-11b_Carbine",
+    "type":             "WP_BLASTER",
+    "variation":        2,
+    "classname":        "carbine_E-11b",
+    "description":      "@JKG_ITEMS_carbine_E-11b_Carbine",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/E-11b_Carbine/viewmodel.md3",
+        "worldmodel":       "models/weapons/E-11b_Carbine/model.glm",
+        "hudicon":          "models/weapons/E-11b_Carbine/icon_default",
+        "hudnaicon":        "models/weapons/E-11b_Carbine/icon_default",
+        "selectsound":      "sound/weapons/select_carbine.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/E-11b_Carbine/numbers3", "models/weapons/E-11b_Carbine/bar" ],
+            "firemode":     "models/weapons/E-11b_Carbine/firemode"
+        },
+        
+        "gunposition":      "11.0 -2.0 -6.5",
+        "ironsightsposition": "13.0 0.0 -4.9",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Red_small",
+            "firesound":    [
+                "sound/weapons/blasters/e11b_1.mp3",
+                "sound/weapons/blasters/e11b_2.mp3",
+                "sound/weapons/blasters/e11b_3.mp3",
+                "sound/weapons/blasters/e11b_4.mp3"
+            ],
+            "projectilefx": "blasters/shot_red_small",
+            "miss":         { "impactfx": "weapons/blaster_impact_red_medium_fire" },
+            "hit":          { "impactfx": "blasters/red_flesh_impact" },
+            "deathfx": "blasters/shot_red_vaporize",
+	    "displayName":  "Auto"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Red_medium",
+            "firesound":    [
+                "sound/weapons/blasters/e11b_1.mp3",
+                "sound/weapons/blasters/e11b_2.mp3",
+                "sound/weapons/blasters/e11b_3.mp3",
+                "sound/weapons/blasters/e11b_4.mp3"
+            ],
+            "projectilefx": "blasters/shot_redorange_small",
+            "miss":         { "impactfx": "weapons/blaster_impact_red_medium_fire" },
+            "hit":          { "impactfx": "blasters/red_flesh_impact" },
+            "deathfx": "blasters/shot_red_vaporize",
+	    "displayName":  "Semi"
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   1500,
+        "ammoIndex":         "blaster_power_pack_m",
+        "ammoOnSpawn":   600,
+        "ammoOnPickup":   120,
+        "clipSize":              60,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       18,
+        "ammocost":     1,
+        "firedelay":    120,
+        "range":        3400.0,
+        "recoil":       0.7,
+//        "splashrange":  3.0,
+        "spread":       0.9,
+        "projectilespeed": 4000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER",
+        "splashmeansofdeath": "MOD_BLASTER"
+    },
+    
+    "firemode1": {
+        "damage":       20,
+        "ammocost":     1,
+        "firedelay":    143,
+        "firingtype":   "semi",
+        "range":        3500.0,
+        "recoil":       0.9,
+        "spread":       0.5,
+        "projectilespeed": 4000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADL" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "2"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

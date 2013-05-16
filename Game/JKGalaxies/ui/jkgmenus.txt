@@ -1,0 +1,16 @@
+//---------------------------------------------------------
+// jkgmenus.txt
+// 
+// .menu files to load for the Jedi Knight ingame interface
+//
+//---------------------------------------------------------
+{
+	loadMenu { "ui/jkg/jkg_conversation.menu" 	}
+	loadMenu { "ui/jkg/jkg_pazaak.menu" 		}
+	loadMenu { "ui/jkg/jkg_partymngt.menu"		}
+	loadMenu { "ui/jkg/jkg_slice.menu"		}
+	loadMenu { "ui/jkg/jkg_loot.menu"		}
+  loadMenu { "ui/jkg/jkg_inventory.menu"  }
+  loadMenu { "ui/jkg/ingame_radio.menu"  }
+}
+

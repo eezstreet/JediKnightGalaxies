@@ -1,0 +1,97 @@
+{
+    "name":             "@JKG_ITEMS_pistol_SuppressorPistol",
+    "type":             "WP_BRYAR_PISTOL",
+    "variation":        0,
+    "classname":        "pistol_Suppressor",
+    "description":      "@JKG_ITEMS_pistol_SuppressorPistol",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/SuppressorPistol/viewmodel.md3",
+        "worldmodel":       "models/weapons/SuppressorPistol/model.glm",
+        "hudicon":          "models/weapons/SuppressorPistol/icon_default",
+        "hudnaicon":        "models/weapons/SuppressorPistol/icon_default",
+        "selectsound":      "sound/weapons/select_pistol.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/suppressorpistol/pad", "models/weapons/suppressorpistol/pad10" ],
+            "firemode":     "models/weapons/SuppressorPistol/firemode"
+        },
+        
+        "gunposition":      "8.0 -3.0 -4.0",
+        "ironsightsposition": "8.5 0.0 -4.1",
+        "ironsightsfov": "75",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_stingbeam",
+            "firesound":    [
+                "sound/weapons/blasters/stingbeam1.mp3",
+                "sound/weapons/blasters/stingbeam2.mp3",
+                "sound/weapons/blasters/stingbeam3.mp3",
+                "sound/weapons/blasters/stingbeam4.mp3"
+            ],
+            "projectilefx": "blasters/shot_Yellow_Weak_small",
+            "miss":         { "impactfx": "blasters/yellow_impacttiny" },
+            "hit":          { "impactfx": "blasters/yellow_impacttiny" },
+            "deathfx": "blasters/shot_yellow_vaporize"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_stingbeam",
+            "firesound":    [
+                "sound/weapons/blasters/stingbeam1.mp3",
+                "sound/weapons/blasters/stingbeam2.mp3",
+                "sound/weapons/blasters/stingbeam3.mp3",
+                "sound/weapons/blasters/stingbeam4.mp3"
+            ],
+            "projectilefx": "blasters/shot_Yellow_Weak_small",
+            "miss":         { "impactfx": "blasters/yellow_impacttiny" },
+            "hit":          { "impactfx": "blasters/yellow_impacttiny" },
+            "deathfx": "blasters/shot_yellow_vaporize"
+        }
+    },
+    
+    "stats": {
+        "slot":         2,
+        "reloadtime":   750,
+        "ammoIndex":         "trandopowercell",
+        "ammoOnSpawn":   100,
+        "ammoOnPickup":   20,
+        "clipSize":              10,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7,
+        "speed":        1.2
+    },
+    
+    "firemode0": {
+        "damage":       19,
+        "ammocost":     1,
+        "firedelay":    300,
+        "firingtype":   "semi",
+        "range":	1500.0,
+        "recoil":       0.5,
+        "spread":       0.1,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BRYAR_PISTOL"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_PISTOLRELOAD" },
+        "ready":        { "torso": "TORSO_WEAPONREADY2", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK2" },
+	"sprint":	{ "torso": "BOTH_PISTOLRUN" },
+        "sprintStyle": "8"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

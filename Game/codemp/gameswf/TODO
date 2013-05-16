@@ -1,0 +1,227 @@
+Bugs
+====
+
+* there's a pop when transitioning from textured to mesh-rendered
+  glyphs; probably the texture fonts aren't registered exactly right?
+
+
+Productizing
+============
+
+Tasks to make gameswf ready for including in real games.
+
+* pick a version number, post a release
+
+* reduce small allocs, flatten data structures
+
+* for data binding, we have:
+
+  gameswf-push (fscommand)
+  host-push (call_method, set_variable)
+  host-pull (call_method, get_variable)
+  
+  we are missing gameswf-pull.  This would be useful for things like
+  looking up localized text in the game engine's translation table,
+  among other things.
+
+* fix/finish precompute_cached_data()
+
+* flags to strip extraneous stuff from a SWF source stream.
+  I.e. remove all bitmap data, font shape outlines, etc.  This is
+  useful for apps that precompile the bitmaps into native formats and
+  hook them up at runtime via get_bitmap_info()->... .  Lets the
+  stripped stream be used for parsing the rest of the movie info,
+  without taking up extra space/bandwidth.
+
+* fontlib support, for explicitly letting the host define global fonts
+  that all SWF's can use
+
+* put a FAQ on the web
+
+General
+=======
+
+* implement host-app driven text rendering functions
+
+* implement some or all of the HTML-like layout tags in dynamic text
+  fields
+
+* sprites as button characters are not working.  (Maybe they are
+  now??)
+
+* host-to-gameswf data transfer:
+
+  * DONE set_variable
+
+  * maybe augment this with array element parsing, and more data types?
+
+  * Should the whole ActionScript API be available to the host?
+    I.e. let C++ host code and ActionScript code call back and forth?
+    Might be really hot for translating slow prototype ActionScripts
+    into C++.  Prototype in Flash on a fast machine, convert the
+    scripts and deliver a blazing fast executable.
+
+* Helpers for arbitrary tag-processing 
+
+* Would be good if one of the log options produced a nice usable
+  human-readable parsing of the file.  Or even a SSWF equivalent?
+
+* write GAMESWF_FONT_GLYPH_FINAL_SIZE into the font cache data, and
+  check it on read to make sure it matches.  If no match, log error
+  (and ignore data???)  If these mismatch, then glyphs get rendered
+  with the wrong size, and it's non-obvious why.
+
+* User request: implement SWF files recursively calling other SWF
+  files.  Low priority; there are workarounds.
+
+ActionScript
+============
+
+* bug:
+
+	// e.g. declared inside main movie frame 1,
+	// and we have a movie clip w/ instance named "instance"
+	function instance.some_method()
+	{
+		// "this" must refer to "instance", not the main movie!
+		// currently gameswf refers to the main movie.
+		this._visible = false;
+	}
+
+* bug:
+
+	// In single-frame movies, the frame 1 actions should execute only once.
+	// The same actions in a two-frame movie should execute continuously.
+
+* bug:
+
+	// If we have a dynamic text instance "inst" that contains a string,
+	// doing to_string() or to_tu_string() on it should return its string
+	// contents, not "<object xxx>" or whatever we do now.
+
+* bug:
+
+	// In Flash, _visible property returns "true" or "false" when
+	// converted to string.  gameswf returns "0" or "1".  In general,
+	// gameswf probably needs a specific as_value::BOOL type, instead
+	// of using as_value::NUMBER for booleans.
+
+* all event hooks
+
+* arrays, object constructors
+
+* sprites can receive button events!  Like mouse down/up, etc.  So
+  need the appropriate machinery for watching the mouse.
+
+* make sure the frame semantics are correct.  I'm not 100% clear on
+  the semantics of frame transitions.  I think that "being on frame N"
+  means that N's tags and actions have been executed.
+
+* collect a canonical set of test movies and check them into CVS
+
+* generate or collect some game-gui-like movies
+
+* will need some good test programs to make sure VM is doing the right
+  thing.  SET UP AUTOMATED REGRESSION TESTS -- can be a shell script
+  that runs test movies in verbose mode and compares ActionScript
+  logging against expected output.
+
+* implement remaining opcodes and library functions
+
+
+Renderer
+========
+
+* fix the few tesselator glitches
+
+* optimize tesselator (not super-high priority, caching works pretty
+  well)
+
+  * improve naive (mis)use of array<>; use a more statically-allocated
+    array to hold intermediate results.
+
+  * examine use of qsort; should probably use pointers to stuff in
+    some situations, instead of raw copies
+
+  * coarse clip/cull
+
+  * better tesselation; look at Shewchuck's constrained delaunay stuff
+    or the improved trapezoid tesselator that doesn't cut across the
+    whole shape
+
+* real lines (low priority)
+
+  I think the way to handle this is to take advantage of a (mipmapped)
+  circle texture, say 16x16, and actually draw rectangles.  But then
+  it still doesn't seem too easy to get right.  Needs more thinking.
+  Not a super high priority; doesn't seem to be a critical feature for
+  most movies.
+
+  Update: designers do use lines.  (But Flash MX does have a feature
+  that turns lines into shapes.)  The circle texture, connected by
+  polys seems like the way to go.  The interior of acute angles is
+  still tricky though.  But it can definitely be done.  Something like
+  this:
+
+                      -----
+                    -/     \-  <--- edge of circle texture
+                   /   use   \
+                  /\  circle /\
+                 /  \  tex  /  \
+                /    \ here/    \
+               /      \   /      \
+              /        \ /        \
+             /          o          \
+            /           |           \                                                                      o
+           /            |            \
+          /   use       |     use     \
+         /  tris for   /\    tris for  \
+        /     this    /  \     this     \
+       /             /    \              \
+      /             /      \              \
+     /             /        \              \
+                  /          \              \
+                 /            \              \
+                /              \              \
+
+
+* Idea for antialiasing.  I really miss antialiasing; it sure would be
+  nice to have it.  (But this is low priority for productizing; it
+  should be easy enough for designers to work around gameswf's
+  limitations.)  So here's the idea:
+
+  * do full-blown expensive cached tesselation, to generate a "fringe
+    mesh" around the outside edges of shapes.  We know the range of
+    desired rendering sizes (in pixels), so we can make a fringe mesh
+    that will range from 1 to 2 pixels in width when rendered.  I
+    believe this involves shrinking the interior of the mesh by the
+    equivalent of a half-pixel.
+
+  * render the mesh using the dual-textured modulate thing, to fade
+    the edge.  Adjust the U coordinates of the outer edge of the
+    fringe according to the actual size in pixels of the fringe;
+    i.e. if the fringe is being rendered at 1.27 pixels in size,
+    adjust U so that the alpha fades to exactly 0 when the fringe is
+    1.0 pixel from the interior; the excess fringe has alpha == 0 so
+    doesn't render.
+
+  This sounds pretty foolproof to me.  It's expensive in terms of
+  precomputation, but then we have all this precomputation machinery
+  anyway, so no big deal.  There could possibly be a pop when
+  tesselations switch, although I don't think it would be any worse
+  than existing pops, and I haven't noticed any objectionable popping
+  with our existing shape rendering.
+
+  Self-intersection of the expanded/shrunk mesh is a bitch.
+  E.g. concave vertices, and tiny holes (like in minified text).
+
+  Reasons not to mess with this:
+
+  * sounds like a bunch of work
+
+  * non-antialiased rendering on Xbox does not look that bad.
+
+  * hardware keeps getting better; could just turn on multisample
+    rendering
+
+  * artists can work around it

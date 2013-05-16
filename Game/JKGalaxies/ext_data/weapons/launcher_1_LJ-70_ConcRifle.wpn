@@ -1,0 +1,135 @@
+{
+    "name":             "@JKG_ITEMS_launcher_LJ-70_ConcRifle",
+    "type":             "WP_ROCKET_LAUNCHER",
+    "variation":        1,
+    "classname":        "launcher_LJ-70",
+    "description":      "@JKG_ITEMS_launcher_LJ-70_ConcRifle",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/LJ-70_ConcRifle/viewmodel.md3",
+        "worldmodel":       "models/weapons/LJ-70_ConcRifle/model.glm",
+        "hudicon":          "models/weapons/LJ-70_ConcRifle/icon_default",
+        "hudnaicon":        "models/weapons/LJ-70_ConcRifle/icon_default",
+        "selectsound":      "sound/weapons/select_l_launcher.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/LJ-70_ConcRifle/numbers3", "models/weapons/LJ-70_ConcRifle/numbers2" ],
+            "firemode":     "models/weapons/LJ-70_ConcRifle/firemode"
+        },
+        
+        "gunposition":      "6.0 -3.5 -6.0",
+        "ironsightsposition": "6.0 -2.0 -5.0",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_big",
+            "firesound":    [
+                "sound/weapons/slugthrowers/w-90_1.wav",
+                "sound/weapons/slugthrowers/w-90_2.wav",
+                "sound/weapons/slugthrowers/w-90_3.wav",
+                "sound/weapons/slugthrowers/w-90_4.wav"
+            ],
+            "projectilefx": "explosives/shot_concussion",
+            "miss":         { "impactfx": "explosives/concussion3medium" },
+            "hit":          { "impactfx": "explosives/concussion3medium" },
+	    "displayName":  "Concussion"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_big",
+            "firesound":    [
+                "sound/weapons/slugthrowers/w-90_1.wav",
+                "sound/weapons/slugthrowers/w-90_2.wav",
+                "sound/weapons/slugthrowers/w-90_3.wav",
+                "sound/weapons/slugthrowers/w-90_4.wav"
+            ],
+            "tracelineshader": "gfx/flames/smokeTrail2",
+            "traceline2shader": "gfx/flames/smokeTrail3",
+            "minsize":      4.0,
+            "maxsize":      14.0,
+            "lifetime":     300,
+            "chargingsound": "sound/weapons/charge_arccaster.wav",
+            "projectilefx": "explosives/shot_concussion",
+            "miss":         { "impactfx": "explosives/concussion3burrowed" },
+            "hit":          { "impactfx": "slugthrowers/impactmedium" },
+	    "displayName":  "Beam"
+           }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   1600,
+        "ammoIndex":         "concussion",
+        "ammoOnSpawn":   15,
+        "ammoOnPickup":   5,
+        "clipSize":              5,
+        "flags":        [ "knockback" ],
+        "reloadmodifier": 0.5,
+        "speed":        0.9
+    },
+    
+    "firemode0": {
+        "damage": 50,//100,//{
+//                          "damageradius": { "start": 128 },
+//                          "delay": 0,
+//                          "damage": 50
+//                        },
+//        "secondarydamage": {
+//                          "damageradius": { "start": 210 },
+//                          "delay": 1000,
+//                          "damage": 100,
+//                          "damagetype": [ "explosion" ]
+//                        },
+        "ballistic":    true,
+        "collisionsize":1.0,
+        "ammocost":     1,
+        "firedelay":    1800,
+        "firingtype":   "semi",
+        "range":        40000.0,
+        "recoil":       9.0,
+        "spread":       1.0,
+        "splashrange":  420,//210,
+        "projectilespeed":9000.0,
+        "projectileclass":"conc_proj",
+        "meansofdeath": "MOD_CONC",
+        "splashmeansofdeath": "MOD_CONC"
+    },
+    
+    "firemode1": {
+//        "hitscan":      true,
+        "damage":       40,//80,
+        "ammocost":     1,
+        "maxchargetime":1500,
+        "chargedamage": 1.6,
+        "chargedelay":  1500,
+        "firedelay":    1800,
+        "firingtype":   "semi",
+        "range":        40000.0,
+        "recoil":       9.8,
+        "spread":       1.0,
+        "splashrange":  60,//30,
+        "projectilespeed":9000.0,
+        "projectileclass":"conc_proj",
+        "meansofdeath": "MOD_CONC",
+        "splashmeansofdeath": "MOD_CONC"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "BOTH_ROCKETRELOAD" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "2"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

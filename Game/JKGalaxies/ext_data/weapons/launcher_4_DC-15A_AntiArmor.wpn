@@ -1,0 +1,126 @@
+{
+    "name":             "@JKG_ITEMS_launcher_DC-15A_AntiArmor",
+    "type":             "WP_ROCKET_LAUNCHER",
+    "variation":        4,
+    "classname":        "launcher_DC-15A",
+    "description":      "@JKG_ITEMS_launcher_DC-15A_AntiArmor",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/dc-15a_rifle/viewmodel_aaa.md3",
+        "worldmodel":       "models/weapons/dc-15a_rifle/model_aaa.glm",
+        "hudicon":          "models/weapons/dc-15a_rifle/icon_aaa",
+        "hudnaicon":        "models/weapons/dc-15a_rifle/icon_aaa",
+        "selectsound":      "sound/weapons/select_h_launcher.wav",
+        
+        "indicators": {
+            "ammo":     [ "models/weapons/dc-15a_rifle/antiarmor_glow" ]
+        },
+        
+        "gunposition":      "3.0 -3.0 -6.6",
+        "ironsightsposition": "3.0 0.5 -6.0",
+        "ironsightsfov": "20",
+   
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_big",
+            "firesound":    [
+                "sound/weapons/repeater/alt_fire.wav"
+            ],
+            "projectilemodel": "models/ammo/anti-armor_charge.md3",
+            "runsound":     "sound/weapons/slugthrowers/rocketlauncher_loop.wav",
+            "projectilefx": "explosives/shot_mortar",
+            "miss":         { "impactfx": "explosives/demomedium" },
+            "hit":          { "impactfx": "explosives/demomedium" },
+	    "displayName":  "Slow"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_big",
+            "firesound":    [
+                "sound/weapons/slugthrowers/rocketlauncher1.wav",
+                "sound/weapons/slugthrowers/rocketlauncher1.wav",
+                "sound/weapons/slugthrowers/rocketlauncher2.wav",
+                "sound/weapons/slugthrowers/rocketlauncher3.wav",
+                "sound/weapons/slugthrowers/rocketlauncher4.wav",
+                "sound/weapons/slugthrowers/rocketlauncher5.wav",
+                "sound/weapons/slugthrowers/rocketlauncher6.wav"
+            ],
+            "projectilemodel": "models/ammo/anti-armor_charge.md3",
+            "runsound":     "sound/weapons/slugthrowers/rocketlauncher_loop.wav",
+            "projectilefx": "explosives/shot_rpg",
+            "miss":         { "impactfx": "explosives/demomedium" },
+            "hit":          { "impactfx": "explosives/demomedium" },
+	    "displayName":  "Fast"
+        },
+
+        "scope": {
+                "mask":     "models/weapons/dc-15a_rifle/scope_mask_aaa"
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   2000,
+        "ammoIndex":         "antiarmor_charge",
+        "ammoOnSpawn":   8,
+        "ammoOnPickup":   2,
+        "clipSize":              1,
+        "flags":        [ "knockback", "togglezoom" ],
+       "startzoomfov": 30.0,
+        "reloadmodifier": 0.5,
+        "speed":        0.8
+    },
+    
+    "firemode0": {
+        "damage":       75,//150,
+        "ballistic":    true,
+        "collisionsize":3.0,
+        "ammocost":     1,
+        "firedelay":    300,
+        "firingtype":   "semi",
+        "splashrange":  400,//200,
+        "range":        40000.0,
+        "recoil":       7.0,
+        "spread":       1.4,
+        "projectilespeed":2100.0,
+        "projectileclass":"rocket_proj",
+        "meansofdeath": "MOD_ROCKET",
+        "splashmeansofdeath": "MOD_ROCKET_SPLASH"
+    },
+
+    "firemode1": {
+        "damage":       75,//150,
+        "ballistic":    true,
+        "collisionsize":3.0,
+        "ammocost":     1,
+        "firedelay":    400,
+        "firingtype":   "semi",
+        "splashrange":  400,//200,
+        "range":        40000.0,
+        "recoil":       10.0,
+        "spread":       1.4,
+        "projectilespeed":3600.0,
+        "projectileclass":"rocket_proj",
+        "meansofdeath": "MOD_ROCKET",
+        "splashmeansofdeath": "MOD_ROCKET_SPLASH"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADF" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "14"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

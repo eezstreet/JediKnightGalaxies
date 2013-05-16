@@ -1,0 +1,47 @@
+{
+    "name":             "@JKG_ITEMS_weapon_saber",
+    "type":             "WP_SABER",
+    "variation":        0,
+    "classname":        "saber",
+    "description":      "@JKG_ITEMS_weapon_saber",
+    
+    "visual": {
+        "hudicon":          "gfx/hud/w_icon_lightsaber",
+        "hudnaicon":        "gfx/hud/w_icon_lightsaber_na",
+    
+        "firemode0": {
+            "type":         "blaster"
+        },
+        
+        "firemode1": {
+            "type":         "blaster"
+        }
+    },
+    
+    "stats": {
+        "slot":         0,
+        "flags":        [ "roll" ],
+        "speed":        1.1
+    },
+    
+    "firemode0": {
+        "meansofdeath": "MOD_SABER"
+    },
+    
+    "firemode1": {
+        "meansofdeath": "MOD_SABER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "BOTH_STAND2" },
+        "firing":       { "torso": "BOTH_STAND2" }
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

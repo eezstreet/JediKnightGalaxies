@@ -1,0 +1,9 @@
+{
+	"id":		"2",
+	"model":	"stormtrooper",
+	"skin":		"default_comm-b",
+	"surf":		"1",
+	"slot":		"shoulder",
+	"surfLower":	"torso_r_shoulder,torso_shoulder_pad",
+	"surfUpper":	"hips,torso,torso_body,r_arm,r_arm_sleeve,r_hand,r_hand_plate,l_arm,l_arm_sleeve,l_hand,l_hand_plate,l_leg,l_leg_knee,r_leg,r_leg_knee,hips_holster,hips_augment,sand_pouch1,sand_pouch2,sand_pouch3,torso_augment,torso_body_augment,torso_waist,sand_pack1,sand_pack2,head,head_face"
+}

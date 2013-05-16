@@ -1,0 +1,598 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Final|Win32">
+      <Configuration>Final</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>Client Side Module (cgame)</ProjectName>
+    <ProjectGuid>{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}</ProjectGuid>
+    <RootNamespace>JK2cgame</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC70.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../$(Configuration)/JK2cgame\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/JK2cgame\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/JK2cgame\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDebug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\../Release/JK2_cgame.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..;./../game;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include;..\libraries\RDDebugUtils\Include;..\libraries\DetourTileCache;..\libraries\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;MISSIONPACK;_JK2;CGAME;GLEW_STATIC;BLOOM;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\../Release/JK2cgame/JK2_cgame.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\../Release/JK2cgame/</AssemblerListingLocation>
+      <ObjectFileName>.\../Release/JK2cgame/</ObjectFileName>
+      <ProgramDataBaseFileName>.\../Release/JK2cgame/</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Full</Optimization>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDebug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;jpeg.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)cgamex86.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ModuleDefinitionFile>.\JK2_cgame.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../$(Configuration)/PDB/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../$(Configuration)/Map/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <BaseAddress>0x30000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>.\../Release/cgamex86.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>../gameswf\dependencies\jpeglib\lib</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDebug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\../Final/JK2_cgame.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..;./../game;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include;..\libraries\RDDebugUtils\Include;..\libraries\DetourTileCache;..\libraries\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;MISSIONPACK;WIN32;CGAME;_JK2;FINAL_BUILD;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\../Final/JK2cgame/JK2_cgame.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\../Final/JK2cgame/</AssemblerListingLocation>
+      <ObjectFileName>.\../Final/JK2cgame/</ObjectFileName>
+      <ProgramDataBaseFileName>.\../Final/JK2cgame/</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDebug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)cgamex86.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ModuleDefinitionFile>.\JK2_cgame.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../$(Configuration)/PDB/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../$(Configuration)/Map/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <BaseAddress>0x30000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>.\../Final/cgamex86.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <Midl>
+      <PreprocessorDefinitions>_Debug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\../Debug/JK2_cgame.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..;./../game;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include;..\libraries\RDDebugUtils\Include;..\libraries\DetourTileCache;..\libraries\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;MISSIONPACK;CGAME;_JK2;GLEW_STATIC;BLOOM;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\../Debug/JK2cgame/JK2_cgame.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\../Debug/JK2cgame/</AssemblerListingLocation>
+      <ObjectFileName>.\../Debug/JK2cgame/</ObjectFileName>
+      <ProgramDataBaseFileName>.\../Debug/JK2cgame/</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_Debug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;winmm.lib;../gameswf/dependencies/jpeglib/lib/jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)cgamex86.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ModuleDefinitionFile>.\JK2_cgame.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../$(Configuration)/PDB/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../$(Configuration)/Map/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <BaseAddress>0x30000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>.\../Debug/cgamex86.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\gameswf\base\component_hackery.cpp" />
+    <ClCompile Include="..\gameswf\base\config.cpp" />
+    <ClCompile Include="..\gameswf\base\container.cpp" />
+    <ClCompile Include="..\gameswf\base\dlmalloc.c" />
+    <ClCompile Include="..\gameswf\base\image.cpp" />
+    <ClCompile Include="..\gameswf\base\image_filters.cpp" />
+    <ClCompile Include="..\gameswf\base\jpeg.cpp" />
+    <ClCompile Include="..\gameswf\base\ogl.cpp" />
+    <ClCompile Include="..\gameswf\base\postscript.cpp" />
+    <ClCompile Include="..\gameswf\base\test_ogl.cpp" />
+    <ClCompile Include="..\gameswf\base\tu_file.cpp" />
+    <ClCompile Include="..\gameswf\base\tu_file_SDL.cpp" />
+    <ClCompile Include="..\gameswf\base\tu_random.cpp" />
+    <ClCompile Include="..\gameswf\base\tu_types.cpp" />
+    <ClCompile Include="..\gameswf\base\utf8.cpp" />
+    <ClCompile Include="..\gameswf\base\utility.cpp" />
+    <ClCompile Include="..\gameswf\base\zlib_adapter.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_action.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_button.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_dlist.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_font.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_fontlib.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_impl.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_log.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_morph.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_morph2.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_parser.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_processor.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_render.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_render_handler_ogl.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_render_handler_xbox.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_shape.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_sound.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_sound_handler_mp3.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_sound_handler_sdl.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_stream.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_styles.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_tesselate.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_cgame_interface.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_text.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_tools.cpp" />
+    <ClCompile Include="..\gameswf\gameswf_types.cpp" />
+    <ClCompile Include="..\gameswf\swfparse.cpp" />
+    <ClCompile Include="..\game\animtable.c" />
+    <ClCompile Include="..\game\bg_ammo.c" />
+    <ClCompile Include="..\game\bg_constants.c" />
+    <ClCompile Include="..\game\bg_g2_utils.c" />
+    <ClCompile Include="..\game\bg_items.c" />
+    <ClCompile Include="..\game\bg_lib.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_misc.c" />
+    <ClCompile Include="..\game\bg_panimate.c" />
+    <ClCompile Include="..\game\bg_pmove.c" />
+    <ClCompile Include="..\game\bg_saber.c" />
+    <ClCompile Include="..\game\bg_saberLoad.c" />
+    <ClCompile Include="..\game\bg_slidemove.c" />
+    <ClCompile Include="..\game\bg_vehicleLoad.c" />
+    <ClCompile Include="..\game\bg_weapons.c" />
+    <ClCompile Include="..\game\bg_weapons_load.c" />
+    <ClCompile Include="..\game\NPC_Animal.c" />
+    <ClCompile Include="..\game\NPC_Fighter.c" />
+    <ClCompile Include="..\game\NPC_Speeder.c" />
+    <ClCompile Include="..\game\NPC_Walker.c" />
+    <ClCompile Include="..\network\ClientGame.cpp" />
+    <ClCompile Include="..\network\ClientNetwork.cpp" />
+    <ClCompile Include="..\network\jkg_clientsidenetwork.cpp" />
+    <ClCompile Include="..\network\NetworkServices.cpp" />
+    <ClCompile Include="..\network\stdafx.cpp" />
+    <ClCompile Include="cg_cinematics.c" />
+    <ClCompile Include="cg_consolecmds.c" />
+    <ClCompile Include="cg_crossover.c" />
+    <ClCompile Include="cg_draw.c" />
+    <ClCompile Include="cg_drawtools.c" />
+    <ClCompile Include="cg_effects.c" />
+    <ClCompile Include="cg_engine.c" />
+    <ClCompile Include="cg_ents.c" />
+    <ClCompile Include="cg_event.c" />
+    <ClCompile Include="cg_info.c" />
+    <ClCompile Include="cg_light.c" />
+    <ClCompile Include="cg_localents.c" />
+    <ClCompile Include="cg_main.c" />
+    <ClCompile Include="cg_marks.c" />
+    <ClCompile Include="cg_newDraw.c" />
+    <ClCompile Include="cg_players.c" />
+    <ClCompile Include="cg_playerstate.c" />
+    <ClCompile Include="cg_postprocess.c" />
+    <ClCompile Include="cg_predict.c" />
+    <ClCompile Include="cg_scoreboard.c" />
+    <ClCompile Include="cg_servercmds.c" />
+    <ClCompile Include="cg_snapshot.c" />
+    <ClCompile Include="cg_strap.c" />
+    <ClCompile Include="cg_syscalls.c" />
+    <ClCompile Include="cg_turret.c" />
+    <ClCompile Include="cg_view.c" />
+    <ClCompile Include="cg_weaponinit.c" />
+    <ClCompile Include="cg_weapons.c" />
+    <ClCompile Include="fx_blaster.c" />
+    <ClCompile Include="fx_bowcaster.c" />
+    <ClCompile Include="fx_bryarpistol.c" />
+    <ClCompile Include="fx_demp2.c" />
+    <ClCompile Include="fx_disruptor.c" />
+    <ClCompile Include="fx_flechette.c" />
+    <ClCompile Include="fx_force.c" />
+    <ClCompile Include="fx_heavyrepeater.c" />
+    <ClCompile Include="fx_rocketlauncher.c" />
+    <ClCompile Include="jkg_antidebug.c" />
+    <ClCompile Include="jkg_cg_auxlib.c" />
+    <ClCompile Include="jkg_cg_crafting.c" />
+    <ClCompile Include="jkg_cg_damagetypes.c" />
+    <ClCompile Include="jkg_cg_items.c" />
+    <ClCompile Include="jkg_cg_weaponholster.c" />
+    <ClCompile Include="jkg_chatbox.c" />
+    <ClCompile Include="jkg_chatcmds.c" />
+    <ClCompile Include="jkg_cinbuild.c" />
+    <ClCompile Include="jkg_custombounds.c" />
+    <ClCompile Include="jkg_engine.c" />
+    <ClCompile Include="jkg_framebuffers.c" />
+    <ClCompile Include="..\game\jkg_gangwars.c" />
+    <ClCompile Include="jkg_glcommon.c" />
+    <ClCompile Include="jkg_hud.c" />
+    <ClCompile Include="jkg_joystick.cpp" />
+    <ClCompile Include="jkg_minimaps.c" />
+    <ClCompile Include="jkg_musicengine.c" />
+    <ClCompile Include="jkg_navmesh_visualiser.cpp" />
+    <ClCompile Include="jkg_patcher.c" />
+    <ClCompile Include="jkg_pixelshaders.c" />
+    <ClCompile Include="jkg_splinepaths.c" />
+    <ClCompile Include="jkg_unique_autowaypoint.c" />
+    <ClCompile Include="jkg_wpindicators.c" />
+    <ClCompile Include="..\game\networkstate.c" />
+    <ClCompile Include="..\game\q_math.c" />
+    <ClCompile Include="..\game\q_shared.c" />
+    <ClCompile Include="..\ui\ui_shared.c" />
+    <ClCompile Include="..\libraries\libudis86\decode.c" />
+    <ClCompile Include="..\libraries\libudis86\input.c" />
+    <ClCompile Include="..\libraries\libudis86\itab.c" />
+    <ClCompile Include="..\libraries\libudis86\syn-att.c" />
+    <ClCompile Include="..\libraries\libudis86\syn-intel.c" />
+    <ClCompile Include="..\libraries\libudis86\syn.c" />
+    <ClCompile Include="..\libraries\libudis86\udis86.c" />
+    <ClCompile Include="..\libraries\json\cJSON.c" />
+    <ClCompile Include="..\libraries\zlib\adler32.c" />
+    <ClCompile Include="..\libraries\zlib\compress.c" />
+    <ClCompile Include="..\libraries\zlib\crc32.c" />
+    <ClCompile Include="..\libraries\zlib\deflate.c" />
+    <ClCompile Include="..\libraries\zlib\gzio.c" />
+    <ClCompile Include="..\libraries\zlib\infback.c" />
+    <ClCompile Include="..\libraries\zlib\inffast.c" />
+    <ClCompile Include="..\libraries\zlib\inflate.c" />
+    <ClCompile Include="..\libraries\zlib\inftrees.c" />
+    <ClCompile Include="..\libraries\zlib\trees.c" />
+    <ClCompile Include="..\libraries\zlib\uncompr.c" />
+    <ClCompile Include="..\libraries\zlib\zutil.c" />
+    <ClCompile Include="..\libraries\encoding\base128.c" />
+    <ClCompile Include="..\libraries\encoding\bitstream.c" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourAlloc.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourCommon.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMesh.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshBuilder.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshQuery.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp" />
+    <ClCompile Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\Recast.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastAlloc.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastArea.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastContour.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastFilter.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastLayers.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastMesh.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastMeshDetail.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastRasterization.cpp" />
+    <ClCompile Include="..\libraries\Recast\Source\RecastRegion.cpp" />
+    <ClCompile Include="..\libraries\RDDebugUtils\Source\DebugDraw.cpp" />
+    <ClCompile Include="..\libraries\RDDebugUtils\Source\DetourDebugDraw.cpp" />
+    <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDebugDraw.cpp" />
+    <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDump.cpp" />
+    <ClCompile Include="..\libraries\glew\src\glew.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\gameswf\base\config.h" />
+    <ClInclude Include="..\gameswf\base\container.h" />
+    <ClInclude Include="..\gameswf\base\cschema.h" />
+    <ClInclude Include="..\gameswf\base\dlmalloc.h" />
+    <ClInclude Include="..\gameswf\base\image.h" />
+    <ClInclude Include="..\gameswf\base\jpeg.h" />
+    <ClInclude Include="..\gameswf\base\ogl.h" />
+    <ClInclude Include="..\gameswf\base\postscript.h" />
+    <ClInclude Include="..\gameswf\base\smart_ptr.h" />
+    <ClInclude Include="..\gameswf\base\tu_config.h" />
+    <ClInclude Include="..\gameswf\base\tu_file.h" />
+    <ClInclude Include="..\gameswf\base\tu_math.h" />
+    <ClInclude Include="..\gameswf\base\tu_opengl_includes.h" />
+    <ClInclude Include="..\gameswf\base\tu_random.h" />
+    <ClInclude Include="..\gameswf\base\tu_swap.h" />
+    <ClInclude Include="..\gameswf\base\tu_types.h" />
+    <ClInclude Include="..\gameswf\base\utf8.h" />
+    <ClInclude Include="..\gameswf\base\utility.h" />
+    <ClInclude Include="..\gameswf\base\zlib_adapter.h" />
+    <ClInclude Include="..\gameswf\compatibility_include.h" />
+    <ClInclude Include="..\gameswf\gameswf.h" />
+    <ClInclude Include="..\gameswf\gameswf_action.h" />
+    <ClInclude Include="..\gameswf\gameswf_button.h" />
+    <ClInclude Include="..\gameswf\gameswf_dlist.h" />
+    <ClInclude Include="..\gameswf\gameswf_font.h" />
+    <ClInclude Include="..\gameswf\gameswf_fontlib.h" />
+    <ClInclude Include="..\gameswf\gameswf_impl.h" />
+    <ClInclude Include="..\gameswf\gameswf_log.h" />
+    <ClInclude Include="..\gameswf\gameswf_morph.h" />
+    <ClInclude Include="..\gameswf\gameswf_morph2.h" />
+    <ClInclude Include="..\gameswf\gameswf_render.h" />
+    <ClInclude Include="..\gameswf\gameswf_shape.h" />
+    <ClInclude Include="..\gameswf\gameswf_sound.h" />
+    <ClInclude Include="..\gameswf\gameswf_stream.h" />
+    <ClInclude Include="..\gameswf\gameswf_styles.h" />
+    <ClInclude Include="..\gameswf\gameswf_tesselate.h" />
+    <ClInclude Include="..\gameswf\gameswf_types.h" />
+    <ClInclude Include="..\game\anims.h" />
+    <ClInclude Include="..\game\z_global_defines.h" />
+    <ClInclude Include="..\network\ByteBuffer.h" />
+    <ClInclude Include="..\network\ClientGame.h" />
+    <ClInclude Include="..\network\ClientNetwork.h" />
+    <ClInclude Include="..\network\Common.h" />
+    <ClInclude Include="..\network\NetworkData.h" />
+    <ClInclude Include="..\network\NetworkServices.h" />
+    <ClInclude Include="..\network\stdafx.h" />
+    <ClInclude Include="..\network\targetver.h" />
+    <ClInclude Include="animtable.h" />
+    <ClInclude Include="aux_cg_exports.h" />
+    <ClInclude Include="..\game\bg_ammo.h" />
+    <ClInclude Include="..\game\bg_items.h" />
+    <ClInclude Include="..\game\bg_local.h" />
+    <ClInclude Include="..\game\bg_public.h" />
+    <ClInclude Include="..\game\bg_strap.h" />
+    <ClInclude Include="..\game\bg_weapons.h" />
+    <ClInclude Include="bass.h" />
+    <ClInclude Include="cg_crossover.h" />
+    <ClInclude Include="cg_lights.h" />
+    <ClInclude Include="cg_local.h" />
+    <ClInclude Include="cg_postprocess.h" />
+    <ClInclude Include="cg_public.h" />
+    <ClInclude Include="cg_weapons.h" />
+    <ClInclude Include="..\shared\qcommon\disablewarnings.h" />
+    <ClInclude Include="fx_local.h" />
+    <ClInclude Include="..\shared\ghoul2\G2.h" />
+    <ClInclude Include="..\game\g_network.h" />
+    <ClInclude Include="holocronicons.h" />
+    <ClInclude Include="jkg_cg_auxlib.h" />
+    <ClInclude Include="jkg_cg_damagetypes.h" />
+    <ClInclude Include="jkg_cg_items.h" />
+    <ClInclude Include="jkg_chatcmds.h" />
+    <ClInclude Include="jkg_eshader.h" />
+    <ClInclude Include="jkg_framebuffers.h" />
+    <ClInclude Include="..\game\jkg_gangwars.h" />
+    <ClInclude Include="jkg_glcommon.h" />
+    <ClInclude Include="jkg_hud.h" />
+    <ClInclude Include="jkg_navmesh_visualiser.h" />
+    <ClInclude Include="jkg_patcher.h" />
+    <ClInclude Include="jkg_pixelshaders.h" />
+    <ClInclude Include="..\ui\keycodes.h" />
+    <ClInclude Include="..\..\JKGalaxies\ui\menudef.h" />
+    <ClInclude Include="..\game\q_shared.h" />
+    <ClInclude Include="..\shared\qcommon\qfiles.h" />
+    <ClInclude Include="..\win32\resource.h" />
+    <ClInclude Include="..\game\surfaceflags.h" />
+    <ClInclude Include="..\shared\qcommon\tags.h" />
+    <ClInclude Include="tr_types.h" />
+    <ClInclude Include="..\ui\ui_shared.h" />
+    <ClInclude Include="..\libraries\libudis86\decode.h" />
+    <ClInclude Include="..\libraries\libudis86\extern.h" />
+    <ClInclude Include="..\libraries\libudis86\input.h" />
+    <ClInclude Include="..\libraries\libudis86\itab.h" />
+    <ClInclude Include="..\libraries\libudis86\syn.h" />
+    <ClInclude Include="..\libraries\libudis86\types.h" />
+    <ClInclude Include="..\libraries\libudis86\udis86.h" />
+    <ClInclude Include="..\libraries\json\cJSON.h" />
+    <ClInclude Include="..\libraries\zlib\crc32.h" />
+    <ClInclude Include="..\libraries\zlib\deflate.h" />
+    <ClInclude Include="..\libraries\zlib\inffast.h" />
+    <ClInclude Include="..\libraries\zlib\inffixed.h" />
+    <ClInclude Include="..\libraries\zlib\inflate.h" />
+    <ClInclude Include="..\libraries\zlib\inftrees.h" />
+    <ClInclude Include="..\libraries\zlib\trees.h" />
+    <ClInclude Include="..\libraries\zlib\zconf.h" />
+    <ClInclude Include="..\libraries\zlib\zconf.in.h" />
+    <ClInclude Include="..\libraries\zlib\zlib.h" />
+    <ClInclude Include="..\libraries\zlib\zutil.h" />
+    <ClInclude Include="..\libraries\encoding\base128.h" />
+    <ClInclude Include="..\libraries\encoding\bitstream.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourAlloc.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourAssert.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourCommon.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMesh.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshBuilder.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshQuery.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNode.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourStatus.h" />
+    <ClInclude Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.h" />
+    <ClInclude Include="..\libraries\Recast\Include\Recast.h" />
+    <ClInclude Include="..\libraries\Recast\Include\RecastAlloc.h" />
+    <ClInclude Include="..\libraries\Recast\Include\RecastAssert.h" />
+    <ClInclude Include="..\libraries\RDDebugUtils\Include\DebugDraw.h" />
+    <ClInclude Include="..\libraries\RDDebugUtils\Include\DetourDebugDraw.h" />
+    <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDebugDraw.h" />
+    <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDump.h" />
+    <ClInclude Include="..\libraries\glew\include\GL\glew.h" />
+    <ClInclude Include="..\libraries\glew\include\GL\glxew.h" />
+    <ClInclude Include="..\libraries\glew\include\GL\wglew.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\gameswf\dependencies\jpeglib\jpeg62.dll" />
+    <None Include="..\gameswf\dependencies\SDL\lib\x86\SDL.dll" />
+    <None Include="bass.dll" />
+    <None Include="JK2_cgame.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\win32\JK2cgame.rc" />
+    <ResourceCompile Include="loadnget.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

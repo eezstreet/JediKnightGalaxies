@@ -1,0 +1,15 @@
+--[[ ------------------------------------------------
+	Jedi Knight Galaxies Cinematic
+
+	Cinematic Template
+	
+	Written by BobaFett
+--------------------------------------------------]]
+
+CIN.Name = "<name here>"
+CIN.Description = "<description here>"
+
+
+function CIN:SetUpCinematic(cin)
+	-- Add the acts here
+end

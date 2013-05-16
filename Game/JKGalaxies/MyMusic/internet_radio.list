@@ -1,0 +1,194 @@
+// Internet radio sites.
+{
+	address "http://jblive.fm"
+	description "Jupiter Broadcasting (HQ)"
+}
+{
+	address "http://jblive.am"
+	description "Jupiter Broadcasting (LQ)"
+}
+{
+	address "http://mp3.streampower.be/radio1-high.mp3"
+	description "Radio 1 (Belgium)"
+}
+{
+	address "http://mp3.streampower.be/ra2lim-high.mp3"
+	description "Radio 2 (Belgium)"
+}
+{
+	address "http://mp3.streampower.be/klara-high.mp3"
+	description "Klara (Belgium)"
+}
+{
+	address "http://mp3.streampower.be/stubru-high.mp3"
+	description "Studio Brussel (Belgium)"
+}
+{
+	address "http://mp3.streampower.be/mnm-high.mp3"
+	description "MNM (Belgium)"
+}
+{
+	address "http://scfire-ntc-aa08.stream.aol.com:80/stream/1050"
+	description "PHILOSOMATIKA"
+}
+{
+	address "http://207.200.96.228:8000"
+	description "Spy Radio (56k)"
+}
+{
+	address "http://207.200.96.225:8010"
+	description "Spy Radio (128k)"
+}
+{
+	address "http://38.96.148.22:8750"
+	description "Extreme Radio International (56k)"
+}
+{
+	address "http://217.153.16.221:8000"
+	description "'Unicorn' Internet Radio (48k)"
+}
+{
+	address "http://207.234.208.71:9052"
+	description "#DNBRADIO (128k)"
+}
+{
+	address "http://62.75.160.147:9000"
+	description "#Musik.Club (128k)"
+}
+{
+	address "http://scfire-nyk-aa04.stream.aol.com:80/stream/1052"
+	description "#Musik.eXTreMe (128k)"
+}
+{
+	address "http://scfire-ntc-aa04.stream.aol.com:80/stream/1058"
+	description "#Musik.FunkY (128k)"
+}
+{
+	address "http://scfire-dll-aa02.stream.aol.com:80/stream/1060"
+	description "#Musik.Goldies (128k)"
+}
+{
+	address "http://scfire-ntc-aa02.stream.aol.com:80/stream/1054"
+	description "#Musik.JaM (128k)"
+}
+{
+	address "http://85.214.20.241:14000"
+	description "#Musik.Lounge (128k)"
+}
+{
+	address "http://scfire-dll-aa03.stream.aol.com:80/stream/1051"
+	description "#Musik.Main (128k)"
+}
+{
+	address "http://66.220.3.52:8035"
+	description "FM - High Voltage (96k)"
+}
+{
+	address "http://64.71.145.133:8050"
+	description "FM - Dance Hits (96k)"
+}
+{
+	address "http://64.71.145.133:8015"
+	description "FM - 50's and 60's (96k)"
+}
+{
+	address "http://64.71.145.133:8095"
+	description "FM - 80's Channel (96k)"
+}
+{
+	address "http://216.218.159.151:8065"
+	description "FM - The 90's (96k)"
+}
+{
+	address "http://66.220.3.50:9010"
+	description "FM - Bay Smooth Jazz (96k)"
+}
+{
+	address "http://64.62.194.11:8030"
+	description "FM - Blues (96k)"
+}
+{
+	address "http://209.51.161.54:8072"
+	description "FM - Channel X (96k)"
+}
+{
+	address "http://209.51.161.54:8060"
+	description "FM - Club! (112k)"
+}
+{
+	address "http://38.99.68.236:8020"
+	description "FM - Country (96k)"
+}
+{
+	address "http://66.220.3.50:8055"
+	description "FM - Jamz [The Urban Format] (96k)"
+}
+{
+	address "http://64.62.194.11:8045"
+	description "FM - Otto's Baroque (96k)"
+}
+{
+	address "http://64.62.252.130:9030"
+	description "FM - Otto's Classical (96k)"
+}
+{
+	address "http://64.71.184.99:9020"
+	description "FM - Otto's Opera (128k)"
+}
+{
+	address "http://66.220.3.50:7000"
+	description "FM - ReggaeTrade (96k)"
+}
+{
+	address "http://64.71.184.99:8010"
+	description "FM - The Chillout Lounge (96k)"
+}
+{
+	address "http://38.99.68.236:8075"
+	description "FM - Top 40 (96k)"
+}
+{
+	address "http://64.71.145.130:8040"
+	description "FM - Trance (112k)"
+}
+{
+	address "http://64.62.252.130:8023"
+	description "FM - Urban Adult Choice (96k)"
+}
+{
+	address "http://scfire-chi-aa03.stream.aol.com:80/stream/1030"
+	description "FM - New Alternative (128k)"
+}
+{
+	address "http://205.188.215.230:8000"
+	description "FM - Chilled (128k)"
+}
+{
+	address "http://scfire-nyk-aa03.stream.aol.com:80/stream/1022"
+	description "FM - The Buzz (128k)"
+}
+{
+	address "http://213.251.169.142:8000"
+	description "Russian! Radio [Cuxhaven, Germany] (128k)"
+}
+{
+	address "http://75.126.195.26:8000"
+	description "TB Web: Bully Radio (24k)"
+}
+{
+	address "http://70.87.39.59:8000"
+	description "Radio Hard Skooled (96k)"
+}
+{
+	address "http://67.159.44.77:11798"
+	description "[XRM] - Alternative (96k)"
+}
+// Do not remove these!
+{
+	address ""
+	description "None"
+}
+{
+	address ""
+	description "End Marker"
+}

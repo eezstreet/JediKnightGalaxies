@@ -1,0 +1,74 @@
+{
+    "name":             "@JKG_ITEMS_Mine_LaserTrip_Mk1",
+    "type":             "WP_TRIP_MINE",
+    "variation":        0,
+    "classname":        "Mine_LaserTrip1",
+    "description":      "@JKG_ITEMS_Mine_LaserTrip_Mk1",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/Mine_LaserTrip/viewmodel.md3",
+        "worldmodel":       "models/weapons/Mine_LaserTrip/model.glm",
+        "hudicon":          "models/weapons/Mine_LaserTrip/icon_default",
+        "hudnaicon":        "models/weapons/Mine_LaserTrip/icon_default",
+        "selectsound":      "sound/weapons/detpack/select.wav",
+        
+        "gunposition":      "10.0 -2.0 -3.4",
+        "ironsightsposition": "9.0 -3.0 -4.0",
+        "ironsightsfov": "80",
+    
+        "firemode0": {
+            "type":         "tripmine",
+            
+            "linefx":       "weapons/laser_blue",
+            "g2model":      "models/weapons/Mine_LaserTrip/projectile.glm",
+            "g2radius":     100,
+            "armsound":     "sound/weapons/laser_trap/warning.wav",
+            "firesound":    "sound/weapons/laser_trap/fire.wav",
+            "miss":         { "sticksound": "sound/weapons/laser_trap/stick.wav" },
+            "explodefx":    "explosives/demosmall"
+        },
+        
+        "firemode1": {
+            "type":         "tripmine",
+            
+            "linefx":       "tripMine/glowbit",
+            "g2model":      "models/weapons/Mine_LaserTrip/projectile.glm",
+            "g2radius":     100,
+            "armsound":     "sound/weapons/laser_trap/warning.wav",
+            "firesound":    "sound/weapons/laser_trap/alt_fire.wav",
+            "explodefx":    "explosives/demosmall"
+        }
+    },
+    
+    "stats": {
+        "slot":         3,
+        "ammoIndex":         "mine_lasertrip1",
+        "ammoOnSpawn":   2,
+        "ammoOnPickup":   1,
+        "clipSize":              0,
+        "flags":        [ "roll" ]
+    },
+    
+    "firemode0": {
+        "damage":       110,
+        "ammocost":     1,
+        "firedelay":    1000,
+        "splashrange":  120,
+        "projectileclass":"laserTrap",
+        "splashmeansofdeath": "MOD_TRIP_MINE_SPLASH"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "TORSO_WEAPONREADY10", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+        "sprintStyle": "11"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

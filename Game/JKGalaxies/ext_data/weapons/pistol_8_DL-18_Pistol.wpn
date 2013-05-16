@@ -1,0 +1,115 @@
+{
+    "name":             "@JKG_ITEMS_pistol_DL-18_Pistol",
+    "type":             "WP_BRYAR_PISTOL",
+    "variation":        8,
+    "classname":        "pistol_DL-18",
+    "description":      "@JKG_ITEMS_pistol_DL-18_Pistol",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/DL-18_Pistol/viewmodel.md3",
+        "worldmodel":       "models/weapons/DL-18_Pistol/model.glm",
+        "hudicon":          "models/weapons/DL-18_Pistol/icon_default",
+        "hudnaicon":        "models/weapons/DL-18_Pistol/icon_default",
+        "selectsound":      "sound/weapons/select_pistol.wav",
+        
+        "gunposition":      "8.0 -2.5 -5.0",
+        "ironsightsposition": "8.0 0.0 -4.4",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Red_small",
+            "firesound":    [
+                "sound/weapons/blasters/bowcaster1.mp3",
+                "sound/weapons/blasters/bowcaster2.mp3",
+                "sound/weapons/blasters/bowcaster3.mp3",
+                "sound/weapons/blasters/bowcaster4.mp3"
+            ],
+            "chargingfx":   "weapons/laser_red",
+            "projectilefx": "blasters/shot_RedOrange_small",
+            "miss":         { "impactfx": "weapons/blaster_impact_red_medium" },
+            "hit":          { "impactfx": "blasters/red_flesh_impact" },
+            "deathfx": "blasters/shot_RedOrange_vaporize",
+
+	    "switchToSound": "sound/vehicles/common/linkweaps.mp3",
+	    "displayName": "Blaster"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash2_Blue_small",
+            "firesound":    [
+                "sound/weapons/blasters/stunblast.mp3",
+                "sound/weapons/blasters/stunblast2.mp3",
+                "sound/weapons/blasters/stunblast3.mp3",
+                "sound/weapons/blasters/stunblast4.mp3",
+                "sound/weapons/blasters/stunblast5.mp3",
+                "sound/weapons/blasters/stunblast6.mp3"
+            ],
+            "chargingfx":   "weapons/laser_red",
+            "projectilefx": "blasters/shot_Stunblast_small",
+            "hit":          { "impactfx": "saber/ignitionflare_blue" },
+
+	    "switchToSound": "sound/vehicles/common/linkweaps.mp3",
+	    "displayName": "Stun"
+        }
+    },
+    
+    "stats": {
+        "slot":         2,
+        "reloadtime":   750,
+        "ammoIndex":         "powerpak",
+        "ammoOnSpawn":   160,
+        "ammoOnPickup":   32,
+        "clipSize":              16,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       23,
+        "ammocost":     1,
+        "firedelay":    700,
+        "firingtype":   "semi",
+        "range":	2800.0,
+        "recoil":       1.0,
+        "spread":       0.4,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BRYAR_PISTOL"
+    },
+    
+    "firemode1": {
+        "damage":       10,
+        "collisionsize": 8.0,
+        "maxchargetime": 500,
+        "chargedamage": 1.5,
+        "chargedelay":  500,
+        "ammocost":     4,
+        "firedelay":    400,
+        "firingtype":   "semi",
+        "range":        1400.0,
+        "recoil":       0.5,
+        "spread":       1.0,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+//        "reload":       { "torso": "BOTH_PISTOLRELOAD" },
+        "ready":        { "torso": "TORSO_WEAPONREADY2", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK2" },
+        "sprintStyle": "9"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

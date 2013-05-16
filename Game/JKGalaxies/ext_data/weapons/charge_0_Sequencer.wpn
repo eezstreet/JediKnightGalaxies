@@ -1,0 +1,70 @@
+{
+    "name":             "@JKG_ITEMS_charge_Sequencer",
+    "type":             "WP_DET_PACK",
+    "variation":        0,
+    "classname":        "charge_Sequencer",
+    "description":      "@JKG_ITEMS_charge_Sequencer",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/Charge_Sequencer/viewmodel.md3",
+        "worldmodel":       "models/weapons/Charge_Sequencer/model.glm",
+        "hudicon":          "models/weapons/Charge_Sequencer/icon_default",
+        "hudnaicon":        "models/weapons/Charge_Sequencer/icon_default",
+        "selectsound":      "sound/weapons/detpack/select.wav",
+        
+        "gunposition":      "9.0 -3.0 -4.0",
+        "ironsightsposition": "8.0 -4.0 -4.0",
+        "ironsightsfov": "80",
+    
+        "firemode0": {
+            "type":         "detpack",
+            
+            "g2model":      "models/weapons/Charge_Sequencer/projectile.glm",
+            "g2radius":     100,
+            "firesound":    "sound/weapons/detpack/fire.wav",
+            "miss":         { "sticksound": "sound/weapons/detpack/stick.wav" },
+	    "displayName":  "Place"
+        },
+        
+        "firemode1": {
+            "type":         "detpack",
+            
+            "explodefx":    "explosives/demosmall",
+	    "displayName":  "Detonate"
+        }
+    },
+    
+    "stats": {
+        "slot":         3,
+        "ammoIndex":         "charge_sequencer",
+        "ammoOnSpawn":   4,
+        "ammoOnPickup":   1,
+        "clipSize":              0,
+        "flags":        [ "roll" ]
+    },
+    
+    "firemode0": {
+        "damage": 100,
+        "ammocost":     1,
+        "firedelay":    1000,
+        "splashrange":  260,
+        "projectileclass":"detpack",
+        "splashmeansofdeath": "MOD_DET_PACK_SPLASH"
+    },
+    
+    "firemode1": { },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "TORSO_WEAPONREADY10", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+        "sprintStyle": "11"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

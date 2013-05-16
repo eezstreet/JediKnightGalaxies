@@ -1,0 +1,115 @@
+{
+    "name":             "@JKG_ITEMS_pistol_Q2_HoldoutPistol",
+    "type":             "WP_BRYAR_PISTOL",
+    "variation":        12,
+    "classname":        "pistol_Q2",
+    "description":      "@JKG_ITEMS_pistol_Q2_HoldoutPistol",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/Q2_HoldoutPistol/viewmodel.md3",
+        "worldmodel":       "models/weapons/Q2_HoldoutPistol/model.glm",
+        "hudicon":          "models/weapons/Q2_HoldoutPistol/icon_default",
+        "hudnaicon":        "models/weapons/Q2_HoldoutPistol/icon_default",
+        "selectsound":      "sound/weapons/select_pistol.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/Q2_HoldoutPistol/indicator" ]
+        },
+        
+        "gunposition":      "7.0 -3.0 -4.0",
+        "ironsightsposition": "7.0 0.0 -2.8",
+        "ironsightsfov": "75",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Green_small",
+            "firesound":    [
+                "sound/weapons/blasters/elg-3a_1.mp3",
+                "sound/weapons/blasters/elg-3a_2.mp3",
+                "sound/weapons/blasters/elg-3a_3.mp3",
+                "sound/weapons/blasters/elg-3a_4.mp3"
+            ],
+            "projectilefx": "blasters/shot_Green_small",
+            "miss":         { "impactfx": "weapons/blaster_impact_green_medium" },
+            "hit":          { "impactfx": "blasters/green_flesh_impact" },
+            "deathfx": "blasters/shot_Green_vaporize",
+	    "displayName":  "Blaster"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash2_Blue_small",
+            "firesound":    [
+                "sound/weapons/blasters/stunblast.mp3",
+                "sound/weapons/blasters/stunblast2.mp3",
+                "sound/weapons/blasters/stunblast3.mp3",
+                "sound/weapons/blasters/stunblast4.mp3",
+                "sound/weapons/blasters/stunblast5.mp3",
+                "sound/weapons/blasters/stunblast6.mp3"
+            ],
+            "projectilefx": "blasters/shot_Stunblast_small",
+            "hit":          { "impactfx": "saber/ignitionflare_blue" },
+	    "displayName":  "Stun"
+        }
+    },
+    
+    "stats": {
+        "slot":         2,
+        "reloadtime":   750,
+        "ammoIndex":         "powerpak",
+        "ammoOnSpawn":   120,
+        "ammoOnPickup":   12,
+        "clipSize":              6,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7,
+        "speed":        1.1
+    },
+    
+    "firemode0": {
+        "damage":       23,
+        "ammocost":     1,
+        "firedelay":    50,
+        "firingtype":   "semi",
+        "range":	2000.0,
+        "recoil":       0.9,
+        "spread":       0.3,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BRYAR_PISTOL"
+    },
+    
+    "firemode1": {
+        "damage":       20,
+        "collisionsize": 8.0,
+        "maxchargetime": 500,
+        "chargedamage": 1.5,
+        "chargedelay":  500,
+        "ammocost":     3,
+        "firedelay":    400,
+        "firingtype":   "semi",
+        "range":        1400.0,
+        "recoil":       0.5,
+        "spread":       1.0,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_PISTOLRELOAD" },
+        "ready":        { "torso": "TORSO_WEAPONREADY2", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK2" },
+	"sprint":	{ "torso": "BOTH_PISTOLRUN" },
+        "sprintStyle": "7"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}
