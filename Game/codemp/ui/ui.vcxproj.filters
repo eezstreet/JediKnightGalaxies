@@ -140,9 +140,6 @@
     <ClCompile Include="ui_md5check.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\cgame\ui_network.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ui_saber.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -211,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_network.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

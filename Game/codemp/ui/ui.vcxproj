@@ -277,7 +277,7 @@
     <ClCompile Include="ui_jkgscript.c" />
     <ClCompile Include="ui_main.c" />
     <ClCompile Include="ui_md5check.c" />
-    <ClCompile Include="..\cgame\ui_network.c" />
+    <ClCompile Include="ui_network.c" />
     <ClCompile Include="ui_saber.c" />
     <ClCompile Include="ui_servercmds.c" />
     <ClCompile Include="ui_shared.c" />
