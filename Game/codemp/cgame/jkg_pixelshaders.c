@@ -7,7 +7,6 @@
 //
 ////////////////////////////////
 
-#include <GL/glew.h>
 #include "jkg_glcommon.h"
 #include <math.h>
 #include "cg_local.h"
@@ -26,6 +25,34 @@ static int glslActive = 0;
 static int arbActive = 0;
 static gshshader_t *currentShader;
 
+// GLSL Functions
+static PFNGLCREATESHADEROBJECTARBPROC glCreateShaderObjectARB;
+static PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB;
+static PFNGLSHADERSOURCEARBPROC glShaderSourceARB;
+static PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
+static PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
+static PFNGLGETINFOLOGARBPROC glGetInfoLogARB;
+static PFNGLVALIDATEPROGRAMARBPROC glValidateProgramARB;
+static PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
+static PFNGLLINKPROGRAMARBPROC glLinkProgramARB;
+static PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
+static PFNGLDETACHOBJECTARBPROC glDetachObjectARB;
+static PFNGLDELETEOBJECTARBPROC glDeleteObjectARB;
+static PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB;
+static PFNGLGETACTIVEATTRIBARBPROC glGetActiveAttribARB;
+static PFNGLGETACTIVEUNIFORMARBPROC glGetActiveUniformARB;
+static PFNGLUNIFORM1IARBPROC glUniform1iARB;
+static PFNGLUNIFORM1FARBPROC glUniform1fARB;
+static PFNGLUNIFORM2FARBPROC glUniform2fARB;
+static PFNGLUNIFORM3FARBPROC glUniform3fARB;
+static PFNGLUNIFORM4FARBPROC glUniform4fARB;
+// ARB Functions
+static PFNGLPROGRAMSTRINGARBPROC glProgramStringARB;
+static PFNGLBINDPROGRAMARBPROC glBindProgramARB;
+static PFNGLDELETEPROGRAMSARBPROC glDeleteProgramsARB;
+static PFNGLGENPROGRAMSARBPROC glGenProgramsARB;
+static PFNGLPROGRAMLOCALPARAMETER4FARBPROC glProgramLocalParameter4fARB;
+
 void GSH_FreeShader(gshshader_t *shader);
 
 #ifdef USE_GLSL
@@ -34,7 +61,7 @@ static void GSH_CompileGLSLShader(gshshader_t *shader) {
 	int i;
 	int size, type;
 	char errlog[1024];
-	int numUniforms;
+	int numUniforms, numAttributes;
 	if (!shader) {
 		return;
 	}
@@ -50,10 +77,7 @@ static void GSH_CompileGLSLShader(gshshader_t *shader) {
 			// Shader failed to compile, find out why
 			CG_Printf("GSH_CompileGLSLShader: Could not compile vertex shader for shader '%s'!\nLog:\n%s\n", shader->name, errlog);
 		}
-		
-		free ((void *)shader->glsl_vertexShaderSource);
 	}
-	CheckGLErrors (__FILE__, __LINE__);
 	if (shader->glsl_fragmentShaderSource) {
 		// We got vertex shader source, compile it
 		shader->glsl_fragmentShader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
@@ -65,32 +89,23 @@ static void GSH_CompileGLSLShader(gshshader_t *shader) {
 			// Shader failed to compile, find out why
 			CG_Printf("GSH_CompileGLSLShader: Could not compile fragment shader for shader '%s'!\nLog:\n%s\n", shader->name, errlog);
 		}
-		
-		free ((void *)shader->glsl_fragmentShaderSource);
 	}
-	CheckGLErrors (__FILE__, __LINE__);
 	shader->glsl_program = glCreateProgramObjectARB();
 	if (shader->glsl_vertexShader) {
 		glAttachObjectARB(shader->glsl_program, shader->glsl_vertexShader);
 	}
-	CheckGLErrors (__FILE__, __LINE__);
 	if (shader->glsl_fragmentShader) {
 		glAttachObjectARB(shader->glsl_program, shader->glsl_fragmentShader);
 	}
-	CheckGLErrors (__FILE__, __LINE__);
 	glLinkProgramARB(shader->glsl_program);
-	CheckGLErrors (__FILE__, __LINE__);
 	glGetObjectParameterivARB(shader->glsl_program, GL_OBJECT_LINK_STATUS_ARB, &ret);
-	CheckGLErrors (__FILE__, __LINE__);
 	if (ret != GL_TRUE) {
 		glGetInfoLogARB(shader->glsl_program, 1024, NULL, errlog);
 		// Shader failed to compile, find out why
 		CG_Printf("GSH_CompileGLSLShader: Could not link program for shader %s!\nLog:\n%s\n", shader->name, errlog);
 	}
 	glValidateProgramARB(shader->glsl_program);
-	CheckGLErrors (__FILE__, __LINE__);
 	glGetObjectParameterivARB(shader->glsl_program, GL_OBJECT_VALIDATE_STATUS_ARB, &ret);
-	CheckGLErrors (__FILE__, __LINE__);
 	if (ret != GL_TRUE) {
 		
 		glGetInfoLogARB(shader->glsl_program, 1024, NULL, errlog);
@@ -99,8 +114,9 @@ static void GSH_CompileGLSLShader(gshshader_t *shader) {
 	}
 	
 	glGetObjectParameterivARB (shader->glsl_program, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &numUniforms);
+	glGetObjectParameterivARB (shader->glsl_program, GL_OBJECT_ACTIVE_ATTRIBUTES_ARB, &numAttributes);
 	
-	shader->varcount = numUniforms;
+	shader->varcount = numUniforms + numAttributes;
 	shader->vars = malloc (sizeof(gsh_variable_t) * shader->varcount);
 	memset (shader->vars, 0, sizeof(gsh_variable_t) * shader->varcount);
 	
@@ -109,7 +125,12 @@ static void GSH_CompileGLSLShader(gshshader_t *shader) {
 	    shader->vars[i].localidx = i;
 	    shader->vars[i].vsfs = 1;
 	}
-	CheckGLErrors (__FILE__, __LINE__);
+	
+	for (i = numUniforms; i < shader->varcount; i++) {
+	    glGetActiveAttribARB (shader->glsl_program, i, sizeof (shader->vars[i].name), NULL, &size, &type, &shader->vars[i].name[0]);
+	    shader->vars[i].localidx = i;
+	    shader->vars[i].vsfs = 0;
+	}
 }
 #endif
 
@@ -232,7 +253,7 @@ int GSH_LoadShader(gshshader_t *shader, const char *filename) {
 // Description:
 // Gets the location of the uniform for the given shader.
 //=========================================================
-int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName )
+static int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName )
 {
     int i;
     int location = -1;
@@ -435,7 +456,17 @@ void GSH_FreeShader(gshshader_t *shader) {
 		glDeleteProgramsARB(1, &shader->arb_fragmentShader);
 		shader->arb_fragmentShader = 0;
 	}
-
+#ifdef USE_GLSL
+	// Free all source buffers
+	if (shader->glsl_vertexShaderSource) {
+		free((void *)shader->glsl_vertexShaderSource);
+		shader->glsl_vertexShaderSource = 0;
+	}
+	if (shader->glsl_fragmentShaderSource) {
+		free((void *)shader->glsl_fragmentShaderSource);
+		shader->glsl_fragmentShaderSource = 0;
+	}
+#endif
     // Shader source is deleted after it's first uploaded to the GPU.
 
 	if (shader->vars) {
@@ -449,16 +480,45 @@ void GSH_FreeShader(gshshader_t *shader) {
 
 qboolean GSH_Init() {
 #ifdef USE_GLSL
-    GLSLSupported = (qboolean)glewIsSupported ("GL_ARB_vertex_shader GL_ARB_fragment_shader GL_ARB_shading_language_100 GL_ARB_shader_objects");
+    GLSLSupported = 0;
+	if (IsExtensionSupported("ARB_shading_language_100") && IsExtensionSupported ("ARB_shader_objects")) {
+		GLSLSupported = 1;
+
+		glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC)wglGetProcAddress ("glCreateShaderObjectARB");
+		glCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC)wglGetProcAddress ("glCreateProgramObjectARB");
+		glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC)wglGetProcAddress ("glShaderSourceARB");
+		glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC)wglGetProcAddress ("glCompileShaderARB");
+		glGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC)wglGetProcAddress ("glGetObjectParameterivARB");
+		glGetInfoLogARB = (PFNGLGETINFOLOGARBPROC)wglGetProcAddress("glGetInfoLogARB");
+		glValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC)wglGetProcAddress("glValidateProgramARB");
+		glAttachObjectARB = (PFNGLATTACHOBJECTARBPROC)wglGetProcAddress ("glAttachObjectARB");
+		glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC)wglGetProcAddress ("glLinkProgramARB");
+		glUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)wglGetProcAddress ("glUseProgramObjectARB");
+		glDetachObjectARB = (PFNGLDETACHOBJECTARBPROC)wglGetProcAddress ("glDetachObjectARB");
+		glDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC)wglGetProcAddress ("glDeleteObjectARB");
+		glGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC)wglGetProcAddress ("glGetActiveAttribARB");
+        glGetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC)wglGetProcAddress ("glGetActiveUniformARB");
+
+		glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC)wglGetProcAddress ("glGetUniformLocationARB");
+		glUniform1iARB = (PFNGLUNIFORM1IARBPROC)wglGetProcAddress ("glUniform1iARB");
+		glUniform1fARB = (PFNGLUNIFORM1FARBPROC)wglGetProcAddress ("glUniform1fARB");
+		glUniform2fARB = (PFNGLUNIFORM2FARBPROC)wglGetProcAddress ("glUniform2fARB");
+		glUniform3fARB = (PFNGLUNIFORM3FARBPROC)wglGetProcAddress ("glUniform3fARB");
+		glUniform4fARB = (PFNGLUNIFORM4FARBPROC)wglGetProcAddress ("glUniform4fARB");
+	}
 #else
     trap_Cvar_Set ("r_force_arb_shaders", "1");
 #endif
-    ARBSupported = (qboolean)glewIsSupported ("GL_ARB_vertex_program GL_ARB_fragment_program");
-	
-	if ( !GLSLSupported && ARBSupported )
-	{
-	    CG_Printf (S_COLOR_YELLOW "...GLSL not supported, falling back to ARB assembly shaders.\n");
+    ARBSupported = 0;
+    if (IsExtensionSupported("ARB_vertex_program") || IsExtensionSupported("ARB_fragment_program")) {
+		ARBSupported = 1;
+		
+		glProgramStringARB = (PFNGLPROGRAMSTRINGARBPROC)wglGetProcAddress("glProgramStringARB");
+		glBindProgramARB = (PFNGLBINDPROGRAMARBPROC)wglGetProcAddress("glBindProgramARB");
+		glDeleteProgramsARB = (PFNGLDELETEPROGRAMSARBPROC)wglGetProcAddress("glDeleteProgramsARB");
+		glGenProgramsARB = (PFNGLGENPROGRAMSARBPROC)wglGetProcAddress("glGenProgramsARB");
+		glProgramLocalParameter4fARB = (PFNGLPROGRAMLOCALPARAMETER4FARBPROC)wglGetProcAddress("glProgramLocalParameter4fARB");
 	}
 	
-	return (qboolean)(ARBSupported || GLSLSupported);
+	return (qboolean)ARBSupported;
 }

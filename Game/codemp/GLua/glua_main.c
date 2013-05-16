@@ -95,9 +95,6 @@ int GLua_LoadFile(lua_State *L, const char* file) {	// Loads a file using JA's F
 
 int GLua_GetFrameworkRef(lua_State *L, const char *module, const char *name) {
 	// Will attempt to locate the function in question and make a ref to it, returns <0 if it failed
-	
-	STACKGUARD_INIT(L)
-	
 	int ref;
 	lua_getglobal(L,module);
 	if (lua_isnil(L,-1)) {
@@ -108,9 +105,6 @@ int GLua_GetFrameworkRef(lua_State *L, const char *module, const char *name) {
 	lua_gettable(L,-2);
 	ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
-
 	return ref;
 }
 
@@ -159,9 +153,6 @@ void GLua_GetCinematicCamPosition(int clientNum, float *x, float *y, float *z) {
 }
 
 void GLua_Wipe_EntDataSlot(gentity_t *ent) {
-
-	STACKGUARD_INIT(LuaInstance)
-
 	lua_State *L = LuaInstance;
 	if (!L) return;
 	lua_rawgeti(L, LUA_REGISTRYINDEX, GLua_Framework[GLUA_CLEARENTDATA]);
@@ -172,10 +163,19 @@ void GLua_Wipe_EntDataSlot(gentity_t *ent) {
 		G_Printf("GLua: Error occoured while clearing an entity data slot: %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-
-	STACKGUARD_CHECK(LuaInstance)
-
 	return;
+	/*
+	G_Printf("Wiping Lua Ent data slot number %i", IDCode);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, EntDataRef);
+	if (lua_isnil(L,-1)) {
+		lua_pop(L,-1);
+		return;
+	}
+	lua_pushfstring(L,"ID%i",IDCode);
+	lua_pushnil(L);
+	lua_settable(L,-3);
+	lua_pop(L,1);
+	*/
 }
 
 int ValidateObject(lua_State *L, int idx, int Obj) {
@@ -203,6 +203,75 @@ static int GLua_Panic(lua_State *L) {
 	Com_Error(ERR_FATAL, "FATAL ERROR: Lua Panic! - %s\n", lua_tostring(L,-1));
 	return 0;
 }
+
+/*
+void *GLua_SafeMalloc(int size) { // In case a malloc fails, retry a few times
+	int i = 0;
+	void *ptr = 0;
+	while (1) {
+		ptr = malloc(size);
+		if (ptr) return ptr;
+		if (i++>5) break;
+	}
+	return 0;
+}
+
+
+void *GLua_Allocator(void *ud, void *ptr, unsigned int osize, unsigned int nsize) {
+	void *tmp;
+	(void)ud;
+	// Ok we can have 3 actions here: allocate, free and reallocate
+	//G_Printf("GLua_Allocator(%08x, %i, %i)", ptr, osize, nsize);
+	if (nsize > 0 && !osize) {
+		// Alloc
+		//G_Printf(", allocating %i bytes at... ", nsize);
+		tmp = LuaZ_Malloc(nsize); //GLua_SafeMalloc(nsize);
+		//G_Printf("%08x\n", tmp);
+		//return malloc(nsize);
+		if (!tmp) {
+			G_Printf("WARNING: Failed to allocate %i bytes for Lua!",nsize);
+		}
+		return tmp;
+	}
+	if (nsize == 0 && osize > 0 && ptr != 0) {
+		// Free
+		//G_Printf(", freeing %i bytes from %08x\n", osize, ptr);
+		//free(ptr);
+		LuaZ_Free(ptr);
+		return 0;
+	}
+	if (nsize == 0) {
+		//G_Printf(", bad request\n", osize);
+		return 0;
+	}
+	if (nsize != 0 && osize != 0 && ptr) {
+		// Realloc
+		if (nsize == osize) {
+			// lmao
+			//G_Printf(", equal sizes, ignoring\n", osize);
+			return ptr;
+		} else {
+			//G_Printf(", reallocating %i bytes at ", nsize);
+			tmp = LuaZ_Malloc(nsize); //GLua_SafeMalloc(nsize);
+			if (!tmp) {
+				G_Printf("WARNING: Failed to reallocate %i bytes for Lua! (from %i bytes)",nsize,osize);
+				//free(ptr);
+				LuaZ_Free(ptr);
+				return 0;
+			}
+			//G_Printf("%08x and freeing %i at %08x\n", tmp, osize, ptr);
+			if (osize > nsize)
+				memcpy(tmp, ptr, nsize);
+			else
+				memcpy(tmp, ptr, osize);
+			//free(ptr);
+			LuaZ_Free(ptr);
+			return tmp;
+		}
+	}
+	return 0;
+}
+*/
 
 void GLua_Init() {
 	lua_State *L;
@@ -284,9 +353,6 @@ void GLua_Init() {
 }
 
 int GLua_GetEntityTypeID(const char* classname) {
-	
-	STACKGUARD_INIT(LuaInstance)
-	
 	int ret;
 	lua_State *L = LuaInstance;
 	if (!L) return 0;
@@ -301,14 +367,10 @@ int GLua_GetEntityTypeID(const char* classname) {
 	}
 	ret = lua_tointeger(L,-1);
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(LuaInstance)
-
 	return ret;
 }
 
 void GLua_SpawnEntity(gentity_t *ent, const char* classname) {
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	if (!L) return;
 
@@ -319,8 +381,9 @@ void GLua_SpawnEntity(gentity_t *ent, const char* classname) {
 		// Error
 		G_Printf("GLua: Error occoured in GLua_SpawnEntity: %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
+		return;
 	}
-	STACKGUARD_CHECK(LuaInstance)
+	lua_pop(L,1);
 	return;
 }
 
@@ -334,8 +397,6 @@ void GLua_Push_CallEntityFunc() {
 
 
 int GLua_NPCExists(const char* npcname) {
-
-	STACKGUARD_INIT(LuaInstance)
 	int ret;
 	lua_State *L = LuaInstance;
 	if (!L) return 0;
@@ -350,12 +411,10 @@ int GLua_NPCExists(const char* npcname) {
 	}
 	ret = lua_toboolean(L,-1);
 	lua_pop(L,1);
-	STACKGUARD_CHECK(LuaInstance)
 	return ret;
 }
 
 void GLua_SpawnNPC(gentity_t *npc, const char* npcname) {
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	if (!L) return;
 
@@ -366,8 +425,9 @@ void GLua_SpawnNPC(gentity_t *npc, const char* npcname) {
 		// Error
 		G_Printf("GLua: Error occoured in GLua_SpawnNPC: %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
+		return;
 	}
-	STACKGUARD_CHECK(LuaInstance)
+	lua_pop(L,1);
 	return;
 }
 
@@ -426,9 +486,6 @@ void GLua_Close() {
 }
 
 void GLua_SoftRestart() {
-
-	STACKGUARD_INIT(LuaInstance)
-
 	lua_State *L = LuaInstance;
 	// Run main script
 	if (!L) {
@@ -450,14 +507,10 @@ void GLua_SoftRestart() {
 	lua_setglobal(L, "RELOADING");
 	// Do a full garbage collection cycle, since we'll probably have tons of it
 	lua_gc(L, /*LUA_GCCOLLECT*/ 2, 0);
-
-	STACKGUARD_CHECK(LuaInstance)
 }
 
 void GLua_Hook_GameInit(int leveltime, int restart) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
-
 	lua_State *L = LuaInstance;
 	if (!L) return;
 
@@ -469,16 +522,11 @@ void GLua_Hook_GameInit(int leveltime, int restart) {
 		G_Printf("GLua: Error occoured while calling hook 'Init': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-
-	STACKGUARD_CHECK(LuaInstance)
-
 	return;
 }
 
 void GLua_Hook_MapLoadFinished() {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
-
 	lua_State *L = LuaInstance;
 	if (!L) return;
 
@@ -490,16 +538,11 @@ void GLua_Hook_MapLoadFinished() {
 		G_Printf("GLua: Error occoured while calling hook 'MapLoaded': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-
-	STACKGUARD_CHECK(LuaInstance)
-
 	return;
 }
 
 void GLua_Hook_GameShutdown() {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
-
 	lua_State *L = LuaInstance;
 	if (!L) return;
 
@@ -511,14 +554,10 @@ void GLua_Hook_GameShutdown() {
 		G_Printf("GLua: Error occoured while calling hook 'Shutdown': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_Timer() {
-
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	if (!L) return;
 	lua_rawgeti(L, LUA_REGISTRYINDEX, GLua_Framework[GLUA_TIMER]);
@@ -527,14 +566,10 @@ void GLua_Timer() {
 		G_Printf("GLua: Error occoured while processing timers: %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_TimerReset() {
-	STACKGUARD_INIT(LuaInstance)
-
 	lua_State *L = LuaInstance;
 	if (!L) return;
 	lua_rawgeti(L, LUA_REGISTRYINDEX, GLua_Framework[GLUA_TIMERRESET]);
@@ -543,14 +578,10 @@ void GLua_TimerReset() {
 		G_Printf("GLua: Error occoured while resetting timers: %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_Thread() {
-
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	if (!L) return;
 	lua_rawgeti(L, LUA_REGISTRYINDEX, GLua_Framework[GLUA_THREAD]);
@@ -559,12 +590,10 @@ void GLua_Thread() {
 		G_Printf("GLua: Error occoured while processing threads: %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_ThreadReset() {
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	if (!L) return;
 	lua_rawgeti(L, LUA_REGISTRYINDEX, GLua_Framework[GLUA_THREADRESET]);
@@ -573,13 +602,11 @@ void GLua_ThreadReset() {
 		G_Printf("GLua: Error occoured while resetting threads: %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
 	}
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 int GLua_Hook_PlayerSay(gentity_t * ent, gentity_t * target, int mode, const char* text) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	if (!L) return 0;
 
@@ -597,24 +624,20 @@ int GLua_Hook_PlayerSay(gentity_t * ent, gentity_t * target, int mode, const cha
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerSay': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	if (!lua_isnil(L,-1)) {
 		if (lua_toboolean(L,-1)) {
 			lua_pop(L,1);
-			STACKGUARD_CHECK(LuaInstance)
 			return 1; // True was returned from the hook, cancel the chat message
 		}
 	}
 	lua_pop(L,1);
-	STACKGUARD_CHECK(LuaInstance)
 	return 0;
 }
 
 const char *GLua_Hook_PlayerConnect(int clientNum, int firsttime, int isbot) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	const char *luaresp;
 	static char resp[2048];
@@ -630,7 +653,6 @@ const char *GLua_Hook_PlayerConnect(int clientNum, int firsttime, int isbot) {
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerConnect': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	if (!lua_isnil(L,-1)) {
@@ -638,18 +660,15 @@ const char *GLua_Hook_PlayerConnect(int clientNum, int firsttime, int isbot) {
 		if (luaresp) {
 			Q_strncpyz(resp, luaresp ,sizeof(resp));
 			lua_pop(L,1);
-			STACKGUARD_CHECK(LuaInstance)
 			return &resp[0]; // Return reason for rejection
 		}
 	}
 	lua_pop(L,1);
-	STACKGUARD_CHECK(LuaInstance)
 	return NULL;
 }
 
 void GLua_Hook_PlayerBegin(int clientNum) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 
 	if (!L) return;
@@ -662,14 +681,13 @@ void GLua_Hook_PlayerBegin(int clientNum) {
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerBegin': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
+		return;
 	}
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_Hook_PlayerSpawned(int clientNum) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 
 	if (!L) return;
@@ -682,14 +700,13 @@ void GLua_Hook_PlayerSpawned(int clientNum) {
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerSpawned': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
+		return;
 	}
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_Hook_PlayerDeathcam(int clientNum, int *deathcamtime, int *forcerespawn) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 
 	if (!L) return;
@@ -702,7 +719,6 @@ void GLua_Hook_PlayerDeathcam(int clientNum, int *deathcamtime, int *forcerespaw
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerDeathcam': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return;
 	}
 	if (lua_isnumber(L,-1)) {
@@ -716,15 +732,11 @@ void GLua_Hook_PlayerDeathcam(int clientNum, int *deathcamtime, int *forcerespaw
 		}
 	}
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_Hook_PlayerDeath(int clientNum, gentity_t *inflictor, gentity_t* attacker, int damage, int mod) {
 	// Hook.Call(Hookname, ...)
-
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 
 	if (!L) return;
@@ -741,15 +753,14 @@ void GLua_Hook_PlayerDeath(int clientNum, gentity_t *inflictor, gentity_t* attac
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerDeath': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
+		return;
 	}
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 
 int GLua_Hook_SelectInitialSpawn(int clientNum, gentity_t **spawnpoint, int team, vec3_t spawnorigin, vec3_t spawnangles) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	GLuaVec_t	*vec;
 	if (!L) return 0;
@@ -763,7 +774,6 @@ int GLua_Hook_SelectInitialSpawn(int clientNum, gentity_t **spawnpoint, int team
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'SelectInitialSpawn': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	// Alright, first determine the type of the return value
@@ -773,7 +783,6 @@ int GLua_Hook_SelectInitialSpawn(int clientNum, gentity_t **spawnpoint, int team
 		VectorCopy((*spawnpoint)->s.origin, spawnorigin);
 		VectorCopy((*spawnpoint)->s.angles, spawnangles);
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 1;
 	} else if (lua_istable(L,-1)) {
 		// Got a table, so check if the first entry is a vector
@@ -799,23 +808,19 @@ int GLua_Hook_SelectInitialSpawn(int clientNum, gentity_t **spawnpoint, int team
 				VectorSet(spawnangles, 0, 0, 0);
 			}
 			lua_pop(L,1);
-			STACKGUARD_CHECK(LuaInstance)
 			return 1;
 		} else {
 			lua_pop(L,2);
-			STACKGUARD_CHECK(LuaInstance)
 			return 0;
 		}
 	} else {
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}	
 }
 
 int GLua_Hook_SelectSpawn(int clientNum, gentity_t **spawnpoint, int team, vec3_t avoidpoint, vec3_t spawnorigin, vec3_t spawnangles) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	GLuaVec_t	*vec;
 	if (!L) return 0;
@@ -830,7 +835,6 @@ int GLua_Hook_SelectSpawn(int clientNum, gentity_t **spawnpoint, int team, vec3_
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'SelectSpawn': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	// Alright, first determine the type of the return value
@@ -840,7 +844,6 @@ int GLua_Hook_SelectSpawn(int clientNum, gentity_t **spawnpoint, int team, vec3_
 		VectorCopy((*spawnpoint)->s.origin, spawnorigin);
 		VectorCopy((*spawnpoint)->s.angles, spawnangles);
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 1;
 	} else if (lua_istable(L,-1)) {
 		// Got a table, so check if the first entry is a vector
@@ -866,23 +869,19 @@ int GLua_Hook_SelectSpawn(int clientNum, gentity_t **spawnpoint, int team, vec3_
 				VectorSet(spawnangles, 0, 0, 0);
 			}
 			lua_pop(L,1);
-			STACKGUARD_CHECK(LuaInstance)
 			return 1;
 		} else {
 			lua_pop(L,2);
-			STACKGUARD_CHECK(LuaInstance)
 			return 0;
 		}
 	} else {
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}	
 }
 
 int GLua_Hook_SelectSpectatorSpawn(int clientNum, gentity_t **spawnpoint, vec3_t spawnorigin, vec3_t spawnangles) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	GLuaVec_t	*vec;
 	if (!L) return 0;
@@ -895,7 +894,6 @@ int GLua_Hook_SelectSpectatorSpawn(int clientNum, gentity_t **spawnpoint, vec3_t
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'SelectSpectatorSpawn': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	// Alright, first determine the type of the return value
@@ -905,7 +903,6 @@ int GLua_Hook_SelectSpectatorSpawn(int clientNum, gentity_t **spawnpoint, vec3_t
 		VectorCopy((*spawnpoint)->s.origin, spawnorigin);
 		VectorCopy((*spawnpoint)->s.angles, spawnangles);
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 1;
 	} else if (lua_istable(L,-1)) {
 		// Got a table, so check if the first entry is a vector
@@ -931,23 +928,19 @@ int GLua_Hook_SelectSpectatorSpawn(int clientNum, gentity_t **spawnpoint, vec3_t
 				VectorSet(spawnangles, 0, 0, 0);
 			}
 			lua_pop(L,1);
-			STACKGUARD_CHECK(LuaInstance)
 			return 1;
 		} else {
 			lua_pop(L,2);
-			STACKGUARD_CHECK(LuaInstance)
 			return 0;
 		}
 	} else {
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}	
 }
 
 void GLua_Hook_PlayerDisconnect(int clientNum) {
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 
 	if (!L) return;
@@ -960,15 +953,14 @@ void GLua_Hook_PlayerDisconnect(int clientNum) {
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerDisconnect': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
+		return;
 	}
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 void GLua_Hook_PlayerValidationFailed(int clientNum) {
 	// Client got dropped due to validation timeout
 	// Hook.Call(Hookname, ...)
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 
 	if (!L) return;
@@ -981,17 +973,14 @@ void GLua_Hook_PlayerValidationFailed(int clientNum) {
 		// Error
 		G_Printf("GLua: Error occoured while calling hook 'PlayerValidationFailed': %s\n", lua_tostring(L,-1));
 		lua_pop(L,1);
+		return;
 	}
-	STACKGUARD_CHECK(LuaInstance)
 	return;
 }
 
 #include "../game/jkg_chatcmds.h"
 
 int GLua_ChatCommand(int clientNum, const char *cmd) { // Returns 1 if processed, 0 if not
-	
-	STACKGUARD_INIT(LuaInstance)
-
 	lua_State *L = LuaInstance;
 	int i;
 	int argc = CCmd_Argc();
@@ -1015,22 +1004,17 @@ int GLua_ChatCommand(int clientNum, const char *cmd) { // Returns 1 if processed
 		// Error
 		G_Printf("GLua: Error occoured while calling executing chat command '%s': %s\n",cmd, lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	if (lua_toboolean(L,-1)) {
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 1;
 	}
 	lua_pop(L,1);
-	STACKGUARD_CHECK(LuaInstance)
 	return 0;
 }
 
 int GLua_Command(int clientNum, const char *cmd) { // Returns 1 if processed, 0 if not
-	
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	int i;
 	int argc = trap_Argc();
@@ -1056,21 +1040,17 @@ int GLua_Command(int clientNum, const char *cmd) { // Returns 1 if processed, 0 
 		// Error
 		G_Printf("GLua: Error occoured while calling executing command '%s': %s\n",cmd, lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	if (lua_toboolean(L,-1)) {
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 1;
 	}
 	lua_pop(L,1);
-	STACKGUARD_CHECK(LuaInstance)
 	return 0;
 }
 
 int GLua_RconCommand(const char *cmd) { // Returns 1 if processed, 0 if not
-	STACKGUARD_INIT(LuaInstance)
 	lua_State *L = LuaInstance;
 	int i;
 	int argc = trap_Argc();
@@ -1094,15 +1074,12 @@ int GLua_RconCommand(const char *cmd) { // Returns 1 if processed, 0 if not
 		// Error
 		G_Printf("GLua: Error occoured while calling executing command '%s': %s\n",cmd, lua_tostring(L,-1));
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 0;
 	}
 	if (lua_toboolean(L,-1)) {
 		lua_pop(L,1);
-		STACKGUARD_CHECK(LuaInstance)
 		return 1;
 	}
 	lua_pop(L,1);
-	STACKGUARD_CHECK(LuaInstance)
 	return 0;
 }

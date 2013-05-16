@@ -3,12 +3,11 @@
 #include "g_local.h"
 #include "w_saber.h"
 #include "q_shared.h"
-#include "jkg_damagetypes.h"
 
 #define	MISSILE_PRESTEP_TIME	50
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 
 #include "../namespace_begin.h"
 extern qboolean FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS );
@@ -231,18 +230,6 @@ void G_ExplodeMissile( gentity_t *ent ) {
 
 	ent->takedamage = qfalse;
 	// splash damage
-	/*weaponData_t *weapon = GetWeaponData (ent->s.weapon, ent->s.weaponVariation);
-    weaponFireModeStats_t *fireMode = &weapon->primary;
-    
-    if ( ent->s.eFlags & EF_ALT_FIRING )
-    {
-        fireMode = &weapon->secondary;
-    }
-    
-    if ( fireMode->damageTypeHandle )
-    {
-        JKG_DoDamage (
-    }*/
 	if ( ent->splashDamage ) {
 		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, 
 				ent, ent->splashMethodOfDeath ) ) 
@@ -315,12 +302,10 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
 	missile->parent = owner;
 	missile->r.ownerNum = owner->s.number;
 
-	/*if (altFire)
+	if (altFire)
 	{
 		missile->s.eFlags |= EF_ALT_FIRING;
-	}*/
-
-	missile->s.firingMode = owner->s.firingMode;
+	}
 
 	missile->s.pos.trType = TR_LINEAR;
 	missile->s.pos.trTime = level.time;// - MISSILE_PRESTEP_TIME;	// NOTENOTE This is a Quake 3 addition over JK2
@@ -368,12 +353,10 @@ static void G_GrenadeBounceEvent ( const gentity_t *ent )
     tent->s.weapon = ent->s.weapon;
     tent->s.weaponVariation = ent->s.weaponVariation;
     
-    /*if ( ent->s.eFlags & EF_ALT_FIRING )
+    if ( ent->s.eFlags & EF_ALT_FIRING )
     {
         tent->s.eFlags |= EF_ALT_FIRING;
-    }*/
-
-	tent->s.firingMode = ent->s.firingMode;
+    }
 }
 
 /*
@@ -394,27 +377,18 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if ( !other->takedamage &&
 		(ent->bounceCount > 0 || ent->bounceCount == -5) &&
 		( ent->flags & ( FL_BOUNCE | FL_BOUNCE_HALF ) ) ) {
-		int originalBounceCount = ent->bounceCount;
 		G_BounceMissile( ent, trace );
 		//G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
-		if ( originalBounceCount != ent->bounceCount )
-		{
-		    G_GrenadeBounceEvent ((const gentity_t *)ent);
-		}
+		G_GrenadeBounceEvent ((const gentity_t *)ent);
 		return;
 	}
 	else if (ent->neverFree && ent->s.weapon == WP_SABER && (ent->flags & FL_BOUNCE_HALF))
 	{ //this is a knocked-away saber
 		if (ent->bounceCount > 0 || ent->bounceCount == -5)
 		{
-		    int originalBounceCount = ent->bounceCount;
 			G_BounceMissile( ent, trace );
 			//G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
 			G_GrenadeBounceEvent ((const gentity_t *)ent);
-			if ( originalBounceCount != ent->bounceCount )
-	        {
-	            G_GrenadeBounceEvent ((const gentity_t *)ent);
-	        }
 			return;
 		}
 
@@ -523,7 +497,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->s.weapon != WP_THERMAL &&
 		ent->s.weapon != WP_TRIP_MINE &&
 		ent->s.weapon != WP_DET_PACK &&
-		//ent->s.weapon != WP_DEMP2 &&
+		ent->s.weapon != WP_DEMP2 &&
 		ent->s.weapon != WP_EMPLACED_GUN &&
 		ent->methodOfDeath != MOD_REPEATER_ALT &&
 		ent->methodOfDeath != MOD_FLECHETTE_ALT_SPLASH && 
@@ -554,7 +528,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->s.weapon != WP_THERMAL &&
 		ent->s.weapon != WP_TRIP_MINE &&
 		ent->s.weapon != WP_DET_PACK &&
-		//ent->s.weapon != WP_DEMP2 &&
+		ent->s.weapon != WP_DEMP2 &&
 		ent->methodOfDeath != MOD_REPEATER_ALT &&
 		ent->methodOfDeath != MOD_FLECHETTE_ALT_SPLASH &&
 		ent->methodOfDeath != MOD_CONC &&
@@ -626,7 +600,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			ent->s.weapon != WP_THERMAL &&
 			ent->s.weapon != WP_TRIP_MINE &&
 			ent->s.weapon != WP_DET_PACK &&
-			//ent->s.weapon != WP_DEMP2 &&
+			ent->s.weapon != WP_DEMP2 &&
 			ent->methodOfDeath != MOD_REPEATER_ALT &&
 			ent->methodOfDeath != MOD_FLECHETTE_ALT_SPLASH &&
 			ent->methodOfDeath != MOD_CONC &&
@@ -696,25 +670,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 
-	if( ent->genericValue10 )	// nerf this check in order to make grenade bouncing work --eez
-	{
-		vec3_t fwd;
-
-		if (other->client)
-		{
-			AngleVectors(other->client->ps.viewangles, fwd, NULL, NULL);
-		}
-		else
-		{
-			AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
-		}
-		VectorScale(ent->s.pos.trDelta, 0.2, ent->s.pos.trDelta);
-		G_Damage(other, ent, ent->parent, fwd, ent->s.origin, ent->genericValue9, 0, MOD_THERMAL);
-		G_DeflectMissile(other, ent, fwd);
-		//G_MissileBounceEffect(ent, ent->r.currentOrigin, fwd);
-		return;
-	}
-
 	// check for sticking
 	if ( !other->takedamage && ( ent->s.eFlags & EF_MISSILE_STICK ) ) 
 	{
@@ -726,15 +681,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	// impact damage
 	if (other->takedamage && !isKnockedSaber) {
 		// FIXME: wrong damage direction?
-		weaponData_t *weapon = GetWeaponData (ent->s.weapon, ent->s.weaponVariation);
-		weaponFireModeStats_t *fireMode = &weapon->firemodes[ent->s.firingMode];
-		/*if ( ent->s.eFlags & EF_ALT_FIRING )
-		{
-		    fireMode = &weapon->firemodes[1];
-		}*/
-		
-		if ( ent->damage || fireMode->damageTypeHandle || fireMode->secondaryDmgHandle ) {
+		if ( ent->damage ) {
 			vec3_t	velocity;
+			qboolean didDmg = qfalse;
 
 			hitClient = qtrue;
 			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
@@ -742,21 +691,30 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				velocity[2] = 1;	// stepped on a grenade
 			}
 
-            if ( fireMode->damageTypeHandle )
-            {
-                JKG_DoDamage (fireMode->damageTypeHandle, other, ent, &g_entities[ent->r.ownerNum], velocity, ent->r.currentOrigin, 0, ent->methodOfDeath);
-            }
-            else if ( ent->damage )
-            {
-                G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, ent->r.currentOrigin, ent->damage, 0, ent->methodOfDeath);
-            }
-            
-            if ( fireMode->secondaryDmgHandle )
-            {
-                JKG_DoDamage (fireMode->secondaryDmgHandle, other, ent, &g_entities[ent->r.ownerNum], velocity, ent->r.currentOrigin, 0, ent->methodOfDeath);
-            }
+			if (ent->s.weapon == WP_BOWCASTER || ent->s.weapon == WP_FLECHETTE ||
+				ent->s.weapon == WP_ROCKET_LAUNCHER)
+			{
+				if (ent->s.weapon == WP_FLECHETTE && (ent->s.eFlags & EF_ALT_FIRING))
+				{
+					ent->think(ent);
+				}
+				else
+				{
+					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
+						/*ent->s.origin*/ent->r.currentOrigin, ent->damage, 
+						DAMAGE_HALF_ABSORB, ent->methodOfDeath);
+					didDmg = qtrue;
+				}
+			}
+			else
+			{
+				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
+					/*ent->s.origin*/ent->r.currentOrigin, ent->damage, 
+					0, ent->methodOfDeath);
+				didDmg = qtrue;
+			}
 
-			if (other->client)
+			if (didDmg && other && other->client)
 			{ //What I'm wondering is why this isn't in the NPC pain funcs. But this is what SP does, so whatever.
 				class_t	npc_class = other->client->NPC_class;
 
@@ -777,7 +735,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 		}
 
-		/*if ( ent->s.weapon == WP_DEMP2 )
+		if ( ent->s.weapon == WP_DEMP2 )
 		{//a hit with demp2 decloaks people, disables ships
 			if ( other && other->client && other->client->NPC_class == CLASS_VEHICLE )
 			{//hit a vehicle
@@ -817,17 +775,15 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 					other->client->cloakToggleTime = level.time + Q_irand( 3000, 10000 );
 				}
 			}
-		}*/
+		}
 	}
 killProj:
 	// is it cheaper in bandwidth to just remove this ent and create a new
 	// one, rather than changing the missile into the explosion?
 
 	if ( other->takedamage && other->client && !isKnockedSaber ) {
-		{
-			G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
-			ent->s.otherEntityNum = other->s.number;
-		}
+		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
+		ent->s.otherEntityNum = other->s.number;
 	} else if( trace->surfaceFlags & SURF_METALSTEPS ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_METAL, DirToByte( trace->plane.normal ) );
 	} else if (ent->s.weapon != G2_MODEL_PART && !isKnockedSaber) {
@@ -847,15 +803,20 @@ killProj:
 	G_SetOrigin( ent, trace->endpos );
 
 	ent->takedamage = qfalse;
+	// splash damage (doesn't apply to person directly hit)
+	if ( ent->splashDamage ) {
+		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
+			other, ent, ent->splashMethodOfDeath ) ) {
+			if( !hitClient 
+				&& g_entities[ent->r.ownerNum].client ) {
+				g_entities[ent->r.ownerNum].client->accuracy_hits++;
+			}
+		}
+	}
 
 	if (ent->s.weapon == G2_MODEL_PART)
 	{
 		ent->freeAfterEvent = qfalse; //it will free itself
-	}
-
-	if(ent->splashRadius && ent->splashDamage && !ent->genericValue10)
-	{
-		G_RadiusDamage(trace->endpos, &g_entities[ent->r.ownerNum], ent->splashDamage, ent->splashRadius, NULL, ent, ent->methodOfDeath);
 	}
 
 	trap_LinkEntity( ent );

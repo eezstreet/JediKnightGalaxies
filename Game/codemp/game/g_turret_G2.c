@@ -751,11 +751,6 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			continue;
 		}
 
-		if ( target->vendorData.ourID )
-		{
-			continue;
-		}
-
 		if ( target->client )
 		{
 			VectorCopy( target->client->renderInfo.eyePoint, org );
@@ -899,10 +894,10 @@ void turretG2_base_think( gentity_t *self )
 			VectorSubtract( self->enemy->r.currentOrigin, self->r.currentOrigin, enemyDir );
 			enemyDist = VectorLengthSquared( enemyDir );
 
-			if ( enemyDist < self->radius * self->radius && self->enemy->client )
+			if ( enemyDist < self->radius * self->radius )
 			{
 				// was in valid radius
-				//if ( trap_InPVS( self->s.origin, self->enemy->client->ps.origin ) )	//oh, u so evil raven..
+				if ( trap_InPVS( self->r.currentOrigin, self->enemy->r.currentOrigin ) )
 				{
 					// Every now and again, check to see if we can even trace to the enemy
 					trace_t tr;
@@ -1180,6 +1175,11 @@ void finish_spawning_turretG2( gentity_t *base )
 		}
 		//start in "off" anim
 		TurboLaser_SetBoneAnim( base, 4, 5 );
+		if ( g_gametype.integer == GT_SIEGE )
+		{//FIXME: designer-specified?
+			//FIXME: put on other entities, too, particularly siege objectives and bbrushes...
+			base->s.eFlags2 |= EF2_BRACKET_ENTITY;
+		}
 	}
 	else
 	{

@@ -21,15 +21,12 @@ extern void NPC_CheckAllClear ( void );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern qboolean NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
-extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
 extern void Mark1_dying( gentity_t *self );
 extern void NPC_BSCinematic( void );
 extern int GetTime ( int lastTime );
 extern void NPC_BSGM_Default( void );
 extern void NPC_CheckCharmed( void );
 extern qboolean Boba_Flying( gentity_t *self );
-extern qboolean NPC_HaveValidEnemy( void );
-extern qboolean NPC_Humanoid_ClearPathToSpot( vec3_t dest, int impactEntNum );
 
 extern vmCvar_t		g_saberRealisticCombat;
 
@@ -305,8 +302,7 @@ int BodyRemovalPadTime( gentity_t *ent )
 		// never go away
 	//	time = Q3_INFINITE;
 		// for now I'm making default 10000
-		//time = 120000;
-		time = 30000; // UQ1: Changed to 30 secs...
+		time = 10000;
 		break;
 
 	}
@@ -554,14 +550,8 @@ static void DeadThink ( void )
 	else
 	*/
 	{
-		//eezstreet edit: no disappearing allowed!
-		if( NPC->currentLooter != NULL )
-		{
-			return;
-		}
 		//death anim done (or were given a specific amount of time to wait before removal), wait the requisite amount of time them remove
-		else if ( level.time >= NPCInfo->timeOfDeath + BodyRemovalPadTime( NPC ))
-			//eezstreet end
+		if ( level.time >= NPCInfo->timeOfDeath + BodyRemovalPadTime( NPC ) )
 		{
 			if ( NPC->client->ps.eFlags & EF_NODRAW )
 			{
@@ -738,10 +728,10 @@ void NPC_ApplyScriptFlags (void)
 		ucmd.upmove = 0;
 	}
 
-	/*if ( (NPCInfo->scriptFlags & SCF_ALT_FIRE) && (ucmd.buttons & BUTTON_ATTACK) )
+	if ( (NPCInfo->scriptFlags & SCF_ALT_FIRE) && (ucmd.buttons & BUTTON_ATTACK) )
 	{//Use altfire instead
 		ucmd.buttons |= BUTTON_ALT_ATTACK;
-	}*/
+	}
 }
 
 void Q3_DebugPrint( int level, const char *format, ... );
@@ -942,8 +932,6 @@ void NPC_KeepCurrentFacing(void)
 		ucmd.angles[PITCH] = ANGLE2SHORT( client->ps.viewangles[PITCH] ) - client->ps.delta_angles[PITCH];
 	}
 }
-
-#ifndef __DOMINANCE_NPC__
 
 /*
 -------------------------
@@ -1223,14 +1211,16 @@ void NPC_BehaviorSet_Jedi( int bState )
 	{
 	case BS_STAND_GUARD:
 	case BS_PATROL:
+	case BS_STAND_AND_SHOOT:
 	case BS_HUNT_AND_KILL:
 	case BS_DEFAULT:
-	case BS_STAND_AND_SHOOT:
 		NPC_BSJedi_Default();
 		break;
+
 	case BS_FOLLOW_LEADER:
 		NPC_BSJedi_FollowLeader();
 		break;
+
 	default:
 		NPC_BehaviorSet_Default( bState );
 		break;
@@ -1385,781 +1375,6 @@ void NPC_BehaviorSet_Rancor( int bState )
 	}
 }
 
-#else //__DOMINANCE_NPC__
-
-extern qboolean NPC_FollowRoutes( void );
-extern qboolean NPC_PatrolArea( void );
-
-qboolean NPC_CanUseAdvancedFighting()
-{// UQ1: Evasion/Weapon Switching/etc...
-	// Who can evade???
-	switch (NPC->client->NPC_class)
-	{
-	//case CLASS_ATST:
-	case CLASS_BARTENDER:
-	case CLASS_BESPIN_COP:		
-	case CLASS_CLAW:
-	case CLASS_COMMANDO:
-	case CLASS_DESANN:		
-	//case CLASS_FISH:
-	//case CLASS_FLIER2:
-	case CLASS_GALAK:
-	//case CLASS_GLIDER:
-	//case CLASS_GONK:				// droid
-	case CLASS_GRAN:
-	//case CLASS_HOWLER:
-	case CLASS_IMPERIAL:
-	case CLASS_IMPWORKER:
-	//case CLASS_INTERROGATOR:		// droid 
-	case CLASS_JAN:				
-	case CLASS_JEDI:
-	case CLASS_KYLE:				
-	case CLASS_LANDO:			
-	//case CLASS_LIZARD:
-	case CLASS_LUKE:				
-	case CLASS_MARK1:			// droid
-	case CLASS_MARK2:			// droid
-	//case CLASS_GALAKMECH:		// droid
-	//case CLASS_MINEMONSTER:
-	case CLASS_MONMOTHA:			
-	case CLASS_MORGANKATARN:
-	//case CLASS_MOUSE:			// droid
-	case CLASS_MURJJ:
-	case CLASS_PRISONER:
-	//case CLASS_PROBE:			// droid
-	case CLASS_PROTOCOL:			// droid
-	//case CLASS_R2D2:				// droid
-	//case CLASS_R5D2:				// droid
-	case CLASS_REBEL:
-	case CLASS_REBORN:
-	case CLASS_REELO:
-	//case CLASS_REMOTE:
-	case CLASS_RODIAN:
-	//case CLASS_SEEKER:			// droid
-	//case CLASS_SENTRY:
-	case CLASS_SHADOWTROOPER:
-	case CLASS_STORMTROOPER:
-	case CLASS_SWAMP:
-	case CLASS_SWAMPTROOPER:
-	case CLASS_TAVION:
-	case CLASS_TRANDOSHAN:
-	case CLASS_UGNAUGHT:
-	case CLASS_JAWA:
-	case CLASS_WEEQUAY:
-	case CLASS_BOBAFETT:
-	//case CLASS_VEHICLE:
-	//case CLASS_RANCOR:
-	//case CLASS_WAMPA:
-	case CLASS_CIVILIAN:			// UQ1: Random civilian NPCs...
-	case CLASS_GENERAL_VENDOR:
-	case CLASS_WEAPONS_VENDOR:
-	case CLASS_ARMOR_VENDOR:
-	case CLASS_SUPPLIES_VENDOR:
-	case CLASS_FOOD_VENDOR:
-	case CLASS_MEDICAL_VENDOR:
-	case CLASS_GAMBLER_VENDOR:
-	case CLASS_TRADE_VENDOR:
-	case CLASS_ODDITIES_VENDOR:
-	case CLASS_DRUG_VENDOR:
-	case CLASS_TRAVELLING_VENDOR:
-	case CLASS_BOT_FAKE_NPC:
-		// OK... EVADE AWAY!!!
-		break;
-	default:
-		// NOT OK...
-		return qfalse;
-		break;
-	}
-
-	return qtrue;
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Charmed
--------------------------
-*/
-
-void NPC_BehaviorSet_Charmed( int bState )
-{
-	switch( bState )
-	{
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-		if (!NPC_PatrolArea())
-			NPC_BSFollowLeader();
-		break;
-	case BS_REMOVE:
-		NPC_BSRemove();
-		break;
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-		if (!NPC_PatrolArea())
-			NPC_BSSearch();
-		break;
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-		if (!NPC_PatrolArea())
-			NPC_BSWander();
-		break;
-	case BS_FLEE:
-		NPC_BSFlee();
-		break;
-	default:
-	case BS_DEFAULT://whatever
-		if (!NPC_PatrolArea())
-			NPC_BSDefault();
-		break;
-	}
-}
-/*
--------------------------
-NPC_BehaviorSet_Default
--------------------------
-*/
-
-void NPC_BehaviorSet_Default( int bState )
-{
-	if ( NPC->enemy && NPC->enemy->inuse && NPC->enemy->health > 0)
-	{// UQ1: Have an anemy... Check if we should use advanced fighting for this NPC...
-		if ( NPC_CanUseAdvancedFighting() )
-		{// UQ1: This NPC can use advanced tactics... Use them!!!
-			NPC_BSJedi_Default();
-			return;
-		}
-	}
-
-	switch( bState )
-	{
-	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-		if (!NPC_FollowRoutes())
-			NPC_BSAdvanceFight ();
-		break;
-	case BS_SLEEP://Follow a path, looking for enemies
-		if (!NPC_FollowRoutes())
-			NPC_BSSleep ();
-		break;
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-		if (!NPC_FollowRoutes())
-			NPC_BSFollowLeader();
-		break;
-	case BS_JUMP:			//41: Face navgoal and jump to it.
-		if (!NPC_FollowRoutes())
-			NPC_BSJump();
-		break;
-	case BS_REMOVE:
-		NPC_BSRemove();
-		break;
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-		if (!NPC_FollowRoutes())
-			NPC_BSSearch();
-		break;
-	case BS_NOCLIP:
-		NPC_BSNoClip();
-		break;
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-		if (!NPC_FollowRoutes())
-			NPC_BSWander();
-		break;
-	case BS_FLEE:
-		NPC_BSFlee();
-		break;
-	case BS_WAIT:
-		if (!NPC_FollowRoutes())
-			NPC_BSWait();
-		break;
-	case BS_CINEMATIC:
-		NPC_BSCinematic();
-		break;
-	default:
-	case BS_DEFAULT://whatever
-		if (!NPC_FollowRoutes())
-			NPC_BSDefault();
-		break;
-	}
-}
-
-/*
-case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		NPC_BSJedi_Default();
-		break;
-	case BS_FOLLOW_LEADER:
-		NPC_BSJedi_FollowLeader();
-		*/
-
-void NPC_BehaviorSet_FakeNPC( int bState )
-{
-	//G_Printf("BS: %i\n", bState);
-
-	switch( bState )
-	{
-	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-		if (!NPC_FollowRoutes())
-			NPC_BSAdvanceFight ();
-		break;
-	case BS_SLEEP://Follow a path, looking for enemies
-		if (!NPC_FollowRoutes())
-			NPC_BSSleep ();
-		break;
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-		if (!NPC_FollowRoutes())
-			NPC_BSFollowLeader();
-		//NPC_BSJedi_FollowLeader();
-		break;
-	case BS_JUMP:			//41: Face navgoal and jump to it.
-		if (!NPC_FollowRoutes())
-			NPC_BSJump();
-		break;
-	case BS_REMOVE:
-		NPC_BSRemove();
-		break;
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-		if (!NPC_FollowRoutes())
-			NPC_BSSearch();
-		break;
-	case BS_NOCLIP:
-		NPC_BSNoClip();
-		break;
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-		if (!NPC_FollowRoutes())
-			NPC_BSWander();
-		break;
-	case BS_FLEE:
-		NPC_BSFlee();
-		break;
-	case BS_WAIT:
-		if (!NPC_FollowRoutes())
-			NPC_BSWait();
-		break;
-	case BS_CINEMATIC:
-		NPC_BSCinematic();
-		break;
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_Default();
-		break;
-	default:
-	case BS_DEFAULT://whatever
-		if (!NPC_FollowRoutes())
-			NPC_BSDefault();
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Civilian
--------------------------
-*/
-
-void NPC_BehaviorSet_Civilian( int bState )
-{
-	switch( bState )
-	{
-	case BS_CINEMATIC:
-	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-	case BS_SLEEP://Follow a path, looking for enemies
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-	case BS_JUMP:			//41: Face navgoal and jump to it.
-	case BS_REMOVE:
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-	case BS_NOCLIP:
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-	case BS_FLEE:
-	case BS_WAIT:
-	case BS_DEFAULT://whatever
-	default:
-		NPC_FollowRoutes();
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Vendor
--------------------------
-*/
-
-void NPC_BehaviorSet_Vendor( int bState )
-{
-	switch( bState )
-	{
-	case BS_CINEMATIC:
-	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-	case BS_SLEEP://Follow a path, looking for enemies
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-	case BS_JUMP:			//41: Face navgoal and jump to it.
-	case BS_REMOVE:
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-	case BS_NOCLIP:
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-	case BS_FLEE:
-	case BS_WAIT:
-	case BS_DEFAULT://whatever
-	default:
-		NPC_BSWait();
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_TravellingVendor
--------------------------
-*/
-
-void NPC_BehaviorSet_TravellingVendor( int bState )
-{
-	switch( bState )
-	{
-	case BS_CINEMATIC:
-	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-	case BS_SLEEP://Follow a path, looking for enemies
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-	case BS_JUMP:			//41: Face navgoal and jump to it.
-	case BS_REMOVE:
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-	case BS_NOCLIP:
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-	case BS_FLEE:
-	case BS_WAIT:
-	case BS_DEFAULT://whatever
-	default:
-		NPC_FollowRoutes();
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Interrogator
--------------------------
-*/
-void NPC_BehaviorSet_Interrogator( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSInterrogator_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSInterrogator_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-void NPC_BSImperialProbe_Attack( void );
-void NPC_BSImperialProbe_Patrol( void );
-void NPC_BSImperialProbe_Wait(void);
-
-/*
--------------------------
-NPC_BehaviorSet_ImperialProbe
--------------------------
-*/
-void NPC_BehaviorSet_ImperialProbe( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSImperialProbe_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSImperialProbe_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-
-void NPC_BSSeeker_Default( void );
-
-/*
--------------------------
-NPC_BehaviorSet_Seeker
--------------------------
-*/
-void NPC_BehaviorSet_Seeker( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSSeeker_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSSeeker_Default();
-		break; 
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-void NPC_BSRemote_Default( void );
-
-/*
--------------------------
-NPC_BehaviorSet_Remote
--------------------------
-*/
-void NPC_BehaviorSet_Remote( int bState )
-{
-	if (!NPC_PatrolArea())
-		NPC_BSRemote_Default();
-}
-
-void NPC_BSSentry_Default( void );
-
-/*
--------------------------
-NPC_BehaviorSet_Sentry
--------------------------
-*/
-void NPC_BehaviorSet_Sentry( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSSentry_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSSentry_Default();
-		break; 
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Grenadier
--------------------------
-*/
-void NPC_BehaviorSet_Grenadier( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSGrenadier_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSGrenadier_Default();
-		break;
-
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-/*
--------------------------
-NPC_BehaviorSet_Sniper
--------------------------
-*/
-void NPC_BehaviorSet_Sniper( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSSniper_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSSniper_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-/*
--------------------------
-NPC_BehaviorSet_Stormtrooper
--------------------------
-*/
-
-void NPC_BehaviorSet_Stormtrooper( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Default();
-		break;
-	case BS_INVESTIGATE:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Investigate();
-		break;
-	case BS_SLEEP:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Sleep();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Jedi
--------------------------
-*/
-
-void NPC_BehaviorSet_Jedi( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_Default();
-		break;
-	case BS_FOLLOW_LEADER:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_FollowLeader();
-		break;
-	default:
-		if (!NPC_FollowRoutes())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Droid
--------------------------
-*/
-void NPC_BehaviorSet_Droid( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-		if (!NPC_FollowRoutes())
-			NPC_BSDroid_Default();
-		break;
-	default:
-		if (!NPC_FollowRoutes())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Mark1
--------------------------
-*/
-void NPC_BehaviorSet_Mark1( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-		if (!NPC_PatrolArea())
-			NPC_BSMark1_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Mark2
--------------------------
-*/
-void NPC_BehaviorSet_Mark2( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-		if (!NPC_PatrolArea())
-			NPC_BSMark2_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSMark2_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_ATST
--------------------------
-*/
-void NPC_BehaviorSet_ATST( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-		if (!NPC_FollowRoutes())
-			NPC_BSATST_Default();
-		break;
-	case BS_STAND_AND_SHOOT:
-		if (!NPC_FollowRoutes())
-			NPC_BSATST_Default();
-		break;
-	default:
-		if (!NPC_FollowRoutes())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_MineMonster
--------------------------
-*/
-void NPC_BehaviorSet_MineMonster( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSMineMonster_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Howler
--------------------------
-*/
-void NPC_BehaviorSet_Howler( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSHowler_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Rancor
--------------------------
-*/
-void NPC_BehaviorSet_Rancor( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSRancor_Default();
-		break;
-	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-#endif //__DOMINANCE_NPC__
-
 /*
 -------------------------
 NPC_RunBehavior
@@ -2177,33 +1392,6 @@ void NPC_RunBehavior( int team, int bState )
 		NPC->m_pVehicle)
 	{ //vehicles don't do AI!
 		return;
-	}
-
-	if ( NPC->client->NPC_class == CLASS_BOT_FAKE_NPC )
-	{
-		NPC_BehaviorSet_FakeNPC( bState );
-		return;
-	}
-
-	switch( NPC->client->NPC_class )
-	{// UQ1: Vendor types... Stand still for now...
-	case CLASS_GENERAL_VENDOR:
-	case CLASS_WEAPONS_VENDOR:
-	case CLASS_ARMOR_VENDOR:
-	case CLASS_SUPPLIES_VENDOR:
-	case CLASS_FOOD_VENDOR:
-	case CLASS_MEDICAL_VENDOR:
-	case CLASS_GAMBLER_VENDOR:
-	case CLASS_TRADE_VENDOR:
-	case CLASS_ODDITIES_VENDOR:
-	case CLASS_DRUG_VENDOR:
-		NPC_BehaviorSet_Vendor( bState );
-		return;
-	case CLASS_TRAVELLING_VENDOR:
-		NPC_BehaviorSet_TravellingVendor( bState );
-		return;
-	default:
-		break;
 	}
 
 	if ( bState == BS_CINEMATIC )
@@ -2237,27 +1425,14 @@ void NPC_RunBehavior( int team, int bState )
 	{
 		NPC_BehaviorSet_Seeker( bState );
 	}
-	else if ( NPC->client->NPC_class == CLASS_CIVILIAN )
-	{
-		// UQ1: Civilians...
-		if (NPC->enemy) NPC->enemy = NULL;
-
-		NPC_BehaviorSet_Civilian( bState );
-	}
-	else if ( NPC->client->NPC_class == CLASS_BOBAFETT || !Q_stricmp( "rockettrooper", NPC->NPC_type ))
+	else if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 	{//bounty hunter
 		if ( Boba_Flying( NPC ) )
 		{
-			NPC->s.eFlags |= EF_JETPACK;
-			NPC->client->ps.eFlags |= EF_JETPACK_ACTIVE;
-			NPC->client->ps.eFlags |= EF_JETPACK_FLAMING;
 			NPC_BehaviorSet_Seeker(bState);
 		}
 		else
 		{
-			NPC->s.eFlags &= ~EF_JETPACK;
-			NPC->client->ps.eFlags &= ~EF_JETPACK_ACTIVE;
-			NPC->client->ps.eFlags &= ~EF_JETPACK_FLAMING;
 			NPC_BehaviorSet_Jedi( bState );
 		}
 		dontSetAim = qtrue;
@@ -2311,6 +1486,7 @@ void NPC_RunBehavior( int team, int bState )
 			case CLASS_GALAKMECH:
 				NPC_BSGM_Default();
 				return;
+
 			}
 
 			if ( NPC->enemy && NPC->s.weapon == WP_NONE && bState != BS_HUNT_AND_KILL && (!trap_ICARUS_TaskIDPending( NPC, TID_MOVE_NAV ) && !NPC->NPC->luaFlags.isMoving) )
@@ -2348,6 +1524,7 @@ void NPC_RunBehavior( int team, int bState )
 			break;
 
 		case NPCTEAM_NEUTRAL: 
+
 			// special cases for enemy droids
 			if ( NPC->client->NPC_class == CLASS_PROTOCOL || NPC->client->NPC_class == CLASS_UGNAUGHT ||
 				NPC->client->NPC_class == CLASS_JAWA)
@@ -2358,11 +1535,6 @@ void NPC_RunBehavior( int team, int bState )
 			{
 				// TODO: Add vehicle behaviors here.
 				NPC_UpdateAngles( qtrue, qtrue );//just face our spawn angles for now
-			}
-			else if ( NPC->client->NPC_class == CLASS_CIVILIAN )
-			{
-				// UQ1: Civilians...
-				NPC_BehaviorSet_Civilian( bState );
 			}
 			else
 			{
@@ -2375,11 +1547,6 @@ void NPC_RunBehavior( int team, int bState )
 			if ( NPC->client->NPC_class == CLASS_SEEKER )
 			{
 				NPC_BehaviorSet_Seeker(bState);
-			}
-			else if ( NPC->client->NPC_class == CLASS_CIVILIAN )
-			{
-				// UQ1: Civilians...
-				NPC_BehaviorSet_Civilian( bState );
 			}
 			else
 			{
@@ -2486,12 +1653,12 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 		if(NPC->enemy->flags & FL_DONT_SHOOT)
 		{
 			ucmd.buttons &= ~BUTTON_ATTACK;
-			//ucmd.buttons &= ~BUTTON_ALT_ATTACK;
+			ucmd.buttons &= ~BUTTON_ALT_ATTACK;
 		}
 		else if ( NPC->client->playerTeam != NPCTEAM_ENEMY && NPC->enemy->NPC && (NPC->enemy->NPC->surrenderTime > level.time || (NPC->enemy->NPC->scriptFlags&SCF_FORCED_MARCH)) )
 		{//don't shoot someone who's surrendering if you're a good guy
 			ucmd.buttons &= ~BUTTON_ATTACK;
-			//ucmd.buttons &= ~BUTTON_ALT_ATTACK;
+			ucmd.buttons &= ~BUTTON_ALT_ATTACK;
 		}
 
 		if(client->ps.weaponstate == WEAPON_IDLE)
@@ -2547,7 +1714,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	memcpy( &NPCInfo->last_ucmd, &ucmd, sizeof( usercmd_t ) );
 	if ( !NPCInfo->attackHoldTime )
 	{
-		NPCInfo->last_ucmd.buttons &= ~(BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/);//so we don't fire twice in one think
+		NPCInfo->last_ucmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);//so we don't fire twice in one think
 	}
 //============================================================================
 	NPC_CheckAttackScript();
@@ -2649,110 +1816,6 @@ void G_DroidSounds( gentity_t *self )
 	}
 }
 
-void NPC_SetHitBox( void )
-{
-	// Who can switch weapons???
-	switch (NPC->client->NPC_class)
-	{
-	case CLASS_R2D2:				// droid
-	case CLASS_R5D2:				// droid
-	case CLASS_LIZARD:
-	case CLASS_MOUSE:			// droid
-		// UQ1: Small stuff...
-		NPC->r.maxs[2] = CROUCH_MAXS_2;
-		NPC->r.maxs[1] = 8;
-		NPC->r.maxs[0] = 8;
-		NPC->r.mins[1] = -8;
-		NPC->r.mins[0] = -8;
-		break;
-	case CLASS_ATST:
-	case CLASS_CLAW:
-	case CLASS_FISH:
-	case CLASS_FLIER2:
-	case CLASS_GLIDER:
-	case CLASS_GONK:				// droid
-	case CLASS_HOWLER:
-	case CLASS_INTERROGATOR:		// droid 
-	case CLASS_MARK1:			// droid
-	case CLASS_MARK2:			// droid
-	case CLASS_GALAKMECH:		// droid
-	case CLASS_MINEMONSTER:
-	case CLASS_MURJJ:
-	case CLASS_PROBE:			// droid
-	case CLASS_REMOTE:
-	case CLASS_SEEKER:			// droid
-	case CLASS_SENTRY:
-	case CLASS_VEHICLE:
-	case CLASS_RANCOR:
-	case CLASS_WAMPA:
-		// UQ1: Will leave these ones alone...
-		break;
-	case CLASS_BARTENDER:
-	case CLASS_BESPIN_COP:		
-	case CLASS_COMMANDO:
-	case CLASS_DESANN:		
-	case CLASS_GALAK:
-	case CLASS_GRAN:
-	case CLASS_IMPERIAL:
-	case CLASS_IMPWORKER:
-	case CLASS_JAN:				
-	case CLASS_JEDI:
-	case CLASS_KYLE:				
-	case CLASS_LANDO:			
-	case CLASS_LUKE:				// UQ1: TODO - maybe should be allowed to switch to pistol/blaster???
-	case CLASS_MONMOTHA:			
-	case CLASS_MORGANKATARN:
-	case CLASS_PRISONER:
-	case CLASS_PROTOCOL:			// droid
-	case CLASS_REBEL:
-	case CLASS_REBORN:
-	case CLASS_REELO:
-	case CLASS_RODIAN:
-	case CLASS_SHADOWTROOPER:
-	case CLASS_STORMTROOPER:
-	case CLASS_SWAMP:
-	case CLASS_SWAMPTROOPER:
-	case CLASS_TAVION:
-	case CLASS_TRANDOSHAN:
-	case CLASS_UGNAUGHT:
-	case CLASS_JAWA:
-	case CLASS_WEEQUAY:
-	case CLASS_BOBAFETT:
-	case CLASS_CIVILIAN:			// UQ1: Random civilian NPCs...
-	case CLASS_GENERAL_VENDOR:
-	case CLASS_WEAPONS_VENDOR:
-	case CLASS_ARMOR_VENDOR:
-	case CLASS_SUPPLIES_VENDOR:
-	case CLASS_FOOD_VENDOR:
-	case CLASS_MEDICAL_VENDOR:
-	case CLASS_GAMBLER_VENDOR:
-	case CLASS_TRADE_VENDOR:
-	case CLASS_ODDITIES_VENDOR:
-	case CLASS_DRUG_VENDOR:
-	case CLASS_TRAVELLING_VENDOR:
-	case CLASS_BOT_FAKE_NPC:
-	default:
-		// Humanoid...
-		if (NPC->client->ps.pm_flags & PMF_DUCKED)
-		{
-			NPC->r.maxs[2] = NPC->client->ps.crouchheight;
-			NPC->r.maxs[1] = 8;
-			NPC->r.maxs[0] = 8;
-			NPC->r.mins[1] = -8;
-			NPC->r.mins[0] = -8;
-		}
-		else if (!(NPC->client->ps.pm_flags & PMF_DUCKED))
-		{
-			NPC->r.maxs[2] = NPC->client->ps.standheight;
-			NPC->r.maxs[1] = 8;
-			NPC->r.maxs[0] = 8;
-			NPC->r.mins[1] = -8;
-			NPC->r.mins[0] = -8;
-		}
-		break;
-	}
-}
-
 /*
 ===============
 NPC_Think
@@ -2777,7 +1840,6 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	memset( &ucmd, 0, sizeof( ucmd ) );
 
 	VectorCopy( self->client->ps.moveDir, oldMoveDir );
-
 	if (self->s.NPC_class != CLASS_VEHICLE)
 	{ //YOU ARE BREAKING MY PREDICTION. Bad clear.
 		VectorClear( self->client->ps.moveDir );
@@ -2793,22 +1855,16 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		GLua_NPCEV_OnThink(self);
 	}
 
-	// UQ1: More realisting hitboxes for NPCs...
-	NPC_SetHitBox();
-
 	// dead NPCs have a special think, don't run scripts (for now)
 	//FIXME: this breaks deathscripts
 	if ( self->health <= 0 ) 
 	{
 		DeadThink();
-
 		if ( NPCInfo->nextBStateThink <= level.time )
 		{
 			trap_ICARUS_MaintainTaskManager(self->s.number);
 		}
-
 		VectorCopy(self->r.currentOrigin, self->client->ps.origin);
-
 		return;
 	}
 

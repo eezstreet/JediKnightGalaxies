@@ -156,8 +156,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\libraries;..\shared; ..\libraries\libexpat\include; ..\game\"
-				PreprocessorDefinitions="_DEBUG;_USRDLL;WIN32;_WINDOWS;UI_EXPORTS;MISSIONPACK;_JK2; XML_STATIC;UI;_PHASE1"
+				AdditionalIncludeDirectories="..\libraries;..\shared"
+				PreprocessorDefinitions="_DEBUG;_USRDLL;WIN32;_WINDOWS;UI_EXPORTS;MISSIONPACK;_JK2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
@@ -187,12 +187,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="odbc32.lib odbccp32.lib libexpatMT.lib ..\cgame\bass.lib winmm.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)\uix86.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\libraries\libexpat\lib;"
-				IgnoreDefaultLibraryNames="libcmt"
 				ModuleDefinitionFile=".\ui.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="../$(ConfigurationName)/PDB/$(TargetName).pdb"
@@ -352,10 +350,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\game\bg_constants.c"
-				>
-			</File>
-			<File
 				RelativePath="..\game\bg_lib.c"
 				>
 				<FileConfiguration
@@ -388,6 +382,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\game\bg_saga.c"
+				>
+			</File>
+			<File
 				RelativePath="..\game\bg_vehicleLoad.c"
 				>
 			</File>
@@ -396,23 +394,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\game\bg_weapons_load.c"
-				>
-			</File>
-			<File
-				RelativePath="..\game\jkg_gangwars.c"
-				>
-			</File>
-			<File
-				RelativePath="..\cgame\jkg_musicengine.c"
-				>
-			</File>
-			<File
 				RelativePath=".\jkg_ui_auxlib.c"
-				>
-			</File>
-			<File
-				RelativePath="..\game\networkstate.c"
 				>
 			</File>
 			<File
@@ -460,10 +442,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\cgame\ui_network.c"
-				>
-			</File>
-			<File
 				RelativePath="ui_saber.c"
 				>
 			</File>
@@ -491,27 +469,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\jkg_gangwars_ui.c"
-					>
-				</File>
-				<File
-					RelativePath=".\jkg_inventory.c"
-					>
-				</File>
-				<File
-					RelativePath=".\jkg_loot.c"
-					>
-				</File>
-				<File
 					RelativePath=".\jkg_partymanager.c"
 					>
 				</File>
 				<File
 					RelativePath=".\jkg_pazaak.c"
-					>
-				</File>
-				<File
-					RelativePath=".\jkg_shop.c"
 					>
 				</File>
 				<File
@@ -545,6 +507,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\game\bg_saga.h"
+				>
+			</File>
+			<File
 				RelativePath="..\game\bg_strap.h"
 				>
 			</File>
@@ -558,10 +524,6 @@
 			</File>
 			<File
 				RelativePath="..\shared\qcommon\game_version.h"
-				>
-			</File>
-			<File
-				RelativePath="..\game\jkg_gangwars.h"
 				>
 			</File>
 			<File
@@ -628,27 +590,11 @@
 				RelativePath=".\ui_shared.h"
 				>
 			</File>
-			<File
-				RelativePath="..\game\z_global_defines.h"
-				>
-			</File>
 			<Filter
 				Name="Modules"
 				>
 				<File
 					RelativePath=".\jkg_conversations.h"
-					>
-				</File>
-				<File
-					RelativePath=".\jkg_gangwars_ui.h"
-					>
-				</File>
-				<File
-					RelativePath=".\jkg_inventory.h"
-					>
-				</File>
-				<File
-					RelativePath=".\jkg_lootui.h"
 					>
 				</File>
 				<File
@@ -804,98 +750,6 @@
 					</File>
 				</Filter>
 			</Filter>
-			<Filter
-				Name="Expat"
-				>
-				<Filter
-					Name="Header Files"
-					>
-					<File
-						RelativePath="..\libraries\libexpat\include\amigaconfig.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\ascii.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\asciitab.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\expat.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\expat_external.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\iasciitab.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\internal.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\latin1tab.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\macconfig.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\nametab.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\utf8tab.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\watcomconfig.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\winconfig.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\xmlrole.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\xmltok.h"
-						>
-					</File>
-					<File
-						RelativePath="..\libraries\libexpat\include\xmltok_impl.h"
-						>
-					</File>
-				</Filter>
-			</Filter>
-			<Filter
-				Name="Bass"
-				>
-				<File
-					RelativePath="..\cgame\bass.h"
-					>
-				</File>
-				<File
-					RelativePath="..\cgame\basstest.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="Resources"
-			>
-			<File
-				RelativePath="..\cgame\loadnget.rc"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

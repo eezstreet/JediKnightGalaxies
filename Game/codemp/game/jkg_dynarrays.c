@@ -9,9 +9,8 @@
 
 unsigned int JKG_Arrays_AddArrayElement(void **arry, size_t sze, unsigned int *count){
 	*arry = (void *)realloc(*arry, sze * ((*count) + 1));
-	if(!arry) {
+	if(!*arry) {
 		G_Error("JKG_Arrays_AddArrayElement: Failed to realloc memory array!\n");
-		return -1;
 	}
 	memset((byte *)(*arry) + (sze * (*count)), 0, sze);
 	(*count)++;
@@ -22,9 +21,8 @@ qboolean JKG_Arrays_AddArrayElement_Location(int index, void **arry, size_t sze,
 	char *buf;
 	int shiftCount;
 	*arry = (void *)realloc(*arry, sze * ((*count) + 1));
-	if(!arry) {
+	if(!*arry) {
 		G_Error("JKG_Arrays_AddArrayElement_Location: Failed to realloc memory array!\n");
-		return qfalse;
 	}
 	shiftCount = (*count - index) * sze;
 
@@ -56,7 +54,7 @@ void JKG_Arrays_RemoveArrayElement(void **arry, unsigned int element, size_t sze
 	}
 	(*count)--;
 	*arry = (void *)realloc(*arry, sze * (*count));
-	if(!arry && (*count) > 0) {
+	if(!(*arry) && (*count) > 0) {
 		G_Error("JKG_Arrays_RemoveArrayElement: Failed to realloc memory array!\n");
 	}
 }
@@ -132,7 +130,7 @@ void JKG_Array_Add ( jkgArray_t *arr, void *element )
 //=========================================================
 void JKG_Array_Insert ( jkgArray_t *arr, void *data, unsigned int index )
 {
-    assert (index < arr->size);
+    assert (index >= 0 && index < arr->size);
     
     JKG_Array_EnsureCapacity (arr, 1);
     
@@ -155,7 +153,7 @@ void JKG_Array_Insert ( jkgArray_t *arr, void *data, unsigned int index )
 //=========================================================
 void *JKG_Array_Get ( jkgArray_t *arr, unsigned int index )
 {
-    assert (index < arr->size);
+    assert (index >= 0 && index < arr->size);
     
     return (byte *)arr->data + index * arr->_elementSize;
 }
@@ -168,7 +166,7 @@ void *JKG_Array_Get ( jkgArray_t *arr, unsigned int index )
 //=========================================================
 void JKG_Array_Set ( jkgArray_t *arr, void *data, unsigned int index )
 {
-    assert (index < arr->size);
+    assert (index >= 0 && index < arr->size);
     
     memcpy ((byte *)arr->data + index * arr->_elementSize, data, arr->_elementSize);
 }
@@ -181,7 +179,7 @@ void JKG_Array_Set ( jkgArray_t *arr, void *data, unsigned int index )
 //=========================================================
 void JKG_Array_RemoveRange ( jkgArray_t *arr, unsigned int start, unsigned int count )
 {
-    assert ((start + count) < arr->size);
+    assert (start >= 0 && (start + count) < arr->size);
 
     memmove (
         (byte *)arr->data + start * arr->_elementSize,

@@ -140,7 +140,7 @@ static const char *JKG_Crash_GetCrashlogName() {
 	struct tm * timeinfo;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	strftime(Buff, 1024,"JKG-SVCrashlog_%Y-%m-%d_%H-%M-%S.log",timeinfo);
+	strftime(Buff, 1024,"JKG-SVCrashlog_%d-%m-%Y_%H-%M-%S.log",timeinfo);
 	return Buff;
 }
 

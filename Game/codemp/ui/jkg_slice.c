@@ -474,7 +474,7 @@ void JKG_Slice_DrawGridSlot(int slot, float x, float y, float w, float h)
 	int row = slot >> 3;
 	int col = slot & 7;
 
-	const char *text = NULL;
+	const char *text;
 	float w2;
 
 	if (row >= sliceData.height || col >= sliceData.width) {
@@ -664,7 +664,7 @@ void JKG_Slice_DrawWarningLevel(float x, float y, float w, float h)
 
 void JKG_Slice_DrawIntrusion(int field, float x, float y, float w, float h)
 {
-	const char *text = NULL;
+	const char *text;
 	if (!sliceData.intrusionDetection) {
 		return;
 	}

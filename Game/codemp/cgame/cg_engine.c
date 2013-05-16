@@ -92,6 +92,8 @@ void PatchEngine() {
 	// Replaced by:
 	// 00411834 - 8995 54C50800 - MOV DWORD PTR SS:[EBP+85C54],EDX
 	*(unsigned int *)0x411836 = 0x85C54;
+	
+
 
 	// Command filter hook
 	// 0041D60C - 8B0D 6C4B9500 - MOV ECX, DWORD PTR DS:[954B6C]
@@ -113,7 +115,6 @@ void UnpatchEngine() {
 	// 00411885 - 7E 18 - JLE SHORT jamp.0041189F
 	*(unsigned char *)0x411885 = 0x7E;
 	*(unsigned int *)0x411836 = 0x22054;
-
 
 	// Revert Command filter hook
 	memcpy((void *)0x41D60C, "\x8B\x0D\x6C\x4B\x95\x00", 6);

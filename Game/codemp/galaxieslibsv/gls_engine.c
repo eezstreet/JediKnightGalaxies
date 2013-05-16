@@ -15,7 +15,6 @@
 
 #ifdef _WIN32
 	#include <windows.h>
-	#define NOINLINE
 #else
 	#include <sys/mman.h>
 	#include <unistd.h>
@@ -23,7 +22,6 @@
     #include <stdlib.h>
     typedef unsigned char byte;
 	#define _stricmp strcasecmp
-	#define NOINLINE __attribute__((noinline))
 #endif
 
 #include "gls_enginefuncs.h"
@@ -38,11 +36,6 @@ typedef enum {
 	PATCH_JUMP,
 	PATCH_CALL,
 } PatchType_e;
-
-#define MAX_JKG_CVARS	8
-
-cvar_t cvarIndeces[MAX_JKG_CVARS];
-unsigned int MAX_JKG_CVARS_I = MAX_JKG_CVARS;
 
 // ==================================================
 // UnlockMemory (WIN32 & Linux compatible)
@@ -122,7 +115,7 @@ static int LockMemory(int address, int size) {
 
 static PatchData_t *JKG_PlacePatch( int type, unsigned int address, unsigned int destination ) {
 	PatchData_t *patch = malloc(sizeof(PatchData_t));
-	//int addr = address;
+	int addr = address;
 	int sz = 0;
 
 	ud_t ud;
@@ -159,77 +152,6 @@ static PatchData_t *JKG_PlacePatch( int type, unsigned int address, unsigned int
 }
 
 static void JKG_RemovePatch(PatchData_t **patch) {
-	if (!*patch)
-		return;
-	UnlockMemory((*patch)->addr, (*patch)->size);
-	memcpy((void *)(*patch)->addr, (*patch)->origbytes, (*patch)->size);
-	LockMemory((*patch)->addr, (*patch)->size);
-	*patch = 0;
-}
-
-// ==================================================
-// JKG_PatchMemory (WIN32 & Linux compatible)
-// --------------------------------------------------
-// Patches the code at address to make a go towards
-// destination.
-//
-// Before the code is modified, the code page is
-// unlocked.
-//
-// This function returns a malloced PatchData_t.
-// To remove the patch, call JKG_RemoveMemPatch. This
-// will also free the PatchData_t.
-// ==================================================
-
-static PatchData_t *JKG_PatchMemory( unsigned int address, unsigned char *byteSequence, unsigned int numBytes ) {
-	PatchData_t *patch = malloc(sizeof(PatchData_t));
-	//int addr = address;
-
-	ud_t ud;
-
-	if(!byteSequence)
-	{
-		return NULL;
-	}
-
-	ud_init(&ud);
-	ud_set_input_buffer(&ud, (uint8_t *)address, numBytes);
-	ud_set_mode(&ud, 32);
-	ud_set_pc(&ud, address);
-	ud_set_syntax(&ud, NULL);
-
-	/*while (ud_disassemble(&ud))
-	{
-		sz += ud_insn_len(&ud);
-		if (sz >= numBytes) {
-			break;
-		}
-	}*/
-
-	//assert(sz >= numBytes);
-
-	/*if (sz < 5 || sz > 24) {
-		// This really shouldnt ever happen, in the worst case scenario,
-		// the block is 20 bytes (4 + 16), so if we hit 24, something went wrong
-		return NULL;
-	}*/
-
-	patch->addr = address;
-	patch->size = numBytes;
-	memcpy(patch->origbytes, (const void *)address, numBytes);
-	UnlockMemory(address, numBytes); // Make the memory writable
-	
-	// Patch the bytes at the address
-	memcpy((unsigned int *)address, byteSequence, numBytes);
-
-	/**(unsigned char *)address = type == PATCH_JUMP ? 0xE9 : 0xE8;
-	*(unsigned int *)(address+1) = destination - (address + 5);
-	memset((void *)(address+5),0x90,sz-5);	// Nop the rest*/
-	LockMemory(address, numBytes);
-	return patch;
-}
-
-static void JKG_RemoveMemPatch(PatchData_t **patch) {
 	if (!*patch)
 		return;
 	UnlockMemory((*patch)->addr, (*patch)->size);
@@ -318,9 +240,9 @@ static PatchData_t *pBSPDH;
 
 int JKG_DecodeBSP(void *bspheader);
 
-static NOINLINE void *_Hook_BSPDecryptor()
+static void *_Hook_BSPDecryptor()
 {
-	__JKG_StartHook(BSPDecryptor);
+	__JKG_StartHook(0);
 	{
 		__asm1__(	pushad						);
 #ifdef _WIN32
@@ -346,7 +268,7 @@ static NOINLINE void *_Hook_BSPDecryptor()
 		__asm1__(	push	_BSPDH_RETPOS		);
 		__asm1__(	ret							);
 	}
-	__JKG_EndHook(BSPDecryptor);
+	__JKG_EndHook(0);
 }
 
 // =================================================
@@ -377,9 +299,9 @@ static PatchData_t *pSDM;
 
 const char* JKG_ShutdownMessage(void);
 
-static NOINLINE void *_Hook_QuitMsg()
+static void *_Hook_QuitMsg()
 {
-	__JKG_StartHook(QuitMsg);
+	__JKG_StartHook(2);
 	{
 #ifdef _WIN32
 		__asm2__(	sub		esp, 4				);
@@ -395,7 +317,7 @@ static NOINLINE void *_Hook_QuitMsg()
 		__asm1__(	push	_SDM_RETPOS			);
 		__asm1__(	ret							);
 	}
-	__JKG_EndHook(QuitMsg);
+	__JKG_EndHook(2);
 }
 
 const char* JKG_ShutdownMessage(void) {
@@ -443,9 +365,9 @@ static PatchData_t *pSLIe;
 void JKG_StressLvlStart(void);
 void JKG_StressLvlEnd(void);
 
-static NOINLINE void *_Hook_StressLevel_Start()
+static void *_Hook_StressLevel_Start()
 {
-	__JKG_StartHook(StressLevel_Start);
+	__JKG_StartHook(3);
 	{
 		__asm1__(	pushad						);
 		__asm1__(	call	JKG_StressLvlStart	);
@@ -459,12 +381,12 @@ static NOINLINE void *_Hook_StressLevel_Start()
 		__asm1__(	push	_SLIs_RETPOS		);
 		__asm1__(	ret							);
 	}
-	__JKG_EndHook(StressLevel_Start);
+	__JKG_EndHook(3);
 }
 
 static void *_Hook_StressLevel_End()
 {
-	__JKG_StartHook(StressLevel_End);
+	__JKG_StartHook(4);
 	{
 		__asm1__(	pushad						);
 #ifdef _WIN32
@@ -480,7 +402,7 @@ static void *_Hook_StressLevel_End()
 		__asm1__(	ret							);
 #endif
 	}
-	__JKG_EndHook(StressLevel_End);
+	__JKG_EndHook(4);
 }
 
 void JKG_StressLvlStart(void) {
@@ -556,6 +478,7 @@ static void *_Hook_ChallengeHook()
 #define _CXM_PATCHPOS1		0x804BB4A
 #define _CXM_PATCHPOS2		0x804BBA1
 #define _CXM_RETPOS			0x807B744
+#error Hook 4 is not linux compatible
 
 #else
 // Define windows symbols
@@ -571,28 +494,24 @@ static PatchData_t *pCXMP2;
 #endif
 
 const char *CH_ProcessChallengeRequest(void *challenge);
-static NOINLINE void *_Hook_ChallengeHook()
+static void *_Hook_ChallengeHook()
 {
-	__JKG_StartHook(ChallengeHook);
+	__JKG_StartHook(4);
 	{
 		__asm1__(	pushad												);
-#ifdef __linux__
-		__asm1__(	push edi											);
-#else
 		__asm1__(	push ebx											);
-#endif
 		__asm1__(	call CH_ProcessChallengeRequest						);
 		__asm2__(	add esp, 4											);
 		__asm2__(	test eax,eax										);
-		__asm1__(	je chskip												);
+		__asm1__(	je skip												);
 		__asm2__(	mov [esp+0x3C], eax									);
-		__asmL__(chskip:													);
+		__asmL__(skip:													);
 		__asm1__(	popad												);
 		__asm1__(	push _CXM_RETPOS									);
 		__asm1__(	ret													);
 		
 	}
-	__JKG_EndHook(ChallengeHook);
+	__JKG_EndHook(4);
 }
 
 #ifdef _WIN32	// Console event handler
@@ -625,14 +544,13 @@ BOOL CtrlHandler( DWORD fdwCtrlType ) {
 	default: 
 		break;
 	} 
-	
 	CBuf_AddText("quit");
-
 	//Sys_Quit();
 	return 1;
 }
 
 #endif
+
 
 void JKG_PatchEngine() {
 	Com_Printf(" ------- Installing Engine Patches (Auxiliary library) -------- \n");
@@ -658,7 +576,7 @@ void JKG_PatchEngine() {
 
 #ifdef __linux__
 	pCXMP1 = JKG_PlacePatch(PATCH_CALL, _CXM_PATCHPOS1, (unsigned int)_Hook_ChallengeHook());
-	pCXMP2 = JKG_PlacePatch(PATCH_CALL, _CXM_PATCHPOS2, (unsigned int)_Hook_ChallengeHook());
+	pCXMP2 = JKG_PlacePatch(PATCH_CALL, _CXM_PATCHPOS1, (unsigned int)_Hook_ChallengeHook());
 	if (!pCXMP1 || !pCXMP2) {
 #else
 	pCXMP1 = JKG_PlacePatch(PATCH_CALL, _CXM_PATCHPOS, (unsigned int)_Hook_ChallengeHook());
@@ -682,7 +600,7 @@ void JKG_PatchEngine() {
 
 	// Raise delta compressor's settings for ammo transmission (from 16 slots of 16 bits, to 19 slots of 32 bits)
 #ifdef __linux__
-//#error Ammo transmission patch not yet compatible with linux
+#error Ammo transmission patch not yet compatible with linux
 #else
 	//UnlockMemory(0x41992F, 610);
 	//*(unsigned char *)0x41992F = 19;
@@ -691,18 +609,8 @@ void JKG_PatchEngine() {
 	//LockMemory(0x419AB0, 610);
 #endif
 
-	// Allow people to use encrypted/protected PK3s
 #ifdef _WIN32
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, 1);
-
-
-	{
-		HWND hwnd = GetConsoleWindow();
-		HMENU hmenu = GetSystemMenu(hwnd, FALSE);
-		DeleteMenu(hmenu, SC_CLOSE, MF_BYCOMMAND);
-		//ModifyMenu(hmenu, SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED, SC_CLOSE, NULL);
-	}
-
 #endif
 
 	Com_Printf("Finished\n");

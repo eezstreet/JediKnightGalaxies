@@ -21,7 +21,7 @@
 			OutputDirectory="../$(ConfigurationName)/Dlls"
 			IntermediateDirectory="../$(ConfigurationName)/GalaxiesLib"
 			ConfigurationType="2"
-			CharacterSet="2"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;../;./ogg/include;./vorbis/include;./theora/include;./../zlib;../libcurl/include;..\libraries;..\shared;../libraries/libcurl/include"
+				AdditionalIncludeDirectories=".;../;./ogg/include;./vorbis/include;./theora/include;./../zlib;../libcurl/include;..\libraries;..\shared;../libraries/libcurl/include;../libraries/fmod/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;CURL_STATICLIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -66,12 +66,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib psapi.lib winmm.lib ws2_32.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib"
+				AdditionalDependencies="dbghelp.lib psapi.lib winmm.lib libcurld.lib ws2_32.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib fmodexL_vc.lib Rpcrt4.lib"
 				OutputFile="$(OutDir)\galaxiesx86.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../libraries/libcurl;../libraries/openssl;../libraries/ogg;../libraries/theora;../libraries/vorbis"
+				AdditionalLibraryDirectories="../libraries/libcurl;../libraries/openssl;../libraries/ogg;../libraries/theora;../libraries/vorbis;../libraries/fmod/lib"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="galaxieslib.def"
+				DelayLoadDLLs="fmodexL.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="../$(ConfigurationName)/PDB/$(TargetName).pdb"
 				GenerateMapFile="true"
@@ -110,7 +111,7 @@
 			OutputDirectory="../$(ConfigurationName)/Dlls"
 			IntermediateDirectory="../$(ConfigurationName)/GalaxiesLib"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -135,7 +136,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;../;./../zlib;../libcurl/include;..\libraries;..\shared;../libraries/libcurl/include"
+				AdditionalIncludeDirectories=".;../;./../zlib;../libcurl/include;..\libraries;..\shared;../libraries/libcurl/include;../libraries/fmod/inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GALAXIESLIB_EXPORTS;CURL_STATICLIB"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -164,12 +165,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib psapi.lib ws2_32.lib libcurl.lib winmm.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib"
+				AdditionalDependencies="dbghelp.lib psapi.lib ws2_32.lib libcurl.lib winmm.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib fmodex_vc.lib Rpcrt4.lib"
 				OutputFile="$(OutDir)\galaxiesx86.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../libraries/libcurl;../libraries/openssl;../libraries/ogg;../libraries/theora;../libraries/vorbis"
+				AdditionalLibraryDirectories="../libraries/libcurl;../libraries/openssl;../libraries/ogg;../libraries/theora;../libraries/vorbis;../libraries/fmod/lib"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="galaxieslib.def"
+				DelayLoadDLLs="fmodex.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="../$(ConfigurationName)/PDB/$(TargetName).pdb"
 				GenerateMapFile="true"
@@ -211,7 +213,7 @@
 			OutputDirectory="../$(ConfigurationName)/Dlls"
 			IntermediateDirectory="../$(ConfigurationName)/GalaxiesLib"
 			ConfigurationType="2"
-			CharacterSet="2"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -236,7 +238,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".;../;./ogg/include;./vorbis/include;./theora/include;./../zlib;../libcurl/include;..\libraries;..\shared;../libraries/libcurl/include"
+				AdditionalIncludeDirectories=".;../;./ogg/include;./vorbis/include;./theora/include;./../zlib;../libcurl/include;..\libraries;..\shared;../libraries/libcurl/include;../libraries/fmod/inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GALAXIESLIB_EXPORTS;FINAL_BUILD;CURL_STATICLIB"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -264,12 +266,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib psapi.lib ws2_32.lib libcurl.lib winmm.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib"
+				AdditionalDependencies="dbghelp.lib psapi.lib ws2_32.lib libcurl.lib winmm.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib fmodex_vc.lib Rpcrt4.lib"
 				OutputFile="$(OutDir)\galaxiesx86.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../libraries/libcurl;../libraries/openssl;../libraries/ogg;../libraries/theora;../libraries/vorbis"
+				AdditionalLibraryDirectories="../libraries/libcurl;../libraries/openssl;../libraries/ogg;../libraries/theora;../libraries/vorbis;../libraries/fmod/lib"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="galaxieslib.def"
+				DelayLoadDLLs="fmodex.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="../$(ConfigurationName)/PDB/$(TargetName).pdb"
 				GenerateMapFile="true"
@@ -385,11 +388,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gl_sound.c"
+				>
+			</File>
+			<File
 				RelativePath=".\gl_yuv2rgb.c"
 				>
 			</File>
 			<File
 				RelativePath=".\jkg_dynarrays.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_libcurl.c"
 				>
 			</File>
 			<File
@@ -415,6 +426,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gl_sound.h"
+				>
+			</File>
+			<File
 				RelativePath=".\jkg_dynarrays.h"
 				>
 			</File>
@@ -432,10 +447,6 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
-				>
-			</File>
-			<File
-				RelativePath="..\game\z_global_defines.h"
 				>
 			</File>
 		</Filter>
@@ -1170,6 +1181,38 @@
 					</File>
 					<File
 						RelativePath="..\libraries\libudis86\udis86.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="FMOD"
+				>
+				<Filter
+					Name="Header Files"
+					>
+					<File
+						RelativePath="..\libraries\fmod\inc\fmod.h"
+						>
+					</File>
+					<File
+						RelativePath="..\libraries\fmod\inc\fmod_codec.h"
+						>
+					</File>
+					<File
+						RelativePath="..\libraries\fmod\inc\fmod_dsp.h"
+						>
+					</File>
+					<File
+						RelativePath="..\libraries\fmod\inc\fmod_errors.h"
+						>
+					</File>
+					<File
+						RelativePath="..\libraries\fmod\inc\fmod_memoryinfo.h"
+						>
+					</File>
+					<File
+						RelativePath="..\libraries\fmod\inc\fmod_output.h"
 						>
 					</File>
 				</Filter>

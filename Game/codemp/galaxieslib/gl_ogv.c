@@ -1,18 +1,8 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_ogv.c
+///////////////////////////////////
+//
 // OGM/OGV Playback interface
-// (c) 2013 Jedi Knight Galaxies
+//
+//////////////////////////////////
 
 // This is the interface used to manage the playback
 // of OGM/OGV files
@@ -84,7 +74,7 @@ typedef struct
 	int             outputWidth;
 	int             outputHeight;
 	int             outputBufferSize;	// in Pixel (so "real Bytesize" = outputBufferSize*4)
-	ogg_int64_t     VFrameCount;	// output video-stream
+	int             VFrameCount;	// output video-stream
 	ogg_int64_t     Vtime_unit;
 	int             currentTime;	// input from Run-function
 
@@ -374,11 +364,9 @@ static qboolean loadAudio()
 				right = pcm[1];
 				for(i = 0; i < samplesNeeded; ++i)
 				{
-// warning C4244: '=' : conversion from 'float' to 'short', possible loss of data
-#pragma warning( disable : 4244 )
-					ptr[0] = (short)(left[i] >= -1.0f &&
+					ptr[0] = (left[i] >= -1.0f &&
 							  left[i] <= 1.0f) ? left[i] * 32767.f : 32767 * ((left[i] > 0.0f) - (left[i] < 0.0f));
-					ptr[1] = (short)(right[i] >= -1.0f &&
+					ptr[1] = (right[i] >= -1.0f &&
 							  right[i] <= 1.0f) ? right[i] * 32767.f : 32767 * ((right[i] > 0.0f) - (right[i] < 0.0f));
 					ptr += 2;
 				}
@@ -387,7 +375,7 @@ static qboolean loadAudio()
 				left = pcm[0];
 				for(i = 0; i < samplesNeeded; ++i)
 				{
-					ptr[0] = (short)(left[i] >= -1.0f &&
+					ptr[0] = (left[i] >= -1.0f &&
 							  left[i] <= 1.0f) ? left[i] * 32767.f : 32767 * ((left[i] > 0.0f) - (left[i] < 0.0f));
 					ptr += 1;
 				}
@@ -471,7 +459,7 @@ static int loadVideoFrameTheora()
 			if(th_decode_ycbcr_out(currentOgm->td, currentOgm->th_yuvbuffer))
 				continue;
 
-			if(currentOgm->outputWidth != (int)currentOgm->ti.frame_width || currentOgm->outputHeight != (int)currentOgm->ti.frame_height)
+			if(currentOgm->outputWidth != currentOgm->ti.frame_width || currentOgm->outputHeight != currentOgm->ti.frame_height)
 			{
 				currentOgm->outputWidth = currentOgm->ti.frame_width;
 				currentOgm->outputHeight = currentOgm->ti.frame_height;

@@ -720,7 +720,6 @@ typedef struct {
 	int				next_roff_time; //rww - npc's need to know when they're getting roff'd
 } sharedEntity_t;
 
-#if 0
 #ifdef __cplusplus
 class CSequencer;
 class CTaskManager;
@@ -733,7 +732,6 @@ extern CTaskManager	*gTaskManagers[MAX_GENTITIES];
 #include "../icarus/icarus.h"
 #include "../icarus/sequencer.h"
 #include "../icarus/taskmanager.h"
-#endif
 #endif
 
 //

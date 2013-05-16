@@ -75,7 +75,6 @@ void JKG_InitThreading ( void );
 void JKG_ShutdownThreading ( int maxWaitTime );
 int testThreadFunc (struct asyncTask_s *taskPointer);
 asyncTask_t *JKG_NewAsyncTask ( int (*threadFunc)(struct asyncTask_s *taskPointer), void *initData, int flags, void (*finalCallback)(struct asyncTask_s *taskPointer) );
-qboolean JKG_ThreadingInitialized(void);
 
 void		JKG_Task_Init();
 void		JKG_Task_Terminate();

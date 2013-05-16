@@ -3,7 +3,6 @@
 // cg_view.c -- setup all the parameters (position, angle, etc)
 // for a 3D rendering
 #include "cg_local.h"
-#include "jkg_navmesh_visualiser.h"
 
 #include "bg_saga.h"
 
@@ -15,12 +14,6 @@
 #define CAMERA_SIZE	4
 
 #include "jkg_cg_auxlib.h"
-
-//[TrueView]
-#define		MAX_TRUEVIEW_INFO_SIZE					8192
-char		true_view_info[MAX_TRUEVIEW_INFO_SIZE];
-int			true_view_valid;
-//[/TrueView]
 
 /*
 =============================================================================
@@ -986,7 +979,7 @@ static qboolean G_InGetUpAnim(playerState_t *ps)
 qboolean PM_InForceGetUp( playerState_t *ps );
 qboolean PM_InGetUp( playerState_t *ps );
 qboolean PM_InKnockDown( playerState_t *ps );
-extern qboolean BG_InRoll( playerState_t *ps, int anim );
+
 static void CG_OffsetFirstPersonView( void ) {
 	float			*origin;
 	float			*angles;
@@ -998,7 +991,6 @@ static void CG_OffsetFirstPersonView( void ) {
 	vec3_t			predictedVelocity;
 	int				timeDelta;
 	int				kickTime;
-	qboolean rolling = BG_InRoll(&cg.predictedPlayerState, cg.predictedPlayerState.torsoAnim);
 	
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
 		return;
@@ -1114,23 +1106,6 @@ static void CG_OffsetFirstPersonView( void ) {
 		cg.refdef.vieworg[2] -= cg.duckChange 
 			* (DUCK_TIME - timeDelta) / DUCK_TIME;
 	}
-	/*else if(BG_InRoll(&cg.predictedPlayerState, cg.predictedPlayerState.torsoAnim))
-	{
-		//cg.predictedPlayerState.legsTimer = cg.predictedPlayerState.legsTimer;
-		if(cg.predictedPlayerState.legsTimer > 1000)
-		{
-			cg.refdef.vieworg[2] -= cg.duckChange * (DUCK_TIME - (cg.predictedPlayerState.legsTimer-1000)) / DUCK_TIME;
-		}
-		else if(cg.predictedPlayerState.legsTimer > 100)
-		{
-			cg.refdef.vieworg[2] -= cg.duckChange;
-		}
-		else
-		{
-			cg.refdef.vieworg[2] -= (cg.duckChange * (cg.predictedPlayerState.legsTimer / (float)DUCK_TIME));
-		}
-		//cg.refdef.vieworg[2] -= cg.duckChange;
-	}*/
 
 	// add bob height
 	bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
@@ -1364,28 +1339,31 @@ static int CG_CalcFov( void ) {
 		
 		if ( weapon->ironsightsFov > 0.0f )
 		{
-		    float phase = JKG_CalculateIronsightsPhase (&cg.networkState);
-		    if ( phase >= 1.0f )
+		    if ( ps->ironsightsTime & IRONSIGHTS_MSB )
             {
-                cgFov = cgFov - (80 - weapon->ironsightsFov);
+                unsigned int time = ps->ironsightsTime & ~IRONSIGHTS_MSB;
+                double phase = CubicBezierInterpolate (min (cg.time - time, 200) / 200.0, 0.0, 0.0, 1.0, 1.0);
+                
+                if ( phase >= 1.0 )
+                {
+                    cgFov = weapon->ironsightsFov;
+                }
+                else if ( phase > 0.0 )
+                {
+                    cgFov = cgFov - phase * (cgFov - weapon->ironsightsFov);
+                }
             }
-            else if ( phase > 0.0f )
+            else
             {
-                cgFov = cgFov - (phase * (80 - weapon->ironsightsFov));
+                unsigned int time = ps->ironsightsTime & ~IRONSIGHTS_MSB;
+                double phase = CubicBezierInterpolate (min (cg.time - time, 200) / 200.0, 0.0, 0.0, 1.0, 1.0);
+                
+                if ( phase > 0.0 && phase < 1.0 )
+                {
+                    cgFov = weapon->ironsightsFov + phase * (cgFov - weapon->ironsightsFov);
+                }
             }
         }
-
-		{
-			float phase = JKG_CalculateSprintPhase(&cg.networkState);
-			if ( phase >= 1.0f )
-            {
-                cgFov = cgFov - (80 - jkg_sprintFOV.value);
-            }
-            else if ( phase > 0.0f )
-            {
-                cgFov = cgFov - (phase * (80 - jkg_sprintFOV.value));
-            }
-		}
         
         cgFov = CG_ClampFov (cgFov);
 
@@ -1489,12 +1467,6 @@ static int CG_CalcFov( void ) {
 	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
 	fov_y = atan2( cg.refdef.height, x );
 	fov_y = fov_y * 360 / M_PI;
-	
-	/*fov_x = atan2 (x, cg.refdef.height);
-	fov_x = fov_x * 360.0f / M_PI;*/
-	//fov_x = atan2 (cg.refdef.width, cg.refdef.height);
-
-	//fov_x = atan (x * cg.refdef.width) * M_PI / 360.0f;
 
 	// warp if underwater
 	cg.refdef.viewContents = CG_PointContents( cg.refdef.vieworg, -1 );
@@ -1521,25 +1493,7 @@ static int CG_CalcFov( void ) {
 
 	if (cg.predictedPlayerState.zoomMode)
 	{
-		cg.zoomSensitivity = 0.25f * zoomFov / cgFov;
-	}
-	// JKG: Adjust mouse sensitivity based on ironsights FOV
-	else if ( cg.networkState.ironsightsTime & IRONSIGHTS_MSB )
-	{
-	    const weaponData_t *weapon = GetWeaponData (cg.predictedPlayerState.weapon, cg.predictedPlayerState.weaponVariation);
-	    switch ( weapon->zoomType )
-	    {
-	        case ZOOM_CONTINUOUS:
-	            cg.zoomSensitivity = 0.25f * weapon->endZoomFov / cgFov;
-	            break;
-	            
-	        case ZOOM_TOGGLE:
-	            cg.zoomSensitivity = 0.25f * weapon->startZoomFov / cgFov;
-	            break;
-	            
-	        default:
-	            break;
-	    }
+		cg.zoomSensitivity = zoomFov/cgFov;
 	}
 	else if ( !cg.zoomed ) {
 		cg.zoomSensitivity = 1;
@@ -2696,7 +2650,6 @@ void CinBuild_Visualize();
 
 int LastACRun = 0;
 void JKG_AntiDebug();
-extern cgItemData_t CGitemLookupTable[MAX_ITEM_TABLE_SIZE];
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
 	int		inwater;
 	const char *cstr;
@@ -2739,7 +2692,20 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		if (ui_myteam.integer != cg.snap->ps.persistant[PERS_TEAM])
 			trap_Cvar_Set ( "ui_myteam", va("%i", cg.snap->ps.persistant[PERS_TEAM]) );
 	}
-
+	if (cgs.gametype == GT_SIEGE &&
+		cg.snap &&
+		cg_siegeClassIndex != cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex)
+	{
+		cg_siegeClassIndex = cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex;
+		if (cg_siegeClassIndex == -1)
+		{
+			trap_Cvar_Set("ui_mySiegeClass", "<none>");
+		}
+		else
+		{
+			trap_Cvar_Set("ui_mySiegeClass", bgSiegeClasses[cg_siegeClassIndex].name);
+		}
+	}
 	JKG_AntiDebug();	// >:)
 	// update cvars
 	CG_UpdateCvars();
@@ -2844,40 +2810,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		}
 		else
 		{
-			if(cg.playerACI[cg.weaponSelect] >= -0)
-			{
-				if(cg.weaponSelect >= MAX_ACI_SLOTS)
-				{
-					cg.weaponSelect = 0;
-				}
-				if(cg.playerACI[cg.weaponSelect] >= MAX_INVENTORY_ITEMS)
-				{
-					goto defaultCmd;
-				}
-				if(cg.playerInventory[cg.playerACI[cg.weaponSelect]].id)
-				{
-					if(cg.holsterState && 
-						cg.playerInventory[cg.playerACI[cg.weaponSelect]].id->varID != BG_GetWeaponIndex(WP_SABER, 0))
-					{
-						// Set us up using Melee if our holstered weapon is not a saber (and we're holstered)
-						trap_SetUserCmdValue( BG_GetWeaponIndex(WP_MELEE, 0), mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse );
-					}
-					else
-					{
-						trap_SetUserCmdValue( cg.playerInventory[cg.playerACI[cg.weaponSelect]].id->varID, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse );
-					}
-				}
-				else
-				{
-					goto defaultCmd;
-				}
-			}
-			else
-			{
-defaultCmd:
-				trap_SetUserCmdValue( 0, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse );
-			}
-			//trap_SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse);
+			trap_SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse );
 		}
 	}
 
@@ -3076,9 +3009,6 @@ defaultCmd:
 	// Jedi Knight Galaxies
 	// Display camera trajectories if the cam builder is on
 	CinBuild_Visualize();
-	
-	// JKG Nav Mesh visualisation
-	JKG_Nav_VisualizeMesh();
 
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );
@@ -3088,7 +3018,6 @@ defaultCmd:
 	if ( cg_stats.integer ) {
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
-	
 }
 
 //[TrueView]
@@ -3104,69 +3033,4 @@ void CheckCameraLocation( vec3_t OldeyeOrigin )
 		VectorCopy(trace.endpos, cg.refdef.vieworg);
 	}
 }
-
-// The below was in cg_saga.c. Many 'wat's were to be had --eez
-//Loads in the True View auto eye positioning data so you don't have to worry about disk access later in the 
-//game
-//Based on CG_InitSagaMode and tck's tck_InitBuffer
-void CG_TrueViewInit( void )
-{
-	int				len = 0;
-	fileHandle_t	f;
-
-
-	len = trap_FS_FOpenFile("trueview.cfg", &f, FS_READ);
-
-	if (!f)
-	{
-		CG_Printf("Error: File Not Found: trueview.cfg\n");
-		true_view_valid = 0;
-		return;
-	}
-
-	if( len >= MAX_TRUEVIEW_INFO_SIZE )
-	{
-		CG_Printf("Error: trueview.cfg is over the trueview.cfg filesize limit.\n");
-		trap_FS_FCloseFile( f );
-		true_view_valid = 0;
-		return;
-	}
-
-	
-	trap_FS_Read(true_view_info, len, f);
-
-	true_view_valid = 1;
-
-	trap_FS_FCloseFile( f );
-
-	return;
-
-}
-
-//Tries to adjust the eye position from the data in cfg file if possible.
-void CG_AdjustEyePos (const char *modelName)
-{
-	//eye position
-	char	eyepos[MAX_QPATH];
-
-	if ( true_view_valid )
-	{
-		
-		if( BG_GetPairedValue(true_view_info, (char*) modelName, eyepos) )
-		{
-			//CG_Printf("True View Eye Adjust Loaded for %s.\n", modelName);
-			trap_Cvar_Set( "cg_trueeyeposition", eyepos );
-		}
-		else
-		{//Couldn't find an entry for the desired model.  Not nessicarily a bad thing.
-			trap_Cvar_Set( "cg_trueeyeposition", "0" );
-		}
-	}
-	else
-	{//The model eye position list is messed up.  Default to 0.0 for the eye position
-		trap_Cvar_Set( "cg_trueeyeposition", "0" );
-	}
-
-}
-//[/TrueView]
 //[/TrueView]

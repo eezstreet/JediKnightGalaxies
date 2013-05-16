@@ -896,7 +896,7 @@
 		Q_strncpyz( level.partyList[iID].message, message, sizeof( level.partyList[iID].message ));
 		SendSystem( clientNum, "You have been registered on the list." );
 
-		for ( i = 0; i < level.maxclients; i++ )
+		for ( i = 0; i < MAX_CLIENTS; i++ )
 		{
 			if ( g_entities[i].client->pers.partyManagement )
 			{
@@ -935,7 +935,7 @@
 			return;
 		}
 
-		for ( i = 0; i < level.maxclients; i++ )
+		for ( i = 0; i < MAX_CLIENTS; i++ )
 		{
 			if ( g_entities[i].client->pers.partyManagement )
 			{

@@ -23,7 +23,6 @@
 
 #include "cg_local.h"
 #include "cg_public.h"
-#include "jkg_cg_items.h"
 
 #include "aux_cg_exports.h"
 extern gl_cg_imports_t *gl_cg_imports;
@@ -34,9 +33,6 @@ struct {
 	qboolean (* HandleServerCommand)(const char *command);
 	void (* SetEscapeTrap)(int activate);
 	void (* PartyMngtNotify)(int msg);
-	
-	void (* InventoryNotify)(int msg);
-	void (* ShopNotify)(int msg);
 } * ui_crossover;
 
 struct {
@@ -44,17 +40,9 @@ struct {
 	void (* SendClientCommand)(const char *command);
 	qboolean (* EscapeTrapped)();
 	void *(* PartyMngtDataRequest)(int data);
-	void *(* InventoryDataRequest)(int data);
-	void (* InventoryAttachToACI)(int itemNum, int slot, int attach);
-	weaponData_t *(* GetWeaponDatas)(unsigned char weapon, unsigned char variation);
-	int (* GetRedTeam)(void);
-	int (* GetBlueTeam)(void);
-	networkState_t *(* GetNetworkState)(void);
-	extraState_t *(* GetExtraState)(int);
-	extraState_t *(* GetOldExtraState)(int);
 } cg_crossover;
 
-static void CO_SysCall_UI() {
+void CO_SysCall_UI() {
 	// Enable UI syscalls
 #ifdef WIN32
 	// Engine hack
@@ -79,21 +67,13 @@ void CO_Shutdown() {
 	}
 }
 
-static void CO_SendClientCommand(const char *cmd) {
+void CO_SendClientCommand(const char *cmd) {
 	CO_SysCall_CG();
 	trap_SendClientCommand(cmd);
 	CO_SysCall_UI();
 }
 
-static int CO_GetRedTeam(void) {
-	return cgs.redTeam;
-}
-
-static int CO_GetBlueTeam(void) {
-	return cgs.blueTeam;
-}
-
-static qboolean CO_EscapeTrapped() {
+qboolean CO_EscapeTrapped() {
 	// Return 1 to block, 0 to pass through
 	if (cg.trapEscape) {
 		CO_SysCall_CG();
@@ -132,24 +112,6 @@ qboolean CO_ServerCommand(const char *cmd) {
 	return qfalse;
 }
 
-void CO_InventoryNotify(int msg) {
-	if (gl_cg_imports) {
-		ui_crossover = gl_cg_imports->GL_GetCrossover();
-		if (ui_crossover) {
-			ui_crossover->InventoryNotify(msg);
-		}
-	}
-}
-
-void CO_ShopNotify(int msg) {
-	if(gl_cg_imports) {
-		ui_crossover = gl_cg_imports->GL_GetCrossover();
-		if(ui_crossover) {
-			ui_crossover->ShopNotify(msg);
-		}
-	}
-}
-
 void CO_PartyMngtNotify(int msg) {
 	if (gl_cg_imports) {
 		ui_crossover = gl_cg_imports->GL_GetCrossover();
@@ -159,7 +121,7 @@ void CO_PartyMngtNotify(int msg) {
 	}
 }
 
-static void *CO_PartyMngtDataRequest(int data) {
+void *CO_PartyMngtDataRequest(int data) {
 	// Team Management data request from UI
 	// Data 0 = Current party/invitations
 	// Data 1 = Seeking players
@@ -175,87 +137,10 @@ static void *CO_PartyMngtDataRequest(int data) {
 	}
 }
 
-extern cgItemData_t CGitemLookupTable[MAX_ITEM_TABLE_SIZE];
-static void *CO_InventoryDataRequest ( int data )
-{
-	if(data >= 50)
-	{
-		//HACK ALERT
-		if(cg.playerInventory[data-50].id && (data-50) >= 0 && (data-50) < MAX_INVENTORY_ITEMS)
-		{
-			return (void *)cg.playerInventory[data-50].id->itemIcon;
-		}
-		else
-		{
-			return NULL;
-		}
-	}
-    switch ( data )
-    {
-        case 0: // inventory count
-            return (void *)&cg.numItemsInInventory;
-        case 1: // inventory list
-            return (void *)cg.playerInventory;
-        case 2:
-            return (void *)cg.playerACI;
-		case 3:
-			return (void *)cg.predictedPlayerState.persistant[PERS_CREDITS];
-		case 4:
-			return (void *)shopItems;
-		case 5:
-			return (void *)numShopItems;
-		case 6:
-			return (void *)CGitemLookupTable;
-        default:
-            return NULL;
-    }
-}
-
-static weaponData_t *GetWeaponDatas ( unsigned char weapon, unsigned char variation )
-{
-	return GetWeaponData(weapon, variation);
-}
-
-static void CO_InventoryAttachToACI ( int itemNum, int slot, int attach )
-{
-    if ( attach )
-    {
-        JKG_CG_FillACISlot (itemNum, slot);
-    }
-    else
-    {
-        JKG_CG_ClearACISlot (slot);
-    }
-}
-
-static networkState_t *CO_GetNetworkState(void)
-{
-	return &cg.networkState;
-}
-
-static extraState_t *CO_GetExtraState(int entityNum)
-{
-	return &cg_entities[entityNum].extraState;
-}
-
-static extraState_t *CO_GetOldExtraState(int entityNum)
-{
-	return &cg_entities[entityNum].oldExtraState;
-}
-
 void CO_InitCrossover() {
 	cg_crossover.SendClientCommand = CO_SendClientCommand;
 	cg_crossover.EscapeTrapped = CO_EscapeTrapped;
 	cg_crossover.PartyMngtDataRequest = CO_PartyMngtDataRequest;
-	cg_crossover.InventoryDataRequest = CO_InventoryDataRequest;
-	cg_crossover.InventoryAttachToACI = CO_InventoryAttachToACI;
-	cg_crossover.GetWeaponDatas = GetWeaponDatas;
-	cg_crossover.GetRedTeam = CO_GetRedTeam;
-	cg_crossover.GetBlueTeam = CO_GetBlueTeam;
-	cg_crossover.GetNetworkState = CO_GetNetworkState;
-	cg_crossover.GetExtraState = CO_GetExtraState;
-	cg_crossover.GetOldExtraState = CO_GetOldExtraState;
-
 	// Transmit this structure to the auxlib so UI can use it
 	if (gl_cg_imports) {	// This should never be NULL, but just in case
 		gl_cg_imports->GL_RegisterCrossover(&cg_crossover);

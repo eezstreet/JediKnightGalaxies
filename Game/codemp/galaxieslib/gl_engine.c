@@ -1,20 +1,14 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_engine.c
-// All engine modifications that are to be present at run-time go in here
-// Win32 only
-// File by BobaFett
-// (c) 2013 Jedi Knight Galaxies
+///////////////////////////////////////////////////////////////////
+//
+//  Engine alteration (client-side auxiliary)
+//
+//  All engine modifications that are to be present at run-time
+//  go in here
+//
+//  By BobaFett
+//
+///////////////////////////////////////////////////////////////////
+//  Windows only
 
 #include <libudis86/udis86.h>
 #include <assert.h>
@@ -88,7 +82,7 @@ static int LockMemory(int address, int size) {
 static PatchData_t *JKG_PlacePatch( int type, unsigned int address, unsigned int destination ) {
 	PatchData_t *patch = malloc(sizeof(PatchData_t));
 
-	//int addr = address;
+	int addr = address;
 	int sz = 0;
 	// Disassemble the code and determine the size of the code we have to replace
 	ud_t ud;
@@ -350,7 +344,6 @@ resumefunc:
 
 typedef void * unzFile;
 void ProcessFileRead(unzFile unz);
-extern int unzReadCurrentFileNew  (unzFile file, void *buf, unsigned len);
 
 // Zip file read hook
 static PatchData_t *pZFR;
@@ -365,15 +358,6 @@ static void __declspec(naked) _Hook_unz_read() {
 		mov ecx, [edi+0x30]
 		mov eax, [edi+0x4C]
 		push 0x44A0D2
-		ret
-	}
-}
-
-
-static PatchData_t *fsRHook;
-static void __declspec(naked) _Hook_FS_Read_Clientside() {
-	__asm {
-		call unzReadCurrentFileNew
 		ret
 	}
 }
@@ -532,30 +516,6 @@ static void __declspec(naked) _Hook_ClearBuffer() {
 	}
 }
 
-// Disallow the centerview command when the +attack or +altattack buttons are down
-// This is to prevent bypassing the recoil effect from weapons
-static PatchData_t *pRCV;
-static void __declspec(naked) _Hook_RestrictCenterview() {
-	__asm {
-		jmp forbidcmd // Didz hackhackhack - no more centerview
-
-		cmp dword ptr ds:[0x883080], 0 // +attack
-		jnz forbidcmd
-		cmp dword ptr ds:[0x883128], 0 // +altattack
-		jnz forbidcmd
-
-		fild dword ptr ds:[0x977160] // original line we overwrote
-
-		mov eax, 0x4193B9 // allow the function to continue
-		jmp eax
-
-forbidcmd:
-		add esp, 8 // de-allocate local variable
-		ret
-	}
-}
-
-
 void JKG_PatchEngine() {
 	int temp;
 
@@ -615,19 +575,12 @@ void JKG_PatchEngine() {
 	///////////////////////////////
 	// Hook 7: unzReadCurrentFile hook
 	///////////////////////////////
-#ifdef OLD_PK3_PROTECTION_ALGO
 	pZFR = JKG_PlacePatch(PATCH_JUMP, 0x44A0CC, (unsigned int)_Hook_unz_read);
-#endif
 #ifndef NDEBUG
 	if (!pZFR ) {
 		Com_Printf("Warning: Failed to place hook 7: unzReadCurrentFile hook\n");
     }
 #endif
-	///////////////////////////////
-	// Hook #: FS_Read hook
-	///////////////////////////////
-	
-
 	// To ensure the shaders are properly loaded, we'll call the load function again
 	// NOTE: Free the old alloc's first or we're gonna be leaking memory
 	if (*(unsigned int *)0x10746B8) {
@@ -723,17 +676,11 @@ void JKG_PatchEngine() {
 	LockMemory( 0x454B55, 0x07 );
 #endif
 
+	
 	pCB = JKG_PlacePatch(PATCH_JUMP, 0x422E85, (unsigned int)_Hook_ClearBuffer);
 #ifndef NDEBUG
 	if (!pCB) {
 		Com_Printf("Warning: Failed to place hook 14: Buffer clear fix\n");
-    }
-#endif
-
-	pRCV = JKG_PlacePatch(PATCH_JUMP, 0x4193B3, (unsigned int)_Hook_RestrictCenterview);
-#ifndef NDEBUG
-	if (!pRCV) {
-		Com_Printf("Warning: Failed to place hook 15: Centerview fix\n");
     }
 #endif
 

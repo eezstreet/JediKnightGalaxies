@@ -1243,24 +1243,24 @@ typedef struct {
 	char buff[1024];
 } parsebuff_t;
 
-void Pzk_InitParseBuff(parsebuff_t *pb) {
+static void Pzk_InitParseBuff(parsebuff_t *pb) {
 	memset(pb,0,sizeof(parsebuff_t));
 	pb->arg = 1;
 	pb->argc = trap_Argc();
 }
 
-const char *Pzk_NextToken(parsebuff_t *pb) {
+static const char *Pzk_NextToken(parsebuff_t *pb) {
 	if (pb->arg > pb->argc) return NULL;
 	trap_Argv(pb->arg++,pb->buff, sizeof(pb->buff));
 	return pb->buff;
 }
 
-qboolean Pzk_TokensAvailable(parsebuff_t *pb) {
+static qboolean Pzk_TokensAvailable(parsebuff_t *pb) {
 	if (pb->arg >= pb->argc) return qfalse;
 	return qtrue;
 }
 
-int Pzk_ParseInt(parsebuff_t *pb, int *num) {
+static int Pzk_ParseInt(parsebuff_t *pb, int *num) {
 	const char *token;
 	token = Pzk_NextToken(pb);
 	if (!token) {

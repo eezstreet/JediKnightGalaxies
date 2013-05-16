@@ -6,10 +6,9 @@
 // for post-processing.
 //
 // Version:
-// $Id: jkg_framebuffers.c 419 2011-10-14 21:56:40Z Xycaleth $
+// $Id: jkg_framebuffers.c 255 2010-08-21 17:44:48Z Xycaleth $
 //=========================================================*/
 
-#include <GL/glew.h>
 #include "cg_local.h"
 #include "jkg_framebuffers.h"
 #include "jkg_glcommon.h"
@@ -18,8 +17,20 @@
 #define MAX_TEXTURES (5 * MAX_FRAMEBUFFERS)
 #define MAX_RENDERBUFFERS (2 * MAX_FRAMEBUFFERS)
 
+// Function pointers for framebuffer extension
+static PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
+static PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT;
+static PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
+static PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
+static PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
+static PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+static PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
+static PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT;
+static PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
+static PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT;
+static PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT;
+
 // Support flags
-static qboolean PBOSupported;
 static qboolean FramebufferSupported;
 static qboolean NativeNPOTSupported;
 
@@ -37,11 +48,10 @@ static unsigned int renderbuffers[MAX_RENDERBUFFERS];
 static const framebuffer_t* currentDrawFBOBound = NULL;
 static const framebuffer_t* currentReadFBOBound = NULL;
 
-void CheckGLErrors ( const char* filename, int line )
+static void CheckGLErrors ( const char* filename, int line )
 {
-#ifdef _DEBUG
     unsigned int error = glGetError();
-    while ( error != GL_NO_ERROR )
+    if ( error != GL_NO_ERROR )
     {
         switch ( error )
         {
@@ -67,10 +77,7 @@ void CheckGLErrors ( const char* filename, int line )
             CG_Printf (S_COLOR_RED "Error code 0x%X on line %d.\n", error, line);
             break;
         }
-        
-        error = glGetError();
     }
-#endif
 }
 
 static qboolean IsPowerOfTwo ( unsigned int value )
@@ -140,16 +147,29 @@ qboolean FBO_FramebufferInit ( void )
     memset (textures, 0, sizeof (textures));
     memset (renderbuffers, 0, sizeof (renderbuffers));
     
-    FramebufferSupported = (qboolean)glewIsSupported ("GL_EXT_framebuffer_object GL_EXT_framebuffer_blit");
+    FramebufferSupported = (qboolean)(IsExtensionSupported ("EXT_framebuffer_object") && IsExtensionSupported ("EXT_framebuffer_blit"));
     
     // NPOT textures were introduced into the OpenGL 2.0 core specification.
-    NativeNPOTSupported = (qboolean)GLEW_VERSION_2_0;
-    if ( !NativeNPOTSupported )
+    NativeNPOTSupported = qfalse;
+    if ( cgs.glconfig.version_string[0] && (cgs.glconfig.version_string[0] - '0') >= 2 )
     {
-        CG_Printf (S_COLOR_YELLOW "...Non-power of two textures not supported\n");
+        NativeNPOTSupported = qtrue;
     }
     
-    PBOSupported = (qboolean)glewIsSupported ("GL_ARB_pixel_buffer_object");
+    if ( FramebufferSupported )
+    {
+        glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC)wglGetProcAddress ("glDeleteFramebuffersEXT");
+        glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC)wglGetProcAddress ("glDeleteRenderbuffersEXT");
+        glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC)wglGetProcAddress ("glGenFramebuffersEXT");
+        glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)wglGetProcAddress ("glFramebufferTexture2DEXT");
+        glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)wglGetProcAddress ("glFramebufferRenderbufferEXT");
+        glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)wglGetProcAddress ("glCheckFramebufferStatusEXT");
+        glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC)wglGetProcAddress ("glBindFramebufferEXT");
+        glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC)wglGetProcAddress ("glGenRenderbuffersEXT");
+        glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC)wglGetProcAddress ("glBindRenderbufferEXT");
+        glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC)wglGetProcAddress ("glRenderbufferStorageEXT");
+        glBlitFramebufferEXT = (PFNGLBLITFRAMEBUFFEREXTPROC)wglGetProcAddress ("glBlitFramebufferEXT");
+    }
     
     CheckGLErrors (__FILE__, __LINE__);
     
@@ -169,7 +189,7 @@ void FBO_FramebufferCleanup ( void )
             continue;
         }
         
-        glDeleteFramebuffers (1, &fbo->id);
+        glDeleteFramebuffersEXT (1, &fbo->id);
     }
     
     for ( i = 0; i < numTextures; i++, texture++ )
@@ -182,11 +202,11 @@ void FBO_FramebufferCleanup ( void )
         glDeleteTextures (1, &texture->id);
     }
     
-    glDeleteRenderbuffers (numRenderbuffers, renderbuffers);
+    glDeleteRenderbuffersEXT (numRenderbuffers, renderbuffers);
     
     FBO_BindDefaultFramebuffer();
     
-    //CheckGLErrors (__FILE__, __LINE__);	// holy shit shut the fuck up
+    CheckGLErrors (__FILE__, __LINE__);
 }
 
 framebuffer_t* FBO_CreateFramebuffer ( void )
@@ -204,7 +224,7 @@ framebuffer_t* FBO_CreateFramebuffer ( void )
     }
     
     fbo = &framebuffers[numFramebuffers];
-    glGenFramebuffers (1, &fbo->id);
+    glGenFramebuffersEXT (1, &fbo->id);
     
     if ( fbo->id == 0 )
     {
@@ -231,7 +251,7 @@ void FBO_AttachColorTextureToFramebuffer ( framebuffer_t* framebuffer, const tex
         return;
     }
     
-    glFramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, FBO_GetGLTextureTarget (texture->target), texture->id, 0);
+    glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + slot, FBO_GetGLTextureTarget (texture->target), texture->id, 0);
     framebuffer->colorTextures[slot] = texture;
     
     CheckGLErrors (__FILE__, __LINE__);
@@ -243,7 +263,7 @@ void FBO_AttachDepthRenderbufferToFramebuffer ( framebuffer_t* framebuffer, unsi
         return;
     }
 
-    glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbufferId);
+    glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderbufferId);
     framebuffer->depthTexture = renderbufferId;
     
     CheckGLErrors (__FILE__, __LINE__);
@@ -255,8 +275,20 @@ void FBO_AttachDepthTextureToFramebuffer ( framebuffer_t* framebuffer, const tex
         return;
     }
 
-    glFramebufferTexture2D (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, FBO_GetGLTextureTarget (texture->target), texture->id, 0);
+    glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, FBO_GetGLTextureTarget (texture->target), texture->id, 0);
     framebuffer->depthTexture = texture->id;
+    
+    CheckGLErrors (__FILE__, __LINE__);
+}
+
+void FBO_AttachStencilRenderbufferToFramebuffer ( framebuffer_t* framebuffer, unsigned int renderbufferId )
+{
+    if (!framebuffer) {
+        return;
+    }
+
+    glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderbufferId);
+    framebuffer->stencilTexture = renderbufferId;
     
     CheckGLErrors (__FILE__, __LINE__);
 }
@@ -269,38 +301,38 @@ void FBO_CheckFramebuffer ( const framebuffer_t* framebuffer )
         return;
     }
     
-    status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+    status = glCheckFramebufferStatusEXT (GL_FRAMEBUFFER_EXT);
     switch ( status )
     {
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
         CG_Printf ("One or more framebuffer attachment points are not complete.\n");
         break;
         
-    /*case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
         CG_Printf ("One or more attached images have different dimensions.\n");
-        break;*/
+        break;
         
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
         CG_Printf ("Invalid framebuffer attachment object type used.\n");
         break;
         
-    /*case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
         CG_Printf ("More than one internal format was used in the color attachments.\n");
-        break;*/
+        break;
         
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
         CG_Printf ("Missing a read buffer.\n");
         break;
         
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
         CG_Printf ("No images were attached to the framebuffer.\n");
         break;
         
-    case GL_FRAMEBUFFER_COMPLETE:
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
         break;
     }
     
-	if ( status != GL_FRAMEBUFFER_COMPLETE )
+	if ( status != GL_FRAMEBUFFER_COMPLETE_EXT )
 	{
 		CG_Printf ("Creation of framebuffer %d could not be completed.\n", framebuffer->id);
 	}
@@ -330,14 +362,14 @@ void FBO_BindDefaultFramebuffer ( void )
 
     if ( currentDrawFBOBound != NULL || currentReadFBOBound != NULL )
     {
-        glBindFramebuffer (GL_FRAMEBUFFER, 0);
+        glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
         currentDrawFBOBound = NULL;
         currentReadFBOBound = NULL;
         
         cg.framebufferActive = qfalse;
     }
     
-    //CheckGLErrors (__FILE__, __LINE__);		// shush
+    CheckGLErrors (__FILE__, __LINE__);
 }
 
 void FBO_BindFramebuffer ( const framebuffer_t* framebuffer )
@@ -348,7 +380,7 @@ void FBO_BindFramebuffer ( const framebuffer_t* framebuffer )
 
     if ( currentDrawFBOBound != framebuffer || currentReadFBOBound != framebuffer )
     {
-        glBindFramebuffer (GL_FRAMEBUFFER, framebuffer->id);
+        glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, framebuffer->id);
         currentDrawFBOBound = framebuffer;
         currentReadFBOBound = framebuffer;
         
@@ -365,21 +397,21 @@ void FBO_BlitFramebufferDepth (const framebuffer_t *source, const framebuffer_t 
 
     if (currentReadFBOBound != source) {
         if (source == NULL) {
-            glBindFramebuffer (GL_READ_FRAMEBUFFER, 0);
+            glBindFramebufferEXT (GL_READ_FRAMEBUFFER_EXT, 0);
         } else {
-            glBindFramebuffer (GL_READ_FRAMEBUFFER, source->id);
+            glBindFramebufferEXT (GL_READ_FRAMEBUFFER_EXT, source->id);
         }
     }
     
     if (currentDrawFBOBound != dest) {
         if (dest == NULL) {
-            glBindFramebuffer (GL_DRAW_FRAMEBUFFER, 0);
+            glBindFramebufferEXT (GL_DRAW_FRAMEBUFFER_EXT, 0);
         } else {
-            glBindFramebuffer (GL_DRAW_FRAMEBUFFER, dest->id);
+            glBindFramebufferEXT (GL_DRAW_FRAMEBUFFER_EXT, dest->id);
         }
     }
     
-    glBlitFramebuffer (0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight,
+    glBlitFramebufferEXT (0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight,
                             0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight,
                             GL_DEPTH_BUFFER_BIT,
                             GL_NEAREST);
@@ -392,38 +424,30 @@ void FBO_BlitFramebufferDepth (const framebuffer_t *source, const framebuffer_t 
 }
 
 void FBO_BlitFramebufferColor (const framebuffer_t *source, const framebuffer_t *dest) {
-    int sw, sh, dw, dh;
-
     if (!FramebufferSupported) {
         return;
     }
-    
-    sw = cgs.glconfig.vidWidth;
-    sh = cgs.glconfig.vidHeight;
-    dw = cgs.glconfig.vidWidth;
-    dh = cgs.glconfig.vidHeight;
 
     if (currentReadFBOBound != source) {
         if (source == NULL) {
-            glBindFramebuffer (GL_READ_FRAMEBUFFER, 0);
+            glBindFramebufferEXT (GL_READ_FRAMEBUFFER_EXT, 0);
         } else {
-            glBindFramebuffer (GL_READ_FRAMEBUFFER, source->id);
-            sw = source->colorTextures[0]->width;
-            sh = source->colorTextures[0]->height;
+            glBindFramebufferEXT (GL_READ_FRAMEBUFFER_EXT, source->id);
         }
     }
     
     if (currentDrawFBOBound != dest) {
         if (dest == NULL) {
-            glBindFramebuffer (GL_DRAW_FRAMEBUFFER, 0);
+            glBindFramebufferEXT (GL_DRAW_FRAMEBUFFER_EXT, 0);
         } else {
-            glBindFramebuffer (GL_DRAW_FRAMEBUFFER, dest->id);
-            dw = dest->colorTextures[0]->width;
-            dh = dest->colorTextures[0]->height;
+            glBindFramebufferEXT (GL_DRAW_FRAMEBUFFER_EXT, dest->id);
         }
     }
     
-    glBlitFramebufferEXT (0, 0, sw, sh, 0, 0, dw, dh, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBlitFramebufferEXT (0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight,
+                            0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight,
+                            GL_COLOR_BUFFER_BIT,
+                            GL_NEAREST);
                             
     currentReadFBOBound = source;
     currentDrawFBOBound = dest;
@@ -459,20 +483,6 @@ static unsigned int NearestPowerOfTwo (unsigned int number) {
     }
     
     return 1u << (i + 1);
-}
-
-static unsigned int FBO_GetDataType ( internalFormat_t internalFormat )
-{
-    switch ( internalFormat )
-    {
-    case IF_RGBA16F:
-    case IF_DEPTH_COMPONENT16:
-    case IF_DEPTH_COMPONENT24:
-        return GL_FLOAT;
-        
-    default:
-        return GL_UNSIGNED_BYTE;
-    }
 }
 
 extern vmCvar_t r_force_pot_textures;
@@ -523,10 +533,7 @@ texture_t* FBO_CreateBlankTexture ( unsigned int width, unsigned int height, int
         height = NextPowerOfTwo (height);
     }
     
-    texture->width = width;
-    texture->height = height;
-    
-    glTexImage2D (glTexTarget, 0, FBO_GetGLInternalFormat (internalFormat), width, height, 0, FBO_GetGLFormat (internalFormat), FBO_GetDataType (internalFormat), NULL);
+    glTexImage2D (glTexTarget, 0, FBO_GetGLInternalFormat (internalFormat), width, height, 0, FBO_GetGLFormat (internalFormat), GL_UNSIGNED_BYTE, NULL);
     
     glBindTexture (glTexTarget, 0);
     
@@ -551,7 +558,7 @@ unsigned int FBO_CreateRenderbuffer ( unsigned int width, unsigned int height, i
         return 0;
     }
     
-    glGenRenderbuffers (1, &renderbufferId);
+    glGenRenderbuffersEXT (1, &renderbufferId);
     if ( renderbufferId == 0 )
     {
         CG_Printf ("Failed to create renderbuffer with internal ID %d.\n", numRenderbuffers);
@@ -569,8 +576,8 @@ unsigned int FBO_CreateRenderbuffer ( unsigned int width, unsigned int height, i
         height = NextPowerOfTwo (height);
     }
     
-    glBindRenderbuffer (GL_RENDERBUFFER, renderbufferId);
-    glRenderbufferStorage (GL_RENDERBUFFER, FBO_GetGLInternalFormat (internalFormat), width, height);
+    glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, renderbufferId);
+    glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT, FBO_GetGLInternalFormat (internalFormat), width, height);
     
     renderbuffers[numRenderbuffers] = renderbufferId;
     numRenderbuffers++;

@@ -711,8 +711,6 @@ static const struct luaL_reg bitstream_m [] = {
 };
 
 void GLua_Define_BitStream(lua_State *L) {
-	STACKGUARD_INIT(L)
-
 	luaL_register(L, "bitstream", bitstream_f);
 	lua_pop(L,1);
 
@@ -728,6 +726,4 @@ void GLua_Define_BitStream(lua_State *L) {
 	lua_settable(L,-3);
 
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

@@ -2705,7 +2705,7 @@ qboolean PM_SaberMoveOkayForKata( void )
 
 qboolean PM_CanDoKata( void )
 {
-	/*if ( PM_InSecondaryStyle() )
+	if ( PM_InSecondaryStyle() )
 	{
 		return qfalse;
 	}
@@ -2715,6 +2715,10 @@ qboolean PM_CanDoKata( void )
 		&& !BG_SaberInKata(pm->ps->saberMove)
 		&& !BG_InKataAnim(pm->ps->legsAnim)
 		&& !BG_InKataAnim(pm->ps->torsoAnim)
+		/*
+		&& pm->ps->saberAnimLevel >= SS_FAST//fast, med or strong style
+		&& pm->ps->saberAnimLevel <= SS_STRONG//FIXME: Tavion, too?
+		*/
 		&& pm->ps->groundEntityNum != ENTITYNUM_NONE//not in the air
 		&& (pm->cmd.buttons&BUTTON_ATTACK)//pressing attack
 		&& (pm->cmd.buttons&BUTTON_ALT_ATTACK)//pressing alt attack
@@ -2736,7 +2740,7 @@ qboolean PM_CanDoKata( void )
 			return qfalse;
 		}
 		return qtrue;
-	}*/
+	}
 	return qfalse;
 }
 
@@ -2757,13 +2761,13 @@ qboolean PM_CheckAltKickAttack( void )
 			return qfalse;
 		}
 	}
-	//if ( (pm->cmd.buttons&BUTTON_ALT_ATTACK) 
-	//	//&& (!(pm->ps->pm_flags&PMF_ALT_ATTACK_HELD)||PM_SaberInReturn(pm->ps->saberMove))
-	//	&& (!BG_FlippingAnim(pm->ps->legsAnim)||pm->ps->legsTimer<=250)
-	//	&& (pm->ps->fd.saberAnimLevel == SS_STAFF/*||!pm->ps->saber[0].throwable*/) && !pm->ps->saberHolstered )
-	//{
-	//	return qtrue;
-	//}
+	if ( (pm->cmd.buttons&BUTTON_ALT_ATTACK) 
+		//&& (!(pm->ps->pm_flags&PMF_ALT_ATTACK_HELD)||PM_SaberInReturn(pm->ps->saberMove))
+		&& (!BG_FlippingAnim(pm->ps->legsAnim)||pm->ps->legsTimer<=250)
+		&& (pm->ps->fd.saberAnimLevel == SS_STAFF/*||!pm->ps->saber[0].throwable*/) && !pm->ps->saberHolstered )
+	{
+		return qtrue;
+	}
 	return qfalse;
 }
 
@@ -2955,8 +2959,7 @@ void PM_WeaponLightsaber(void)
 			PM_SetAnim(SETANIM_TORSO,PM_GetSaberStance(),SETANIM_FLAG_OVERRIDE, 100);
 		}
 
-		//if (pm->ps->weaponTime < 1 && ((pm->cmd.buttons & BUTTON_ALT_ATTACK) || (pm->cmd.buttons & BUTTON_ATTACK)))
-		if(pm->ps->weaponTime < 1 && pm->cmd.buttons & BUTTON_ATTACK)
+		if (pm->ps->weaponTime < 1 && ((pm->cmd.buttons & BUTTON_ALT_ATTACK) || (pm->cmd.buttons & BUTTON_ATTACK)))
 		{
 			if (pm->ps->duelTime < pm->cmd.serverTime)
 			{
@@ -2967,7 +2970,7 @@ void PM_WeaponLightsaber(void)
 				}
 				else
 				{
-					//pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
+					pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 					pm->cmd.buttons &= ~BUTTON_ATTACK;
 				}
 			}
@@ -3015,10 +3018,10 @@ void PM_WeaponLightsaber(void)
 		{
 			pm->cmd.buttons &= ~BUTTON_ATTACK;
 		}
-//		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
+		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 	}
 
-	/*if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
+	if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
 	{ //might as well just check for a saber throw right here
 		if (pm->ps->fd.saberAnimLevel == SS_STAFF)
 		{ //kick instead of doing a throw 
@@ -3076,7 +3079,7 @@ void PM_WeaponLightsaber(void)
 				pm->ps->saberInFlight = qtrue;
 			}
 		}
-	}*/
+	}
 	
 	if ( pm->ps->saberInFlight && pm->ps->saberEntityNum )
 	{//guiding saber
@@ -3326,8 +3329,8 @@ weapChecks:
 		//if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
 		if (pm->ps->weaponTime <= 0 && pm->ps->torsoTimer <= 0)
 		{
-			if ( pm->cmd.weapon != pm->ps->weaponId ) {
-				PM_BeginWeaponChange( pm->cmd.weapon );
+			if ( pm->ps->weapon != pm->cmd.weapon || pm->ps->weaponVariationChanged ) {
+				PM_BeginWeaponChange( pm->cmd.weapon, pm->ps->weaponVariation );
 			}
 		}
 	}
@@ -3431,7 +3434,11 @@ weapChecks:
 	if ( pm->ps->weaponstate == WEAPON_RAISING ) 
 	{//Just selected the weapon
 		pm->ps->weaponstate = WEAPON_IDLE;
-		if((pm->ps->legsAnim) == BOTH_RUN1 || (pm->ps->legsAnim) == BOTH_FEMALERUN)
+		if((pm->ps->legsAnim) == BOTH_WALK1 )
+		{
+			PM_SetAnim(SETANIM_TORSO,BOTH_WALK1,SETANIM_FLAG_NORMAL, 100);
+		}
+		else if((pm->ps->legsAnim) == BOTH_RUN1 )
 		{
 			PM_SetAnim(SETANIM_TORSO,BOTH_RUN1,SETANIM_FLAG_NORMAL, 100);
 		}
@@ -3447,9 +3454,9 @@ weapChecks:
 		{
 			PM_SetAnim(SETANIM_TORSO,BOTH_RUN_DUAL,SETANIM_FLAG_NORMAL, 100);
 		}
-		else if((pm->ps->legsAnim) == BOTH_WALK1 || (pm->ps->legsAnim) == BOTH_FEMALEEWALK)
+		else if((pm->ps->legsAnim) == BOTH_WALK1 )
 		{
-			PM_SetAnim(SETANIM_TORSO,((pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALK : BOTH_WALK1),SETANIM_FLAG_NORMAL, 100);
+			PM_SetAnim(SETANIM_TORSO,BOTH_WALK1,SETANIM_FLAG_NORMAL, 100);
 		}
 		else if( pm->ps->legsAnim == BOTH_WALK2)
 		{
@@ -3483,8 +3490,8 @@ weapChecks:
 	// *********************************************************
 	// Check for WEAPON ATTACK
 	// *********************************************************
-	if (/*pm->ps->fd.saberAnimLevel == SS_STAFF &&
-		(pm->cmd.buttons & BUTTON_ALT_ATTACK)*/ 0)
+	if (pm->ps->fd.saberAnimLevel == SS_STAFF &&
+		(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 	{ //ok, try a kick I guess.
 		int kickMove = -1;
 
@@ -3550,7 +3557,7 @@ weapChecks:
 	}
 
 	//this is never a valid regular saber attack button
-	//pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
+	pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 
 	if(!delayed_fire)
 	{
@@ -3569,8 +3576,7 @@ weapChecks:
 			newmove = LS_R_T2B;
 		}
 		// check for fire
-		//else if ( !(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
-		else if( !(pm->cmd.buttons & BUTTON_ATTACK) )
+		else if ( !(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
 		{//not attacking
 			pm->ps->weaponTime = 0;
 			
@@ -3746,8 +3752,6 @@ weapChecks:
 				case BOTH_RUNBACK1:
 				case BOTH_RUNBACK2:
 				case BOTH_RUNBACK_STAFF:
-				case BOTH_FEMALEEWALK:
-				case BOTH_FEMALEEWALKBACK:
 					anim = pm->ps->legsAnim;
 					break;
 				default:
@@ -3780,14 +3784,14 @@ weapChecks:
 
 	pm->ps->weaponstate = WEAPON_FIRING;
 
-	amount = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->firemodes[0].cost;
+	amount = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary.cost;
 
 	addTime = pm->ps->weaponTime;
 
 	pm->ps->saberAttackSequence = pm->ps->torsoAnim;
 	if ( !addTime )
 	{
-		addTime = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->firemodes[0].delay;
+		addTime = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary.delay;
 	}
 	pm->ps->weaponTime = addTime;
 }
@@ -3940,7 +3944,7 @@ void PM_SetSaberMove(short newMove)
 			anim = PM_GetSaberStance();
 		}
 
-		if (anim == BOTH_WALKBACK1 || anim == BOTH_WALKBACK2 || anim == BOTH_WALK1 || anim == BOTH_FEMALEEWALK || anim == BOTH_FEMALEEWALKBACK)
+		if (anim == BOTH_WALKBACK1 || anim == BOTH_WALKBACK2 || anim == BOTH_WALK1)
 		{ //normal stance when walking backward so saber doesn't look like it's cutting through leg
 			anim = PM_GetSaberStance();
 		}

@@ -1,20 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_challenge.c
-// Unlike BaseJKA, JKG now uses Diffie-Helman Key Exchange as challenge method, this is to
-// add protection against fake clients.
-// (c) 2013 Jedi Knight Galaxies
-
 /*******************************************
 *
 *  JKG Challenge algorithm
@@ -26,7 +9,6 @@
 *
 \*******************************************/
 
-#include <assert.h>
 #include <encoding/base128.h>
 //#include "libs/dhkeyexchange.h"
 #include <encoding/bitstream.h>
@@ -116,7 +98,6 @@ const char *CH_DoChallenge()
 	//BitStream_WriteUInt64(&stream, dhdata.PublicA);
 	BitStream_WriteBigNum(&stream, dh->p);
 	BitStream_WriteBigNum(&stream, dh->pub_key);
-	assert (dh->pub_key);
 
 	Base128_Encode(stream.data, stream.cursize, base128buff, sizeof(base128buff));
 
@@ -166,7 +147,7 @@ int CH_ProcessChallengeResponse(unsigned int *challenge)
 
 	// Secret tag: Bit 19 must always be set
 	// The following code ensures this is always the case
-	ch = (unsigned int)-1;	// Start with all bits set to 1
+	ch = -1;	// Start with all bits set to 1
 	for (i=0; i<32; i+=4) {
 		ch ^= (*(unsigned int *)&skey[i] << 12 );	// Shift the 19th bit (and all below) to 31st and xor it with the 'challenge'
 	}

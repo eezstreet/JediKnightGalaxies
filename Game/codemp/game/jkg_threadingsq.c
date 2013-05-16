@@ -64,13 +64,8 @@ void JKG_Stack_Initialize(jkg_stack_t *stack)	// Initialize the stack
 
 void JKG_Stack_Push(jkg_stack_t *stack, asyncTask_t *task)		// Push a new task on the stack
 {
-	// FIXME
-	/*if(!stack && !stack->init)
-	{
-		return;
-	}*/
-	JKG_Assert(stack);				// Ensure 'stack' is valid (debug only)
-	JKG_Assert(stack->init);		// Ensure the stack is initialized
+	assert(stack);				// Ensure 'stack' is valid (debug only)
+	assert(stack->init);		// Ensure the stack is initialized
 	MUTEX_LOCK(stack);			// Lock the mutex/critical section
 	ASSERTTASK(task);			// Ensure the task is not already in a stack/queue (debug only)
 	FLAGTASK(task);				// Flag the task (as being part of a queue/stack) (debug only)
@@ -81,19 +76,12 @@ void JKG_Stack_Push(jkg_stack_t *stack, asyncTask_t *task)		// Push a new task o
 	MUTEX_UNLOCK(stack);		// Unlock the mutex/CS
 }
 
-extern struct jkg_tasks_s;
 asyncTask_t *JKG_Stack_Pop(jkg_stack_t *stack)
 {
 	asyncTask_t *task;
 
-	// FIXME
-	/*if(!stack && !stack->init)
-	{
-		return;
-	}*/
-
-	JKG_Assert(stack);
-	JKG_Assert(stack->init);
+	assert(stack);
+	assert(stack->init);
 	MUTEX_LOCK(stack);
 	
 	task = stack->head;			// Get the head item
@@ -129,8 +117,8 @@ void JKG_Queue_Initialize(jkg_queue_t *queue)	// Initializes a queue, (almost) s
 
 void JKG_Queue_Enqueue(jkg_queue_t *queue, asyncTask_t *task)	// Queue a new task
 {
-	JKG_Assert(queue);
-	JKG_Assert(queue->init);
+	assert(queue);
+	assert(queue->init);
 	MUTEX_LOCK(queue);
 	ASSERTTASK(task);
 	FLAGTASK(task);
@@ -154,8 +142,8 @@ asyncTask_t *JKG_Queue_Dequeue(jkg_queue_t *queue)	// Get the task in front of t
 {
 	asyncTask_t *task;
 
-	JKG_Assert(queue);
-	JKG_Assert(queue->init);
+	assert(queue);
+	assert(queue->init);
 	MUTEX_LOCK(queue);
 
 	task = queue->head;		// Task to remove is the head task

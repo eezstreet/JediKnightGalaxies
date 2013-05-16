@@ -1757,8 +1757,9 @@ int GLua_Spawn_Entity(gentity_t* ent) {
 
 
 void GLua_Define_Entity(lua_State *L) {
-
-	STACKGUARD_INIT(L)
+	// Defines the Entities object so it can be used
+	lua_newtable(L);
+	//EntDataRef = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	luaL_register(L, "ents", ents_f);
 	lua_pop(L,1);
@@ -1789,6 +1790,4 @@ void GLua_Define_Entity(lua_State *L) {
 	lua_settable(L,-3);
 
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

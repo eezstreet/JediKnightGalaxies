@@ -67,10 +67,10 @@
 								__asm__("lea eax, [__hookstart" #a "]\n"); \
 								__asm__("jmp __hookend" #a "\n"); \
 								__asm__(".att_syntax\n"); \
-                                __asm__("__hookstart" #a ":\n"); \
+                                                                __asm__("__hookstart" #a ":\n"); \
 								__asm__(".intel_syntax noprefix\n");
 
 	#define __JKG_EndHook( a )	__asm__(".att_syntax\n"); \
-                                        __asm__("__hookend" #a ":\n"); // \
-					//__asm__(".intel_syntax noprefix\n");
+                                        __asm__("__hookend" #a ":\n"); \
+					__asm__(".intel_syntax noprefix\n");
 #endif

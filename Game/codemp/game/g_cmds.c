@@ -2,7 +2,6 @@
 //
 #include "g_local.h"
 #include "bg_saga.h"
-#include "jkg_gangwars.h"
 
 #include "../ui/menudef.h"			// for the voice chats
 
@@ -17,27 +16,9 @@ void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *sab
 void Cmd_NPC_f( gentity_t *ent );
 void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 
-extern void AIMod_CheckMapPaths ( gentity_t *ent );
-extern void AIMod_CheckObjectivePaths ( gentity_t *ent );
-
-extern void WARZONE_SaveGameInfo ( void );
-extern void WARZONE_LoadGameInfo ( void );
-extern void WARZONE_AddHealthCrate ( vec3_t origin, vec3_t angles );
-extern void WARZONE_AddAmmoCrate ( vec3_t origin, vec3_t angles );
-extern void WARZONE_AddFlag ( vec3_t origin, int team );
-extern void WARZONE_ChangeFlagTeam ( int flag_number, int new_team );
-extern void WARZONE_RaiseAllWarzoneEnts ( int modifier );
-extern void WARZONE_ShowInfo ( void );
-extern void WARZONE_RemoveAllWarzoneEnts ( void );
-extern void WARZONE_RemoveAmmoCrate ( void );
-extern void WARZONE_RemoveHealthCrate ( void );
-
 // Include GLua stuff
 #include "../GLua/glua.h"
 #include "jkg_admin.h"
-#ifdef __UNUSED__
-#include "jkg_navmesh_creator.h"
-#endif //__UNUSED__
 
 /*
 ==================
@@ -46,10 +27,6 @@ DeathmatchScoreboardMessage
 ==================
 */
 void DeathmatchScoreboardMessage( gentity_t *ent ) {
-#ifndef __MMO__ 
-	// UQ1: This is a very spammy one!
-	// Suggest, use an event for each player. Staggered over time. 
-	// Scores don't need to be instant, and in future maybe not even needed until after a match.
 	char		entry[1024];
 	char		string[1400];
 	int			stringlength;
@@ -92,7 +69,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->sess.sessionTeam == TEAM_SPECTATOR ? 0 : cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
-			cl->ps.persistant[PERS_CREDITS],
+			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
 			cl->ps.persistant[PERS_EXCELLENT_COUNT],
 			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
 			cl->ps.persistant[PERS_DEFEND_COUNT], 
@@ -112,247 +89,9 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("scores %i %i %i%s", i, 
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
 		string ) );
-#endif //__MMO__
-}
-
-/*
-==================
-JKG_ItemLookup_f
-
-(eezstreet add)
-Looks up a range of items and prints them in a list.
-Ideally a GM or admin-only command
-==================
-*/
-extern itemData_t itemLookupTable[MAX_ITEM_TABLE_SIZE];
-void JKG_ItemLookup_f(gentity_t *ent)
-{
-	unsigned int i;
-	int badItems = 0;
-	int goodItems = 0;
-	char buffer[64];
-	char lookupString[960];
-	int maximum, minimum;
-
-	//Grab our args.
-	trap_Argv(1, buffer, 64);
-	minimum = atoi(buffer);
-	trap_Argv(2, buffer, 64);
-	maximum = atoi(buffer);
-
-	if(!minimum || !maximum)
-	{ //Bad args.
-		trap_SendServerCommand(ent-g_entities, "print \"format: itemLookup <minimum> <maximum>\n\"");
-		return;
-	}
-	if(minimum > maximum)
-	{ //Oops, mixed the args most likely.
-		trap_SendServerCommand(ent-g_entities, "print \"Minimum must be less than maximum.\n\"");
-		return;
-	}
-	if((maximum - minimum) > 20)
-	{ //Huge range.
-		trap_SendServerCommand(ent-g_entities, "print \"Maximum range of itemLookup is 20.\n\"");
-		return;
-	}
-
-	lookupString[0] = '\0';
-	for(i = (unsigned int)minimum; i < (unsigned int)maximum; i++)
-	{
-		if(itemLookupTable[i].itemID)
-		{
-			if(i < maximum-1)
-			{
-				Q_strcat(lookupString, 960, va("%s (%u),", itemLookupTable[i].displayName, i));
-			}
-			else
-			{
-				Q_strcat(lookupString, 960, va("%s (%u)\n", itemLookupTable[i].displayName, i));
-			}
-			goodItems++;
-		}
-		else
-		{
-			badItems++;
-		}
-	}
-	if(!goodItems)
-	{
-		trap_SendServerCommand(ent-g_entities, "print \"No valid items in that range.\n\"");
-		return;
-	}
-	else
-	{
-		trap_SendServerCommand(ent-g_entities, va("print \"%s\"", lookupString));
-		if(badItems)
-		{
-			trap_SendServerCommand(ent-g_entities, va("print \"%i bad indeces\"", badItems));
-		}
-	}
-}
-
-/*
-==================
-JKG_ItemCheck_f
-
-Gives details about an item
-==================
-*/
-void JKG_ItemCheck_f(gentity_t *ent)
-{
-	char buffer[64];
-	int itemNum;
-	int i;
-
-	trap_Argv(1, buffer, 64);
-
-	if(atoi(buffer))
-	{
-		itemNum = atoi(buffer);
-		if(itemLookupTable[itemNum].itemID)
-		{
-			if(itemLookupTable[itemNum].itemType == ITEM_ARMOR)
-			{
-				//Meant to put some sort of check for armor type, but didn't bother.
-				trap_SendServerCommand(ent-g_entities, va("print \"%s (%i) - Armor\n\"", itemLookupTable[itemNum].displayName, itemNum));
-				return;
-			}
-			else if(itemLookupTable[itemNum].itemType == ITEM_WEAPON)
-			{
-				trap_SendServerCommand(ent-g_entities, va("print \"%s (%i) - Weapon (w %i, v %i)\n\"", itemLookupTable[itemNum].displayName, itemNum,
-					itemLookupTable[itemNum].weapon, itemLookupTable[itemNum].variation));
-				return;
-			}
-			else
-			{
-				trap_SendServerCommand(ent-g_entities, va("print \"%s (%i) - Other\n\"", itemLookupTable[itemNum].displayName, itemNum));
-				return;
-			}
-		}
-	}
-	else
-	{
-		for(i = 0; i < MAX_ITEM_TABLE_SIZE; i++)
-		{
-			if(itemLookupTable[i].itemID)
-			{
-				if(!Q_stricmp(itemLookupTable[i].displayName, buffer))
-				{
-					trap_SendServerCommand(ent-g_entities, va("print \"%s (%i)\n\"", itemLookupTable[i].displayName, i));
-					return;
-				}
-			}
-		}
-	}
-	trap_SendServerCommand(ent-g_entities, va("print \"%s refers to an item that does not exist!\n\"", buffer));
 }
 
 
-/*
-==================
-JKG_BuyItem_f
-
-==================
-*/
-void JKG_BuyItem_f(gentity_t *ent)
-{
-	int i;
-	int entities[MAX_GENTITIES];
-	int numEnts = 0;//trap_EntitiesInBox(ent->r.absmin, ent->r.absmax, entities, MAX_GENTITIES);
-
-	//if (numEnts <= 1)
-	{// UQ1: Non-Trigger Vendors...
-		vec3_t mins;
-		vec3_t maxs;
-		int e = 0;
-
-		for ( e = 0 ; e < 3 ; e++ ) 
-		{
-			if (e == 2)
-			{// Up/Down axis is smaller so people can't buy from another level of the building...
-				mins[e] = ent->r.currentOrigin[e] - 48;
-				maxs[e] = ent->r.currentOrigin[e] + 48;
-			}
-			else
-			{
-				mins[e] = ent->r.currentOrigin[e] - 192;
-				maxs[e] = ent->r.currentOrigin[e] + 192;
-			}
-		}
-
-		numEnts = trap_EntitiesInBox(mins, maxs, entities, MAX_GENTITIES);
-	}
-
-	if(trap_Argc() < 1)
-	{
-		trap_SendServerCommand(ent->s.number, "print \"Not enough args.\n\"");
-		return;
-	}
-
-	if(numEnts < 1)
-	{
-		trap_SendServerCommand(ent->s.number, "print \"You are not at a vendor.\n\"");
-		return;
-	}
-	else
-	{
-		for(i = 0; i < numEnts; i++)
-		{
-			if(!strncmp(g_entities[entities[i]].classname, "trigger_", 8))
-			{
-				//This ent is a trigger. OH SNAP.
-				gentity_t *pointingAt = G_Find(NULL, FOFS(targetname), g_entities[entities[i]].target);
-				if(!pointingAt || !pointingAt->inuse)
-				{
-					continue;	//No target
-				}
-				else if(!Q_stricmp(pointingAt->classname, "jkg_target_vendor"))
-				{
-					//This is a vendor. Buy it!
-					char buffer[16];
-					trap_Argv(1, buffer, sizeof(buffer));
-					JKG_Vendor_Buy(ent, pointingAt, atoi(buffer));
-					return;
-				}
-			}
-			else
-			{// UQ1: Actual NPC (non trigger) usage...
-				gentity_t *pointingAt = &g_entities[entities[i]];
-
-				if(!pointingAt || !pointingAt->inuse || !pointingAt->client || pointingAt->s.eType != ET_NPC)
-				{
-					continue;	//No target
-				}
-
-				switch (pointingAt->client->NPC_class)
-				{// UQ1: Need to change these in the actual NPC script files...
-				case CLASS_GENERAL_VENDOR:
-				case CLASS_WEAPONS_VENDOR:
-				case CLASS_ARMOR_VENDOR:
-				case CLASS_SUPPLIES_VENDOR:
-				case CLASS_FOOD_VENDOR:
-				case CLASS_MEDICAL_VENDOR:
-				case CLASS_GAMBLER_VENDOR:
-				case CLASS_TRADE_VENDOR:
-				case CLASS_ODDITIES_VENDOR:
-				case CLASS_DRUG_VENDOR:
-				case CLASS_TRAVELLING_VENDOR:
-					{//This is a vendor. Buy it!
-						char buffer[16];
-						trap_Argv(1, buffer, sizeof(buffer));
-						JKG_Vendor_Buy(ent, pointingAt, atoi(buffer));
-						return;
-					}
-					break;
-				default:
-					break;
-				}
-			}
-		}
-	}
-
-	trap_SendServerCommand(ent->s.number, "print \"You need to be at a vendor to purchase items.\n\"");
-}
 /*
 ==================
 Cmd_Score_f
@@ -372,10 +111,6 @@ CheatsOk
 ==================
 */
 qboolean	CheatsOk( gentity_t *ent ) {
-	if (ent->client->sess.adminRank >= ADMRANK_DEVELOPER)
-	{
-		return qtrue;
-	}
 	if ( !g_cheats.integer ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCHEATS")));
 		return qfalse;
@@ -418,37 +153,6 @@ char	*ConcatArgs( int start ) {
 	line[len] = 0;
 
 	return line;
-}
-
-/*
-==================
-JKG_CheckIfNumber
-
-Loops through a string and returns the following:
-0 if neither decimal nor alpha
-1 if alpha
-2 if decimal
-==================
-*/
-typedef enum
-{
-	JKGSTR_NONE,
-	JKGSTR_ALPHA,
-	JKGSTR_DECIMAL
-} JKGStringType_t;
-
-JKGStringType_t JKG_CheckIfNumber(const char *string)
-{
-	int i = 0;
-	while(string[i] != '\0')
-	{
-		if(isalpha((int)string[i]))
-			return JKGSTR_ALPHA;
-		else if(!isdigit((int)string[i]))
-			return JKGSTR_NONE;
-		i++;
-	}
-	return JKGSTR_DECIMAL;
 }
 
 /*
@@ -556,9 +260,6 @@ Cmd_Give_f
 Give items to a client
 ==================
 */
-extern void JKG_A_RollItem( unsigned int itemIndex, int qualityOverride, inv_t *inventory );
-extern void JKG_A_GiveEntItem( unsigned int itemIndex, int qualityOverride, inv_t *inventory, gclient_t *owner );
-extern void JKG_A_GiveEntItemForcedToACI( unsigned int itemIndex, int qualityOverride, inv_t *inventory, gclient_t *owner, unsigned int ACIslot );
 void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 {
 	char		name[MAX_TOKEN_CHARS];
@@ -664,37 +365,6 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 		ent->client->ps.stats[STAT_WEAPONS] |= (1 << atoi(arg));
 		return;
 	}
-	
-	if ( !give_all && Q_stricmp (name, "weapon") == 0 )
-	{
-	    weaponData_t *weapon;
-	    
-	    trap_Argv (2 + baseArg, arg, sizeof (arg));
-	    weapon = BG_GetWeaponByClassName (arg);
-	    if ( weapon )
-	    {
-	        int i = 0;
-			int itemID;
-	        
-			if ( ent->client->coreStats.weight >= MAX_INVENTORY_WEIGHT)
-	        {
-	            trap_SendServerCommand (ent->s.number, "print \"Your inventory is full. No more items can be added.\n\"");
-	            return;
-	        }
-
-			//FIXME: The below assumes that there is a valid weapon item
-			itemID = JKG_GetItemByWeaponIndex(BG_GetWeaponIndex((unsigned int)weapon->weaponBaseIndex, (unsigned int)weapon->weaponModIndex))->itemID;
-
-	        //while ( i < MAX_INVENTORY_ITEMS && cmdent->inventory[i].id )
-			JKG_A_GiveEntItem(itemID, IQUAL_NORMAL, ent->inventory, ent->client);
-			trap_SendServerCommand (ent->s.number, va ("print \"'%s' was added to your inventory.\n\"", itemLookupTable[itemID].displayName));
-	    }
-	    else
-	    {
-	        trap_SendServerCommand (ent->s.number, va ("print \"'%s' does not exist.\n\"", arg));
-	    }
-	    return;
-	}
 
 	if (give_all || Q_stricmp(name, "ammo") == 0)
 	{
@@ -703,19 +373,13 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 			trap_Argv( 2+baseArg, arg, sizeof( arg ) );
 			num = atoi(arg);
 		}
-		for ( i = 0 ; i < JKG_MAX_AMMO_INDICES ; i++ ) {
-			ent->client->ammoTable[i] = num;		//FIXME: copy to proper ammo array
+		for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
+			ent->client->ps.ammo[i] = num;
 		}
-		for ( i = 0; i <= 255; i++ )
+		for ( i = 0; i <= LAST_USEABLE_WEAPON; i++ )
 		{
-			int weapVar, weapBase;
-			if(!BG_GetWeaponByIndex(i, &weapBase, &weapVar))
-			{
-				break;
-			}
-			ent->client->clipammo[i] = GetWeaponAmmoClip (weapBase, weapVar);
+		    ent->client->clipammo[i] = xweaponAmmo[GetWeaponData (i, 0)->ammoIndex].ammoClipSize;
 		}
-		ent->client->ps.ammo = num;
 		if (!give_all)
 			return;
 	}
@@ -733,72 +397,12 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 			return;
 	}
 
-	//Inventory items -- eezstreet/JKG
-	if(!give_all && Q_stricmp(name, "itemNew") == 0)
-	{
-		int itemID = 0, j = 0;
-		qboolean inventoryFull = qtrue;
-
-		trap_Argv(2+baseArg, arg, sizeof( arg ) );
-		itemID = atoi(arg);
-
-		if(itemID)
-		{
-			if(!itemLookupTable[itemID].itemID)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"%i refers to an item that does not exist\n\"", itemID));
-				return;
-			}
-		}
-		else
-		{
-			//Find us the correct item.
-			for(j = 0; j < MAX_ITEM_TABLE_SIZE; j++)
-			{
-				if(itemLookupTable[j].itemID)
-				{
-					if(!Q_stricmp(itemLookupTable[j].internalName, ConcatArgs(2+baseArg)))
-					{
-						itemID = j;
-						break;
-					}
-				}
-			}
-			if(!itemID)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"%s refers to an item that does not exist\n\"", arg));
-				return;
-			}
-		}
-		/*for(i = 0; i < MAX_INVENTORY_ITEMS; i++)
-		{
-			if(!ent->inventory[i].id)
-				break;
-			else
-			{
-				if(!ent->inventory[i].id->itemID)
-				{
-					inventoryFull = qfalse;
-					break;
-				}
-			}
-		}*/
-		//JKG_A_RollItem(itemID, IQUAL_NORMAL, ent->inventory);
-		JKG_A_GiveEntItem(itemID, IQUAL_NORMAL, ent->inventory, ent->client);
-		return;
-	}
-
 	if (Q_stricmp(name, "excellent") == 0) {
 		ent->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
 		return;
 	}
-	if (Q_stricmp(name, "credits") == 0) {
-		int creditAmount;
-		trap_Argv(2+baseArg, arg, sizeof( arg ) );
-
-		creditAmount = atoi(arg);
-		ent->client->ps.persistant[PERS_CREDITS] += creditAmount;
-		trap_SendServerCommand( ent->client->ps.clientNum, va("print \"Your new balance is: %i credits\n\"", ent->client->ps.persistant[PERS_CREDITS]) );
+	if (Q_stricmp(name, "impressive") == 0) {
+		ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
 		return;
 	}
 	if (Q_stricmp(name, "gauntletaward") == 0) {
@@ -1033,14 +637,17 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
 	client->ps.fd.forceDoInit = 1; //every time we change teams make sure our force powers are set right
 
+	if (g_gametype.integer == GT_SIEGE)
+	{ //don't announce these things in siege
+		return;
+	}
+
 	if ( client->sess.sessionTeam == TEAM_RED ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
-			client->pers.netname, G_GetStringEdString2(bgGangWarsTeams[level.redTeam].joinstring)) );
-			//client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEREDTEAM")) );
+			client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEREDTEAM")) );
 	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
-			client->pers.netname, G_GetStringEdString2(bgGangWarsTeams[level.blueTeam].joinstring)) );
-		//client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBLUETEAM")));
+		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBLUETEAM")));
 	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
 		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHESPECTATORS")));
@@ -1167,24 +774,6 @@ void SetTeam( gentity_t *ent, char *s ) {
 			//}
 		}
 
-#ifdef __JKG_NINELIVES__
-#ifdef __JKG_TICKETING__
-#ifdef __JKG_ROUNDBASED__
-		// Can't switch teams to anything but Spectator if the round is not ready
-		if(level.time - level.gamestartTime > 300000 &&
-			g_gametype.integer >= GT_LMS_NINELIVES &&
-			g_gametype.integer <= GT_LMS_ROUNDS)
-		{
-			// Restrict joining the game if the game is beyond 5 minutes time
-			if( team != TEAM_SPECTATOR )
-			{
-				return;
-			}
-		}
-#endif
-#endif
-#endif
-
 		if ( g_teamForceBalance.integer && !g_trueJedi.integer ) {
 			int		counts[TEAM_NUM_TEAMS];
 
@@ -1203,10 +792,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 				else
 				*/
 				{
-					//trap_SendServerCommand( ent->client->ps.clientNum, 
-					//	va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYRED")) );
 					trap_SendServerCommand( ent->client->ps.clientNum, 
-						va("print \"%s\n\"", G_GetStringEdString2(bgGangWarsTeams[level.redTeam].toomanystring)) );
+						va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYRED")) );
 				}
 				return; // ignore the request
 			}
@@ -1221,10 +808,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 				else
 				*/
 				{
-					//trap_SendServerCommand( ent->client->ps.clientNum, 
-					//	va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYBLUE")) );
 					trap_SendServerCommand( ent->client->ps.clientNum, 
-						va("print \"%s\n\"", G_GetStringEdString2(bgGangWarsTeams[level.blueTeam].toomanystring)) );
+						va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYBLUE")) );
 				}
 				return; // ignore the request
 			}
@@ -1252,6 +837,60 @@ void SetTeam( gentity_t *ent, char *s ) {
 	} else {
 		// force them to spectators if there aren't any spots free
 		team = TEAM_FREE;
+	}
+
+	if (g_gametype.integer == GT_SIEGE)
+	{
+		if (client->tempSpectate >= level.time &&
+			team == TEAM_SPECTATOR)
+		{ //sorry, can't do that.
+			return;
+		}
+
+		client->sess.siegeDesiredTeam = team;
+		//oh well, just let them go.
+		/*
+		if (team != TEAM_SPECTATOR)
+		{ //can't switch to anything in siege unless you want to switch to being a fulltime spectator
+			//fill them in on their objectives for this team now
+			trap_SendServerCommand(ent-g_entities, va("sb %i", client->sess.siegeDesiredTeam));
+
+			trap_SendServerCommand( ent-g_entities, va("print \"You will be on the selected team the next time the round begins.\n\"") );
+			return;
+		}
+		*/
+		if (client->sess.sessionTeam != TEAM_SPECTATOR &&
+			team != TEAM_SPECTATOR)
+		{ //not a spectator now, and not switching to spec, so you have to wait til you die.
+			//trap_SendServerCommand( ent-g_entities, va("print \"You will be on the selected team the next time you respawn.\n\"") );
+			qboolean doBegin;
+			if (ent->client->tempSpectate >= level.time)
+			{
+				doBegin = qfalse;
+			}
+			else
+			{
+				doBegin = qtrue;
+			}
+
+			if (doBegin)
+			{
+				// Kill them so they automatically respawn in the team they wanted.
+				if (ent->health > 0)
+				{
+					ent->flags &= ~FL_GODMODE;
+					ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
+					player_die( ent, ent, ent, 100000, MOD_TEAM_CHANGE ); 
+				}
+			}
+
+			if (ent->client->sess.sessionTeam != ent->client->sess.siegeDesiredTeam)
+			{
+				SetTeamQuick(ent, ent->client->sess.siegeDesiredTeam, qfalse);
+			}
+
+			return;
+		}
 	}
 
 	// override decision if limiting the players
@@ -1282,6 +921,12 @@ void SetTeam( gentity_t *ent, char *s ) {
 	//
 	// execute the team change
 	//
+
+	//If it's siege then show the mission briefing for the team you just joined.
+//	if (g_gametype.integer == GT_SIEGE && team != TEAM_SPECTATOR)
+//	{
+//		trap_SendServerCommand(clientNum, va("sb %i", team));
+//	}
 
 	// if the player was dead leave the body
 	if ( client->ps.stats[STAT_HEALTH] <= 0 && client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -1385,10 +1030,10 @@ void Cmd_Team_f( gentity_t *ent ) {
 		oldTeam = ent->client->sess.sessionTeam;
 		switch ( oldTeam ) {
 		case TEAM_BLUE:
-			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", bgGangWarsTeams[level.blueTeam].longname) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTBLUETEAM")) );
 			break;
 		case TEAM_RED:
-			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", bgGangWarsTeams[level.redTeam].longname) );
+			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTREDTEAM")) );
 			break;
 		case TEAM_FREE:
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PRINTFREETEAM")) );
@@ -1433,521 +1078,6 @@ void Cmd_Team_f( gentity_t *ent ) {
 	ent->client->switchTeamTime = level.time + 5000;
 }
 
-
-
-//==========================================================
-// INVENTORY RELATED COMMANDS
-//==========================================================
-
-void JKG_CompactInventory(inventory_t inventory)
-{
-	int i;
-	// We can make this even more efficient, but not really much point.
-	for(i = 0; i < MAX_INVENTORY_ITEMS; i++)
-	{
-	    int j;
-	    
-	    if ( inventory[i].id )
-	    {
-	        continue;
-	    }
-	    
-	    for ( j = i + 1; j < MAX_INVENTORY_ITEMS; j++ )
-	    {
-	        if ( inventory[j].id )
-	        {
-	            inventory[i] = inventory[j];
-	            memset (&inventory[j], 0, sizeof (inventory[j]));
-	            
-	            break;
-	        }
-	    }
-	    
-	    if ( j == MAX_INVENTORY_ITEMS )
-	    {
-	        // Current slot is null, but can find no other items above this one.
-	        // Must be the end of the list.
-	        break;
-	    }
-	}
-}
-
-extern void JKG_Easy_RemoveItemFromInventory(int number, itemInstance_t **inventory, gentity_t *owner, qboolean NPC);
-/*
-=================
-JKG_Cmd_Loot_f
-=================
-*/
-void JKG_Cmd_Loot_f(gentity_t *ent, int otherNum, int lootID, qboolean trade)
-{
-    int i;
-	gentity_t *other = &g_entities[otherNum];
-
-	//Check whether we're trying to loot ourselves.
-	if(ent->s.number == other->s.number){
-		trap_SendServerCommand( ent-g_entities, "print \"You cannot loot yourself.\n\"" );
-		return;
-	}
-
-	//Check whether our target is a player
-	if(other->client && !other->client->NPC_class){
-		trap_SendServerCommand( ent-g_entities, "print \"You cannot loot other players.\n\"" );
-		return;
-	}
-	
-	//Check and see if we've got a valid loot ID
-	if( lootID < 0 ){
-		trap_SendServerCommand( ent-g_entities, "print \"Invalid loot ID\n\"" );
-		return;
-	}
-
-	//check to make sure this object is even lootable
-	//if( !other->inventory[lootID].id ){
-	if( !other->inventory->items[lootID].id ) {
-		trap_SendServerCommand( ent-g_entities, "print \"Invalid target or loot ID.\n\"" );
-		return;
-	}
-
-	//check to make sure we can carry this item
-	//if( (ent->client->coreStats.weight - other->inventory[lootID].id->weight) < 0 ){
-	if ( (signed int)( ent->client->coreStats.weight - other->inventory->items[lootID].id->weight ) < 0 ) {
-		trap_SendServerCommand( ent-g_entities, "print \"You can't carry any more.\n\"" );
-		return;
-	}
-
-	//check if we've got enough open slots
-	/*for(i = 0; i < MAX_INVENTORY_ITEMS; i++)
-	{
-		if(!ent->inventory[i].id)
-		{
-			break;
-		}
-	}
-	if(i >= MAX_INVENTORY_ITEMS)
-	{
-		trap_SendServerCommand( ent-g_entities, "print \"You are out of space.\n\"" );
-		return;
-	}*/
-	i = 0;
-	while ( 1 )
-	{
-		if(!ent->inventory->items[i].id)
-			break;
-	}
-
-	//find the distance between the two targets
-	if ( DistanceSquared (other->s.origin, ent->client->ps.origin) >= MAX_LOOT_DISTANCE * MAX_LOOT_DISTANCE ) {
-		trap_SendServerCommand( ent-g_entities, "print \"You are too far away to loot that target.\n\"" );
-		return;
-	}
-
-	//We can carry this item. Super. Now let's find our first available inventory space.
-	//eezstreet note: WHY THE HECK DID WE EVEN LOOP LIKE THIS TO BEGIN WITH?! ABORT! ABORT!
-	/*for ( i = 0; i < MAX_INVENTORY_ITEMS; i++ )
-	{
-		if( !ent->inventory[i].id )
-		{
-			ent->inventory[i] = other->inventory[lootID];
-#ifdef _DEBUG
-			trap_SendServerCommand( ent-g_entities, va("print \"loot: %s\n\"", ent->inventory[i].id->displayName) );
-#endif
-			trap_SendServerCommand( ent-g_entities, va("pInv add %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
-				i,
-				ent->inventory[i].id->itemID, 
-				ent->inventory[i].itemQuality,
-				ent->inventory[i].amount[0],
-				ent->inventory[i].amount[1],
-				ent->inventory[i].amount[2],
-				ent->inventory[i].amount[3],
-				ent->inventory[i].amount[4],
-				ent->inventory[i].amount[5],
-				ent->inventory[i].amount[6],
-				ent->inventory[i].amount[7],
-				ent->inventory[i].amount[8],
-				ent->inventory[i].amount[9],
-				ent->inventory[i].equipped));
-			ent->client->coreStats.weight += other->inventory[lootID].id->weight;
-			memset(&other->inventory[lootID], 0, sizeof(itemInstance_t));
-			
-			JKG_CompactInventory (other->inventory);
-			return;
-		}
-	}*/
-#ifdef _DEBUG
-	trap_SendServerCommand( ent-g_entities, va("print \"loot: %s\n\"", ent->inventory->items[i].id->displayName));
-#endif
-	trap_SendServerCommand( ent-g_entities, va("pInv add %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
-		i,
-		ent->inventory->items[i].id->itemID,
-		ent->inventory->items[i].amount[0],
-		ent->inventory->items[i].amount[1],
-		ent->inventory->items[i].amount[2],
-		ent->inventory->items[i].amount[3],
-		ent->inventory->items[i].amount[4],
-		ent->inventory->items[i].amount[5],
-		ent->inventory->items[i].amount[6],
-		ent->inventory->items[i].amount[7],
-		ent->inventory->items[i].amount[8],
-		ent->inventory->items[i].amount[9],
-		ent->inventory->items[i].equipped));
-	ent->client->coreStats.weight += other->inventory->items[lootID].id->weight;
-	JKG_Easy_RemoveItemFromInventory(lootID, &other->inventory->items, other, qtrue);
-}
-
-/*
-=================
-JKG_Cmd_ItemAction_f
-=================
-*/
-extern void JKG_Easy_RemoveItemFromInventory(int number, itemInstance_t **inventory, gentity_t *owner, qboolean NPC);
-extern void JKG_Easy_DIMA_Remove(inv_t *inventory, unsigned int invID);
-void JKG_Cmd_ItemAction_f (gentity_t *ent, int itemNum)
-{
-	itemInstance_t *itemInUse;
-	int i;
-	if(!ent->client)
-	{
-		return; //NOTENOTE: NPCs can perform item actions. Nifty, eh?
-	}
-
-	if(ent->client->ps.stats[STAT_HEALTH] <= 0 ||
-		ent->client->ps.pm_type == PM_DEAD)
-	{
-		// Bugfix: Can no longer use items when dead --eez
-		Com_Printf("Can't use items while dead!\n");
-		return;
-	}
-	
-	if ( itemNum < 0 || itemNum >= MAX_INVENTORY_ITEMS )
-	{
-	    return;
-	}
-	if( itemNum > ent->inventory->elements )
-	{
-		//Nope.
-		return;
-	}
-
-	//itemInUse = &ent->inventory[itemNum];
-	itemInUse = &ent->inventory->items[itemNum];
-	if ( !itemInUse->id )
-	{
-#ifdef _DEBUG
-	    trap_SendServerCommand (ent->s.number, "print \"No item with that number.\n\"");
-#endif
-	    return;
-	}
-	
-	for(i = 0; i < MAX_PSPELLS; i++){
-		switch(itemInUse->id->pSpell[i])
-		{
-			case -1:
-			case PSPELL_NONE:
-				return;
-				break;
-			case PSPELL_ADD_PS:
-				ent->client->ps.stats[itemInUse->id->affector[i]] += (int)itemInUse->amount[i];
-				break;
-			case PSPELL_SUB_PS:
-				ent->client->ps.stats[itemInUse->id->affector[i]] -= (int)itemInUse->amount[i];
-				break;
-			case PSPELL_MUL_PS:
-				ent->client->ps.stats[itemInUse->id->affector[i]] *= (int)itemInUse->amount[i];
-				break;
-			case PSPELL_DIV_PS:
-				ent->client->ps.stats[itemInUse->id->affector[i]] /= (int)itemInUse->amount[i];
-				break;
-			case PSPELL_EXP_PS:
-				ent->client->ps.stats[itemInUse->id->affector[i]] = (int)pow(ent->client->ps.stats[itemInUse->id->affector[i]], (double)itemInUse->amount[i]);
-				break;
-			case PSPELL_SQT_PS:
-				ent->client->ps.stats[itemInUse->id->affector[i]] = (int)sqrt(ent->client->ps.stats[itemInUse->id->affector[i]]);
-				break;
-			case PSPELL_SEEKER:
-				if(ent->client->ps.eFlags & EF_SEEKERDRONE)
-				{
-					trap_SendServerCommand(ent->client->ps.clientNum, "print \"You cannot have more than one seeker drone at a time.\n\"");
-					return;
-				}
-				ItemUse_Seeker(ent);
-				break;
-			case PSPELL_PLAYSOUND:
-				G_Sound( ent, CHAN_AUTO, itemInUse->id->affector[i] );
-				break;
-			case PSPELL_DESTROYITEM:
-				JKG_Easy_RemoveItemFromInventory(itemNum, &ent->inventory->items, ent, qfalse);
-				return;
-				break;
-			case PSPELL_CND_GT_PS:
-				{
-					if(ent->client->ps.stats[itemInUse->id->affector[i]] > (int)itemInUse->amount[i])
-					{
-						return;
-					}
-				}
-				break;
-			case PSPELL_CND_EQ_PS:
-				{
-					if(ent->client->ps.stats[itemInUse->id->affector[i]] == (int)itemInUse->amount[i])
-					{
-						return;
-					}
-				}
-				break;
-			case PSPELL_CND_LT_PS:
-				{
-					if(ent->client->ps.stats[itemInUse->id->affector[i]] < (int)itemInUse->amount[i])
-					{
-						return;
-					}
-				}
-				break;
-			case PSPELL_DO_EVENT:
-				G_AddEvent(ent, itemInUse->id->affector[i], (int)itemInUse->amount[i]);
-				break;
-			default:
-				ent->client->ps.stats[itemInUse->id->affector[i]] += (int)itemInUse->amount[i];
-				break;
-		}
-		if(itemInUse->id->affector[i] == STAT_HEALTH && itemInUse->id->pSpell[i] < PSPELL_SEEKER)
-			ent->health = ent->client->ps.stats[STAT_HEALTH];
-	}
-}
-
-/*
-=================
-JKG_Cmd_ShowInv_f
-=================
-*/
-void JKG_Cmd_ShowInv_f(gentity_t *ent)
-{
-    char buffer[MAX_STRING_CHARS] = { 0 };
-	int i = 0;
-	if(!ent->client)
-		return;
-
-	Q_strncpyz (buffer, "Inventory ID | Item Num | Instance Name                       | Weight\n", sizeof (buffer));
-	Q_strcat (buffer, sizeof (buffer), "-------------+----------+-----------------------------------------------+--------\n");
-
-	for ( i = 0; i < ent->inventory->elements; i++ )
-	{
-	        
-		if(!ent->inventory->items[i].equipped)
-			Q_strcat (buffer, sizeof(buffer), va(S_COLOR_WHITE "%12i | %8i | %-45s | %i\n", i, ent->inventory->items[i].id->itemID, ent->inventory->items[i].id->displayName, ent->inventory->items[i].id->weight));
-			//Q_strcat (buffer, sizeof (buffer), va (S_COLOR_WHITE "%12i | %8i | %-45s | %i\n", i, ent->inventory[i].id->itemID, ent->inventory[i].id->displayName, ent->inventory[i].id->weight));
-		else
-			Q_strcat (buffer, sizeof(buffer), va(S_COLOR_YELLOW "%12i | %8i | %-45s | %i\n", i, ent->inventory->items[i].id->itemID, va ("%s (equipped)", ent->inventory->items[i].id->displayName), ent->inventory->items[i].id->weight));
-			//Q_strcat (buffer, sizeof (buffer), va (S_COLOR_YELLOW "%12i | %8i | %-45s | %i\n", i, ent->inventory[i].id->itemID, va ("%s (equipped)", ent->inventory[i].id->displayName), ent->inventory[i].id->weight));
-	}
-	
-	Q_strcat (buffer, sizeof (buffer), va( "%i total items, %i weight left.", i, MAX_INVENTORY_WEIGHT - ent->client->coreStats.weight));
-	
-	trap_SendServerCommand (ent->s.number, va ("print \"%s\n\"", buffer));
-}
-
-/*
-=========================================
-JKG_Cmd_EquipToACI_f / JKG_Cmd_Unequip_f
-=========================================
-*/
-
-extern void JKG_EquipItem(gentity_t *ent, int iNum);
-extern void JKG_UnequipItem(gentity_t *ent, int iNum);
-void JKG_Cmd_EquipItem_f(gentity_t *ent)
-{
-	char arg[6];
-	if(trap_Argc() != 2)
-	{
-		trap_SendServerCommand( ent->s.number, "print \"Usage: /equip <item num>\n\"" );
-		return;
-	}
-	
-	trap_Argv (1, arg, sizeof(arg));
-
-	JKG_EquipItem (ent, atoi (arg));
-}
-
-void JKG_Cmd_UnequipItem_f(gentity_t *ent)
-{
-    char arg[6];
-	if(trap_Argc() != 2)
-	{
-		trap_SendServerCommand( ent->s.number, "print \"Usage: /unequip <item num>\n\"" );
-		return;
-	}
-	
-	trap_Argv (1, arg, sizeof(arg));
-
-	JKG_UnequipItem (ent, atoi (arg));
-}
-
-/*
-==================
-JKG_Cmd_DestroyItem_f
-Destroys an item from your inventory
-==================
-*/
-void JKG_Cmd_DestroyItem_f(gentity_t *ent)
-{
-	char arg[64];
-	int i, inventoryID;
-	itemInstance_t destroyedItem;
-	trap_Argv(1, arg, sizeof(arg));
-
-	memset(&destroyedItem, 0, sizeof(itemInstance_t));
-
-	if(trap_Argc() < 2)
-	{
-		trap_SendServerCommand(ent->client->ps.clientNum, "print \"Syntax: /inventoryDestroy <inventory ID or internal>\n\"");
-		return;
-	}
-
-	if(JKG_CheckIfNumber(arg) == JKGSTR_DECIMAL)
-	{
-		//if(!ent->inventory[atoi(arg)].id || atoi(arg) < 0)
-		if(!ent->inventory->items[atoi(arg)].id || atoi(arg) < 0)
-		{
-			trap_SendServerCommand(ent->client->ps.clientNum, "print \"^1Invalid inventory ID.\n\"");
-			return;
-		}
-		//destroyedItem = ent->inventory[atoi(arg)];
-		destroyedItem = ent->inventory->items[atoi(arg)];
-		inventoryID = atoi(arg);
-		if(inventoryID < 0 || inventoryID >= ent->inventory->elements)
-		{
-			//No way.
-			trap_SendServerCommand(ent->s.number, "print \"You cannot destroy/sell an item on an index that is out of bounds.\n\"");
-			return;
-		}
-		JKG_Easy_RemoveItemFromInventory(atoi(arg), (itemInstance_t **)ent->inventory, ent, qfalse);
-	}
-	else
-	{
-		/*for(i = 0; i < MAX_INVENTORY_ITEMS; i++)
-		{
-			if(ent->inventory[i].id)
-			{
-				if(!Q_stricmp(ent->inventory[i].id->internalName, ConcatArgs(1)))
-				{
-					destroyedItem = ent->inventory[i];
-					inventoryID = i;
-					JKG_Easy_RemoveItemFromInventory(i, (itemInstance_t **)ent->inventory);
-					break;
-				}
-			}
-			else
-			{
-				trap_SendServerCommand(ent->client->ps.clientNum, va("print \"^1Could not find item with internal %s\n\"", ConcatArgs(1)));
-				return;
-			}
-		}*/
-		for(i = 0; i < ent->inventory->elements; i++)
-		{
-			if(ent->inventory->items[i].id)
-			{
-				if(!Q_stricmp(ent->inventory->items[i].id->internalName, ConcatArgs(1)))
-				{
-					destroyedItem = ent->inventory->items[i];
-					inventoryID = i;
-					JKG_Easy_RemoveItemFromInventory(i, (itemInstance_t **)ent->inventory->items, ent, qfalse);
-					break;
-				}
-				else
-					continue;
-			}
-		}
-		if(!destroyedItem.id)
-		{
-			trap_SendServerCommand(ent->client->ps.clientNum, va("print \"^1Could not find item with internal %s\n\"", ConcatArgs(1)));
-			return;
-		}
-
-	}
-	trap_SendServerCommand(ent->client->ps.clientNum, va("print \"^2DEBUG: %s (internal %s, invID %i) destroyed.\n\"", destroyedItem.id->displayName,
-		destroyedItem.id->internalName, inventoryID));
-}
-
-void JKG_Cmd_SellItem_f(gentity_t *ent)
-{
-	// TODO: put proper pricing here
-	char arg[64];
-	trap_Argv(1, arg, sizeof(arg));
-	if(trap_Argc() < 2)
-	{
-		trap_SendServerCommand(ent->client->ps.clientNum, "print \"Syntax: /inventorySell <inventory ID or internal>\n\"");
-		return;
-	}
-	if(JKG_CheckIfNumber(arg) == JKGSTR_DECIMAL)
-	{
-		int numbah = atoi(arg);
-		if(numbah >= ent->inventory->elements)
-		{
-			return;
-		}
-		if(!ent->inventory->items[numbah].id)
-		{
-			return;
-		}
-		// DO NOT ALLOW SELLING OF STARTER WEAPONS! (unless you already have another gun in your inventory)
-		if(ent->inventory->items[numbah].id->itemType == ITEM_WEAPON)
-		{
-			if(!Q_stricmp(GetWeaponData(ent->inventory->items[numbah].id->weapon, ent->inventory->items[numbah].id->variation)->displayName,
-				level.startingWeapon))
-			{
-				if(ent->inventory->elements < 2)
-				{
-					trap_SendServerCommand(ent->client->ps.clientNum, "print \"You cannot sell your starter gun unless you have another item in your inventory.\n\"");
-					return;
-				}
-				ent->inventory->items[numbah].id->baseCost = 2;	// hackery. Starting weapon sells for 1 credit.
-			}
-		}
-		ent->client->ps.persistant[PERS_CREDITS] += (ent->inventory->items[numbah].id->baseCost)/2;
-		JKG_Cmd_DestroyItem_f(ent);
-	}
-	else
-	{
-		int i, inventoryID;
-		itemInstance_t destroyedItem;
-		for(i = 0; i < ent->inventory->elements; i++)
-		{
-			if(ent->inventory->items[i].id)
-			{
-				if(!Q_stricmp(ent->inventory->items[i].id->internalName, ConcatArgs(1)))
-				{
-					destroyedItem = ent->inventory->items[i];
-					inventoryID = i;
-
-					// DO NOT ALLOW DESTROYING OF STARTER ITEMS!
-					if(ent->inventory->items[i].id->itemType == ITEM_WEAPON)
-					{
-						if(!Q_stricmp(GetWeaponData(ent->inventory->items[i].id->weapon, ent->inventory->items[i].id->variation)->displayName,
-							level.startingWeapon))
-						{
-							if(ent->inventory->elements < 2)
-							{
-								trap_SendServerCommand(ent->client->ps.clientNum, "print \"You cannot sell your starter gun unless you have another item in your inventory.\n\"");
-								return;
-							}
-						}
-					}
-
-					ent->client->ps.persistant[PERS_CREDITS] += (ent->inventory->items[i].id->baseCost)/2;
-					JKG_Easy_RemoveItemFromInventory(i, (itemInstance_t **)ent->inventory->items, ent, qfalse);
-					break;
-				}
-				else
-					continue;
-			}
-		}
-		if(!destroyedItem.id)
-		{
-			trap_SendServerCommand(ent->client->ps.clientNum, va("print \"^1Could not find item with internal %s\n\"", ConcatArgs(1)));
-			return;
-		}
-	}
-	trap_SendServerCommand(ent->s.number, va("inventory_update %i", ent->client->ps.persistant[PERS_CREDITS]));
-}
 /*
 =================
 Cmd_DuelTeam_f
@@ -2040,6 +1170,150 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 	ent->client->switchDuelTeamTime = level.time + 5000;
 }
 
+int G_TeamForSiegeClass(const char *clName)
+{
+	int i = 0;
+	int team = SIEGETEAM_TEAM1;
+	siegeTeam_t *stm = BG_SiegeFindThemeForTeam(team);
+	siegeClass_t *scl;
+
+	if (!stm)
+	{
+		return 0;
+	}
+
+	while (team <= SIEGETEAM_TEAM2)
+	{
+		scl = stm->classes[i];
+
+		if (scl && scl->name[0])
+		{
+			if (!Q_stricmp(clName, scl->name))
+			{
+				return team;
+			}
+		}
+
+		i++;
+		if (i >= MAX_SIEGE_CLASSES || i >= stm->numClasses)
+		{
+			if (team == SIEGETEAM_TEAM2)
+			{
+				break;
+			}
+			team = SIEGETEAM_TEAM2;
+			stm = BG_SiegeFindThemeForTeam(team);
+			i = 0;
+		}
+	}
+
+	return 0;
+}
+
+/*
+=================
+Cmd_SiegeClass_f
+=================
+*/
+void Cmd_SiegeClass_f( gentity_t *ent )
+{
+	char className[64];
+	int team = 0;
+	int preScore;
+	qboolean startedAsSpec = qfalse;
+
+	if (g_gametype.integer != GT_SIEGE)
+	{ //classes are only valid for this gametype
+		return;
+	}
+
+	if (!ent->client)
+	{
+		return;
+	}
+
+	if (trap_Argc() < 1)
+	{
+		return;
+	}
+
+	if ( ent->client->switchClassTime > level.time )
+	{
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")) );
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+	{
+		startedAsSpec = qtrue;
+	}
+
+	trap_Argv( 1, className, sizeof( className ) );
+
+	team = G_TeamForSiegeClass(className);
+
+	if (!team)
+	{ //not a valid class name
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam != team)
+	{ //try changing it then
+		g_preventTeamBegin = qtrue;
+		if (team == TEAM_RED)
+		{
+			SetTeam(ent, "red");
+		}
+		else if (team == TEAM_BLUE)
+		{
+			SetTeam(ent, "blue");
+		}
+		g_preventTeamBegin = qfalse;
+
+		if (ent->client->sess.sessionTeam != team)
+		{ //failed, oh well
+			if (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
+				ent->client->sess.siegeDesiredTeam != team)
+			{
+				trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSTEAM")) );
+				return;
+			}
+		}
+	}
+
+	//preserve 'is score
+	preScore = ent->client->ps.persistant[PERS_SCORE];
+
+	//Make sure the class is valid for the team
+	BG_SiegeCheckClassLegality(team, className);
+
+	//Set the session data
+	strcpy(ent->client->sess.siegeClass, className);
+
+	// get and distribute relevent paramters
+	ClientUserinfoChanged( ent->s.number );
+
+	if (ent->client->tempSpectate < level.time)
+	{
+		// Kill him (makes sure he loses flags, etc)
+		if (ent->health > 0 && !startedAsSpec)
+		{
+			ent->flags &= ~FL_GODMODE;
+			ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
+			player_die (ent, ent, ent, 100000, MOD_SUICIDE);
+		}
+
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || startedAsSpec)
+		{ //respawn them instantly.
+			ClientBegin( ent->s.number, qfalse );
+		}
+	}
+	//set it back after we do all the stuff
+	ent->client->ps.persistant[PERS_SCORE] = preScore;
+
+	ent->client->switchClassTime = level.time + 5000;
+}
+
 /*
 =================
 Cmd_ForceChanged_f
@@ -2090,6 +1364,18 @@ qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean sieg
 {
 	char truncSaberName[64];
 	int i = 0;
+
+	if (!siegeOverride &&
+		g_gametype.integer == GT_SIEGE &&
+		ent->client->siegeClass != -1 &&
+		(
+		 bgSiegeClasses[ent->client->siegeClass].saberStance ||
+		 bgSiegeClasses[ent->client->siegeClass].saber1[0] ||
+		 bgSiegeClasses[ent->client->siegeClass].saber2[0]
+		))
+	{ //don't let it be changed if the siege class has forced any saber-related things
+        return qfalse;
+	}
 
 	while (saberName[i] && i < 64-1)
 	{
@@ -2282,6 +1568,14 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	*/
 	//They've requested I take this out.
 
+	if (g_gametype.integer == GT_SIEGE &&
+		ent->client && (ent->client->tempSpectate >= level.time || ent->client->sess.sessionTeam == TEAM_SPECTATOR) &&
+		other->client->sess.sessionTeam != TEAM_SPECTATOR &&
+		other->client->tempSpectate < level.time)
+	{ //siege temp spectators should not communicate to ingame players
+		return;
+	}
+
 	if (locMsg)
 	{
 		trap_SendServerCommand( other-g_entities, va("%s %i \"%s\" \"%s\" \"%c\" \"%s\"", 
@@ -2326,7 +1620,7 @@ int G_Say_GetFadeLevel(int distance, int range) {
 	float cutoff = (float)range*0.75f;
 	float cutoffrange = (float)range *0.25f;
 	float cutoffarea;
-	float fadeLevel;
+	float level;
 
 	if (distance > range) {
 		// Shouldn't happen, but if so, minimal level
@@ -2338,14 +1632,14 @@ int G_Say_GetFadeLevel(int distance, int range) {
 	}
 	// Hmk, math time! >:O!
 	cutoffarea = distance - cutoff;
-	fadeLevel = 1 - (cutoffarea/cutoffrange);
-	if (fadeLevel < 0.15f) {
-		fadeLevel = 0.15f;
-	} else if (fadeLevel > 1) {
-		fadeLevel = 1;		// Failsafe, this should never happen
+	level = 1 - (cutoffarea/cutoffrange);
+	if (level < 0.15f) {
+		level = 0.15f;
+	} else if (level > 1) {
+		level = 1;		// Failsafe, this should never happen
 	}
 
-	return fadeLevel*100;
+	return level*100;
 
 }
 
@@ -2378,9 +1672,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 
 	// Check for flood
-	// If the target is the same as the sender, then we're sending a message to ourselves (because
-	// of private chat).
-	if (ent != target && (ent->client->lastChatMessage > (level.time - jkg_chatFloodProtect.integer))) {
+	if (ent->client->lastChatMessage > level.time - jkg_chatFloodProtect.integer) {
 		return;
 	}
 
@@ -2388,7 +1680,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 
 	
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
-		mode = SAY_YELL;
+		mode = SAY_ALL;
 	}
 
 	if (strlen(chatText) > 511) {
@@ -2633,24 +1925,6 @@ static void Cmd_SayYell_f( gentity_t *ent ) {
 
 /*
 ==================
-Cmd_SayTeam_f - Team Chat
-VERSUS ONLY
-==================
-*/
-static void Cmd_SayTeam_f( gentity_t *ent ) {
-	char		*p;
-
-	if ( trap_Argc () < 2 ) {
-		return;
-	}
-
-	p = ConcatArgs( 1 );
-
-	G_Say( ent, NULL, SAY_TEAM, p );
-}
-
-/*
-==================
 Cmd_SayWhisper_f - Yell
 ==================
 */
@@ -2827,8 +2101,7 @@ static const char *gameNames[] = {
 	"Team FFA",
 	"Siege",
 	"Capture the Flag",
-	"Capture the Ysalamiri",
-	"Warzone",
+	"Capture the Ysalamiri"
 };
 
 /*
@@ -2980,16 +2253,12 @@ int G_ClientNumberFromStrippedSubstring ( const char* name, qboolean checkAll )
 	return match;
 }
 
-#ifdef __SECONDARY_NETWORK__
-extern void jkg_netserverbegin();
-extern void jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
-
 /*
 ==================
 Cmd_CallVote_f
 ==================
 */
+extern void SiegeClearSwitchData(void); //g_saga.c
 const char *G_GetArenaInfoByMap( const char *map );
 void Cmd_CallVote_f( gentity_t *ent ) {
 	int		i;
@@ -3001,8 +2270,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	char*		mapName = 0;
 	const char*	arenaInfo;
 
-	/*if ( !g_allowVote.integer )*/ {
-		// NO voting in JKG --eez
+	if ( !g_allowVote.integer ) {
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) );
 		return;
 	}
@@ -3088,10 +2356,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			return;
 		}
 
-#ifdef __SECONDARY_NETWORK__
-		jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
-
 		trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
 		if (*s) {
 			Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s );
@@ -3158,6 +2422,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand( ent-g_entities, "print \"nextmap not set.\n\"" );
 			return;
 		}
+		SiegeClearSwitchData();
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr nextmap");
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	} 
@@ -3412,7 +2677,6 @@ qboolean PM_InKnockDown( playerState_t *ps );
 void Cmd_Reload_f( gentity_t *ent ) {
 	int weapon;
 	int ammotoadd;
-	int weaponIndex;
 	gentity_t *evt;
 
 	weapon = ent->client->ps.weapon;
@@ -3437,32 +2701,25 @@ void Cmd_Reload_f( gentity_t *ent ) {
 	}
 	
 	/* No more ammo left to place in the clip */
-	if ( ent->client->ps.ammo <= 0 )
-	{
-		return;
-	}
-	
-	// Can't reload while sprinting
-	if ( BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, &ent->client->ns) )
-	{
-	    return;
-	}
-	
-    // Can't reload while charging the weapon
-	if ( ent->client->ps.weaponstate == WEAPON_CHARGING || ent->client->ps.weaponstate == WEAPON_CHARGING_ALT )
+	if ( ent->client->ps.ammo[GetWeaponAmmoIndex( weapon, ent->client->ps.weaponVariation )] == 0 )
 	{
 		return;
 	}
 
 	ammotoadd = GetWeaponAmmoClip( weapon, ent->client->ps.weaponVariation );
-	weaponIndex = BG_GetWeaponIndex(weapon, ent->client->ps.weaponVariation);
 	
-	if (ent->client->clipammo[weaponIndex] >= ammotoadd)	{
+	if (ent->client->clipammo[weapon] >= ammotoadd)	{
 		// Current clip is full
 		return;
 	}
 	
-	ammotoadd -= ent->client->clipammo[weaponIndex];
+	ammotoadd -= ent->client->clipammo[weapon];
+
+	/* Weapon is charging while we start a reload, release the charge */
+	if ( ent->client->ps.weaponstate == WEAPON_CHARGING || ent->client->ps.weaponstate == WEAPON_CHARGING_ALT )
+	{
+		FireWeapon( ent, ( ent->client->ps.weaponstate == WEAPON_CHARGING ) ? qfalse : qtrue );
+	}
 
     #ifdef _DEBUG
     //trap_SendServerCommand (-1, va ("print \"Reloading weapon %s.\n\"", WPTable[weapon + 1]));
@@ -3482,23 +2739,18 @@ void Cmd_Reload_f( gentity_t *ent ) {
 	}
 
 	// TODO: Reload animation
-	G_SetAnim(ent, NULL, SETANIM_TORSO, GetWeaponData (weapon, ent->client->ps.weaponVariation)->anims.reload.torsoAnim, SETANIM_FLAG_OVERRIDE,0);
+	G_SetAnim(ent, NULL, SETANIM_TORSO, GetWeaponData (weapon, ent->client->ps.weaponVariation)->torsoReloadAnimation, SETANIM_FLAG_OVERRIDE,0);
 	ent->client->ps.weaponTime = GetWeaponData( weapon, ent->client->ps.weaponVariation )->weaponReloadTime;
 	// TODO: Add sound
 
 	// Check if we have enough ammo remaining
-	ammotoadd = min (ammotoadd, ent->client->ps.ammo);
+	ammotoadd = min (ammotoadd, ent->client->ps.ammo[GetWeaponAmmoIndex( weapon, ent->client->ps.weaponVariation )]);
 
 	//Remove the ammo from 'bag'
-	ent->client->ps.ammo -= ammotoadd;
-	ent->client->ammoTable[GetWeaponAmmoIndex(ent->client->ps.weapon, ent->client->ps.weaponVariation)] -= ammotoadd;
+	ent->client->ps.ammo[GetWeaponAmmoIndex( weapon, ent->client->ps.weaponVariation )] -= ammotoadd;
 
 	//Add the ammo to weapon
-	ent->client->clipammo[weaponIndex] += ammotoadd;
-
-	//Take us out of ironsights
-	//ent->client->ns.ironsightsTime &= ~IRONSIGHTS_MSB;
-	ent->client->ns.ironsightsDebounceStart = level.time + ent->client->ps.weaponTime;
+	ent->client->clipammo[weapon] += ammotoadd;
 }
 
 
@@ -3773,18 +3025,6 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 	{
 		return;
 	}
-
-	if( ent->client->saberStanceDebounce > level.time)
-	{
-		// No. Don't want spamming of firing mode change or stance change --eez
-		return;
-	}
-
-	if( ent->client->ps.weaponTime > 0 )
-	{
-		// Don't use in the middle of a burst or in a saber move or while reloading --eez
-		return;
-	}
 	/*
 	if (ent->client->ps.weaponTime > 0)
 	{ //no switching attack level when busy
@@ -3794,143 +3034,150 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 
 	// Jedi Knight Galaxies, we cant swich saber style if we're not using a saber...
 	if (ent->client->ps.weapon != WP_SABER)
-	{
-		// But we can change firing modes!
-		int previousFiringMode = ent->client->ps.firingMode;
-		weaponData_t *wp = GetWeaponData( ent->client->ps.weapon, ent->client->ps.weaponVariation );
-		ent->client->ps.firingMode++;
-		if(ent->client->ps.firingMode >= wp->numFiringModes)
-		{
-			ent->client->ps.firingMode = 0;
-		}
-		ent->client->saberStanceDebounce = level.time + 400;	// changed to 400 cuz 1000 was way too slow
-		trap_SendServerCommand(ent->s.number, va("fmrefresh %i", previousFiringMode));
-		ent->client->firingModes[ent->client->ps.weaponId] = ent->client->ps.firingMode;
 		return;
-	}
-	else
-	{
-		// Change saber style then, if permitted
-		if( ent->client->ps.saberInFlight )
-		{
-			//Jedi Knight Galaxies, cannot switch saber style if throwing a saber
-			return;
-		}
 
-		ent->client->saberStanceDebounce = level.time + 1000;
-
-		if (ent->client->saber[0].model[0] && ent->client->saber[1].model[0])
-		{ //no cycling for akimbo
-			if ( WP_SaberCanTurnOffSomeBlades( &ent->client->saber[1] ) )
-			{//can turn second saber off 
-				if ( ent->client->ps.saberHolstered == 1 )
-				{//have one holstered
-					//unholster it
-					G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
-					ent->client->ps.saberHolstered = 0;
-					//g_active should take care of this, but...
-					ent->client->ps.fd.saberAnimLevel = SS_DUAL;
-				}
-				else if ( ent->client->ps.saberHolstered == 0 )
-				{//have none holstered
-					if ( (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
-					{//can't turn it off manually
-					}
-					else if ( ent->client->saber[1].bladeStyle2Start > 0
-						&& (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
-					{//can't turn it off manually
-					}
-					else
-					{
-						//turn it off
-						G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
-						ent->client->ps.saberHolstered = 1;
-						//g_active should take care of this, but...
-						ent->client->ps.fd.saberAnimLevel = SS_FAST;
-					}
-				}
-
-				if (d_saberStanceDebug.integer)
-				{
-					trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle dual saber blade.\n\"") );
-				}
-				return;
-			}
-		}
-		else if (ent->client->saber[0].numBlades > 1
-			&& WP_SaberCanTurnOffSomeBlades( &ent->client->saber[0] ) )
-		{ //use staff stance then.
+	if (ent->client->saber[0].model[0] && ent->client->saber[1].model[0])
+	{ //no cycling for akimbo
+		if ( WP_SaberCanTurnOffSomeBlades( &ent->client->saber[1] ) )
+		{//can turn second saber off 
 			if ( ent->client->ps.saberHolstered == 1 )
-			{//second blade off
-				if ( ent->client->ps.saberInFlight )
-				{//can't turn second blade back on if it's in the air, you naughty boy!
-					if (d_saberStanceDebug.integer)
-					{
-						trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle staff blade in air.\n\"") );
-					}
-					return;
-				}
-				//turn it on
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
+			{//have one holstered
+				//unholster it
+				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
 				ent->client->ps.saberHolstered = 0;
 				//g_active should take care of this, but...
-				if ( ent->client->saber[0].stylesForbidden )
-				{//have a style we have to use
-					WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &selectLevel );
-					if ( ent->client->ps.weaponTime <= 0 )
-					{ //not busy, set it now
-						ent->client->ps.fd.saberAnimLevel = selectLevel;
-					}
-					else
-					{ //can't set it now or we might cause unexpected chaining, so queue it
-						ent->client->saberCycleQueue = selectLevel;
-					}
-				}
+				ent->client->ps.fd.saberAnimLevel = SS_DUAL;
 			}
 			else if ( ent->client->ps.saberHolstered == 0 )
-			{//both blades on
-				if ( (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+			{//have none holstered
+				if ( (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
 				{//can't turn it off manually
 				}
-				else if ( ent->client->saber[0].bladeStyle2Start > 0
-					&& (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+				else if ( ent->client->saber[1].bladeStyle2Start > 0
+					&& (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
 				{//can't turn it off manually
 				}
 				else
 				{
-					//turn second one off
-					G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
+					//turn it off
+					G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
 					ent->client->ps.saberHolstered = 1;
 					//g_active should take care of this, but...
-					if ( ent->client->saber[0].singleBladeStyle != SS_NONE )
-					{
-						if ( ent->client->ps.weaponTime <= 0 )
-						{ //not busy, set it now
-							ent->client->ps.fd.saberAnimLevel = ent->client->saber[0].singleBladeStyle;
-						}
-						else
-						{ //can't set it now or we might cause unexpected chaining, so queue it
-							ent->client->saberCycleQueue = ent->client->saber[0].singleBladeStyle;
-						}
-					}
+					ent->client->ps.fd.saberAnimLevel = SS_FAST;
 				}
 			}
+
 			if (d_saberStanceDebug.integer)
 			{
-				trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle staff blade.\n\"") );
+				trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle dual saber blade.\n\"") );
 			}
 			return;
 		}
-
-		if (ent->client->saberCycleQueue)
-		{ //resume off of the queue if we haven't gotten a chance to update it yet
-			selectLevel = ent->client->saberCycleQueue;
+	}
+	else if (ent->client->saber[0].numBlades > 1
+		&& WP_SaberCanTurnOffSomeBlades( &ent->client->saber[0] ) )
+	{ //use staff stance then.
+		if ( ent->client->ps.saberHolstered == 1 )
+		{//second blade off
+			if ( ent->client->ps.saberInFlight )
+			{//can't turn second blade back on if it's in the air, you naughty boy!
+				if (d_saberStanceDebug.integer)
+				{
+					trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle staff blade in air.\n\"") );
+				}
+				return;
+			}
+			//turn it on
+			G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
+			ent->client->ps.saberHolstered = 0;
+			//g_active should take care of this, but...
+			if ( ent->client->saber[0].stylesForbidden )
+			{//have a style we have to use
+				WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &selectLevel );
+				if ( ent->client->ps.weaponTime <= 0 )
+				{ //not busy, set it now
+					ent->client->ps.fd.saberAnimLevel = selectLevel;
+				}
+				else
+				{ //can't set it now or we might cause unexpected chaining, so queue it
+					ent->client->saberCycleQueue = selectLevel;
+				}
+			}
 		}
-		else
+		else if ( ent->client->ps.saberHolstered == 0 )
+		{//both blades on
+			if ( (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+			{//can't turn it off manually
+			}
+			else if ( ent->client->saber[0].bladeStyle2Start > 0
+				&& (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+			{//can't turn it off manually
+			}
+			else
+			{
+				//turn second one off
+				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
+				ent->client->ps.saberHolstered = 1;
+				//g_active should take care of this, but...
+				if ( ent->client->saber[0].singleBladeStyle != SS_NONE )
+				{
+					if ( ent->client->ps.weaponTime <= 0 )
+					{ //not busy, set it now
+						ent->client->ps.fd.saberAnimLevel = ent->client->saber[0].singleBladeStyle;
+					}
+					else
+					{ //can't set it now or we might cause unexpected chaining, so queue it
+						ent->client->saberCycleQueue = ent->client->saber[0].singleBladeStyle;
+					}
+				}
+			}
+		}
+		if (d_saberStanceDebug.integer)
 		{
-			selectLevel = ent->client->ps.fd.saberAnimLevel;
+			trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle staff blade.\n\"") );
+		}
+		return;
+	}
+
+	if (ent->client->saberCycleQueue)
+	{ //resume off of the queue if we haven't gotten a chance to update it yet
+		selectLevel = ent->client->saberCycleQueue;
+	}
+	else
+	{
+		selectLevel = ent->client->ps.fd.saberAnimLevel;
+	}
+
+	if (g_gametype.integer == GT_SIEGE &&
+		ent->client->siegeClass != -1 &&
+		bgSiegeClasses[ent->client->siegeClass].saberStance)
+	{ //we have a flag of useable stances so cycle through it instead
+		int i = selectLevel+1;
+
+		usingSiegeStyle = qtrue;
+
+		while (i != selectLevel)
+		{ //cycle around upward til we hit the next style or end up back on this one
+			if (i >= SS_NUM_SABER_STYLES)
+			{ //loop back around to the first valid
+				i = SS_FAST;
+			}
+
+			if (bgSiegeClasses[ent->client->siegeClass].saberStance & (1 << i))
+			{ //we can use this one, select it and break out.
+				selectLevel = i;
+				break;
+			}
+			i++;
 		}
 
+		if (d_saberStanceDebug.integer)
+		{
+			trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to cycle given class stance.\n\"") );
+		}
+	}
+	else
+	{
 		selectLevel++;
 		if ( selectLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
 		{
@@ -3940,36 +3187,36 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		{
 			trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to cycle stance normally.\n\"") );
 		}
-	/*
-	#ifndef FINAL_BUILD
-		switch ( selectLevel )
-		{
-		case FORCE_LEVEL_1:
-			trap_SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %sfast\n\"", S_COLOR_BLUE) );
-			break;
-		case FORCE_LEVEL_2:
-			trap_SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %smedium\n\"", S_COLOR_YELLOW) );
-			break;
-		case FORCE_LEVEL_3:
-			trap_SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %sstrong\n\"", S_COLOR_RED) );
-			break;
-		}
-	#endif
-	*/
-		if ( !usingSiegeStyle )
-		{
-			//make sure it's valid, change it if not
-			WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &selectLevel );
-		}
+	}
+/*
+#ifndef FINAL_BUILD
+	switch ( selectLevel )
+	{
+	case FORCE_LEVEL_1:
+		trap_SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %sfast\n\"", S_COLOR_BLUE) );
+		break;
+	case FORCE_LEVEL_2:
+		trap_SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %smedium\n\"", S_COLOR_YELLOW) );
+		break;
+	case FORCE_LEVEL_3:
+		trap_SendServerCommand( ent-g_entities, va("print \"Lightsaber Combat Style: %sstrong\n\"", S_COLOR_RED) );
+		break;
+	}
+#endif
+*/
+	if ( !usingSiegeStyle )
+	{
+		//make sure it's valid, change it if not
+		WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &selectLevel );
+	}
 
-		if (ent->client->ps.weaponTime <= 0)
-		{ //not busy, set it now
-			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = selectLevel;
-		}
-		else
-		{ //can't set it now or we might cause unexpected chaining, so queue it
-			ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = selectLevel;
-		}
+	if (ent->client->ps.weaponTime <= 0)
+	{ //not busy, set it now
+		ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = selectLevel;
+	}
+	else
+	{ //can't set it now or we might cause unexpected chaining, so queue it
+		ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = selectLevel;
 	}
 }
 
@@ -4295,7 +3542,6 @@ qboolean TryGrapple(gentity_t *ent)
 qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t velocity);
 #endif
 
-#if 0
 static void Cmd_WeaponVariation_f ( gentity_t *ent )
 {
     char buffer[MAX_TOKEN_CHARS];
@@ -4340,11 +3586,6 @@ static void Cmd_NextWeaponVariation_f ( gentity_t *ent )
         variation = 0;
     }
     
-    if ( variation == ent->client->ps.weaponVariation )
-    {
-        return;
-    }
-    
     ent->client->ps.weaponVariation = variation;
     ent->client->ps.weaponVariationChanged = 1;
     trap_SendServerCommand (ent->s.number, "print \"Weapon variation updated.\n");
@@ -4367,7 +3608,6 @@ static void Cmd_PrevWeaponVariation_f ( gentity_t *ent )
     ent->client->ps.weaponVariationChanged = 1;
     trap_SendServerCommand (ent->s.number, "print \"Weapon variation updated.\n");
 }
-#endif
 
 /*
 =================
@@ -4377,7 +3617,6 @@ ClientCommand
 
 #include "jkg_threading.h"
 
-extern lootTable_t lootLookupTable[MAX_LOOT_TABLE_SIZE];
 void ClientCommand( int clientNum ) {
 	gentity_t *ent;
 	char	cmd[MAX_TOKEN_CHARS];
@@ -4416,7 +3655,7 @@ void ClientCommand( int clientNum ) {
 		return;
 	}
 
-	/*if (!Q_stricmp (cmd, "fieldlight")) {
+	if (!Q_stricmp (cmd, "fieldlight")) {
 		if (ent->playerState->eFlags & EF_FIELDLIGHT) {
 			ent->playerState->eFlags &= ~EF_FIELDLIGHT;
 			trap_SendServerCommand( clientNum, "print \"Fieldlight disabled\n\"" );
@@ -4425,7 +3664,7 @@ void ClientCommand( int clientNum ) {
 			trap_SendServerCommand( clientNum, "print \"Fieldlight enabled\n\"" );
 		}
 		return;
-	}*/
+	}
 
 	if (!Q_stricmp(cmd, "reload")) {
 		Cmd_Reload_f(ent);
@@ -4473,11 +3712,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_Tell_f ( ent );
 		return;
 	}
-	if (Q_stricmp (cmd, "togglesaber") == 0)
-	{
-		Cmd_ToggleSaber_f(ent);
-		return;
-	}
 
 	if (Q_stricmp(cmd, "voice_cmd") == 0)
 	{
@@ -4487,16 +3721,6 @@ void ClientCommand( int clientNum ) {
 
 	if (Q_stricmp (cmd, "score") == 0) {
 		Cmd_Score_f (ent);
-		return;
-	}
-
-	//eezstreet add
-	if(Q_stricmp(cmd, "itemLookup") == 0) {
-		JKG_ItemLookup_f(ent);
-		return;
-	}
-	if(Q_stricmp(cmd, "itemCheck") == 0) {
-		JKG_ItemCheck_f(ent);
 		return;
 	}
 
@@ -4599,12 +3823,6 @@ void ClientCommand( int clientNum ) {
 		{
 			giveError = qtrue;
 		}
-		// Jedi Knight Galaxies begin
-		else if (!Q_stricmp(cmd, "buyVendor"))
-		{
-			giveError = qtrue;
-		}
-		// Jedi Knight Galaxies end
 
 		if (giveError)
 		{
@@ -4625,19 +3843,6 @@ void ClientCommand( int clientNum ) {
 	{ //for debugging pretty much
 		Cmd_Give_f (ent, 1);
 	}
-	// Jedi Knight Galaxies begin
-	else if (Q_stricmp (cmd, "credits") == 0)
-	{
-		//DEBUG: Show how many credits you have
-		trap_SendServerCommand( clientNum, va("print \"You have %i credits, %s.\n\"", ent->client->ps.persistant[PERS_CREDITS], ent->client->pers.netname) );
-		return;
-	}
-	else if (!Q_stricmp(cmd, "buyVendor"))
-	{
-		JKG_BuyItem_f(ent);
-		return;
-	}
-	// Jedi Knight Galaxies end
 	else if (Q_stricmp (cmd, "t_use") == 0 && CheatsOk(ent))
 	{ //debug use map object
 		if (trap_Argc() > 1)
@@ -4672,10 +3877,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_Kill_f (ent);
 	else if (Q_stricmp (cmd, "teamtask") == 0)
 		Cmd_TeamTask_f (ent);
-	#ifdef _DEBUG
 	else if (Q_stricmp (cmd, "levelshot") == 0)
 		Cmd_LevelShot_f (ent);
-	#endif
 	else if (Q_stricmp (cmd, "follow") == 0)
 		Cmd_Follow_f (ent);
 	else if (Q_stricmp (cmd, "follownext") == 0)
@@ -4686,6 +3889,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_Team_f (ent);
 	else if (Q_stricmp (cmd, "duelteam") == 0)
 		Cmd_DuelTeam_f (ent);
+	else if (Q_stricmp (cmd, "siegeclass") == 0)
+		Cmd_SiegeClass_f (ent);
 	else if (Q_stricmp (cmd, "forcechanged") == 0)
 		Cmd_ForceChanged_f (ent);
 	else if (Q_stricmp (cmd, "where") == 0)
@@ -4704,90 +3909,19 @@ void ClientCommand( int clientNum ) {
 		Cmd_SetViewpos_f( ent );
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
-#ifdef __UNUSED__
-	else if ( Q_stricmp (cmd, "nav_generate") == 0 )
+	else if ( Q_stricmp (cmd, "weaponvariation") == 0 )
 	{
-	    char mapname[MAX_STRING_CHARS] = { 0 };
-	    trap_Cvar_VariableStringBuffer ("mapname", mapname, sizeof (mapname));
-	    JKG_Nav_CreateNavMesh (va ("maps/%s.bsp", mapname));
+	    Cmd_WeaponVariation_f (ent);
 	}
-#endif //__UNUSED__
-#ifdef __AUTOWAYPOINT__ // __DOMINANCE_NPC__
-	else if (Q_stricmp (cmd, "checkbotreach") == 0 && !Q_strncmp(ent->client->sess.IP, "127.0.0.1:",10))	{
-		AIMod_CheckMapPaths( ent );
+	// TEMPORARY COMMANDS
+	else if ( Q_stricmp (cmd, "nextvariation") == 0 )
+	{
+	    Cmd_NextWeaponVariation_f (ent);
 	}
-	else if (Q_stricmp (cmd, "checkobjectivesreach") == 0 && !Q_strncmp(ent->client->sess.IP, "127.0.0.1:",10))	{
-		AIMod_CheckObjectivePaths( ent );
+	else if ( Q_stricmp (cmd, "prevvariation") == 0 )
+	{
+	    Cmd_PrevWeaponVariation_f (ent);
 	}
-	else if (Q_stricmp (cmd, "closeentities") == 0 && !Q_strncmp(ent->client->sess.IP, "127.0.0.1:",10))	{
-		int i = 0;
-
-		G_Printf("----------------------------------------------\n");
-		G_Printf("Entities Within Range.\n");
-		G_Printf("----------------------------------------------\n");
-		
-		for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
-		{
-			gentity_t *item = &g_entities[i];
-			float dist = 0.0f;
-
-			if (!item) continue;
-			if (!item->classname || !item->classname[0]) continue;
-
-			dist = Distance(ent->r.currentOrigin, item->s.origin);
-
-			if (dist > 256) continue;
-
-			G_Printf("Entity %i", i);
-
-			switch ( item->s.eType ) {
-			case ET_GENERAL:
-				G_Printf("[ET_GENERAL         ]");
-				break;
-			case ET_PLAYER:
-				G_Printf("[ET_PLAYER          ]");
-				break;
-			case ET_ITEM:
-				G_Printf("[ET_ITEM            ]");
-				break;
-			case ET_MISSILE:
-				G_Printf("[ET_MISSILE         ]");
-				break;
-			case ET_MOVER:
-				G_Printf("[ET_MOVER           ]");
-				break;
-			case ET_BEAM:
-				G_Printf("[ET_BEAM            ]");
-				break;
-			case ET_PORTAL:
-				G_Printf("[ET_PORTAL          ]");
-				break;
-			case ET_SPEAKER:
-				G_Printf("[ET_SPEAKER         ]");
-				break;
-			case ET_PUSH_TRIGGER:
-				G_Printf("[ET_PUSH_TRIGGER    ]");
-				break;
-			case ET_TELEPORT_TRIGGER:
-				G_Printf("[ET_TELEPORT_TRIGGER]");
-				break;
-			case ET_INVISIBLE:
-				G_Printf("[ET_INVISIBLE       ]");
-				break;
-			case ET_NPC:
-				G_Printf("[ET_NPC             ]");
-				break;
-			default:
-				G_Printf("[%3i                ]", item->s.eType);
-				break;
-			}
-
-			G_Printf(" [%s] at a distance of %f.\n", item->classname, dist);
-		}
-
-		G_Printf("----------------------------------------------\n");
-	}
-#endif //__AUTOWAYPOINT__ // __DOMINANCE_NPC__
 	/*
 	else if (Q_stricmp (cmd, "kylesmash") == 0)
 	{
@@ -5081,7 +4215,7 @@ void ClientCommand( int clientNum ) {
 		Bot_SetForcedMovement(bCl, -1, -1, arg);
 	}
 	//end bot debug cmds
-/*#ifndef FINAL_BUILD
+#ifndef FINAL_BUILD
 	else if (Q_stricmp(cmd, "debugSetSaberMove") == 0)
 	{
 		Cmd_DebugSetSaberMove_f(ent);
@@ -5419,184 +4553,7 @@ void ClientCommand( int clientNum ) {
 
 		G_SetVehDamageFlags( &g_entities[ent->s.m_iVehicleNum], shipSurf, damageLevel );
 	}
-	else if (Q_stricmp(cmd, "debugHealth") == 0)
-	{
-		trap_SendServerCommand( clientNum, va("print \"%i \n\"", ent->client->ps.stats[STAT_HEALTH]));
-		return;
-	}
-	else if (Q_stricmp(cmd, "debugInventory") == 0)
-	{
-		JKG_Cmd_ShowInv_f(ent);
-		return;
-	}
 #endif
-	else if (Q_stricmp(cmd, "bodyLoot") == 0)
-	{
-		char arg[MAX_STRING_CHARS];
-		char arg2[MAX_STRING_CHARS];
-		if(trap_Argc() < 3) //not enough args
-		{
-			trap_SendServerCommand( clientNum, "print \"Syntax: /bodyLoot <entity num> <loot ID>\n\"" );
-			return;
-		}
-		trap_Argv( 1, arg, sizeof ( arg ) );
-		trap_Argv( 2, arg2, sizeof ( arg2 ) );
-		JKG_Cmd_Loot_f( ent, atoi( arg ), atoi( arg2 ), qfalse );
-		return;
-	}*/
-	else if (Q_stricmp(cmd, "inventoryUse") == 0)
-	{
-		char arg[MAX_STRING_CHARS];
-		if(trap_Argc() < 2)
-		{
-			trap_SendServerCommand( clientNum, "print \"Syntax: /inventoryUse <item num>\n\"" );
-			return;
-		}
-		trap_Argv( 1, arg, sizeof(arg) );
-		JKG_Cmd_ItemAction_f( ent, atoi( arg ) );
-		return;
-	}
-	else if (Q_stricmp(cmd, "equip") == 0)
-	{
-		JKG_Cmd_EquipItem_f (ent);
-	}
-	else if (Q_stricmp(cmd, "unequip") == 0)
-	{
-		JKG_Cmd_UnequipItem_f (ent);
-	}
-	else if (Q_stricmp(cmd, "inventoryDestroy") == 0)
-	{
-		JKG_Cmd_DestroyItem_f(ent);
-	}
-	else if (Q_stricmp(cmd, "inventorySell") == 0)
-	{
-		JKG_Cmd_SellItem_f(ent);
-	}
-	//
-	// BEGIN - Warzone Gametype Editing...
-	//
-	else if(!Q_stricmp (cmd, "warzone_savegameinfo") && CheatsOk( ent )) 
-	{
-		WARZONE_SaveGameInfo();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_loadgameinfo") && CheatsOk( ent )) 
-	{
-		WARZONE_LoadGameInfo();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addhealthcrate") && CheatsOk( ent )) 
-	{
-		WARZONE_AddHealthCrate( ent->r.currentOrigin, ent->r.currentAngles );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addammocrate") && CheatsOk( ent )) 
-	{
-		WARZONE_AddAmmoCrate( ent->r.currentOrigin, ent->r.currentAngles );
-#ifdef __VEHICLES__
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addvehicle") && CheatsOk( ent )) 
-	{
-		int  vehicleType;
-		char str[MAX_TOKEN_CHARS];
-
-		trap_Argv(1, str, sizeof(str));
-
-		if (!Q_stricmp(str,"heavy")) 
-		{
-			vehicleType = VEHICLE_CLASS_HEAVY_TANK;
-		} 
-		else if (!Q_stricmp(str,"medium")) 
-		{
-			vehicleType = VEHICLE_CLASS_MEDIUM_TANK;
-		} 
-		else if (!Q_stricmp(str,"flame")) 
-		{
-			vehicleType = VEHICLE_CLASS_FLAMETANK;
-		} 
-		else 
-		{
-			vehicleType = VEHICLE_CLASS_LIGHT_TANK;
-		}
-
-		WARZONE_AddVehicle( ent->r.currentOrigin, ent->r.currentAngles, vehicleType );
-#endif //__VEHICLES__
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addflag") && CheatsOk( ent )) 
-	{
-		int  team;
-		char str[MAX_TOKEN_CHARS];
-
-		trap_Argv(1, str, sizeof(str));
-
-		if (!Q_stricmp(str,"red")) 
-		{
-			team = TEAM_RED;
-		} 
-		else if (!Q_stricmp(str,"blue")) 
-		{
-			team = TEAM_BLUE;
-		} 
-		else 
-		{
-			team = TEAM_FREE;
-		}
-
-		WARZONE_AddFlag( ent->r.currentOrigin, team );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_changeflagteam") && CheatsOk( ent )) 
-	{
-		int  team = 0, flag_number = 0;
-		char str[MAX_TOKEN_CHARS];
-
-		trap_Argv(1, str, sizeof(str));
-
-		if (!str || !str[0])
-		{
-			G_Printf("Format: /warzone_changeflagteam <flag #> <team name>\n");
-			WARZONE_ShowInfo();
-			return;
-		}
-
-		flag_number = atoi(str);
-
-		trap_Argv(2, str, sizeof(str));
-
-		if (!Q_stricmp(str,"red")) 
-		{
-			team = TEAM_RED;
-		} 
-		else if (!Q_stricmp(str,"blue")) 
-		{
-			team = TEAM_BLUE;
-		} 
-		else 
-		{
-			team = TEAM_FREE;
-		}
-		
-		WARZONE_ChangeFlagTeam( flag_number, team );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_raiseents") && CheatsOk( ent )) 
-	{
-		WARZONE_RaiseAllWarzoneEnts( -1 );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_removeents") && CheatsOk( ent )) 
-	{
-		WARZONE_RemoveAllWarzoneEnts();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_removeammocrate") && CheatsOk( ent )) 
-	{
-		WARZONE_RemoveAmmoCrate();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_removehealthcrate") && CheatsOk( ent )) 
-	{
-		WARZONE_RemoveHealthCrate();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_showinfo") && CheatsOk( ent )) 
-	{
-		WARZONE_ShowInfo();
-	}
-	//
-	// END - Warzone Gametype Editing...
-	//
 	else
 	{
 		if (Q_stricmp(cmd, "addbot") == 0)

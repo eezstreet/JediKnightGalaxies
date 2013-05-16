@@ -119,7 +119,7 @@ static void JKG_CBB_Remove(int index) {
 
 void JKG_CBB_SetBB(gentity_t *ent, vec3_t mins, vec3_t maxs) {
 	// If this ent already uses a custom bounding box, remove it
-	if (ent->s.eType != ET_GENERAL && ent->s.eType != ET_MOVER && ent->s.eType != ET_SPECIAL)
+	if (ent->s.eType != ET_GENERAL && ent->s.eType != ET_MOVER)
 		return; // Invalid ent type
 	if (ent->s.eFlags & EF_CUSTOMBB) {
 		JKG_CBB_Remove(ent->s.trickedentindex4);

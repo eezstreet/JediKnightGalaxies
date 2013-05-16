@@ -23,4 +23,7 @@ typedef struct auxlib_ui_imports_s {
 	void (* GL_Task_GetTermsOfUse)( void (*callback)(void *) );
 	void (* GL_Task_RegisterUser)(const char *username, const char *password, const char *email, void (*callback)(void *));
 	void (* GL_Task_Login)(const char *username, const char *password, void (*callback)(void *));
+	// Sound System
+	void (* GL_S_Init)(void);
+	void (* GL_S_Update)(void);
 } gl_ui_imports_t;

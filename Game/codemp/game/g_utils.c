@@ -102,11 +102,7 @@ Ghoul2 Insert Start
 */
 
 int G_BoneIndex( const char *name ) {
-#ifdef __MMO__
-	return 0;
-#else //!__MMO__
 	return G_FindConfigstringIndex (name, CS_G2BONES, MAX_G2BONES, qtrue);
-#endif //__MMO__
 }
 /*
 Ghoul2 Insert End
@@ -143,12 +139,7 @@ int	G_IconIndex( const char* name )
 }
 
 int G_SoundIndex( const char *name ) {
-	// Removing this assert, since it causes Scizo's map to break --eez
-	//assert(name && name[0]);
-	if(!name || !name[0])
-	{
-		return 0;
-	}
+	assert(name && name[0]);
 	return G_FindConfigstringIndex (name, CS_SOUNDS, MAX_SOUNDS, qtrue);
 }
 
@@ -173,7 +164,29 @@ int G_BSPIndex( const char *name )
 //see if we can or should allow this guy to use a custom skeleton -rww
 qboolean G_PlayerHasCustomSkeleton(gentity_t *ent)
 {
-	// TODO: expand --eez
+	/*
+	siegeClass_t *scl;
+
+	if (g_gametype.integer != GT_SIEGE)
+	{ //only in siege
+		return qfalse;
+	}
+
+	if (ent->s.number >= MAX_CLIENTS ||
+		!ent->client ||
+		ent->client->siegeClass == -1)
+	{ //invalid class
+		return qfalse;
+	}
+
+	scl = &bgSiegeClasses[ent->client->siegeClass];
+	if (!(scl->classflags & (1<<CFL_CUSTOMSKEL)))
+	{ //class is not flagged for this
+		return qfalse;
+	}
+
+	return qtrue;
+	*/
 	return qfalse;
 }
 
@@ -439,7 +452,7 @@ void G_CreateFakeClient(int entNum, gclient_t **cl)
 	//trap_TrueMalloc((void **)cl, sizeof(gclient_t));
 	if (!gClPtrs[entNum])
 	{
-		gClPtrs[entNum] = (gclient_t *) malloc(sizeof(gclient_t));
+		gClPtrs[entNum] = (gclient_t *) BG_Alloc(sizeof(gclient_t));
 	}
 	*cl = gClPtrs[entNum];
 }
@@ -1175,6 +1188,7 @@ void G_FreeEntity( gentity_t *ed ) {
 
 	}
 }
+
 /*
 =================
 G_TempEntity
@@ -1596,28 +1610,6 @@ qboolean ValidUseTarget( gentity_t *ent )
 		return qfalse;
 	}
 
-	if (ent->s.eType == ET_NPC)
-	{
-		switch (ent->client->NPC_class)
-		{
-		case CLASS_GENERAL_VENDOR:
-		case CLASS_WEAPONS_VENDOR:
-		case CLASS_ARMOR_VENDOR:
-		case CLASS_SUPPLIES_VENDOR:
-		case CLASS_FOOD_VENDOR:
-		case CLASS_MEDICAL_VENDOR:
-		case CLASS_GAMBLER_VENDOR:
-		case CLASS_TRADE_VENDOR:
-		case CLASS_ODDITIES_VENDOR:
-		case CLASS_DRUG_VENDOR:
-		case CLASS_TRAVELLING_VENDOR:
-			return qtrue;
-			break;
-		default:
-			break;
-		}
-	}
-
 	if ( ent->flags & FL_INACTIVE )
 	{//set by target_deactivate
 		return qfalse;
@@ -1651,17 +1643,18 @@ void G_UseDispenserOn(gentity_t *ent, int dispType, gentity_t *target)
 		if (ent->client->medSupplyDebounce < level.time)
 		{ //do the next increment
 			//increment based on the amount of ammo used per normal shot.
+			int ammoIndex = GetWeaponAmmoIndex( target->client->ps.weapon, target->client->ps.weaponVariation );
 			int ammoMax = GetWeaponAmmoMax( target->client->ps.weapon, target->client->ps.weaponVariation );
 
-			target->client->ps.ammo += GetWeaponData( target->client->ps.weapon, target->client->ps.weaponVariation )->firemodes[0].cost;
+			target->client->ps.ammo[ammoIndex] += GetWeaponData( target->client->ps.weapon, target->client->ps.weaponVariation )->primary.cost;
 
-			if ( target->client->ps.ammo > ammoMax )
+			if ( target->client->ps.ammo[ammoIndex] > ammoMax )
 			{
-				target->client->ps.ammo = ammoMax;
+				target->client->ps.ammo[ammoIndex] = ammoMax;
 			}
 
 			//base the next supply time on how long the weapon takes to fire. Seems fair enough.
-			ent->client->medSupplyDebounce = level.time + GetWeaponData( target->client->ps.weapon, target->client->ps.weaponVariation )->firemodes[0].delay;
+			ent->client->medSupplyDebounce = level.time + GetWeaponData( target->client->ps.weapon, target->client->ps.weaponVariation )->primary.delay;
 		}
 		target->client->isMedSupplied = level.time + 500;
 	}
@@ -1693,7 +1686,7 @@ int G_CanUseDispOn(gentity_t *ent, int dispType)
 			return 0;
 		}
 
-		if (ent->client->ps.ammo < GetWeaponAmmoMax( ent->client->ps.weapon, ent->client->ps.weaponVariation ))
+		if (ent->client->ps.ammo[GetWeaponAmmoIndex( ent->client->ps.weapon, ent->client->ps.weaponVariation )] < GetWeaponAmmoMax( ent->client->ps.weapon, ent->client->ps.weaponVariation ))
 		{ //needs more ammo for current weapon
 			return 1;
 		}
@@ -1708,7 +1701,7 @@ int G_CanUseDispOn(gentity_t *ent, int dispType)
 
 qboolean TryHeal(gentity_t *ent, gentity_t *target)
 {
-	/*if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 &&
+	if (g_gametype.integer == GT_SIEGE && ent->client->siegeClass != -1 &&
 		target && target->inuse && target->maxHealth && target->healingclass &&
 		target->healingclass[0] && target->health > 0 && target->health < target->maxHealth)
 	{ //it's not dead yet...
@@ -1759,7 +1752,7 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 
 			return qtrue;
 		}
-	}*/
+	}
 
 	return qfalse;
 }
@@ -1777,10 +1770,10 @@ Try and use an entity in the world, directly ahead of us
 #define USE_DISTANCE_MAX	1024.0f	// Max distance for use
 
 extern void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace );
+extern qboolean gSiegeRoundBegun;
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
 void GLua_NPCEV_OnUse(gentity_t *self, gentity_t *other, gentity_t *activator);
-extern void JKG_target_vendor_use(gentity_t *ent, gentity_t *other, gentity_t *activator);
 
 void TryUse( gentity_t *ent )
 {
@@ -1788,6 +1781,12 @@ void TryUse( gentity_t *ent )
 	trace_t		trace;
 	vec3_t		src, dest, vf;
 	vec3_t		viewspot;
+
+	if (g_gametype.integer == GT_SIEGE &&
+		!gSiegeRoundBegun)
+	{ //nothing can be used til the round starts.
+		return;
+	}
 
 	if (!ent || !ent->client || (ent->client->ps.weaponTime > 0 && ent->client->ps.torsoAnim != BOTH_BUTTON_HOLD && ent->client->ps.torsoAnim != BOTH_CONSOLE1) || ent->health < 1 ||
 		(ent->client->ps.pm_flags & PMF_FOLLOW) || ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
@@ -1865,7 +1864,7 @@ void TryUse( gentity_t *ent )
 
 	// If this is a lua npc, call the OnUse event
 	if (target->client && target->NPC && target->NPC->isLuaNPC) {
-		if (target->NPC->maxUseRange >= (USE_DISTANCE_MAX * trace.fraction) && target->client->ps.stats[STAT_HEALTH] > 0) {
+		if (target->NPC->maxUseRange >= (USE_DISTANCE_MAX * trace.fraction)) {
 			GLua_NPCEV_OnUse(target, ent, ent);
 			return;
 		}
@@ -1882,33 +1881,6 @@ void TryUse( gentity_t *ent )
 	if ((trace.fraction * USE_DISTANCE_MAX) > USE_DISTANCE)
 	{
 		goto tryJetPack;
-	}
-
-	//Check for a use command
-	if ( ValidUseTarget( target ) )
-	{
-		if (target->s.eType == ET_NPC)
-		{
-			switch (target->client->NPC_class)
-			{
-			case CLASS_GENERAL_VENDOR:
-			case CLASS_WEAPONS_VENDOR:
-			case CLASS_ARMOR_VENDOR:
-			case CLASS_SUPPLIES_VENDOR:
-			case CLASS_FOOD_VENDOR:
-			case CLASS_MEDICAL_VENDOR:
-			case CLASS_GAMBLER_VENDOR:
-			case CLASS_TRADE_VENDOR:
-			case CLASS_ODDITIES_VENDOR:
-			case CLASS_DRUG_VENDOR:
-			case CLASS_TRAVELLING_VENDOR:
-				JKG_target_vendor_use(target, ent, ent);
-				return;
-				break;
-			default:
-				break;
-			}
-		}
 	}
 
 //Enable for corpse dragging
@@ -2014,7 +1986,11 @@ void TryUse( gentity_t *ent )
 #endif
 
 	//Check for a use command
-	if ( ValidUseTarget( target ) )
+	if ( ValidUseTarget( target ) 
+		&& (g_gametype.integer != GT_SIEGE 
+			|| !target->alliedTeam 
+			|| target->alliedTeam != ent->client->sess.sessionTeam 
+			|| g_ff_objectives.integer) )
 	{
 		if (ent->client->ps.torsoAnim == BOTH_BUTTON_HOLD ||
 			ent->client->ps.torsoAnim == BOTH_CONSOLE1)
@@ -2025,7 +2001,6 @@ void TryUse( gentity_t *ent )
 		{
 			G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		}
-
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		/*
 		NPC_SetAnim( ent, SETANIM_TORSO, BOTH_FORCEPUSH, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );

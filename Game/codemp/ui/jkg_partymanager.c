@@ -326,7 +326,7 @@ qboolean JKG_PartyMngt_FeederSelection(int feeder, int index, itemDef_t *item) {
 
 const char *JKG_PartyMngt_FeederItemText(int feeder, int index, int column, qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3) {
 	if (feeder == FEEDER_PARTYMEMBERSINVITES) {
-		if (index < 0 || index >= PMngtData.partyListEntries) {
+		if (index < 0 || index > PMngtData.partyListEntries) {
 			return NULL;
 		}
 		if (PMngtData.inParty) {
@@ -353,7 +353,7 @@ const char *JKG_PartyMngt_FeederItemText(int feeder, int index, int column, qhan
 			}
 		}
 	} else if (feeder == FEEDER_PARTYSEEKERS) {
-		if (index < 0 || index >= PMngtData.partySeekers) {
+		if (index < 0 || index > PMngtData.partySeekers) {
 			return NULL;
 		}
 		if (PMngtData.seekerListPending) {

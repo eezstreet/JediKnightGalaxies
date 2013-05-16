@@ -550,9 +550,6 @@ static const struct luaL_reg vector_m [] = {
 // Registration
 
 void GLua_Define_Vector(lua_State *L) {
-
-	STACKGUARD_INIT(L)
-
 	lua_pushcclosure(L,GLua_Vector_Create,0);
 	lua_setglobal(L,"Vector");
 
@@ -568,6 +565,5 @@ void GLua_Define_Vector(lua_State *L) {
 	lua_settable(L,-3);
 
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
+	return;
 }

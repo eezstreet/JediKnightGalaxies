@@ -245,17 +245,7 @@ void CCmd_TokenizeString( const char *text_in ) {
 char *CopyString( const char *in ) {
 	char	*out;
 
-	if(!in)
-	{
-		return NULL;
-	}
-
-	out = (char *)malloc(strlen(in)+1);
-	if(!out)
-	{
-		return (char *)in;
-	}
-
+	out = malloc(strlen(in)+1);
 	strcpy (out, in);
 	return out;
 }
@@ -280,8 +270,7 @@ void	CCmd_AddCommand( const char *cmd_name, xccommand_t function ) {
 	}
 
 	// use a small malloc to avoid zone fragmentation
-	cmd = (ccmd_function_t *)malloc(sizeof(ccmd_function_t));
-	JKG_Assert(cmd);
+	cmd = malloc(sizeof(ccmd_function_t));
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
 	cmd->next = ccmd_functions;

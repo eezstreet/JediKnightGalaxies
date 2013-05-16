@@ -1,14 +1,28 @@
 /*============================================================
 //
-//  Post Processing module
+//   Post Processing module
 //
-//  $Id: cg_postprocess.c 426 2012-08-01 07:20:12Z eezstreet $
+//  - Effects:
+//   This code here is responsible for doing the motion blur effect
+//   The effect is timesynced, so it shows up properly regardless of FPS ;)
+//   Also responsible for color mod
+//
+//	 By BobaFett
+//
+//   - Update:
+//   Code has been updated to utilise framebuffer objects. This should
+//   give better performance on the majority of PCs. I've also streamlined
+//   the post processing pipeline so that new post processing effects
+//   can be added easily.
+//
+//   ~ Xycaleth
+//
+//    $Id: cg_postprocess.c 271 2010-10-17 23:06:04Z Xycaleth $
 //
 //============================================================*/
 
 // CAUTION: Utilizes engine hacks, compatible with JA 1.01 win32 ONLY!
 
-#include <GL/glew.h>
 #include "jkg_glcommon.h"
 #include <math.h>
 #include "cg_local.h"
@@ -21,9 +35,12 @@
 
 vmCvar_t	jkg_postprocess;
 
+PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
+PFNGLMULTITEXCOORD2FARBPROC glMultiTexCoord2fARB;
+
 typedef struct quadTextureData_s {
     unsigned int numTexturesUsed;
-    const texture_t *textures[16];
+    unsigned int textures[16];
 } quadTextureData_t;
 
 // Have this here to prevent the need to create a new one every pass.
@@ -47,16 +64,8 @@ gshshader_t shBlurX;
 gshshader_t shBlurY;
 gshshader_t shNoise;
 gshshader_t shMotionBlur;
-#ifndef BLOOM
-gshshader_t shBrightPass;
-gshshader_t shBloom;
-#endif
-#ifdef __GL_ANAGLYPH__
-gshshader_t shAnaglyph;
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-gshshader_t shEmboss;
-#endif //__GL_EMBOSS__
+/*gshshader_t shBrightPass;
+gshshader_t shBloom;*/
 //GLuint cmshader;
 
 gshshader_t shGenericOutput;
@@ -75,29 +84,13 @@ typedef struct postProcessPass_s {
 static void PP_RenderColorMod (const void *data);
 static void PP_RenderMotionBlur (const void *data);
 static void PP_RenderGaussianBlur (const void *data);
-#ifndef BLOOM
-static void PP_RenderBloom (const void *data);
-#endif
-#ifdef __GL_ANAGLYPH__
-static void PP_RenderAnaglyph (const void *data);
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-static void PP_RenderEmboss (const void *data);
-#endif //__GL_EMBOSS__
+//static void PP_RenderBloom (const void *data);
 
 static const postProcessEffect_t postProcessEffects[] = {
     { "colormod", PP_RenderColorMod },
     { "motionblur", PP_RenderMotionBlur },
     { "gaussianblur", PP_RenderGaussianBlur },
-#ifndef BLOOM
-    { "bloom", PP_RenderBloom },
-#endif
-#ifdef __GL_ANAGLYPH__
-	{ "anaglyph", PP_RenderAnaglyph },
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-	{ "emboss", PP_RenderEmboss },
-#endif //__GL_EMBOSS__
+    //{ "bloom", PP_RenderBloom },
 };
 static const unsigned int numEffects = sizeof (postProcessEffects) / sizeof (postProcessEffect_t);
 
@@ -120,7 +113,7 @@ static int PPInited = 0;
 static unsigned int sceneDepth;
 
 #define GL_BIND_ADDRESS 0x489FA0
-void GL_Bind ( unsigned int textureId )
+static void GL_Bind ( unsigned int textureId )
 {
     static image_t image;
     image.texnum = textureId;
@@ -135,7 +128,7 @@ void GL_Bind ( unsigned int textureId )
 }
 
 #define GL_SELECTTEXTURE_ADDRESS 0x48A010
-int GL_SelectTexture ( int textureUnit )
+static int GL_SelectTexture ( int textureUnit )
 {
     __asm
     {
@@ -149,25 +142,24 @@ int PP_InitPostProcess() {
     CG_Printf("Initializing Post Processing...\n");
     PPInited = 0;
     
-    if ( glewInit() != GLEW_OK )
-    {
-        CG_Printf (S_COLOR_RED "...Unable to initialize OpenGL extension loader.\n");
-        return 0;
-    }
-    
 	if ( !GSH_Init() )
 	{
 	    CG_Printf (S_COLOR_RED "...GPU shaders not supported. Post processing will not be used.\n");
+	    trap_Cvar_Set ("jkg_postProcess", "0");
 	    return 0;
 	}
 	
 	if ( !FBO_FramebufferInit() )
 	{
 	    CG_Printf (S_COLOR_RED "...Framebuffers not supported. Post processing will not be used.\n");
+	    trap_Cvar_Set ("jkg_postProcess", "0");
 	    return 0;
 	}
 	
 	cl_avidemo = *(cvar_t **)0xB25CFC;
+	
+	glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)wglGetProcAddress ("glActiveTextureARB");
+	glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC)wglGetProcAddress ("glMultiTexCoord2fARB");
 	
 	GSH_LoadShader(&shColorMod, "gsh/pp/colormod.gsh");
 	GSH_LoadShader(&shGrayscale, "gsh/pp/grayscale.gsh");
@@ -180,28 +172,19 @@ int PP_InitPostProcess() {
 	GSH_UseShader (&shMotionBlur);
 	GSH_SetUniform1i ("sceneTexture", 0);
 	GSH_SetUniform1i ("accumTexture", 1);
-#ifndef BLOOM
-	GSH_LoadShader(&shBrightPass, "gsh/pp/brightpass.fsh");
 	
-	GSH_LoadShader(&shBloom, "gsh/pp/bloom.gsh");
-	GSH_UseShader(&shBloom);
-	GSH_SetUniform1i ("sceneTexture", 0);
-	GSH_SetUniform1i ("bloomTexture", 1);
-#endif
-#ifdef __GL_ANAGLYPH__
-	GSH_LoadShader(&shAnaglyph, "gsh/pp/anaglyph.gsh");
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-	GSH_LoadShader(&shEmboss, "gsh/pp/emboss.gsh");
-#endif //__GL_EMBOSS__
+	//GSH_LoadShader(&shBrightPass, "gsh/pp/brightpass.fsh");
 	
-	GSH_LoadShader(&shGenericOutput, "gsh/generic.gsh");
-	CheckGLErrors (__FILE__, __LINE__);
+	//GSH_LoadShader(&shBloom, "gsh/pp/bloom.gsh");
+	//GSH_UseShader(&shBloom);
+	//GSH_SetUniform1i ("sceneTexture", 0);
+	//GSH_SetUniform1i ("bloomTexture", 1);
+	
+	/*GSH_LoadShader(&shGenericOutput, "gsh/generic.gsh");
 	GSH_UseShader (&shGenericOutput);
-	CheckGLErrors (__FILE__, __LINE__);
 	GSH_SetUniform1i ("u_DiffuseMap", 0);
-	
-	CheckGLErrors (__FILE__, __LINE__);
+	GSH_SetUniform1i ("u_LightMap", 1);
+	GSH_SetUniform1i ("u_NormalMap", 2);*/
 	
 	GSH_UseShader (NULL);
 	
@@ -253,7 +236,10 @@ int PP_InitPostProcess() {
 }
 
 void PP_TerminatePostProcess() {
-    if (!PPInited || !jkg_postprocess.integer) return;
+    if ( !PPInited )
+    {
+        return;
+    }
     
 	GSH_UseShader(NULL);
 	GSH_FreeShader(&shColorMod);
@@ -265,14 +251,8 @@ void PP_TerminatePostProcess() {
 	GSH_FreeShader(&shMotionBlur);
 	//GSH_FreeShader(&shBrightPass);
 	//GSH_FreeShader(&shBloom);
-#ifdef __GL_ANAGLYPH__
-	GSH_FreeShader(&shAnaglyph);
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-	GSH_FreeShader(&shEmboss);
-#endif //__GL_EMBOSS__
 	
-	GSH_FreeShader(&shGenericOutput);
+	//GSH_FreeShader(&shGenericOutput);
 	
 	FBO_FramebufferCleanup();
 	
@@ -286,13 +266,11 @@ static int VectorCompareT(vec3_t v1, vec3_t v2, double tolerance) {
 	return 1;
 }
 
-extern trRefEntity_t **backend_currentEntity;
+//extern trRefEntity_t **backend_currentEntity;
 extern vmCvar_t jkg_normalMapping;
 void JKG_BeginGenericShader ( void )
 {
-    trRefEntity_t *ent = *backend_currentEntity;
-    if (!PPInited || !jkg_postprocess.integer) return;
-    
+    /*trRefEntity_t *ent = *backend_currentEntity;
     if ( !jkg_normalMapping.integer )
     {
         return;
@@ -305,13 +283,11 @@ void JKG_BeginGenericShader ( void )
         GSH_SetUniform3f ("u_LightAmbientColor", ent->ambientLight[0] / 255.0f, ent->ambientLight[1] / 255.0f, ent->ambientLight[2] / 255.0f);
         GSH_SetUniform3f ("u_LightColor", ent->directedLight[0] / 255.0f, ent->directedLight[1] / 255.0f, ent->directedLight[2] / 255.0f);
         GSH_SetUniform3f ("u_LightDirection", ent->lightDir[0], ent->lightDir[1], ent->lightDir[2]);
-    }
+    }*/
 }
 
 void JKG_EndGenericShader ( void )
 {
-    if (!PPInited || !jkg_postprocess.integer) return;
-    
     GSH_UseShader (NULL);
 }
 
@@ -321,10 +297,9 @@ void JKG_EndGenericShader ( void )
 // Description:
 // Renders a textured quad to the screen.
 //=========================================================
+// FIXME: Using more than one texture causes the lightmap to go weird (lightmap is used on different texture unit).
 static void PP_RenderTexturedQuad (const quadTextureData_t *textureData, float x, float y, float width, float height, float s1, float t1, float s2, float t2) {
     int i;
-    
-    if (!PPInited || !jkg_postprocess.integer) return;
 
     if (!*(int *)0xFE2A6C) {	// if (!backEnd.projection2D) {
 		RB_SetGL2D();			// Set up the proper enviroment for 2D rendering
@@ -332,7 +307,7 @@ static void PP_RenderTexturedQuad (const quadTextureData_t *textureData, float x
     
     for (i = 0; i < textureData->numTexturesUsed; i++) {
         GL_SelectTexture (i);
-        GL_Bind (textureData->textures[i]->id);
+        GL_Bind (textureData->textures[i]);
     }
 
     glBegin (GL_QUADS);
@@ -367,15 +342,7 @@ static void PP_RenderTexturedQuad (const quadTextureData_t *textureData, float x
 // Renders a fullscreen textured quad.
 //=========================================================
 static void PP_RenderFullscreenTexturedQuad (const quadTextureData_t *textureData) {
-    float w_ratio;
-    float h_ratio;
-    
-    if (!PPInited || !jkg_postprocess.integer) return;
-    
-    w_ratio = (float)cgs.glconfig.vidWidth / (float)textureData->textures[0]->width;
-    h_ratio = (float)cgs.glconfig.vidHeight / (float)textureData->textures[0]->height;
-    
-    PP_RenderTexturedQuad (textureData, 0.0f, 0.0f, 640.0f, 480.0f, 0.0f, h_ratio, w_ratio, 0.0f);
+    PP_RenderTexturedQuad (textureData, 0.0f, 0.0f, 640.0f, 480.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 }
 
 //=========================================================
@@ -386,8 +353,6 @@ static void PP_RenderFullscreenTexturedQuad (const quadTextureData_t *textureDat
 // internally.
 //=========================================================
 static void PP_RenderEffectToTexture (const quadTextureData_t *textureData, const framebuffer_t *destFBO) {
-    if (!PPInited || !jkg_postprocess.integer) return;
-
     FBO_BindFramebuffer (destFBO);
     PP_RenderFullscreenTexturedQuad (textureData);
 
@@ -493,8 +458,8 @@ static void PP_RenderMotionBlur (const void *data) {
 		GSH_SetUniform1f ("alpha", imageAlpha);
 		
 		quadTextureData.numTexturesUsed = 2;
-		quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
-		quadTextureData.textures[1] = fboMotionBlur->colorTextures[0];
+		quadTextureData.textures[0] = fboLastUsed->colorTextures[0]->id;
+		quadTextureData.textures[1] = fboMotionBlur->colorTextures[0]->id;
 		
 		PP_RenderEffectToTexture (&quadTextureData, fboToUse);
 	}
@@ -509,21 +474,8 @@ static void PP_RenderMotionBlur (const void *data) {
 // Adds a post-process pass to the queue.
 //=========================================================
 static void PP_QueueAdd (const postProcessPass_t *pass) {
-    if ( !PPInited )
-    {
-        return;
-    }
-    
     postProcessQueue[postProcessQueueTail] = *pass;
     postProcessQueueTail = (postProcessQueueTail + 1) % postProcessQueueSize;
-}
-
-void PP_PreRender (void) {
-    if (!PPInited || !jkg_postprocess.integer) {
-        return;
-    }
-    
-    //FBO_BindFramebuffer (fboMain);
 }
 
 //=========================================================
@@ -547,7 +499,6 @@ void PP_BeginPostProcess (void) {
     
     FBO_BlitFramebufferColor (NULL, fboMain);
     //FBO_BlitFramebufferDepth (NULL, fboMain);
-    //FBO_BindDefaultFramebuffer();
     
     fboLastUsed = fboMain;
     
@@ -555,16 +506,6 @@ void PP_BeginPostProcess (void) {
     memset (postProcessQueue, 0, sizeof (postProcessQueue));
     postProcessQueueTail = 0;
 }
-
-#ifdef __SWF__
-extern void	gameswf_processor(char *filename);
-
-extern void	gameswf_startswf(char *filename);
-extern void	gameswf_finishswf();
-extern void	gameswf_continueswf();
-extern int gameswf_swfplaying();
-extern vmCvar_t	jkg_swf;
-#endif //__SWF__
 
 //=========================================================
 // PP_EndPostProcess
@@ -655,7 +596,7 @@ static void PP_RenderColorMod (const void *data) {
 	GSH_SetUniform1f("inversion", cmod->inversion);
 	
 	quadTextureData.numTexturesUsed = 1;
-	quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
+	quadTextureData.textures[0] = fboLastUsed->colorTextures[0]->id;
 	
 	PP_RenderEffectToTexture (&quadTextureData, fboToUse);
 
@@ -672,12 +613,12 @@ pass2:
 		}
 		
 		quadTextureData.numTexturesUsed = 1;
-	    quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
+	    quadTextureData.textures[0] = fboLastUsed->colorTextures[0]->id;
 		
 		PP_RenderEffectToTexture (&quadTextureData, fboToUse);
 	}
 	
-	GSH_UseShader(NULL);
+	//GSH_UseShader(NULL);
 }
 
 //=========================================================
@@ -697,15 +638,15 @@ static void PP_RenderGaussianBlur (const void *data) {
 		return;                                                         // And we must have at least 1 pass
 	}
 	
-	pixelx = blurParams->intensity / fboLastUsed->colorTextures[0]->width;
-	pixely = blurParams->intensity / fboLastUsed->colorTextures[0]->height;
+	pixelx = blurParams->intensity / cgs.glconfig.vidWidth;
+	pixely = blurParams->intensity / cgs.glconfig.vidHeight;
 
 	for (i=0; i<blurParams->numPasses; i++) {
 		GSH_UseShader(&shBlurX);
 		GSH_SetUniform1f("pixelSize", pixelx);
 		
 		quadTextureData.numTexturesUsed = 1;
-		quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
+		quadTextureData.textures[0] = fboLastUsed->colorTextures[0]->id;
 		
 		PP_RenderEffectToTexture (&quadTextureData, fboToUse);
 		
@@ -713,14 +654,13 @@ static void PP_RenderGaussianBlur (const void *data) {
 		GSH_SetUniform1f("pixelSize", pixely);
 		
 		quadTextureData.numTexturesUsed = 1;
-		quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
+		quadTextureData.textures[0] = fboLastUsed->colorTextures[0]->id;
 
 		PP_RenderEffectToTexture (&quadTextureData, fboToUse);
 	}
 }
 
-#ifndef BLOOM
-static void PP_RenderBloom (const void *data) {
+/*static void PP_RenderBloom (const void *data) {
     const ppBloomParams_t *bloomParams;
     ppBlurParams_t blurParams;
     const framebuffer_t *colorFBO;
@@ -733,7 +673,7 @@ static void PP_RenderBloom (const void *data) {
     GSH_SetUniform1f ("threshold", bloomParams->brightnessThreshold);
     
     quadTextureData.numTexturesUsed = 1;
-    quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
+    quadTextureData.textures[0] = fboLastUsed->colorTextures[0]->id;
     
     colorFBO = fboLastUsed;
     
@@ -746,126 +686,12 @@ static void PP_RenderBloom (const void *data) {
     GSH_UseShader (&shBloom);
     GSH_SetUniform1f ("bloomFactor", bloomParams->bloomFactor);
     
-    quadTextureData.numTexturesUsed = 1;
-	quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
-   // quadTextureData.textures[1] = colorFBO->colorTextures[0];
-
+    quadTextureData.numTexturesUsed = 2;
+    quadTextureData.textures[0] = colorFBO->colorTextures[0]->id;
+    quadTextureData.textures[0] = fboLastUsed->colorTextures[0]->id;
     
     PP_RenderEffectToTexture (&quadTextureData, fboToUse);
-}
-#endif
-
-#ifdef __GL_ANAGLYPH__
-extern int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName );
-
-//=========================================================
-// PP_RenderAnaglyph
-//---------------------------------------------------------
-// Description:
-// Carries out the anaglyph pass.
-//=========================================================
-static void PP_RenderAnaglyph (const void *data) {
-	float pixelx, pixely;
-	int i;
-	const ppAnaglyphParams_t *anaglyphParams;
-	int loc_left, loc_right;
-	static unsigned int sdr;
-
-	if (!PPInited || !jkg_postprocess.integer) return;
-	
-	anaglyphParams = (const ppAnaglyphParams_t *)data;
-
-	pixelx = fboLastUsed->colorTextures[0]->width;
-	pixely = fboLastUsed->colorTextures[0]->height;
-
-	GSH_UseShader (&shAnaglyph);
-	GSH_SetUniform1f ("tex_left", 0);
-	GSH_SetUniform1f ("tex_right", 1);
-
-	//loc_left = GSH_GetUniformLocation(&shAnaglyph, "tex_left");
-    //loc_right = GSH_GetUniformLocation(&shAnaglyph, "tex_right");
-	
-#ifdef __0
-	/*
-	qglUseProgramObjectARB(sdr);
-	qglUniform1iARB(loc_left, 0);
-	qglUniform1iARB(loc_right, 1);
-
-	qglActiveTextureARB(GL_TEXTURE1_ARB);
-	qglBindTexture(GL_TEXTURE_2D, RIGHT_TEX);
-	qglEnable(GL_TEXTURE_2D);
-
-	qglActiveTextureARB(GL_TEXTURE0_ARB);
-	qglBindTexture(GL_TEXTURE_2D, LEFT_TEX);
-	qglEnable(GL_TEXTURE_2D);
-
-	draw_quad(-1, -1, 1, 1);
-
-	qglActiveTextureARB(GL_TEXTURE1_ARB);
-	qglDisable(GL_TEXTURE_2D);
-
-	qglActiveTextureARB(GL_TEXTURE0_ARB);
-	qglDisable(GL_TEXTURE_2D);
-
-	qglUseProgramObjectARB(0);
-	*/
-
-	GSH_UseShader(&shAnaglyph);
-	GSH_SetUniform1f("tex_left", 0);
-	GSH_SetUniform1f("tex_right", 1);
-
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glEnable(GL_TEXTURE_2D);
-
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glBindTexture(GL_TEXTURE_2D, 1);
-    glEnable(GL_TEXTURE_2D);
-
-    //draw_quad(-1, -1, 1, 1);
-	glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(-1, -1);
-    glTexCoord2f(1, 0); glVertex2f(1, -1);
-    glTexCoord2f(1, 1); glVertex2f(1, 1);
-    glTexCoord2f(0, 1); glVertex2f(-1, 1);
-    glEnd();
-
-    glActiveTextureARB(GL_TEXTURE1_ARB);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glDisable(GL_TEXTURE_2D);
-
-    glUseProgramObjectARB(0);
-#endif //_0
-		
-	quadTextureData.numTexturesUsed = 1;
-	quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
-		
-	PP_RenderEffectToTexture (&quadTextureData, fboToUse);
-}
-#endif //__GL_ANAGLYPH__
-
-#ifdef __GL_EMBOSS__
-static void PP_RenderEmboss (const void *data) {
-	const ppEmbossParams_t *EmbossParams;
-
-	if (!PPInited || !jkg_postprocess.integer) return;
-	
-	EmbossParams = (const ppEmbossParams_t *)data;
-
-	GSH_UseShader (&shEmboss);
-	//SetParameter4f( 0, m_varEmbossScale, 0, 0, 0 );
-	//GSH_SetUniform1f ("embossScale", EmbossParams->embossScale);
-	GSH_SetUniform1f ("0", EmbossParams->embossScale);
-	GSH_SetUniform1f ("1", EmbossParams->embossScale);
-
-	quadTextureData.numTexturesUsed = 1;
-	quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
-		
-	PP_RenderEffectToTexture (&quadTextureData, fboToUse);
-}
-#endif //__GL_EMBOSS__
+}*/
 
 float Q_flrand(float min, float max);
 
@@ -898,21 +724,3 @@ float Q_flrand(float min, float max);
 
 	GSH_UseShader(NULL);
 }*/
-
-//================================================
-//
-// JKG_CheckIfIntel
-// Little hack I implemented to make sure that Intel Mobility
-// garbage is taken care of. --eez
-//
-//================================================
-
-qboolean JKG_CheckIfIntel(void)
-{
-	const char *graphicVendor = glGetString(GL_VENDOR);
-	if(!Q_strncmp(graphicVendor, "Intel", 5))	// God have mercy on your soul...
-	{
-		return qtrue;
-	}
-	return qfalse;
-}

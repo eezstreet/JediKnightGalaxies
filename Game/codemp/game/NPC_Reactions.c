@@ -10,8 +10,8 @@ extern void cgi_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxH
 extern qboolean Q3_TaskIDPending( gentity_t *ent, taskID_t taskType );
 extern qboolean NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
-extern qboolean NPC_Humanoid_WaitingAmbush( gentity_t *self );
-extern void NPC_Humanoid_Ambush( gentity_t *self );
+extern qboolean Jedi_WaitingAmbush( gentity_t *self );
+extern void Jedi_Ambush( gentity_t *self );
 extern qboolean NPC_SomeoneLookingAtMe(gentity_t *ent);
 
 #include "../namespace_begin.h"
@@ -1018,8 +1018,6 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	//G_Printf("I got used!\n");
-
 	SaveNPCGlobals();
 	SetNPCGlobals( self );
 
@@ -1049,9 +1047,9 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 				}
 			}
 		}
-		else if ( NPC_Humanoid_WaitingAmbush( NPC ) )
+		else if ( Jedi_WaitingAmbush( NPC ) )
 		{
-			NPC_Humanoid_Ambush( NPC );
+			Jedi_Ambush( NPC );
 		}
 		//Run any use instructions
 		if ( activator && activator->s.number < MAX_CLIENTS && self->client->NPC_class == CLASS_GONK )

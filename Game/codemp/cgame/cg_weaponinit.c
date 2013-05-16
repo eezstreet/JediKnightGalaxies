@@ -172,7 +172,7 @@ static void ReadVector ( const char *vectorString, vec3_t out )
     sscanf (vectorString, "%f %f %f", &out[0], &out[1], &out[2]);
 }
 
-static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFireModeStats_t* fireMode, const weaponVisualFireMode_t *fireModeVisuals )
+static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponVisualFireMode_t *fireModeVisuals )
 {
     //qboolean isGrenade = (qboolean)(Q_stricmp (fireModeVisuals->type, "grenade") == 0);
     //qboolean isBlaster = (qboolean)(Q_stricmp (fireModeVisuals->type, "blaster") == 0);
@@ -205,7 +205,7 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     }
     drawData->weaponFire.generic.fireSoundCount = i;
     
-    // Hitscan render
+    // Traceline render
     drawData->tracelineRender.generic.lifeTime = fireModeVisuals->tracelineRender.generic.lifeTime;
     drawData->tracelineRender.generic.maxSize = fireModeVisuals->tracelineRender.generic.maxSize;
     drawData->tracelineRender.generic.minSize = fireModeVisuals->tracelineRender.generic.minSize;
@@ -222,21 +222,15 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     
     if ( fireModeVisuals->projectileRender.generic.projectileEffect[0] )
         drawData->projectileRender.generic.projectileEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileRender.generic.projectileEffect);
-    else if ( fireMode->ammo && fireMode->ammo->fx )
-        drawData->projectileRender.generic.projectileEffect = fireMode->ammo->fx;
         
     if ( fireModeVisuals->projectileRender.generic.projectileModel[0] )
         drawData->projectileRender.generic.projectileModel = trap_R_RegisterModel (fireModeVisuals->projectileRender.generic.projectileModel);
-    else if ( fireMode->ammo && fireMode->ammo->model )
-        drawData->projectileRender.generic.projectileModel = fireMode->ammo->model;
         
     if ( fireModeVisuals->projectileRender.generic.runSound[0] )
         drawData->projectileRender.generic.runSound = trap_S_RegisterSound (fireModeVisuals->projectileRender.generic.runSound);
         
     if ( fireModeVisuals->projectileRender.generic.deathEffect[0] )
         drawData->projectileRender.generic.deathEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileRender.generic.deathEffect);
-    else if ( fireMode->ammo && fireMode->ammo->deathFx )
-        drawData->projectileRender.generic.deathEffect = fireMode->ammo->deathFx;
     
     // Projectile miss event
     if ( isTripmine || isDetpack )
@@ -248,8 +242,6 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     {
         if ( fireModeVisuals->projectileMiss.generic.impactEffect[0] )
             drawData->projectileMiss.generic.impactEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileMiss.generic.impactEffect);
-        else if ( fireMode->ammo && fireMode->ammo->missFx )
-            drawData->projectileMiss.generic.impactEffect = fireMode->ammo->missFx;
             
         if ( fireModeVisuals->projectileMiss.grenade.shockwaveEffect[0] )
             drawData->projectileMiss.grenade.shockwaveEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileMiss.grenade.shockwaveEffect);
@@ -258,8 +250,6 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     // Projectile hit event
     if ( fireModeVisuals->projectileHitPlayer.generic.impactEffect[0] )
         drawData->projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileHitPlayer.generic.impactEffect);
-    else if ( fireMode->ammo && fireMode->ammo->hitFx )
-        drawData->projectileHitPlayer.generic.impactEffect = fireMode->ammo->hitFx;
         
     if ( fireModeVisuals->projectileHitPlayer.grenade.shockwaveEffect[0] )
         drawData->projectileHitPlayer.grenade.shockwaveEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileHitPlayer.grenade.shockwaveEffect);
@@ -294,7 +284,7 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
 }
 
 qhandle_t CG_FindShader(const char *name);
-void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weaponData )
+void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponVisual_t *weaponVisuals )
 {
     static const char *barrelSuffixes[] = {
         "_barrel.md3",
@@ -304,7 +294,6 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
     };
     int i;
     char extensionlessModel[MAX_QPATH];
-    const weaponVisual_t *weaponVisuals = &weaponData->visuals;
     
     weaponInfo->indicatorType = weaponVisuals->indicatorType;
     for ( i = 0; i < 3; i++ )
@@ -337,30 +326,13 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
     }
     weaponInfo->ironsightsFov = weaponVisuals->ironsightsFov;
     
-    if ( CG_IsGhoul2Model (weaponVisuals->world_model) )
-    {
-        trap_G2API_InitGhoul2Model (&weaponInfo->g2WorldModel, weaponVisuals->world_model, 0, 0, 0, 0, 0);
-        if ( !trap_G2_HaveWeGhoul2Models (weaponInfo->g2WorldModel) )
-        {
-            weaponInfo->g2WorldModel = NULL;
-        }
-    }
     memset (weaponInfo->barrelModels, NULL_HANDLE, sizeof (weaponInfo->barrelModels));
-    COM_StripExtension (weaponVisuals->view_model, extensionlessModel);
+    Q_strncpyz (extensionlessModel, weaponVisuals->view_model, sizeof (extensionlessModel));
+    COM_StripExtension (extensionlessModel, extensionlessModel);
     
     for ( i = 0; i < 4; i++ )
     {
-        const char *barrelModel = va ("%s%s", extensionlessModel, barrelSuffixes[i]);
-        int len = strlen (barrelModel);
-        qhandle_t barrel;
-        
-        if ( (len + 1) > MAX_QPATH )
-        {
-            CG_Printf (S_COLOR_YELLOW "Warning: barrel model path %s is too long (%d chars). Max length is 63.\n", barrelModel, len);
-            break;
-        }
-        
-        barrel = trap_R_RegisterModel (barrelModel);
+        qhandle_t barrel = trap_R_RegisterModel (va ("%s%s", extensionlessModel, barrelSuffixes[i]));
         if ( barrel == NULL_HANDLE )
         {
             break;
@@ -386,12 +358,8 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
         
     weaponInfo->scopeSoundLoopTime = weaponVisuals->scopeSoundLoopTime;
 
-    //JKG_LoadFireModeAssets (&weaponInfo->primDrawData, &weaponData->firemodes[0], &weaponVisuals->primary);
-    //JKG_LoadFireModeAssets (&weaponInfo->altDrawData, &weaponData->firemodes[1], &weaponVisuals->secondary);
-	for( i = 0; i < weaponData->numFiringModes; i++ )
-	{
-		JKG_LoadFireModeAssets ( &weaponInfo->drawData[i], &weaponData->firemodes[i], &weaponVisuals->visualFireModes[i] );
-	}
+    JKG_LoadFireModeAssets (&weaponInfo->primDrawData, &weaponVisuals->primary);
+    JKG_LoadFireModeAssets (&weaponInfo->altDrawData, &weaponVisuals->secondary);
 }
 
 
@@ -405,7 +373,7 @@ The server says this item is used on this level
 void CG_RegisterWeapon( int weaponNum, int variation ) {
 	weaponInfo_t	*weaponInfo;
 	const weaponData_t *weaponData;
-	gitem_t			*item/*, *ammo*/;
+	gitem_t			*item, *ammo;
 	char			path[MAX_QPATH];
 	vec3_t			mins, maxs;
 	int				i;
@@ -428,7 +396,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	}
 	
 	#ifdef _DEBUG
-	//CG_Printf ("Registering weapon %d variation %d\n", weaponNum, variation);
+	CG_Printf ("Registering weapon %d variation %d\n", weaponNum, variation);
 	#endif
 
 	memset( weaponInfo, 0, sizeof( *weaponInfo ) );
@@ -529,12 +497,8 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 //		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
 //	}
 
-	for(i = 0; i < weaponData->numFiringModes; i++)
-	{
-		// this only deals with them one at a time from now on --eez
-		JKG_SetWeaponEventsHandler (weaponInfo, weaponData->visuals.visualFireModes[i].type, i);
-	}
-    JKG_LoadWeaponAssets (weaponInfo, weaponData);
+    JKG_SetWeaponEventsHandler (weaponInfo, weaponData->visuals.primary.type, weaponData->visuals.secondary.type);
+    JKG_LoadWeaponAssets (weaponInfo, &weaponData->visuals);
 
 	switch ( weaponNum ) {
 	case WP_STUN_BATON:
@@ -573,6 +537,620 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 		weaponInfo->missileModel		= trap_R_RegisterModel( "models/weapons2/saber/saber_w.glm" );
 		break;
 
+	case WP_CONCUSSION:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/concussion/select.wav");
+
+		/*weaponInfo->flashSound[0]		= NULL_SOUND;
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "concussion/muzzle_flash" );
+		weaponInfo->missileModel		= NULL_HANDLE;
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+		//weaponInfo->missileDlightColor= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= FX_ConcussionProjectileThink;
+
+		weaponInfo->altFlashSound[0]	= NULL_SOUND;
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= trap_S_RegisterSound( "sound/weapons/bryar/altcharge.wav");
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "concussion/altmuzzle_flash" );
+		weaponInfo->altMissileModel		= NULL_HANDLE;
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+		//weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = FX_ConcussionProjectileThink;
+
+		cgs.effects.disruptorAltMissEffect		= trap_FX_RegisterEffect( "disruptor/alt_miss" );
+
+		cgs.effects.concussionShotEffect		= trap_FX_RegisterEffect( "concussion/shot" );
+		cgs.effects.concussionImpactEffect		= trap_FX_RegisterEffect( "concussion/explosion" );
+		trap_R_RegisterShader("gfx/effects/blueLine");
+		trap_R_RegisterShader("gfx/misc/whiteline2");
+		
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "concussion/muzzle_flash" );
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "concussion/shot" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "concussion/explosion" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "concussion/explosion" );
+		
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "concussion/altmuzzle_flash" );
+		weaponInfo->altDrawData.tracelineRender.generic.tracelineShader = trap_R_RegisterShader( "gfx/effects/blueLine" );
+		weaponInfo->altDrawData.tracelineRender.generic.minSize = 0.1f;
+		weaponInfo->altDrawData.tracelineRender.generic.maxSize = 10.0f;
+		weaponInfo->altDrawData.tracelineRender.generic.lifeTime = 175;
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "concussion/explosion" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "concussion/explosion" );*/
+		
+		break;
+
+	case WP_BRYAR_PISTOL:
+	case WP_BRYAR_OLD:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/bryar/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/bryar/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "bryar/muzzle_flash" );
+		weaponInfo->missileModel		= NULL_HANDLE;
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+		//weaponInfo->missileDlightColor= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= FX_BryarProjectileThink;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/bryar/alt_fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= trap_S_RegisterSound( "sound/weapons/bryar/altcharge.wav");
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "bryar/muzzle_flash" );
+		weaponInfo->altMissileModel		= NULL_HANDLE;
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+		//weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = FX_BryarAltProjectileThink;
+
+		cgs.effects.bryarShotEffect			= trap_FX_RegisterEffect( "bryar/shot" );
+		cgs.effects.bryarPowerupShotEffect	= trap_FX_RegisterEffect( "bryar/crackleShot" );
+		cgs.effects.bryarWallImpactEffect	= trap_FX_RegisterEffect( "bryar/wall_impact" );
+		cgs.effects.bryarWallImpactEffect2	= trap_FX_RegisterEffect( "bryar/wall_impact2" );
+		cgs.effects.bryarWallImpactEffect3	= trap_FX_RegisterEffect( "bryar/wall_impact3" );
+		cgs.effects.bryarFleshImpactEffect	= trap_FX_RegisterEffect( "bryar/flesh_impact" );
+		cgs.effects.bryarDroidImpactEffect	= trap_FX_RegisterEffect( "bryar/droid_impact" );
+
+		cgs.media.bryarFrontFlash = trap_R_RegisterShader( "gfx/effects/bryarFrontFlash" );
+
+		// Note these are temp shared effects
+		trap_FX_RegisterEffect("blaster/wall_impact.efx");
+		trap_FX_RegisterEffect("blaster/flesh_impact.efx");
+		
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "bryar/muzzle_flash" );
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "bryar/shot" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "bryar/wall_impact" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "bryar/flesh_impact" );
+		
+		// TODO: Support multiple wall impact effects depending on the charge strength.
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "bryar/muzzle_flash" );
+		weaponInfo->altDrawData.weaponRender.generic.chargingShader = trap_R_RegisterShader( "gfx/effects/bryarFrontFlash" );
+		weaponInfo->altDrawData.weaponRender.generic.chargingShaderScale = 1.0f;
+		weaponInfo->altDrawData.weaponCharge.chargingSound = trap_S_RegisterSound( "sound/weapons/bryar/altcharge.wav");
+		weaponInfo->altDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "bryar/shot" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "bryar/wall_impact" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "bryar/flesh_impact" );*/
+
+		break;
+
+	case WP_BLASTER:
+	case WP_EMPLACED_GUN: //rww - just use the same as this for now..
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/blaster/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/blaster/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "blaster/muzzle_flash" );
+		weaponInfo->missileModel		= NULL_HANDLE;
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= FX_BlasterProjectileThink;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/blaster/alt_fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= NULL_SOUND;
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "blaster/muzzle_flash" );
+		weaponInfo->altMissileModel		= NULL_HANDLE;
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = FX_BlasterProjectileThink;
+
+		trap_FX_RegisterEffect( "blaster/deflect" );
+		cgs.effects.blasterShotEffect			= trap_FX_RegisterEffect( "blaster/shot" );
+		cgs.effects.blasterWallImpactEffect		= trap_FX_RegisterEffect( "blaster/wall_impact" );
+		cgs.effects.blasterFleshImpactEffect	= trap_FX_RegisterEffect( "blaster/flesh_impact" );
+		cgs.effects.blasterDroidImpactEffect	= trap_FX_RegisterEffect( "blaster/droid_impact" );
+
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "blaster/muzzle_flash" );
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "blaster/shot" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "blaster/wall_impact" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "blaster/flesh_impact" );
+		
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "blaster/muzzle_flash" );
+		weaponInfo->altDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "blaster/shot" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "blaster/wall_impact" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "blaster/flesh_impact" );*/
+		
+		break;
+
+	case WP_DISRUPTOR:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/disruptor/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/disruptor/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "disruptor/muzzle_flash" );
+		weaponInfo->missileModel		= NULL_HANDLE;
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= 0;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/disruptor/alt_fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= trap_S_RegisterSound("sound/weapons/disruptor/altCharge.wav");
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "disruptor/muzzle_flash" );
+		weaponInfo->altMissileModel		= NULL_HANDLE;
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = 0;
+
+		cgs.effects.disruptorRingsEffect		= trap_FX_RegisterEffect( "disruptor/rings" );
+		cgs.effects.disruptorProjectileEffect	= trap_FX_RegisterEffect( "disruptor/projectile" );
+		cgs.effects.disruptorWallImpactEffect	= trap_FX_RegisterEffect( "disruptor/wall_impact" );
+		cgs.effects.disruptorFleshImpactEffect	= trap_FX_RegisterEffect( "disruptor/flesh_impact" );
+		cgs.effects.disruptorAltMissEffect		= trap_FX_RegisterEffect( "disruptor/alt_miss" );
+		cgs.effects.disruptorAltHitEffect		= trap_FX_RegisterEffect( "disruptor/alt_hit" );*/
+
+		/*trap_R_RegisterShader( "gfx/effects/redLine" );
+		trap_R_RegisterShader( "gfx/misc/whiteline2" );
+		trap_R_RegisterShader( "gfx/effects/smokeTrail" );*/
+
+		// Disruptor gun zoom interface
+		cgs.media.disruptorMask			= trap_R_RegisterShader( "gfx/2d/cropCircle2");
+		cgs.media.disruptorInsert		= trap_R_RegisterShader( "gfx/2d/cropCircle");
+		cgs.media.disruptorLight		= trap_R_RegisterShader( "gfx/2d/cropCircleGlow" );
+		cgs.media.disruptorInsertTick	= trap_R_RegisterShader( "gfx/2d/insertTick" );
+		cgs.media.disruptorChargeShader	= trap_R_RegisterShaderNoMip("gfx/2d/crop_charge");
+
+		//cgs.media.disruptorZoomLoop		= trap_S_RegisterSound( "sound/weapons/disruptor/zoomloop.wav" );
+		
+		// TODO: Add supoprt for zoom and stuff
+		/*weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "disruptor/muzzle_flash" );
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/disruptor/fire.wav");
+		weaponInfo->primDrawData.tracelineRender.generic.tracelineShader = trap_R_RegisterShader( "gfx/effects/redLine" );
+		weaponInfo->primDrawData.tracelineRender.generic.minSize = 0.1f;
+		weaponInfo->primDrawData.tracelineRender.generic.maxSize = 6.0f;
+		weaponInfo->primDrawData.tracelineRender.generic.lifeTime = 150;
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "disruptor/wall_impact" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "disruptor/flesh_impact" );
+		
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "disruptor/muzzle_flash" );
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/disruptor/alt_fire.wav");
+		weaponInfo->altDrawData.weaponCharge.chargingSound = trap_S_RegisterSound("sound/weapons/disruptor/altCharge.wav");
+		weaponInfo->altDrawData.tracelineRender.generic.tracelineShader = trap_R_RegisterShader( "gfx/effects/redLine" );
+		weaponInfo->altDrawData.tracelineRender.generic.minSize = 0.1f;
+		weaponInfo->altDrawData.tracelineRender.generic.maxSize = 6.0f;
+		weaponInfo->altDrawData.tracelineRender.generic.lifeTime = 150;
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "disruptor/alt_miss" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "disruptor/alt_hit" );
+		weaponInfo->altDrawData.scopeToggle.generic.startSound = trap_S_RegisterSound("sound/weapons/disruptor/zoomstart.wav");
+		weaponInfo->altDrawData.scopeToggle.generic.stopSound = trap_S_RegisterSound("sound/weapons/disruptor/zoomend.wav");
+		weaponInfo->altDrawData.scopeZoom.generic.loopSound = trap_S_RegisterSound( "sound/weapons/disruptor/zoomloop.wav" );
+		weaponInfo->altDrawData.scopeZoom.generic.loopTime = 300;*/
+		break;
+
+	case WP_BOWCASTER:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/bowcaster/select.wav");
+
+		/*weaponInfo->altFlashSound[0]		= trap_S_RegisterSound( "sound/weapons/bowcaster/fire.wav");
+		weaponInfo->altFiringSound			= NULL_SOUND;
+		weaponInfo->altChargeSound			= NULL_SOUND;
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "bowcaster/muzzle_flash" );
+		weaponInfo->altMissileModel		= NULL_HANDLE;
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight		= 0;
+//		weaponInfo->altMissileDlightColor	= {0,0,0};
+		weaponInfo->altMissileHitSound		= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc	= FX_BowcasterProjectileThink;
+
+		weaponInfo->flashSound[0]	= trap_S_RegisterSound( "sound/weapons/bowcaster/fire.wav");
+		weaponInfo->firingSound		= NULL_SOUND;
+		weaponInfo->chargeSound		= trap_S_RegisterSound( "sound/weapons/bowcaster/altcharge.wav");
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "bowcaster/muzzle_flash" );
+		weaponInfo->missileModel		= NULL_HANDLE;
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight	= 0;
+//		weaponInfo->missileDlightColor= {0,0,0};
+		weaponInfo->missileHitSound	= NULL_SOUND;
+		weaponInfo->missileTrailFunc = FX_BowcasterAltProjectileThink;
+
+		cgs.effects.bowcasterShotEffect		= trap_FX_RegisterEffect( "bowcaster/shot" );
+		cgs.effects.bowcasterImpactEffect	= trap_FX_RegisterEffect( "bowcaster/explosion" );
+
+		trap_FX_RegisterEffect( "bowcaster/deflect" );
+
+		cgs.media.greenFrontFlash = trap_R_RegisterShader( "gfx/effects/greenFrontFlash" );
+		
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "bowcaster/muzzle_flash" );
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/bowcaster/fire.wav");
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "bowcaster/shot" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "bowcaster/explosion" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "bowcaster/explosion" );
+		
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "bowcaster/muzzle_flash" );
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/bowcaster/fire.wav");
+		weaponInfo->altDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "bowcaster/shot" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "bowcaster/explosion" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "bowcaster/explosion" );
+		weaponInfo->altDrawData.scopeToggle.generic.startSound = trap_S_RegisterSound("sound/weapons/disruptor/zoomstart.wav");
+		weaponInfo->altDrawData.scopeToggle.generic.stopSound = trap_S_RegisterSound("sound/weapons/disruptor/zoomend.wav");*/
+		break;
+
+	case WP_REPEATER:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/repeater/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/repeater/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "repeater/muzzle_flash" );
+		weaponInfo->missileModel		= NULL_HANDLE;
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= FX_RepeaterProjectileThink;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/repeater/alt_fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= NULL_SOUND;
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "repeater/muzzle_flash" );
+		weaponInfo->altMissileModel		= NULL_HANDLE;
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = FX_RepeaterAltProjectileThink;
+
+		cgs.effects.repeaterProjectileEffect	= trap_FX_RegisterEffect( "repeater/projectile" );
+		cgs.effects.repeaterAltProjectileEffect	= trap_FX_RegisterEffect( "repeater/alt_projectile" );
+		cgs.effects.repeaterWallImpactEffect	= trap_FX_RegisterEffect( "repeater/wall_impact" );
+		cgs.effects.repeaterFleshImpactEffect	= trap_FX_RegisterEffect( "repeater/flesh_impact" );
+		//cgs.effects.repeaterAltWallImpactEffect	= trap_FX_RegisterEffect( "repeater/alt_wall_impact" );
+		cgs.effects.repeaterAltWallImpactEffect	= trap_FX_RegisterEffect( "repeater/concussion" );
+		
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/repeater/fire.wav");
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "repeater/muzzle_flash" );
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "repeater/projectile" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "repeater/wall_impact" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "repeater/flesh_impact" );
+		
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/repeater/alt_fire.wav");
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "repeater/muzzle_flash" );
+		weaponInfo->altDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "repeater/alt_projectile" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "repeater/concussion" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "repeater/concussion" );*/
+		break;
+
+	case WP_DEMP2:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/demp2/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound("sound/weapons/demp2/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect("demp2/muzzle_flash");
+		weaponInfo->missileModel		= NULL_HANDLE;
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= FX_DEMP2_ProjectileThink;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound("sound/weapons/demp2/altfire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= trap_S_RegisterSound("sound/weapons/demp2/altCharge.wav");
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect("demp2/muzzle_flash");
+		weaponInfo->altMissileModel		= NULL_HANDLE;
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = 0;
+
+		cgs.effects.demp2ProjectileEffect		= trap_FX_RegisterEffect( "demp2/projectile" );
+		cgs.effects.demp2WallImpactEffect		= trap_FX_RegisterEffect( "demp2/wall_impact" );
+		cgs.effects.demp2FleshImpactEffect		= trap_FX_RegisterEffect( "demp2/flesh_impact" );
+
+		cgs.media.demp2Shell = trap_R_RegisterModel( "models/items/sphere.md3" );
+		cgs.media.demp2ShellShader = trap_R_RegisterShader( "gfx/effects/demp2shell" );
+
+		cgs.media.lightningFlash = trap_R_RegisterShader("gfx/misc/lightningFlash");
+		
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/demp2/fire.wav");
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "demp2/muzzle_flash" );
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "demp2/projectile" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "demp2/wall_impact" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "demp2/flesh_impact" );
+		
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/demp2/altfire.wav");
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "demp2/muzzle_flash" );
+		weaponInfo->altDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "demp2/alt_projectile" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "demp2/altDetonate" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "demp2/altDetonate" );*/
+		break;
+
+	case WP_FLECHETTE:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/flechette/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/flechette/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "flechette/muzzle_flash" );
+		weaponInfo->missileModel		= trap_R_RegisterModel("models/weapons2/golan_arms/projectileMain.md3");
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= FX_FlechetteProjectileThink;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/flechette/alt_fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= NULL_SOUND;
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "flechette/muzzle_flash" );
+		weaponInfo->altMissileModel		= trap_R_RegisterModel( "models/weapons2/golan_arms/projectile.md3" );
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = FX_FlechetteAltProjectileThink;
+
+		cgs.effects.flechetteShotEffect			= trap_FX_RegisterEffect( "flechette/shot" );
+		cgs.effects.flechetteAltShotEffect		= trap_FX_RegisterEffect( "flechette/alt_shot" );
+		cgs.effects.flechetteWallImpactEffect	= trap_FX_RegisterEffect( "flechette/wall_impact" );
+		cgs.effects.flechetteFleshImpactEffect	= trap_FX_RegisterEffect( "flechette/flesh_impact" );
+		
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/flechette/fire.wav");
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "flechette/muzzle_flash" );
+		weaponInfo->primDrawData.projectileRender.generic.projectileModel = trap_R_RegisterModel ("models/weapons2/golan_arms/projectileMain.md3");
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "flechette/shot" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "flechette/wall_impact" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "flechette/flesh_impact" );
+		
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/flechette/alt_fire.wav");
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "flechette/muzzle_flash" );
+		weaponInfo->altDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "flechette/alt_shot" );
+		weaponInfo->altDrawData.projectileRender.generic.projectileModel = trap_R_RegisterModel ("models/weapons2/golan_arms/projectile.md3");
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "flechette/wall_impact" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "flechette/flesh_impact" );*/
+		break;
+
+	case WP_ROCKET_LAUNCHER:
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/rocket/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/rocket/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= trap_FX_RegisterEffect( "rocket/muzzle_flash" ); //trap_FX_RegisterEffect( "rocket/muzzle_flash2" );
+		//flash2 still looks crappy with the fx bolt stuff. Because the fx bolt stuff doesn't work entirely right.
+		weaponInfo->missileModel		= trap_R_RegisterModel( "models/weapons2/merr_sonn/projectile.md3" );
+		weaponInfo->missileSound		= trap_S_RegisterSound( "sound/weapons/rocket/missleloop.wav");
+		weaponInfo->missileDlight		= 125;
+		VectorSet(weaponInfo->missileDlightColor, 1.0, 1.0, 0.5);
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= FX_RocketProjectileThink;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/rocket/alt_fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= NULL_SOUND;
+		weaponInfo->altMuzzleEffect		= trap_FX_RegisterEffect( "rocket/altmuzzle_flash" );
+		weaponInfo->altMissileModel		= trap_R_RegisterModel( "models/weapons2/merr_sonn/projectile.md3" );
+		weaponInfo->altMissileSound		= trap_S_RegisterSound( "sound/weapons/rocket/missleloop.wav");
+		weaponInfo->altMissileDlight	= 125;
+		VectorSet(weaponInfo->altMissileDlightColor, 1.0, 1.0, 0.5);
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = FX_RocketAltProjectileThink;
+
+		cgs.effects.rocketShotEffect			= trap_FX_RegisterEffect( "rocket/shot" );
+		cgs.effects.rocketExplosionEffect		= trap_FX_RegisterEffect( "rocket/explosion" );*/
+	
+		trap_R_RegisterShaderNoMip( "gfx/2d/wedge" );
+		trap_R_RegisterShaderNoMip( "gfx/2d/lock" );
+
+		trap_S_RegisterSound( "sound/weapons/rocket/lock.wav" );
+		trap_S_RegisterSound( "sound/weapons/rocket/tick.wav" );
+		
+		/*weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/rocket/fire.wav");
+		weaponInfo->primDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "rocket/muzzle_flash" );
+		weaponInfo->primDrawData.projectileRender.generic.projectileModel = trap_R_RegisterModel ("models/weapons2/merr_sonn/projectile.md3");
+		weaponInfo->primDrawData.projectileRender.generic.runSound = trap_S_RegisterSound( "sound/weapons/rocket/missleloop.wav");
+		weaponInfo->primDrawData.projectileRender.generic.lightIntensity = 125.0f;
+		VectorSet (weaponInfo->primDrawData.projectileRender.generic.lightColor, 1.0f, 1.0f, 0.5f);
+		weaponInfo->primDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "rocket/shot" );
+		weaponInfo->primDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "rocket/explosion" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "rocket/explosion" );
+		
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/rocket/fire.wav");
+		weaponInfo->altDrawData.weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect( "rocket/muzzle_flash" );
+		weaponInfo->altDrawData.projectileRender.generic.projectileModel = trap_R_RegisterModel ("models/weapons2/merr_sonn/projectile.md3");
+		weaponInfo->altDrawData.projectileRender.generic.runSound = trap_S_RegisterSound( "sound/weapons/rocket/missleloop.wav");
+		weaponInfo->altDrawData.projectileRender.generic.lightIntensity = 125.0f;
+		VectorSet (weaponInfo->altDrawData.projectileRender.generic.lightColor, 1.0f, 1.0f, 0.5f);
+		weaponInfo->altDrawData.projectileRender.generic.projectileEffect = trap_FX_RegisterEffect( "rocket/shot" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "rocket/explosion" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "rocket/explosion" );*/
+		break;
+
+	case WP_THERMAL:
+	    //JKG_SetWeaponEventsHandler (weaponInfo, "grenade", "grenade");
+	
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/thermal/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/thermal/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= trap_S_RegisterSound( "sound/weapons/thermal/charge.wav");
+		weaponInfo->muzzleEffect		= NULL_FX;
+		weaponInfo->missileModel		= trap_R_RegisterModel( "models/weapons2/thermal/thermal_proj.md3" );
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= 0;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/thermal/fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= trap_S_RegisterSound( "sound/weapons/thermal/charge.wav");
+		weaponInfo->altMuzzleEffect		= NULL_FX;
+		weaponInfo->altMissileModel		= trap_R_RegisterModel( "models/weapons2/thermal/thermal_proj.md3" );
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = 0;
+
+		cgs.effects.thermalExplosionEffect		= trap_FX_RegisterEffect( "thermal/explosion" );
+		cgs.effects.thermalShockwaveEffect		= trap_FX_RegisterEffect( "thermal/shockwave" );*/
+
+		//cgs.media.grenadeBounce1		= trap_S_RegisterSound( "sound/weapons/thermal/bounce1.wav" );
+		//cgs.media.grenadeBounce2		= trap_S_RegisterSound( "sound/weapons/thermal/bounce2.wav" );
+
+		/*trap_S_RegisterSound( "sound/weapons/thermal/thermloop.wav" );
+		trap_S_RegisterSound( "sound/weapons/thermal/warning.wav" );
+		
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/thermal/fire.wav");
+		weaponInfo->primDrawData.weaponCharge.chargingSound = trap_S_RegisterSound( "sound/weapons/thermal/charge.wav");
+		weaponInfo->primDrawData.projectileRender.generic.projectileModel = trap_R_RegisterModel( "models/weapons2/thermal/thermal_proj.md3" );
+		weaponInfo->primDrawData.projectileRender.generic.runSound = trap_S_RegisterSound( "sound/weapons/thermal/thermloop.wav" );
+		weaponInfo->primDrawData.projectileMiss.grenade.impactEffect = trap_FX_RegisterEffect( "thermal/explosion" );
+		weaponInfo->primDrawData.projectileMiss.grenade.shockwaveEffect = trap_FX_RegisterEffect( "thermal/shockwave" );
+		weaponInfo->primDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "thermal/explosion" );
+		weaponInfo->primDrawData.projectileHitPlayer.grenade.shockwaveEffect = trap_FX_RegisterEffect( "thermal/shockwave" );
+		weaponInfo->primDrawData.grenadeBounce.grenade.bounceSound[0] = trap_S_RegisterSound( "sound/weapons/thermal/bounce1.wav" );
+		weaponInfo->primDrawData.grenadeBounce.grenade.bounceSound[1] = trap_S_RegisterSound( "sound/weapons/thermal/bounce2.wav" );
+		
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/flechette/alt_fire.wav");
+		weaponInfo->altDrawData.weaponCharge.chargingSound = trap_S_RegisterSound( "sound/weapons/thermal/charge.wav");
+		weaponInfo->altDrawData.projectileRender.generic.projectileModel = trap_R_RegisterModel( "models/weapons2/thermal/thermal_proj.md3" );
+		weaponInfo->altDrawData.projectileRender.generic.runSound = trap_S_RegisterSound( "sound/weapons/thermal/thermloop.wav" );
+		weaponInfo->altDrawData.projectileMiss.generic.impactEffect = trap_FX_RegisterEffect( "thermal/explosion" );
+		weaponInfo->altDrawData.projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect( "thermal/explosion" );
+		weaponInfo->altDrawData.grenadeBounce.grenade.bounceSound[0] = trap_S_RegisterSound( "sound/weapons/thermal/bounce1.wav" );
+		weaponInfo->altDrawData.grenadeBounce.grenade.bounceSound[1] = trap_S_RegisterSound( "sound/weapons/thermal/bounce2.wav" );*/
+
+		break;
+
+	case WP_TRIP_MINE:
+	    //JKG_SetWeaponEventsHandler (weaponInfo, "tripmine", "tripmine");
+	
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/detpack/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/laser_trap/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= NULL_FX;
+		weaponInfo->missileModel		= 0;//trap_R_RegisterModel( "models/weapons2/laser_trap/laser_trap_w.md3" );
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= 0;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/laser_trap/fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= NULL_SOUND;
+		weaponInfo->altMuzzleEffect		= NULL_FX;
+		weaponInfo->altMissileModel		= 0;//trap_R_RegisterModel( "models/weapons2/laser_trap/laser_trap_w.md3" );
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = 0;
+
+		cgs.effects.tripmineLaserFX = trap_FX_RegisterEffect("tripMine/laserMP.efx");
+		cgs.effects.tripmineGlowFX = trap_FX_RegisterEffect("tripMine/glowbit.efx");
+
+		trap_FX_RegisterEffect( "tripMine/explosion" );
+		// NOTENOTE temp stuff
+		trap_S_RegisterSound( "sound/weapons/laser_trap/stick.wav" );
+		trap_S_RegisterSound( "sound/weapons/laser_trap/warning.wav" );
+		
+		weaponInfo->primDrawData.explosiveRender.tripmine.lineEffect = trap_FX_RegisterEffect("tripMine/laserMP");
+		CG_LoadG2ModelWithSkin (
+		    "models/weapons2/laser_trap/laser_trap_w.glm",
+		    &weaponInfo->primDrawData.explosiveRender.tripmine.g2Model
+		);
+		weaponInfo->primDrawData.explosiveRender.tripmine.g2Radius = 100.0f;
+		weaponInfo->primDrawData.explosiveArm.armSound = trap_S_RegisterSound ("sound/weapons/laser_trap/warning.wav");
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/laser_trap/fire.wav");
+		weaponInfo->primDrawData.projectileMiss.explosive.stickSound = trap_S_RegisterSound ("sound/weapons/laser_trap/stick.wav");
+		
+		weaponInfo->altDrawData.explosiveRender.tripmine.lineEffect = trap_FX_RegisterEffect("tripMine/glowbit");
+        CG_LoadG2ModelWithSkin (
+		    "models/weapons2/laser_trap/laser_trap_w.glm",
+		    &weaponInfo->altDrawData.explosiveRender.tripmine.g2Model
+		);
+		weaponInfo->altDrawData.explosiveRender.tripmine.g2Radius = 100.0f;
+		weaponInfo->altDrawData.explosiveArm.armSound = trap_S_RegisterSound ("sound/weapons/laser_trap/warning.wav");
+		weaponInfo->altDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/laser_trap/alt_fire.wav");
+		weaponInfo->altDrawData.explosiveBlow.generic.explodeEffect = trap_FX_RegisterEffect("tripMine/explosion");*/
+		break;
+
+	case WP_DET_PACK:
+	    //JKG_SetWeaponEventsHandler (weaponInfo, "detpack", "detpack");
+	
+		//weaponInfo->selectSound			= trap_S_RegisterSound("sound/weapons/detpack/select.wav");
+
+		/*weaponInfo->flashSound[0]		= trap_S_RegisterSound( "sound/weapons/detpack/fire.wav");
+		weaponInfo->firingSound			= NULL_SOUND;
+		weaponInfo->chargeSound			= NULL_SOUND;
+		weaponInfo->muzzleEffect		= NULL_FX;
+		weaponInfo->missileModel		= trap_R_RegisterModel( "models/weapons2/detpack/det_pack.md3" );
+		weaponInfo->missileSound		= NULL_SOUND;
+		weaponInfo->missileDlight		= 0;
+//		weaponInfo->missileDlightColor	= {0,0,0};
+		weaponInfo->missileHitSound		= NULL_SOUND;
+		weaponInfo->missileTrailFunc	= 0;
+
+		weaponInfo->altFlashSound[0]	= trap_S_RegisterSound( "sound/weapons/detpack/fire.wav");
+		weaponInfo->altFiringSound		= NULL_SOUND;
+		weaponInfo->altChargeSound		= NULL_SOUND;
+		weaponInfo->altMuzzleEffect		= NULL_FX;
+		weaponInfo->altMissileModel		= trap_R_RegisterModel( "models/weapons2/detpack/det_pack.md3" );
+		weaponInfo->altMissileSound		= NULL_SOUND;
+		weaponInfo->altMissileDlight	= 0;
+//		weaponInfo->altMissileDlightColor= {0,0,0};
+		weaponInfo->altMissileHitSound	= NULL_SOUND;
+		weaponInfo->altMissileTrailFunc = 0;
+
+		trap_R_RegisterModel( "models/weapons2/detpack/det_pack.md3" );
+		trap_S_RegisterSound( "sound/weapons/detpack/stick.wav" );
+		trap_S_RegisterSound( "sound/weapons/detpack/warning.wav" );
+		trap_S_RegisterSound( "sound/weapons/explosions/explode5.wav" );
+		
+		CG_LoadG2ModelWithSkin (
+		    "models/weapons2/detpack/det_pack_proj.glm",
+		    &weaponInfo->primDrawData.explosiveRender.detpack.g2Model
+		);
+		weaponInfo->primDrawData.explosiveRender.detpack.g2Radius = 100.0f;
+		weaponInfo->primDrawData.weaponFire.generic.fireSound = trap_S_RegisterSound( "sound/weapons/detpack/fire.wav");
+		weaponInfo->primDrawData.projectileMiss.explosive.stickSound = trap_S_RegisterSound ("sound/weapons/detpack/stick.wav");
+		
+		weaponInfo->altDrawData.explosiveBlow.generic.explodeEffect = trap_FX_RegisterEffect("detpack/explosion");*/
+		
+		break;
 	case WP_TURRET:
 		weaponInfo->flashSound[0]		= NULL_SOUND;
 		weaponInfo->firingSound			= NULL_SOUND;

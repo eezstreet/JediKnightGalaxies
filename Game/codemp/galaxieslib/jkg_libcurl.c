@@ -1,19 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// jkg_libcurl.c
-// JKG Libcurl Communications System
-// (c) 2013 Jedi Knight Galaxies
-
 //////////////////////////////////////////////////
 //
 //  JKG Libcurl Communications System
@@ -68,7 +52,7 @@ static struct jkg_auth_s {
 	unsigned char crypto_iv[16];
 
 	// Authentication data
-	char sessionID[33];
+	unsigned char sessionID[33];
 	int authenticated;	// If 0, we need to do a handshake first
 } jkg_auth;
 
@@ -784,7 +768,7 @@ void JKG_Libcurl_Poller( void )
 int JKG_Libcurl_Init ( void )
 {
 	int i;
-	Cvar_Get("jkg_masterserverurl", "http://jkg-master.terrangaming.com", CVAR_ROM);
+	Cvar_Get("jkg_masterserverurl", "http://master.jkgalaxies.com", CVAR_ROM);
 
 	Com_sprintf( useragent, sizeof(useragent), "%s (%s; http://jkgalaxies.com/) %s", JKGTAG, Cvar_String("version"), curl_version() );
 

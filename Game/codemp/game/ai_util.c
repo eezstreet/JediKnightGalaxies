@@ -3,7 +3,159 @@
 #include "botlib.h"
 #include "ai_main.h"
 
+#ifdef BOT_ZMALLOC
+#define MAX_BALLOC 8192
+
+void *BAllocList[MAX_BALLOC];
+#endif
+
 char gBotChatBuffer[MAX_CLIENTS][MAX_CHAT_BUFFER_SIZE];
+
+void *B_TempAlloc(int size)
+{
+	return BG_TempAlloc(size);
+}
+
+void B_TempFree(int size)
+{
+	BG_TempFree(size);
+}
+
+
+void *B_Alloc(int size)
+{
+#ifdef BOT_ZMALLOC
+	void *ptr = NULL;
+	int i = 0;
+
+#ifdef BOTMEMTRACK
+	int free = 0;
+	int used = 0;
+
+	while (i < MAX_BALLOC)
+	{
+		if (!BAllocList[i])
+		{
+			free++;
+		}
+		else
+		{
+			used++;
+		}
+
+		i++;
+	}
+
+	G_Printf("Allocations used: %i\nFree allocation slots: %i\n", used, free);
+
+	i = 0;
+#endif
+
+	ptr = trap_BotGetMemoryGame(size);
+
+	while (i < MAX_BALLOC)
+	{
+		if (!BAllocList[i])
+		{
+			BAllocList[i] = ptr;
+			break;
+		}
+		i++;
+	}
+
+	if (i == MAX_BALLOC)
+	{
+		//If this happens we'll have to rely on this chunk being freed manually with B_Free, which it hopefully will be
+#ifdef DEBUG
+		G_Printf("WARNING: MAXIMUM B_ALLOC ALLOCATIONS EXCEEDED\n");
+#endif
+	}
+
+	return ptr;
+#else
+
+	return BG_Alloc(size);
+
+#endif
+}
+
+void B_Free(void *ptr)
+{
+#ifdef BOT_ZMALLOC
+	int i = 0;
+
+#ifdef BOTMEMTRACK
+	int free = 0;
+	int used = 0;
+
+	while (i < MAX_BALLOC)
+	{
+		if (!BAllocList[i])
+		{
+			free++;
+		}
+		else
+		{
+			used++;
+		}
+
+		i++;
+	}
+
+	G_Printf("Allocations used: %i\nFree allocation slots: %i\n", used, free);
+
+	i = 0;
+#endif
+
+	while (i < MAX_BALLOC)
+	{
+		if (BAllocList[i] == ptr)
+		{
+			BAllocList[i] = NULL;
+			break;
+		}
+
+		i++;
+	}
+
+	if (i == MAX_BALLOC)
+	{
+		//Likely because the limit was exceeded and we're now freeing the chunk manually as we hoped would happen
+#ifdef DEBUG
+		G_Printf("WARNING: Freeing allocation which is not in the allocation structure\n");
+#endif
+	}
+
+	trap_BotFreeMemoryGame(ptr);
+#endif
+}
+
+void B_InitAlloc(void)
+{
+#ifdef BOT_ZMALLOC
+	memset(BAllocList, 0, sizeof(BAllocList));
+#endif
+
+	memset(gWPArray, 0, sizeof(gWPArray));
+}
+
+void B_CleanupAlloc(void)
+{
+#ifdef BOT_ZMALLOC
+	int i = 0;
+
+	while (i < MAX_BALLOC)
+	{
+		if (BAllocList[i])
+		{
+			trap_BotFreeMemoryGame(BAllocList[i]);
+			BAllocList[i] = NULL;
+		}
+
+		i++;
+	}
+#endif
+}
 
 int GetValueGroup(char *buf, char *group, char *outbuf)
 {
@@ -175,7 +327,6 @@ int GetPairedValue(char *buf, char *key, char *outbuf)
 
 int BotDoChat(bot_state_t *bs, char *section, int always)
 {
-#ifndef __MMO__ // UQ1: Unnecessary... But we will want targetted ai to player talk on NPCs later...
 	char *chatgroup;
 	int rVal;
 	int inc_1;
@@ -208,13 +359,13 @@ int BotDoChat(bot_state_t *bs, char *section, int always)
 
 	bs->chatTeam = 0;
 
-	chatgroup = (char *)malloc(MAX_CHAT_BUFFER_SIZE);
+	chatgroup = (char *)B_TempAlloc(MAX_CHAT_BUFFER_SIZE);
 
 	rVal = GetValueGroup(gBotChatBuffer[bs->client], section, chatgroup);
 
 	if (!rVal) //the bot has no group defined for the specified chat event
 	{
-		free(chatgroup); //chatgroup
+		B_TempFree(MAX_CHAT_BUFFER_SIZE); //chatgroup
 		return 0;
 	}
 
@@ -247,7 +398,7 @@ int BotDoChat(bot_state_t *bs, char *section, int always)
 
 	if (!lines)
 	{
-		free(chatgroup); //chatgroup
+		B_TempFree(MAX_CHAT_BUFFER_SIZE); //chatgroup
 		return 0;
 	}
 
@@ -302,7 +453,7 @@ int BotDoChat(bot_state_t *bs, char *section, int always)
 
 	if (strlen(chatgroup) > MAX_CHAT_LINE_SIZE)
 	{
-		free(chatgroup); //chatgroup
+		B_TempFree(MAX_CHAT_BUFFER_SIZE); //chatgroup
 		return 0;
 	}
 
@@ -358,8 +509,7 @@ int BotDoChat(bot_state_t *bs, char *section, int always)
 	bs->chatTime_stored = (strlen(bs->currentChat)*45)+Q_irand(1300, 1500);
 	bs->chatTime = level.time + bs->chatTime_stored;
 
-	free(chatgroup); //chatgroup
-#endif //__MMO__
+	B_TempFree(MAX_CHAT_BUFFER_SIZE); //chatgroup
 
 	return 1;
 }
@@ -468,7 +618,7 @@ void BotUtilizePersonality(bot_state_t *bs)
 	int failed;
 	int i;
 	//char buf[131072];
-	char *buf = (char *)malloc(131072);
+	char *buf = (char *)B_TempAlloc(131072);
 	char *readbuf, *group;
 
 	len = trap_FS_FOpenFile(bs->settings.personalityfile, &f, FS_READ);
@@ -478,14 +628,14 @@ void BotUtilizePersonality(bot_state_t *bs)
 	if (!f)
 	{
 		G_Printf(S_COLOR_RED "Error: Specified personality not found\n");
-		free(buf);
+		B_TempFree(131072); //buf
 		return;
 	}
 
 	if (len >= 131072)
 	{
 		G_Printf(S_COLOR_RED "Personality file exceeds maximum length\n");
-		free(buf);
+		B_TempFree(131072); //buf
 		return;
 	}
 
@@ -501,8 +651,8 @@ void BotUtilizePersonality(bot_state_t *bs)
 
 	len = rlen;
 
-	readbuf = (char *)malloc(1024);
-	group = (char *)malloc(65536);
+	readbuf = (char *)B_TempAlloc(1024);
+	group = (char *)B_TempAlloc(65536);
 
 	if (!GetValueGroup(buf, "GeneralBotInfo", group))
 	{
@@ -710,8 +860,8 @@ void BotUtilizePersonality(bot_state_t *bs)
 		ParseEmotionalAttachments(bs, group);
 	}
 
-	free(buf);
-	free(readbuf); //readbuf
-	free(group); //group
+	B_TempFree(131072); //buf
+	B_TempFree(1024); //readbuf
+	B_TempFree(65536); //group
 	trap_FS_FCloseFile(f);
 }

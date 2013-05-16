@@ -251,8 +251,7 @@ static __inline qboolean PlayerIsReloading()
 void JKG_WeaponIndicators_Update(centity_t *cent, playerState_t *ps) {
 	int h,t,o;
 	int ammo;
-	weaponInfo_t *weaponInfo = CG_WeaponInfo (cent->currentState.weapon, cent->currentState.weaponVariation);
-	weaponData_t *weaponData = GetWeaponData (cent->currentState.weapon, cent->currentState.weaponVariation);
+	weaponInfo_t *weaponInfo;
 
 	if (!ps) {
 		// Check if it's me anyway
@@ -268,33 +267,20 @@ void JKG_WeaponIndicators_Update(centity_t *cent, playerState_t *ps) {
 		}
 		else
 		{
-			ammo = ps->ammo;
+			ammo = ps->ammo[GetWeaponAmmoIndex( cent->currentState.weapon, cent->currentState.weaponVariation )];
 		}
 
 	} else {
 		ammo = 0;
 	}
 
-	if ( ammo )
-	{
-		if ( weaponData->firemodes[ps->firingMode].cost > 0 )
-		{
-			ammo /= weaponData->firemodes[ps->firingMode].cost;
-		}
-	}
+    weaponInfo = CG_WeaponInfo (cent->currentState.weapon, cent->currentState.weaponVariation);
 
 	if (ps) {	// This is my weapon
         switch ( weaponInfo->indicatorType )
         {
             case IND_NORMAL:
-				if ( weaponData->visuals.visualFireModes[ps->firingMode].overrideIndicatorFrame != -1 )
-				{
-					CG_OverrideShaderFrame (weaponInfo->fireModeIndicator, weaponData->visuals.visualFireModes[ps->firingMode].overrideIndicatorFrame);
-				}
-				else
-				{
-					CG_OverrideShaderFrame (weaponInfo->fireModeIndicator, ps->firingMode);
-				}
+                CG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0);
                 if ( PlayerIsReloading() )
                 {
                     CG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 11);
@@ -380,7 +366,7 @@ void JKG_WeaponIndicators_Update(centity_t *cent, playerState_t *ps) {
         }
 	} else {
 		// This isnt me, check if the player uses a different weapon than i do, if so, clear the display
-		if (cent->currentState.weapon == cg.predictedPlayerState.weapon) {
+		if (cent->currentState.weapon == cg.predictedPlayerState.clientNum) {
 			return;
 		}
 

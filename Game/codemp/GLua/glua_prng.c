@@ -21,10 +21,8 @@ unsigned int *GLua_CheckPRNG(lua_State *L, int idx) {
 
 
 static int GLua_PRNG_Index(lua_State *L) {
-	/*unsigned int *seed = */
-	const char *key;
-	GLua_CheckPRNG(L, 1);
-	key = lua_tostring(L,2);
+	unsigned int *seed = GLua_CheckPRNG(L, 1);
+	const char *key = lua_tostring(L,2);
 	lua_getmetatable(L,1);
 	lua_getfield(L,-1,key);
 	return 1;
@@ -117,8 +115,6 @@ static const struct luaL_reg prng_f [] = {
 };
 
 void GLua_Define_PRNG(lua_State *L) {
-	STACKGUARD_INIT(L)
-
 	luaL_register(L, "prng", prng_f);
 	lua_pop(L,1);
 
@@ -134,6 +130,4 @@ void GLua_Define_PRNG(lua_State *L) {
 	lua_settable(L,-3);
 
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

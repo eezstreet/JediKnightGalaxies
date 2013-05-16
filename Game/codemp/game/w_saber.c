@@ -206,13 +206,17 @@ static GAME_INLINE int G_SaberAttackPower(gentity_t *ent, qboolean attacking)
 	{ //get more power then
 		return baseLevel*2;
 	}
+	else if (attacking && g_gametype.integer == GT_SIEGE)
+	{ //in siege, saber battles should be quicker and more biased toward the attacker
+		return baseLevel*3;
+	}
 	
 	return baseLevel;
 }
 
 void WP_DeactivateSaber( gentity_t *self, qboolean clearLength )
 {
-	if ( !self || !self->client || (self->r.svFlags & SVF_BOT)  )
+	if ( !self || !self->client )
 	{
 		return;
 	}
@@ -243,7 +247,7 @@ void WP_DeactivateSaber( gentity_t *self, qboolean clearLength )
 
 void WP_ActivateSaber( gentity_t *self )
 {
-	if ( !self || !self->client || (self->r.svFlags & SVF_BOT) )
+	if ( !self || !self->client )
 	{
 		return;
 	}
@@ -2315,7 +2319,7 @@ static GAME_INLINE qboolean G_ClientIdleInWorld(gentity_t *ent)
 		!ent->client->pers.cmd.rightmove &&
 		!(ent->client->pers.cmd.buttons & BUTTON_GESTURE) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCEGRIP) &&
-//		!(ent->client->pers.cmd.buttons & BUTTON_ALT_ATTACK) &&
+		!(ent->client->pers.cmd.buttons & BUTTON_ALT_ATTACK) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCEPOWER) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCE_LIGHTNING) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCE_DRAIN) &&
@@ -4163,7 +4167,8 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 			}
 			*/
 			if ( g_gametype.integer != GT_DUEL
-				&& g_gametype.integer != GT_POWERDUEL )
+				&& g_gametype.integer != GT_POWERDUEL
+				&& g_gametype.integer != GT_SIEGE )
 			{//in faster-paced games, sabers do more damage
 				fDmg *= 2.0f;
 			}
@@ -4439,6 +4444,12 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 		dmg *= 2;
 	}
 
+	if (dmg > SABER_NONATTACK_DAMAGE && g_gametype.integer == GT_SIEGE &&
+		self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_MORESABERDMG)))
+	{ //this class is flagged to do extra saber damage. I guess 2x will do for now.
+		dmg *= 2;
+	}
+
 	if (g_gametype.integer == GT_POWERDUEL &&
 		self->client->sess.duelTeam == DUELTEAM_LONE)
 	{ //always x2 when we're powerdueling alone... er, so, we apparently no longer want this?  So they say.
@@ -4660,15 +4671,18 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 			{
 				if (g_entities[tr.entityNum].client && g_entities[tr.entityNum].client->ps.weapon == WP_SABER)
 				{ //for jedi using the saber, half the damage (this comes with the increased default dmg debounce time)
-					if (dmg > SABER_NONATTACK_DAMAGE && !unblockable)
-					{ //don't reduce damage if it's only 1, or if this is an unblockable attack
-						if (dmg == SABER_HITDAMAGE)
-						{ //level 1 attack
-							dmg *= 0.7;
-						}
-						else
-						{
-							dmg *= 0.5;
+					if (g_gametype.integer != GT_SIEGE)
+					{ //unless siege..
+						if (dmg > SABER_NONATTACK_DAMAGE && !unblockable)
+						{ //don't reduce damage if it's only 1, or if this is an unblockable attack
+							if (dmg == SABER_HITDAMAGE)
+							{ //level 1 attack
+								dmg *= 0.7;
+							}
+							else
+							{
+								dmg *= 0.5;
+							}
 						}
 					}
 				}
@@ -4786,7 +4800,8 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 		}
 
 		if ((self->s.eType == ET_NPC || otherOwner->s.eType == ET_NPC) && //just make sure one of us is an npc
-			self->client->playerTeam == otherOwner->client->playerTeam)
+			self->client->playerTeam == otherOwner->client->playerTeam &&
+			g_gametype.integer != GT_SIEGE)
 		{ //don't hit your teammate's sabers if you are an NPC. It can be rather annoying.
 			return qfalse;
 		}
@@ -5477,9 +5492,9 @@ qboolean BG_SaberInTransitionAny( int move );
 
 qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
 qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV );
-qboolean NPC_Humanoid_WaitingAmbush( gentity_t *self );
-void NPC_Humanoid_Ambush( gentity_t *self );
-evasionType_t NPC_Humanoid_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist );
+qboolean Jedi_WaitingAmbush( gentity_t *self );
+void Jedi_Ambush( gentity_t *self );
+evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist );
 void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 {
@@ -5831,9 +5846,9 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	{
 		if ( self->NPC /*&& !G_ControlledByPlayer( self )*/ )
 		{
-			if ( NPC_Humanoid_WaitingAmbush( self ) )
+			if ( Jedi_WaitingAmbush( self ) )
 			{
-				NPC_Humanoid_Ambush( self );
+				Jedi_Ambush( self );
 			}
 			if ( self->client->NPC_class == CLASS_BOBAFETT 
 				&& (self->client->ps.eFlags2&EF2_FLYING)//moveType == MT_FLYSWIM 
@@ -5850,7 +5865,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 					self->client->ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] = level.time + Q_irand( 1000, 2000 );
 				}
 			}
-			else if ( NPC_Humanoid_SaberBlockGo( self, &self->NPC->last_ucmd, NULL, NULL, incoming, 0.0f ) != EVASION_NONE )
+			else if ( Jedi_SaberBlockGo( self, &self->NPC->last_ucmd, NULL, NULL, incoming, 0.0f ) != EVASION_NONE )
 			{//make sure to turn on your saber if it's not on
 				if ( self->client->NPC_class != CLASS_BOBAFETT )
 				{
@@ -6983,28 +6998,28 @@ void saberBackToOwner(gentity_t *saberent)
 
 		if (saberOwner->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3)
 		{ //allow players with high saber throw rank to control the return speed of the saber
-			baseSpeed = 2100;
+			baseSpeed = 900;
 
-			saberent->speed = level.time + 100;
+			saberent->speed = level.time;// + 200;
 		}
 		else
 		{
-			baseSpeed = 1100;
-			saberent->speed = level.time + 200;
+			baseSpeed = 700;
+			saberent->speed = level.time + 50;
 		}
 
 		//Gradually slow down as it approaches, so it looks smoother coming into the hand.
 		if (ownerLen < 64)
 		{
-			VectorScale(dir, baseSpeed-1750, saberent->s.pos.trDelta );
+			VectorScale(dir, baseSpeed-200, saberent->s.pos.trDelta );
 		}
 		else if (ownerLen < 128)
 		{
-			VectorScale(dir, baseSpeed-1500, saberent->s.pos.trDelta );
+			VectorScale(dir, baseSpeed-150, saberent->s.pos.trDelta );
 		}
 		else if (ownerLen < 256)
 		{
-			VectorScale(dir, baseSpeed-1000, saberent->s.pos.trDelta );
+			VectorScale(dir, baseSpeed-100, saberent->s.pos.trDelta );
 		}
 		else
 		{
@@ -7014,14 +7029,14 @@ void saberBackToOwner(gentity_t *saberent)
 		saberent->s.pos.trTime = level.time;
 	}
 
-	
-	/*if (ownerLen <= 512)
+	/*
+	if (ownerLen <= 512)
 	{
 		saberent->s.saberInFlight = qfalse;
-		//saberent->s.loopSound = saberHumSound;
+		saberent->s.loopSound = saberHumSound;
 		saberent->s.loopIsSoundset = qfalse;
-	}*/
-	
+	}
+	*/
 	//I'm just doing this now. I don't really like the spin on the way back. And it does weird stuff with the new saber-knocked-away code.
 	if (saberOwner->client->ps.saberEntityNum == saberent->s.number)
 	{
@@ -7040,7 +7055,7 @@ void saberBackToOwner(gentity_t *saberent)
 			saberOwner->client->ps.saberInFlight = qfalse;
 			saberOwner->client->ps.saberEntityState = 0;
 			saberOwner->client->ps.saberCanThrow = qfalse;
-			saberOwner->client->ps.saberThrowDelay = level.time + 100;
+			saberOwner->client->ps.saberThrowDelay = level.time + 300;
 
 			saberent->touch = SaberGotHit;
 
@@ -7082,13 +7097,13 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 
 	saberent->s.apos.trType = TR_LINEAR;
 	saberent->s.apos.trDelta[0] = 0;
-	saberent->s.apos.trDelta[1] = 0;
+	saberent->s.apos.trDelta[1] = 800;
 	saberent->s.apos.trDelta[2] = 0;
 
-	//VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
+	VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
 
 	saberent->think = saberBackToOwner;
-	saberent->nextthink = level.time + 50;
+	saberent->nextthink = level.time;
 
 	if (other && other->r.ownerNum < MAX_CLIENTS &&
 		(other->r.contents & CONTENTS_LIGHTSABER) &&
@@ -7164,16 +7179,16 @@ void saberFirstThrown(gentity_t *saberent)
 
 	if ((level.time - saberOwn->client->ps.saberDidThrowTime) > 500)
 	{
-		//if (!(saberOwn->client->buttons & BUTTON_ALT_ATTACK))
+		if (!(saberOwn->client->buttons & BUTTON_ALT_ATTACK))
 		{ //If owner releases altattack 500ms or later after throwing saber, it autoreturns
 			thrownSaberTouch(saberent, saberent, NULL);
 			goto runMin;
 		}
-		/*else if ((level.time - saberOwn->client->ps.saberDidThrowTime) > 6000)
+		else if ((level.time - saberOwn->client->ps.saberDidThrowTime) > 6000)
 		{ //if it's out longer than 6 seconds, return it
 			thrownSaberTouch(saberent, saberent, NULL);
 			goto runMin;
-		}*/
+		}
 	}
 
 	if (BG_HasYsalamiri(g_gametype.integer, &saberOwn->client->ps))
@@ -7228,20 +7243,8 @@ void saberFirstThrown(gentity_t *saberent)
 		VectorSubtract(tr.endpos, saberent->r.currentOrigin, dir);
 
 		VectorNormalize(dir);
-		
-		switch(saberOwn->client->ps.fd.saberAnimLevel)
-		{
-			case SS_STRONG:
-				VectorScale(dir, 350, saberent->s.pos.trDelta );
-				break;
-			case SS_DUAL:
-			case SS_FAST:
-				VectorScale(dir, 800, saberent->s.pos.trDelta );
-				break;
-			default:
-				VectorScale(dir, 500, saberent->s.pos.trDelta );
-				break;
-		}
+
+		VectorScale(dir, 500, saberent->s.pos.trDelta );
 		saberent->s.pos.trTime = level.time;
 
 		if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3)
@@ -8634,7 +8637,7 @@ nextStep:
 				VectorCopy(boltOrigin, startorg);
 				VectorCopy(boltAngles, startang);
 
-				startang[0] = 90;
+				//startang[0] = 90;
 				//Instead of this we'll sort of fake it and slowly tilt it down on the client via
 				//a perframe method (which doesn't actually affect where or how the saber hits)
 
@@ -8647,34 +8650,10 @@ nextStep:
 
 				saberent->s.saberInFlight = qtrue;
 
-				switch(self->client->ps.fd.saberAnimLevel)
-				{
-					case SS_FAST:
-						saberent->s.apos.trType = TR_LINEAR;
-						saberent->s.apos.trDelta[0] = 0;
-						saberent->s.apos.trDelta[1] = 1200;
-						saberent->s.apos.trDelta[2] = 0;
-						break;
-					default:
-					case SS_STRONG:
-						saberent->s.apos.trType = TR_LINEAR;
-						saberent->s.apos.trDelta[0] = 0;
-						saberent->s.apos.trDelta[1] = 600;
-						saberent->s.apos.trDelta[2] = 0;
-						break;
-					case SS_MEDIUM:
-						saberent->s.apos.trType = TR_LINEAR;
-						saberent->s.apos.trDelta[0] = 0;
-						saberent->s.apos.trDelta[1] = 800;
-						saberent->s.apos.trDelta[2] = 0;
-						break;
-					case SS_DUAL:
-						saberent->s.apos.trType = TR_LINEAR;
-						saberent->s.apos.trDelta[0] = 800;
-						saberent->s.apos.trDelta[1] = 800;
-						saberent->s.apos.trDelta[2] = 200;
-						break;
-				}
+				saberent->s.apos.trType = TR_LINEAR;
+				saberent->s.apos.trDelta[0] = 0;
+				saberent->s.apos.trDelta[1] = 800;
+				saberent->s.apos.trDelta[2] = 0;
 
 				saberent->s.pos.trType = TR_LINEAR;
 				saberent->s.eType = ET_GENERAL;
@@ -8711,7 +8690,7 @@ nextStep:
 
 				saberent->s.weapon = WP_SABER;
 
-				VectorScale(dir, 900, saberent->s.pos.trDelta );
+				VectorScale(dir, 400, saberent->s.pos.trDelta );
 				saberent->s.pos.trTime = level.time;
 
 				if ( self->client->saber[0].spinSound )
@@ -8720,18 +8699,7 @@ nextStep:
 				}
 				else
 				{
-					switch(self->client->ps.fd.saberAnimLevel)
-					{
-						case SS_FAST:
-							saberent->s.loopSound = G_SoundIndex("sound/weapons/saber/saberspinfast.wav");
-							break;
-						case SS_STRONG:
-							saberent->s.loopSound = G_SoundIndex("sound/weapons/saber/saberspinstrong.wav");
-							break;
-						default:
-							saberent->s.loopSound = saberSpinSound;
-							break;
-					}
+					saberent->s.loopSound = saberSpinSound;
 				}
 				saberent->s.loopIsSoundset = qfalse;
 
@@ -8806,12 +8774,9 @@ nextStep:
 				rBladeNum = 0;
 				while (rBladeNum < self->client->saber[rSaberNum].numBlades)
 				{ //Don't bother updating the bolt for each blade for this, it's just a very rough fallback method for during saberlocks
-					if (self->s.eType != ET_NPC)
-					{// UQ1: Added check because of crash... Blades not being registerred for them???
-						VectorCopy(boltOrigin, self->client->saber[saberNum].blade[rBladeNum].trail.base);
-						VectorCopy(end, self->client->saber[saberNum].blade[rBladeNum].trail.tip);
-						self->client->saber[saberNum].blade[rBladeNum].trail.lastTime = level.time;
-					}
+					VectorCopy(boltOrigin, self->client->saber[saberNum].blade[rBladeNum].trail.base);
+					VectorCopy(end, self->client->saber[saberNum].blade[rBladeNum].trail.tip);
+					self->client->saber[saberNum].blade[rBladeNum].trail.lastTime = level.time;
 
 					rBladeNum++;
 				}

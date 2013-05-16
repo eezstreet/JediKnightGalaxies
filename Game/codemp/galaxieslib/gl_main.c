@@ -1,18 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_main.c
-// (c) 2013 Jedi Knight Galaxies
-
 // =================================================
 // Client Auxiliary Library
 // -------------------------------------------------
@@ -25,6 +10,8 @@
 
 #include "gl_enginefuncs.h"
 #include "jkg_threading.h"
+#include "jkg_libcurl.h"
+#include "gl_sound.h"
 
 #include "exports.h"
 #include "qcommon/game_version.h"
@@ -58,9 +45,7 @@ void GL_PatchEngine(void)
 		GL_SSE_Init();
 		GL_DPE_Init();
 		ActivateCrashHandler();
-		#ifdef _DEBUG
 		Cmd_AddCommand("#crash", CrashMe);
-		#endif
 		bEnginePatched = 1;
 	}
 	// Unlock the dynamic glow cvars. That is, remove their cheat flag
@@ -157,6 +142,32 @@ void GL_CG_ProcessTasks(void)
 
 // ---------- Tasks ---------------
 
+void GL_UI_Task_Test(void (*callback)(void *))
+{
+	JKG_NewNetworkTask(LCMETHOD_TEST, callback, 1);
+}
+
+void GL_UI_Task_GetTermsOfUse(void (*callback)(void *))
+{
+	JKG_NewNetworkTask(LCMETHOD_GETTERMSOFUSE, callback, 1);
+}
+
+void GL_UI_Task_RegisterUser(const char *username, const char *password, const char *email, void (*callback)(void *))
+{
+	JKG_NewNetworkTask(LCMETHOD_REGISTERUSER, callback, 1, username, password, email);
+}
+
+void GL_UI_Task_Login(const char *username, const char *password, void (*callback)(void *))
+{
+	JKG_NewNetworkTask(LCMETHOD_LOGIN, callback, 1, username, password);
+}
+
+void GL_CG_Task_Test(void (*callback)(void *))
+{
+	JKG_NewNetworkTask(LCMETHOD_TEST, callback, 0);
+}
+
+
 
 // ---------- Linkup ---------------
 
@@ -176,6 +187,14 @@ gl_ui_exports_t *GL_UI_AuxLinkup(gl_ui_imports_t *imports)
 	gl_ui_exports.GL_PurgeTasks = GL_UI_PurgeTasks;
 	gl_ui_exports.GL_ProcessTasks = GL_UI_ProcessTasks;
 
+	gl_ui_exports.GL_Task_Test = GL_UI_Task_Test;
+	gl_ui_exports.GL_Task_GetTermsOfUse = GL_UI_Task_GetTermsOfUse;
+	gl_ui_exports.GL_Task_RegisterUser = GL_UI_Task_RegisterUser;
+	gl_ui_exports.GL_Task_Login = GL_UI_Task_Login;
+
+	gl_ui_exports.GL_S_Init = JKG_S_Init;
+	gl_ui_exports.GL_S_Update = JKG_S_Update;
+
 	gl_ui_imports = imports;
 	return &gl_ui_exports;
 }
@@ -193,6 +212,8 @@ gl_cg_exports_t *GL_CG_AuxLinkup(gl_cg_imports_t *imports)
 
 	gl_cg_exports.GL_PurgeTasks = GL_CG_PurgeTasks;
 	gl_cg_exports.GL_ProcessTasks = GL_CG_ProcessTasks;
+
+	gl_cg_exports.GL_Task_Test = GL_CG_Task_Test;
 
 	gl_cg_imports = imports;
 	return &gl_cg_exports;

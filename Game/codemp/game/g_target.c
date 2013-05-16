@@ -664,9 +664,6 @@ void SP_target_counter (gentity_t *self)
 	{
 		self->count = 2;
 	}
-	
-	G_SpawnInt ("bounceCount", "0", &self->bounceCount);
-	
 	//if ( self->bounceCount > 0 )//let's always set this anyway
 	{//we will reset when we use up our count, remember our initial count
 		self->genericValue1 = self->count;

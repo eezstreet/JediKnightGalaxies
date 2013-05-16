@@ -311,30 +311,11 @@ void JKG_SendEscape(char ** args) {
 #include "jkg_pazaak.h"
 #include "jkg_partymanager.h"
 #include "jkg_slice.h"
-#include "jkg_lootui.h"
-#include "jkg_inventory.h"
-
-extern void UI_BuildQ3Model_List( void );
-void JKG_Hack_RefreshModelList(char **args)
-{
-	char info[MAX_INFO_STRING];
-	info[0] = '\0';
-	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
-
-	trap_Cvar_Set("ui_gameType", Info_ValueForKey(info, "g_gametype"));
-	ui_gameType.integer = atoi( Info_ValueForKey(info, "g_gametype") );
-	if(ui_gameType.integer >= GT_TEAM)
-	{
-		// Don't do this in FFA/non gang wars mode. Causes unnecessary hitches.
-		UI_BuildQ3Model_List();
-	}
-}
 
 // JKG scripts used in .menu files
 JKGkeywordHashUI_t JKGScripts[] = {
 	// Generic
 	{"sendescape",			JKG_SendEscape,				    0		},
-	{"refreshmodellist",	JKG_Hack_RefreshModelList,		0		},
 	// Convo
 	{"jkg_convoresponse",	Conv_Script_ProcessChoice,		0		},
 	{"jkg_convoslider",		Conv_Script_ConvoSlider,		0		},
@@ -360,30 +341,6 @@ JKGkeywordHashUI_t JKGScripts[] = {
 	{"slc_dlgbutton",		JKG_Slice_Script_DialogButton,	0		},
 	{"slc_stopslice",		JKG_Slice_Script_StopSlicing,	0		},
 	{"slc_onesc",			JKG_Slice_Script_OnEsc,			0		},
-	// Inventory
-	{"inv_open",            JKG_Inventory_OpenDialog,       0       },
-	{"inv_close",           JKG_Inventory_CloseDialog,      0       },
-	{"inv_acislot",         JKG_Inventory_ACI_Button,       0       },
-	{"inv_button",          JKG_Inventory_Script_Button,    0       },
-	{"inv_arrow",			JKG_Inventory_Arrow,			0		},
-	{"inv_highlight",		JKG_Inventory_CheckTooltip,		0		},
-	{"inv_closefromshop",	JKG_Inventory_CloseFromShop,	0		},
-	// Looting
-	{"loot_button",			JKG_LootScript_Button,			0		},
-	{"loot_item",			JKG_LootScript_Item,			0		},
-	// Shop
-	{"shop_open",			JKG_Shop_OpenDialog,			0		},
-	{"shop_close",			JKG_Shop_CloseDialog,			0		},
-	{"shop_arrow_next",		JKG_Shop_ArrowNext,				0		},
-	{"shop_arrow_prev",		JKG_Shop_ArrowPrev,				0		},
-	{"shop_feederSel",		JKG_Shop_ItemSelect,			0		},
-	{"shop_update",			JKG_Shop_Update,				0		},
-	{"shop_clearfocus",		JKG_Shop_ClearFocus,			0		},
-	{"shop_buyconfirm_yes",	JKG_Shop_BuyConfirm_Yes,		0		},
-	{"shop_buyconfirm_no",	JKG_Shop_BuyConfirm_No,			0		},
-	{"shop_buyconfirm",		JKG_Shop_BuyConfirm_Display,	0		},
-	{"shop_openinventory",	JKG_Shop_OpenInventoryMenu,		0		},
-	//Login System
 	/*{"loginacc",			JKAG_LoginAcc,  				0		},
 	{"registeracc",			JKAG_RegisterAcc,				0		},
 	{"login_esc",			JKAG_Login_Esc,			    	0		},*/
@@ -396,7 +353,6 @@ JKGkeywordHashSv_t JKGCmds[] = {
 	{"pzk",				JKG_ProcessPazaak_f,		    0		},
 	{"pmr",				PartyMngt_ShowMessage_f,	    0		},
 	{"slc",				JKG_Slice_ProcessCommand_f,		0		},
-	{"loot",			JKG_ProcessLoot,				0		},
 	/*{"~clLoginResp",	JKAG_Cmd_clLoginResp		    0		},
 	{"~clRegisterResp",	JKAG_Cmd_clRegisterResp,	    0		},*/
 	{0,					0,							    0		},

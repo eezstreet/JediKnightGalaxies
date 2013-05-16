@@ -134,11 +134,6 @@ void trap_SendServerCommand( int clientNum, const char *cmd ) {
 	int i;
 	char s;
 	char *cmd2 = (char *)cmd;
-
-#ifdef __MMO__
-	G_Printf("clientNum %i sent %s.\n", clientNum, cmd);
-#endif
-
 	if ((i = strlen(cmd)) > 1022) {
 		G_Printf("WARNING: Oversize cmd in trap_SendServerCommand(%i, len = %i), truncating!\n", clientNum, i);
 		// The command is oversize, so cut if off after 1022 bytes

@@ -110,8 +110,6 @@ static int GLua_FindMetatable(lua_State *L) {
 
 void GLua_RegisterProperties(lua_State *L, const GLua_Prop *props, int nup)
 {
-	STACKGUARD_INIT(L)
-
 	// This assumes the (meta)table to assign the properties to is on top of the stack
 	// This creates 2 subtables: __propget and __propset, each of which contain a table
 	//  of methods and their associated functions. If no function is linked to it, it's set to 0.
@@ -152,14 +150,9 @@ void GLua_RegisterProperties(lua_State *L, const GLua_Prop *props, int nup)
 	lua_setfield(L, -(nup+2), "__propget");
 	// Pop upvalues
 	lua_pop(L, nup);
-
-	STACKGUARD_CHECK(L)
 }
 
 void GLua_LoadBaseLibs(lua_State *L) {
-
-	STACKGUARD_INIT(L)
-
 	luaL_openlibs(L);
 	// Time to make some adjustments
 	//lua_pushnil(L); lua_setglobal(L,"debug"); // Debug module = gone
@@ -182,8 +175,6 @@ void GLua_LoadBaseLibs(lua_State *L) {
 	lua_pushnil(L); lua_setglobal(L,"loadfile");
 	lua_pushnil(L); lua_setglobal(L,"load");
 	lua_pushnil(L); lua_setglobal(L,"loadstring");
-
-	STACKGUARD_CHECK(L)
 }
 
 void GLua_LoadLibs(lua_State *L) {

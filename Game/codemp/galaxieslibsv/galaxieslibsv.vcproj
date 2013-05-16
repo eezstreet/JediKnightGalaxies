@@ -375,10 +375,6 @@
 				RelativePath=".\resource.h"
 				>
 			</File>
-			<File
-				RelativePath="..\game\z_global_defines.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

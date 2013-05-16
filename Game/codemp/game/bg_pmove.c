@@ -11,8 +11,6 @@
 
 #ifdef QAGAME
 #include "g_local.h" //ahahahahhahahaha@$!$!
-#else
-#include "../cgame/cg_local.h"
 #endif
 
 #define MAX_WEAPON_CHARGE_TIME 5000
@@ -21,7 +19,6 @@
 extern void G_CheapWeaponFire(int entNum, int ev);
 extern qboolean TryGrapple(gentity_t *ent); //g_cmds.c
 extern void trap_FX_PlayEffect( const char *file, vec3_t org, vec3_t fwd, int vol, int rad );
-extern void JKG_RemoveDamageType ( gentity_t *ent, damageType_t type );
 #endif
 
 #include "../namespace_begin.h"
@@ -1433,7 +1430,7 @@ qboolean PM_AdjustAngleForWallRun( playerState_t *ps, usercmd_t *ucmd, qboolean 
 				float	zVel = ps->velocity[2];
 				if ( ps->legsTimer > 500 )
 				{//not at end of anim yet
-					float speed = 125;
+					float speed = 175;
 					if ( ucmd->forwardmove < 0 )
 					{//slower
 						speed = 100;
@@ -1857,11 +1854,6 @@ PM_CheckJump
 static qboolean PM_CheckJump( void ) 
 {
 	qboolean allowFlips = qtrue;
-	
-	if ( BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) || (pm->ns->sprintDebounceTime + 500) > pm->cmd.serverTime )
-	{
-	    return qfalse;
-	}
 
 	if (pm->ps->clientNum >= MAX_CLIENTS)
 	{
@@ -2137,24 +2129,16 @@ static qboolean PM_CheckJump( void )
 					}
 
 					//need to scale this down, start with height velocity (based on max force jump height) and scale down to regular jump vel
-					if(pm->ps->fd.forcePowerLevel[FP_LEVITATION] > 0)
-					{
-						pm->ps->velocity[2] = (forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]]-curHeight)/forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]]*forceJumpStrength[pm->ps->fd.forcePowerLevel[FP_LEVITATION]];//JUMP_VELOCITY;
-					}
-					else
-					{
-						pm->ps->velocity[2] = (bgConstants.baseJumpHeight-curHeight)/(bgConstants.baseJumpHeight*bgConstants.baseJumpVelocity);
-					}
+					pm->ps->velocity[2] = (forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]]-curHeight)/forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]]*forceJumpStrength[pm->ps->fd.forcePowerLevel[FP_LEVITATION]];//JUMP_VELOCITY;
 					pm->ps->velocity[2] /= 10;
-					//pm->ps->velocity[2] += JUMP_VELOCITY;
-					pm->ps->velocity[2] += bgConstants.baseJumpTapVelocity;
+					pm->ps->velocity[2] += JUMP_VELOCITY;
 					pm->ps->pm_flags |= PMF_JUMP_HELD;
 				}
-				else if ( curHeight > bgConstants.baseJumpTapHeight && curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]] - bgConstants.baseJumpTapHeight )
+				else if ( curHeight > forceJumpHeight[0] && curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[0] )
 				{//still have some headroom, don't totally stop it
-					if ( pm->ps->velocity[2] > /*JUMP_VELOCITY*/ bgConstants.baseJumpTapVelocity )
+					if ( pm->ps->velocity[2] > JUMP_VELOCITY )
 					{
-						pm->ps->velocity[2] = /*JUMP_VELOCITY*/ bgConstants.baseJumpTapVelocity;
+						pm->ps->velocity[2] = JUMP_VELOCITY;
 					}
 				}
 				else
@@ -2162,9 +2146,9 @@ static qboolean PM_CheckJump( void )
 					//pm->ps->velocity[2] = 0;
 					//rww - changed for the sake of balance in multiplayer
 
-					if ( pm->ps->velocity[2] > /*JUMP_VELOCITY*/ bgConstants.baseJumpTapHeight )
+					if ( pm->ps->velocity[2] > JUMP_VELOCITY )
 					{
-						pm->ps->velocity[2] = /*JUMP_VELOCITY*/ bgConstants.baseJumpTapHeight;
+						pm->ps->velocity[2] = JUMP_VELOCITY;
 					}
 				}
 				pm->cmd.upmove = 0;
@@ -2199,7 +2183,7 @@ static qboolean PM_CheckJump( void )
 
 		if ( trace.fraction <= 1.0f )
 		{
-			VectorMA( pm->ps->velocity, /*JUMP_VELOCITY*/bgConstants.baseJumpVelocity*2, forward, pm->ps->velocity );
+			VectorMA( pm->ps->velocity, JUMP_VELOCITY*2, forward, pm->ps->velocity );
 			PM_SetAnim(SETANIM_LEGS,BOTH_FORCEJUMP1,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART, 150);
 		}//else no surf close enough to push off of
 		pm->cmd.upmove = 0;
@@ -2309,7 +2293,7 @@ static qboolean PM_CheckJump( void )
 			{//backflip
 				if ( allowFlips )
 				{
-					vertPush = /*JUMP_VELOCITY*/ bgConstants.baseJumpVelocity;
+					vertPush = JUMP_VELOCITY;
 					anim = BOTH_FLIP_BACK1;//BG_PickAnim( BOTH_FLIP_BACK1, BOTH_FLIP_BACK3 );
 				}
 			}
@@ -2493,7 +2477,7 @@ static qboolean PM_CheckJump( void )
 							VectorMA( pm->ps->velocity, -150, right, pm->ps->velocity );
 						}
 						parts = SETANIM_LEGS;
-						if ( pm->ps->weaponTime <= 0 )
+						if ( !pm->ps->weaponTime )
 						{
 							parts = SETANIM_BOTH;
 						}
@@ -2538,7 +2522,7 @@ static qboolean PM_CheckJump( void )
 						pm->ps->velocity[1] *= 0.5f;
 						VectorMA( pm->ps->velocity, -300, fwd, pm->ps->velocity );
 						pm->ps->velocity[2] += 200;
-						if ( pm->ps->weaponTime <= 0 )
+						if ( !pm->ps->weaponTime )
 						{//not attacking, set anim on both
 							parts = SETANIM_BOTH;
 						}
@@ -2627,7 +2611,7 @@ static qboolean PM_CheckJump( void )
 					}
 					else
 					{
-						if ( pm->ps->weaponTime <= 0 )
+						if ( !pm->ps->weaponTime )
 						{
 							parts = SETANIM_BOTH;
 						}
@@ -2841,7 +2825,7 @@ static qboolean PM_CheckJump( void )
 	}
 	if ( pm->cmd.upmove > 0 )
 	{//no special jumps
-		pm->ps->velocity[2] = /*JUMP_VELOCITY*/ bgConstants.baseJumpVelocity;
+		pm->ps->velocity[2] = JUMP_VELOCITY;
 		PM_SetForceJumpZStart(pm->ps->origin[2]);//so we don't take damage if we land at same height
 		pm->ps->pm_flags |= PMF_JUMP_HELD;
 	}
@@ -2922,10 +2906,6 @@ Flying out of the water
 */
 static void PM_WaterJumpMove( void ) {
 	// waterjump has no control, but falls
-#ifdef QAGAME
-	// moving around in water removes fire effects
-	JKG_RemoveDamageType((gentity_t *)pm_entSelf, DT_FIRE);
-#endif
 
 	PM_StepSlideMove( qtrue );
 
@@ -3005,11 +2985,6 @@ static void PM_WaterMove( void ) {
 		VectorNormalize(pm->ps->velocity);
 		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
-
-#ifdef QAGAME
-	// moving around in water removes fire effects
-	JKG_RemoveDamageType((gentity_t *)pm_entSelf, DT_FIRE);
-#endif
 
 	PM_SlideMove( qfalse );
 }
@@ -3129,7 +3104,7 @@ static void PM_FlyMove( void ) {
 
 	scale = PM_CmdScale( &pm->cmd );
 	
-	if ( pm->ps->pm_type == PM_SPECTATOR && /*pm->cmd.buttons & BUTTON_ALT_ATTACK*/ pm->cmd.buttons & BUTTON_IRONSIGHTS ) {
+	if ( pm->ps->pm_type == PM_SPECTATOR && pm->cmd.buttons & BUTTON_ALT_ATTACK) {
 		//turbo boost
 		scale *= 10;
 	}
@@ -3581,18 +3556,10 @@ static void PM_WalkMove( void ) {
 	PM_StepSlideMove( qfalse );
 	
 	// Xy: sprinting!
-	if ( BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) && pm->ns->sprintDebounceTime <= pm->cmd.serverTime )
+	if ( BG_IsSprinting (&pm->cmd)  && pm->ps->sprintDebounceTime <= pm->cmd.serverTime )
 	{
 	    BG_ForcePowerDrain (pm->ps, FP_ABSORB, 1);
-	    pm->ns->sprintDebounceTime = pm->cmd.serverTime + 40;
-	    if ( pm->ps->fd.forcePower <= 0 )
-	    {
-	        pm->ps->sprintMustWait = 1;
-	    }
-	}
-	else if ( pm->ps->sprintMustWait && pm->ps->fd.forcePower >= 40 )
-	{
-	    pm->ps->sprintMustWait = 0;
+	    pm->ps->sprintDebounceTime = pm->cmd.serverTime + 40;
 	}
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
@@ -3669,7 +3636,7 @@ static void PM_NoclipMove( void ) {
 	if (pm->cmd.buttons & BUTTON_ATTACK) {	//turbo boost
 		scale *= 10;
 	}
-	if (/*pm->cmd.buttons & BUTTON_ALT_ATTACK*/ pm->cmd.buttons & BUTTON_IRONSIGHTS ) {	//turbo boost
+	if (pm->cmd.buttons & BUTTON_ALT_ATTACK) {	//turbo boost
 		scale *= 10;
 	}
 
@@ -3729,7 +3696,7 @@ static int PM_TryRoll( void )
 	}
 
 	// Deathspike: When the weapon is capable of being rolled with, perform the roll when we are in a movement up/down.
-	if ( !GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->hasRollAbility/* || ( pm->ps->weapon != WP_SABER && !pm->ps->fd.forceJumpZStart )*/)
+	if ( !GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->hasRollAbility || ( pm->ps->weapon != WP_SABER && !pm->ps->fd.forceJumpZStart ))
 	{
 		return 0;
 	}
@@ -3970,10 +3937,7 @@ static void PM_CrashLand( void ) {
 			}
 			else
 			{
-				if ( !BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) )
-				{
-					PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->anims.ready.torsoAnim );
-				}
+				PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoReadyAnimation );
 			}
 		}
 	}
@@ -4285,18 +4249,7 @@ static void PM_GroundTrace( void ) {
 		{
 			minNormal = pEnt->m_pVehicle->m_pVehicleInfo->maxSlope;
 		}
-		else
-		{// UQ1: NPCs get off easy - for the sake of lower CPU usage (routing) and looking better in general...
-			minNormal = 0.0;//0.5;
-		}
 	}
-
-#ifdef QAGAME
-	if ( g_entities[pm->ps->clientNum].r.svFlags & SVF_BOT )
-	{// UQ1: BOTs get off easy - for the sake of lower CPU usage (routing) and looking better in general...
-		minNormal = 0.0;//0.5;
-	}
-#endif //QAGAME
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
@@ -4416,10 +4369,8 @@ static void PM_GroundTrace( void ) {
 		if ( pml.previous_velocity[2] < -200 ) {
 			// don't allow another jump for a little while
 			pm->ps->pm_flags |= PMF_TIME_LAND;
-			pm->ps->pm_time = 1000;
+			pm->ps->pm_time = 250;
 		}
-		
-		
 	}
 
 	pm->ps->groundEntityNum = trace.entityNum;
@@ -4552,37 +4503,6 @@ void PM_CheckFixMins( void )
 	}
 }
 
-static qboolean PM_CanStand ( void )
-{
-    qboolean canStand = qtrue;
-    float x, y;
-    trace_t trace;
-
-    const vec3_t lineMins = { -5.0f, -5.0f, -2.5f };
-    const vec3_t lineMaxs = { 5.0f, 5.0f, 0.0f };
-
-    for ( x = pm->mins[0] + 5.0f; canStand && x <= (pm->maxs[0] - 5.0f); x += 10.0f )
-    {
-        for ( y = pm->mins[1] + 5.0f; y <= (pm->maxs[1] - 5.0f); y += 10.0f )
-        {
-            vec3_t start = { x, y, pm->maxs[2] };
-            vec3_t end = { x, y, pm->ps->standheight };
-
-            VectorAdd (start, pm->ps->origin, start);
-            VectorAdd (end, pm->ps->origin, end);
-
-            pm->trace (&trace, start, lineMins, lineMaxs, end, pm->ps->clientNum, pm->tracemask);
-		    if ( trace.allsolid || trace.fraction < 1.0f )
-		    {
-			    canStand = qfalse;
-			    break;
-		    }
-        }
-    }
-	
-    return canStand;
-}
-
 /*
 ==============
 PM_CheckDuck
@@ -4597,6 +4517,8 @@ qboolean PM_GettingUpFromKnockDown( float standheight, float crouchheight );
 
 static void PM_CheckDuck (void)
 {
+	trace_t	trace;
+
 	// No crouching in jetpack, doesnt do anything anyway
 	if (pm->ps->pm_type == PM_JETPACK)
 	{
@@ -4654,36 +4576,11 @@ static void PM_CheckDuck (void)
 	{
 		if (pm->ps->clientNum < MAX_CLIENTS)
 		{
-			/*
 			pm->mins[0] = -15;
 			pm->mins[1] = -15;
 
 			pm->maxs[0] = 15;
 			pm->maxs[1] = 15;
-			*/
-
-			//
-			// UQ1: More realistic hitboxes for players/bots...
-			//
-			if (!pm_entVeh && !(pm_entVeh && pm_entVeh->m_pVehicle))
-			{
-				if (pm->ps->pm_flags & PMF_DUCKED)
-				{
-					pm->maxs[2] = pm->ps->crouchheight;
-					pm->maxs[1] = 8;
-					pm->maxs[0] = 8;
-					pm->mins[1] = -8;
-					pm->mins[0] = -8;
-				}
-				else if (!(pm->ps->pm_flags & PMF_DUCKED))
-				{
-					pm->maxs[2] = pm->ps->standheight-8;
-					pm->maxs[1] = 8;
-					pm->maxs[0] = 8;
-					pm->mins[1] = -8;
-					pm->mins[0] = -8;
-				}
-			}
 		}
 
 		if ( PM_CheckDualForwardJumpDuck() )
@@ -4717,15 +4614,10 @@ static void PM_CheckDuck (void)
 		else if (pm->ps->pm_flags & PMF_ROLLING)
 		{
 			// try to stand up
-			/*pm->maxs[2] = pm->ps->standheight;//DEFAULT_MAXS_2;
+			pm->maxs[2] = pm->ps->standheight;//DEFAULT_MAXS_2;
 			pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask );
 			if (!trace.allsolid)
-				pm->ps->pm_flags &= ~PMF_ROLLING;*/
-            if ( PM_CanStand() )
-            {
-                pm->maxs[2] = pm->ps->standheight;
-                pm->ps->pm_flags &= ~PMF_ROLLING;
-            }
+				pm->ps->pm_flags &= ~PMF_ROLLING;
 		}
 		//[KnockdownSys]
 		else if ( PM_GettingUpFromKnockDown( pm->ps->standheight, pm->ps->crouchheight ) )
@@ -4760,16 +4652,11 @@ static void PM_CheckDuck (void)
 		{	// stand up if possible 
 			if (pm->ps->pm_flags & PMF_DUCKED)
 			{
-                if ( PM_CanStand() )
-	            {
-		            pm->maxs[2] = pm->ps->standheight;
-		            pm->ps->pm_flags &= ~PMF_DUCKED;
-	            }
 				// try to stand up
-				/*pm->maxs[2] = pm->ps->standheight;//DEFAULT_MAXS_2;
+				pm->maxs[2] = pm->ps->standheight;//DEFAULT_MAXS_2;
 				pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask );
 				if (!trace.allsolid)
-					pm->ps->pm_flags &= ~PMF_DUCKED;*/
+					pm->ps->pm_flags &= ~PMF_DUCKED;
 			}
 		}
 	}
@@ -4841,8 +4728,6 @@ qboolean PM_WalkingAnim( int anim )
 	case BOTH_WALKBACK2:			//# Walk2 backwards
 	case BOTH_WALKBACK_STAFF:		//# Walk backwards with staff
 	case BOTH_WALKBACK_DUAL:		//# Walk backwards with dual
-	case BOTH_FEMALEEWALK:			//# JKG: Female walking
-	case BOTH_FEMALEEWALKBACK:		//# JKG: Femake walking (backwards)
 		return qtrue;
 		break;
 	}
@@ -4865,7 +4750,6 @@ qboolean PM_RunningAnim( int anim )
 	case BOTH_RUN1STOP:			//# Stop from full run1
 	case BOTH_RUNSTRAFE_LEFT1:	//# Sidestep left: should loop
 	case BOTH_RUNSTRAFE_RIGHT1:	//# Sidestep right: should loop
-	case BOTH_FEMALERUN:
 		return qtrue;
 		break;
 	}
@@ -5441,7 +5325,6 @@ static void PM_Footsteps( void ) {
 	int			old;
 	qboolean	footstep;
 	int			setAnimFlags = 0;
-	weaponData_t *wp = GetWeaponData(pm->ps->weapon, pm->ps->weaponVariation);
 
 	//[Knockdown]
 	if ( PM_InKnockDown( pm->ps ) )
@@ -5459,7 +5342,6 @@ static void PM_Footsteps( void ) {
 		|| (pm->ps->legsAnim) == BOTH_SABERSLOW_STANCE
 		|| (pm->ps->legsAnim) == BOTH_BUTTON_HOLD
 		|| (pm->ps->legsAnim) == BOTH_BUTTON_RELEASE
-		|| (pm->ps->legsAnim) == wp->anims.sprint.legsAnim
 		|| PM_LandingAnim( (pm->ps->legsAnim) ) 
 		|| PM_PainAnim( (pm->ps->legsAnim) ))
 	{//legs are in a saber anim, and not spinning, be sure to override it
@@ -5477,7 +5359,7 @@ static void PM_Footsteps( void ) {
 	{
 		PM_ContinueLegsAnim( pm->ps->torsoAnim );
 	}
-	else if ( pm->ps->groundEntityNum == ENTITYNUM_NONE) {
+	else if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
 
 		// airborne leaves position in cycle intact, but doesn't advance
 		if ( pm->waterlevel > 1 )
@@ -5490,10 +5372,6 @@ static void PM_Footsteps( void ) {
 			{
 				PM_ContinueLegsAnim( BOTH_SWIM_IDLE1 );
 			}
-		}
-		if(BG_IsSprinting (pm->ps, &pm->cmd, pm->ns))
-		{
-			PM_ContinueLegsAnim( wp->anims.sprint.legsAnim );
 		}
 		return;
 	}
@@ -5572,7 +5450,7 @@ static void PM_Footsteps( void ) {
 							}
 							else
 							{
-								PM_ContinueLegsAnim(PM_LegsSlopeBackTransition(wp->anims.ready.legsAnim));
+								PM_ContinueLegsAnim(PM_LegsSlopeBackTransition(GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->legsReadyAnimation));
 							}
 						}
 					}
@@ -5634,13 +5512,6 @@ static void PM_Footsteps( void ) {
 			pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 			pm->ps->pm_flags &= ~PMF_DUCKED;
 			pm->ps->pm_flags |= PMF_ROLLING;
-			// Remove fire damage...some of the time. Jumping into water is a better bet --eez
-#ifdef QAGAME
-			if(Q_irand(1,2) == 1)
-			{
-				JKG_RemoveDamageType((gentity_t *)pm_entSelf, DT_FIRE);
-			}
-#endif
 		}
 	}
 	else if ((pm->ps->pm_flags & PMF_ROLLING) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
@@ -5683,7 +5554,7 @@ static void PM_Footsteps( void ) {
 		{ //let it finish first
 			bobmove = 0.2f;
 		}
-		else if ( BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) )
+		else if ( BG_IsSprinting (&pm->cmd) )
 		{
 		    bobmove = 0.6f;
 		    // Xy: No need to handle NPCs for sprinting cause I'm lazy
@@ -5699,7 +5570,7 @@ static void PM_Footsteps( void ) {
 				    case SS_STAFF:
 					    if ( pm->ps->saberHolstered > 1 )
 					    {//blades off
-							desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+						    desiredAnim = BOTH_RUN1;
 					    }
 					    else if ( pm->ps->saberHolstered == 1 )
 					    {//1 blade on
@@ -5709,7 +5580,7 @@ static void PM_Footsteps( void ) {
 					    {
 						    if (pm->ps->fd.forcePowersActive & (1<<FP_SPEED))
 						    {
-							    desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+							    desiredAnim = BOTH_RUN1;
 						    }
 						    else
 						    {
@@ -5720,7 +5591,7 @@ static void PM_Footsteps( void ) {
 				    case SS_DUAL:
 					    if ( pm->ps->saberHolstered > 1 )
 					    {//blades off
-						    desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+						    desiredAnim = BOTH_RUN1;
 					    }
 					    else if ( pm->ps->saberHolstered == 1 )
 					    {//1 saber on
@@ -5732,14 +5603,13 @@ static void PM_Footsteps( void ) {
 					    }
 					    break;
 				    default:
-					    if ( pm->ps->saberHolstered || pm->ps->weapon == WP_MELEE || pm->ps->weapon == WP_NONE )  // JKG - Anim fix
+					    if ( pm->ps->saberHolstered || pm->ps->weapon == WP_MELEE )  // JKG - Anim fix
 					    {//saber off
-							desiredAnim = wp->anims.sprint.legsAnim;
+						    desiredAnim = BOTH_RUN1;
 					    }
 					    else
 					    {
-							// FIXME: redundant
-							desiredAnim = wp->anims.sprint.legsAnim;
+						    desiredAnim = BOTH_RUN2;
 					    }
 					    break;
 				}
@@ -5747,7 +5617,7 @@ static void PM_Footsteps( void ) {
 		    
 		    footstep = qtrue;
 		}
-		else if ( !( pm->cmd.buttons & BUTTON_WALKING ) && (!(pm->cmd.buttons & BUTTON_IRONSIGHTS && !pm->ns->isInSights)) )
+		else if ( !( pm->cmd.buttons & BUTTON_WALKING ) && !(pm->cmd.buttons & BUTTON_IRONSIGHTS) )
 		{//running
 			bobmove = 0.4f;	// faster speeds bob faster
 			if ( pm->ps->clientNum >= MAX_CLIENTS &&
@@ -5756,7 +5626,7 @@ static void PM_Footsteps( void ) {
 			{
 				if ( (pm->ps->eFlags2&EF2_USE_ALT_ANIM) )
 				{//full on run, on all fours
-					desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+					desiredAnim = BOTH_RUN1;
 				}
 				else
 				{//regular, upright run
@@ -5823,7 +5693,7 @@ static void PM_Footsteps( void ) {
 				case SS_STAFF:
 					if ( pm->ps->saberHolstered > 1 )
 					{//blades off
-						desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+						desiredAnim = BOTH_RUN1;
 					}
 					else if ( pm->ps->saberHolstered == 1 )
 					{//1 blade on
@@ -5833,7 +5703,7 @@ static void PM_Footsteps( void ) {
 					{
 						if (pm->ps->fd.forcePowersActive & (1<<FP_SPEED))
 						{
-							desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+							desiredAnim = BOTH_RUN1;
 						}
 						else
 						{
@@ -5844,7 +5714,7 @@ static void PM_Footsteps( void ) {
 				case SS_DUAL:
 					if ( pm->ps->saberHolstered > 1 )
 					{//blades off
-						desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+						desiredAnim = BOTH_RUN1;
 					}
 					else if ( pm->ps->saberHolstered == 1 )
 					{//1 saber on
@@ -5856,9 +5726,9 @@ static void PM_Footsteps( void ) {
 					}
 					break;
 				default:
-					if ( pm->ps->saberHolstered || pm->ps->weapon == WP_MELEE || pm->ps->weapon == WP_NONE )  // JKG - Anim fix
+					if ( pm->ps->saberHolstered || pm->ps->weapon == WP_MELEE )  // JKG - Anim fix
 					{//saber off
-						desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALERUN : BOTH_RUN1;
+						desiredAnim = BOTH_RUN1;
 					}
 					else
 					{
@@ -5879,7 +5749,7 @@ static void PM_Footsteps( void ) {
 				case SS_STAFF:
 					if ( pm->ps->saberHolstered > 1 )
 					{
-						desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALKBACK : BOTH_WALKBACK1;
+						desiredAnim = BOTH_WALKBACK1;
 					}
 					else if ( pm->ps->saberHolstered )
 					{
@@ -5893,7 +5763,7 @@ static void PM_Footsteps( void ) {
 				case SS_DUAL:
 					if ( pm->ps->saberHolstered > 1 )
 					{
-						desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALKBACK : BOTH_WALKBACK1;
+						desiredAnim = BOTH_WALKBACK1;
 					}
 					else if ( pm->ps->saberHolstered )
 					{
@@ -5905,30 +5775,26 @@ static void PM_Footsteps( void ) {
 					}
 					break;
 				default:
-					if ( pm->ps->weapon == WP_SABER && pm->ps->saberHolstered )
+					if ( pm->ps->saberHolstered )
 					{
-						desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALKBACK : BOTH_WALKBACK1;
-					}
-					else if(pm->ps->weapon == WP_SABER && !pm->ps->saberHolstered)
-					{
-						desiredAnim = BOTH_WALKBACK2;
+						desiredAnim = BOTH_WALKBACK1;
 					}
 					else
 					{
-						desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALKBACK : BOTH_WALKBACK1;
+						desiredAnim = BOTH_WALKBACK2;
 					}
 					break;
 				}
 			}
 			else
 			{
-				if ( pm->ps->weapon == WP_MELEE || pm->ps->weapon == WP_NONE )
+				if ( pm->ps->weapon == WP_MELEE )
 				{
-					desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALK : BOTH_WALK1;
+					desiredAnim = BOTH_WALK1;
 				}
 				else if ( BG_SabersOff( pm->ps ) )
 				{
-					desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALK : BOTH_WALK1;
+					desiredAnim = BOTH_WALK1;
 				}
 				else
 				{
@@ -5937,7 +5803,7 @@ static void PM_Footsteps( void ) {
 					case SS_STAFF:
 						if ( pm->ps->saberHolstered > 1 )
 						{
-							desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALK : BOTH_WALK1;
+							desiredAnim = BOTH_WALK1;
 						}
 						else if ( pm->ps->saberHolstered )
 						{
@@ -5951,7 +5817,7 @@ static void PM_Footsteps( void ) {
 					case SS_DUAL:
 						if ( pm->ps->saberHolstered > 1 )
 						{
-							desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALK : BOTH_WALK1;
+							desiredAnim = BOTH_WALK1;
 						}
 						else if ( pm->ps->saberHolstered )
 						{
@@ -5965,7 +5831,7 @@ static void PM_Footsteps( void ) {
 					default:
 						if ( pm->ps->saberHolstered )
 						{
-							desiredAnim = (pm->gender == GENDER_FEMALE) ? BOTH_FEMALEEWALK : BOTH_WALK1;
+							desiredAnim = BOTH_WALK1;
 						}
 						else
 						{
@@ -5981,13 +5847,6 @@ static void PM_Footsteps( void ) {
 		{
 			int ires = PM_LegsSlopeBackTransition(desiredAnim);
 
-			if(BG_IsSprinting(pm->ps, &pm->cmd, pm->ns))
-			{
-				if(pm->ps->torsoAnim != desiredAnim && ires == desiredAnim)
-				{
-					PM_SetAnim(SETANIM_BOTH, desiredAnim, setAnimFlags, 100);
-				}
-			}
 			if ((pm->ps->legsAnim) != desiredAnim && ires == desiredAnim)
 			{
 				PM_SetAnim(SETANIM_LEGS, desiredAnim, setAnimFlags, 100);
@@ -6122,35 +5981,27 @@ void BG_ClearRocketLock( playerState_t *ps )
 PM_BeginWeaponChange
 ===============
 */
-#ifdef QAGAME
-void G_PM_SwitchWeaponClip(playerState_t *ps, int newweapon, int newvariation);
-void G_PM_SwitchWeaponFiringMode(playerState_t *ps, int newweapon, int newvariation);
-#endif
-void PM_BeginWeaponChange( int weaponId ) {
-    int weapon, variation;
-	if(!BG_GetWeaponByIndex(pm->cmd.weapon, &weapon, &variation))
+void PM_BeginWeaponChange( int weapon, int variation ) {
+	if ( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS ) {
 		return;
-	
-	if( pm->ps->clientNum >= MAX_CLIENTS )
-	{
-		if ( weaponId > 0 && pm->ps->clientNum, weaponId)
-		{
-			return;
-		}
 	}
 
-	// Don't allow while reloading.
+	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+		return;
+	}
+	
 	if ( pm->ps->weaponstate == WEAPON_DROPPING || pm->ps->weaponstate == WEAPON_RELOADING ) {
 		return;
 	}
-
-	// Likewise, don't allow while sprinting.
-	if ( pm->ns )
+	
+	if ( pm->ps->weapon != weapon )
 	{
-		if( BG_IsSprinting( pm->ps, &pm->cmd, pm->ns ) )
-		{
-			return;
-		}
+	    pm->ps->weaponVariation = variation = 0;
+	}
+	
+	if ( !BG_WeaponVariationExists (weapon, variation) )
+	{
+	    return;
 	}
 
 	// turn of any kind of zooming when weapon switching.
@@ -6161,14 +6012,21 @@ void PM_BeginWeaponChange( int weaponId ) {
 	}
 	
 	#ifdef _DEBUG
-	//Com_Printf ("Changing weapon to %d, variation %d\n", weapon, variation);
+	Com_Printf ("Changing weapon to %d, variation %d\n", weapon, variation);
 	#endif
 
-    // Change of weapon
-    PM_AddEventWithParm( EV_CHANGE_WEAPON, weaponId);
-    
+    if ( pm->ps->weapon != weapon )
+    {
+        // Change of weapon
+        PM_AddEventWithParm( EV_CHANGE_WEAPON, weapon);
+    }
+    else
+    {
+        // Change of variation
+        PM_AddEventWithParm( EV_CHANGE_WEAPON, MAX_WEAPONS + variation);
+    }
 	pm->ps->weaponstate = WEAPON_DROPPING;
-	pm->ps->weaponTime += 300;
+	pm->ps->weaponTime += 200;
 	//PM_StartTorsoAnim( TORSO_DROPWEAP1 );
 	PM_SetAnim(SETANIM_TORSO, TORSO_DROPWEAP1, SETANIM_FLAG_OVERRIDE, 0);
 
@@ -6181,14 +6039,34 @@ void PM_BeginWeaponChange( int weaponId ) {
 PM_FinishWeaponChange
 ===============
 */
+#ifdef QAGAME
+void G_PM_SwitchWeaponClip(playerState_t *ps, int newweapon);
+#endif
 
 void PM_FinishWeaponChange( void ) {
 	int		weapon;
 	int     variation;
 
-	//eezstreet edit
-	if(!BG_GetWeaponByIndex(pm->cmd.weapon, &weapon, &variation))
-		return;
+	weapon = pm->cmd.weapon;
+	variation = pm->ps->weaponVariation;
+	if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
+		weapon = WP_NONE;
+	}
+
+	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+		weapon = WP_NONE;
+	}
+	
+	if ( weapon != pm->ps->weapon )
+	{
+	    // Reset to base variation, since we don't know which variation we want to use.
+	    variation = 0;
+	}
+	
+	if ( pm->ps->weaponVariationChanged && !BG_WeaponVariationExists (weapon, variation) )
+	{
+	    variation = 0;
+	}
 
 	if (weapon == WP_SABER)
 	{
@@ -6199,17 +6077,14 @@ void PM_FinishWeaponChange( void ) {
 		//PM_StartTorsoAnim( TORSO_RAISEWEAP1);
 		PM_SetAnim(SETANIM_TORSO, TORSO_RAISEWEAP1, SETANIM_FLAG_OVERRIDE, 0);
 	}
-
 #ifdef QAGAME	// Handle proper switching of the weapon in case we're using clips
-	G_PM_SwitchWeaponClip(pm->ps, weapon, variation);
-	G_PM_SwitchWeaponFiringMode(pm->ps, weapon, variation);
+	G_PM_SwitchWeaponClip(pm->ps, weapon);
 #endif
 
-    pm->ps->weaponId = pm->cmd.weapon;
 	pm->ps->weapon = weapon;
-	pm->ps->weaponVariation = variation;
+	pm->ps->weaponVariationChanged = 0;
 	pm->ps->weaponstate = WEAPON_RAISING;
-	pm->ps->weaponTime += 350;
+	pm->ps->weaponTime += 250;
 }
 
 #ifdef QAGAME
@@ -6377,27 +6252,26 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 
 	if ( vehicleRocketLock )
 	{
-		//if ( (pm->cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
-		if(pm->cmd.buttons & BUTTON_ATTACK)
+		if ( (pm->cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
 		{//actually charging
 			if ( veh 
 				&& veh->m_pVehicle )
 			{//just make sure we have this veh info
 				if ( ( (pm->cmd.buttons&BUTTON_ATTACK)
 						&&g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].fHoming
-						&&pm->ps->ammo>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
-						/*|| 
+						&&pm->ps->ammo[0]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
+						|| 
 					( (pm->cmd.buttons&BUTTON_ALT_ATTACK)
 						&&g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].fHoming
-						&&pm->ps->ammo>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot )*/ )
+						&&pm->ps->ammo[1]>=g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot ) )
 				{//pressing the appropriate fire button for the lock-on/charging weapon
 					PM_RocketLock(16384, qtrue);
 					charging = qtrue;
 				}
-				/*if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+				if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 				{
 					altFire = qtrue;
-				}*/
+				}
 			}
 		}
 		//else, let go and should fire now
@@ -6407,29 +6281,44 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 		weaponData_t *thisWeaponData = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation );
 
 		/* Mark whether or not we're using secondary fire */
-		//if ( pm->cmd.buttons & BUTTON_ALT_ATTACK && thisWeaponData->hasSecondary )
-		//{
-		//    /* See if this weapon is chargeable with the secondary fire */
-		//	if ( thisWeaponData->firemodes[1].chargeTime && pm->ps->stats[STAT_AMMO] >= thisWeaponData->firemodes[1].cost )
-		//	{
-		//		if ( thisWeaponData->zoomType == ZOOM_NONE )
-		//		{
-		//		    altFire = qtrue;
-		//			charging = qtrue;
-		//		}
-		//	}
-		//}
+		if ( pm->cmd.buttons & BUTTON_ALT_ATTACK && thisWeaponData->hasSecondary )
+		{
+		    /* See if this weapon is chargeable with the secondary fire */
+			if ( thisWeaponData->secondary.chargeTime && pm->ps->stats[STAT_AMMO] >= thisWeaponData->secondary.cost )
+			{
+				if ( thisWeaponData->zoomType == ZOOM_NONE )
+				{
+				    altFire = qtrue;
+					charging = qtrue;
+				}
+			}
+		}
 		
 		/* See if this weapon is chargeable with the primary fire */
 		if ( pm->cmd.buttons & BUTTON_ATTACK )
 		{
 		    if ( thisWeaponData->zoomType != ZOOM_NONE )
 		    {
-				if ( thisWeaponData->firemodes[pm->ps->firingMode].chargeTime &&
-					pm->ps->stats[STAT_AMMO] >= thisWeaponData->firemodes[pm->ps->firingMode].cost)
+		        if ( thisWeaponData->primary.chargeTime &&
+		                pm->ps->stats[STAT_AMMO] >= thisWeaponData->primary.cost /*&& 
+			            pm->ps->zoomMode == 1 &&
+			            pm->ps->zoomLocked */)
 			    {
-                    altFire = qfalse;
-                    charging = qtrue;
+		            /*if ( !pm->cmd.forwardmove &&
+		                    !pm->cmd.rightmove &&
+		                    pm->cmd.upmove <= 0 )
+                    {*/
+                        altFire = qfalse;
+                        charging = qtrue;
+	                /*}
+	                else
+	                {
+	                    if ( pm->ps->zoomMode == 1 && pm->ps->zoomLocked )
+	                    {
+	                        altFire = qfalse;
+	                        charging = qfalse;
+	                    }
+	                }*/
 		        }
 		        
 		        if ( pm->ps->zoomMode != 1 &&
@@ -6440,21 +6329,137 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 		        }
 		    }
 			/* Check the primary fire for a charged weapon; Even if we're using zoom, we must retain original specs */
-			else if ( !charging && thisWeaponData->firemodes[pm->ps->firingMode].chargeTime && pm->ps->stats[STAT_AMMO] >= thisWeaponData->firemodes[pm->ps->firingMode].cost )
+			else if ( !charging && thisWeaponData->primary.chargeTime && pm->ps->stats[STAT_AMMO] >= thisWeaponData->primary.cost )
 			{
 				charging = qtrue;
 			}
 		}
+
+		// If you want your weapon to be a charging weapon, just set this bit up
+		/*switch( pm->ps->weapon )
+		{
+		//------------------
+		case WP_BRYAR_PISTOL:
+
+			// alt-fire charges the weapon
+			//if ( pm->gametype == GT_SIEGE )
+			if (1)
+			{
+				if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+				{
+					if (pm->ps->stats[STAT_AMMO] >= GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost ) 
+						charging = qtrue;
+					altFire = qtrue;
+				}
+			}
+			break;
+
+		case WP_CONCUSSION:
+			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			{
+				altFire = qtrue;
+			}
+			break;
+
+		case WP_BRYAR_OLD:
+
+			// alt-fire charges the weapon
+			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			{
+				if (pm->ps->stats[STAT_AMMO] >= GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost ) 
+					charging = qtrue;
+				altFire = qtrue;
+			}
+			break;
+		
+		//------------------
+		case WP_BOWCASTER:
+
+			// primary fire charges the weapon
+			if ( pm->cmd.buttons & BUTTON_ATTACK )
+			{
+				if (pm->ps->stats[STAT_AMMO] >= GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost ) 
+						charging = qtrue;
+			}
+			break;
+		
+		//------------------
+		case WP_ROCKET_LAUNCHER:
+			if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) 
+				&& pm->ps->ammo[GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation )] >= GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost )
+			{
+				PM_RocketLock(2048,qfalse);
+				if (pm->ps->stats[STAT_AMMO] >= GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost ) 
+					charging = qtrue;
+				altFire = qtrue;
+			}
+			break;
+
+		//------------------
+		case WP_THERMAL:
+
+			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			{
+				altFire = qtrue; // override default of not being an alt-fire
+				if (pm->ps->stats[STAT_AMMO]) 	
+					charging = qtrue;
+			}
+			else if ( pm->cmd.buttons & BUTTON_ATTACK )
+			{
+				if (pm->ps->stats[STAT_AMMO]) 
+					charging = qtrue;
+			}
+			break;
+
+		case WP_DEMP2:
+			if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+			{
+				altFire = qtrue; // override default of not being an alt-fire
+				if (pm->ps->stats[STAT_AMMO] >= GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost ) 
+					charging = qtrue;
+			}
+			break;
+
+		case WP_DISRUPTOR:
+			if ((pm->cmd.buttons & BUTTON_ATTACK) &&
+				pm->ps->zoomMode == 1 &&
+				pm->ps->zoomLocked)
+			{
+				if (!pm->cmd.forwardmove &&
+					!pm->cmd.rightmove &&
+					pm->cmd.upmove <= 0)
+				{
+					if (pm->ps->stats[STAT_AMMO] >= GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost ) 
+						charging = qtrue;
+					altFire = qtrue;
+				}
+				else
+				{
+					charging = qfalse;
+					altFire = qfalse;
+				}
+			}
+
+			if (pm->ps->zoomMode != 1 &&
+				pm->ps->weaponstate == WEAPON_CHARGING_ALT)
+			{
+				pm->ps->weaponstate = WEAPON_READY;
+				charging = qfalse;
+				altFire = qfalse;
+			}
+
+		} // end switch*/
 	}
 
 	// set up the appropriate weapon state based on the button that's down.  
 	//	Note that we ALWAYS return if charging is set ( meaning the buttons are still down )
 	if ( charging )
 	{
-		weaponFireModeStats_t *weaponFireData = &GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->firemodes[pm->ps->firingMode];
+	    weaponFireModeStats_t *weaponFireData = NULL;
 	
-		/*if ( altFire )
+		if ( altFire )
 		{
+		    weaponFireData = &GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary;
 			if ( pm->ps->weaponstate != WEAPON_CHARGING_ALT )
 			{
 				// charge isn't started, so do it now
@@ -6471,7 +6476,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 
 			if ( vehicleRocketLock )
 			{//check vehicle ammo
-				if ( veh && pm->ps->ammo < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot )
+				if ( veh && pm->ps->ammo[1] < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].iAmmoPerShot )
 				{
 					pm->ps->weaponstate = WEAPON_CHARGING_ALT;
 					goto rest;
@@ -6501,7 +6506,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 						}
 					}
 				} else {
-					if (pm->ps->ammo < (weaponFireData->cost + weaponFireData->cost))
+					if (pm->ps->ammo[GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation )] < (weaponFireData->cost + weaponFireData->cost))
 					{
 						pm->ps->weaponstate = WEAPON_CHARGING_ALT;
 						if ((pm->ps->weaponChargeSubtractTime - pm->ps->weaponChargeTime) < weaponFireData->chargeMaximum) {
@@ -6514,19 +6519,17 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 					{
 						if (pm->ps->weaponChargeSubtractTime < pm->cmd.serverTime)
 						{
-#ifdef QAGAME
-							gentity_t *Gself = &g_entities[pm->ps->clientNum];
-							Gself->client->ammoTable[GetWeaponAmmoIndex(pm->ps->weapon, pm->ps->weaponVariation)] -= weaponFireData->cost;
-#endif
-							pm->ps->ammo -= weaponFireData->cost;
+							pm->ps->ammo[GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation )] -= weaponFireData->cost;
 							pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponFireData->chargeTime;
 						}
 					}
 				}
 			}
 		}
-		else*/
+		else
 		{
+		    weaponFireData = &GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary;
+		
 			if ( pm->ps->weaponstate != WEAPON_CHARGING )
 			{
 				// charge isn't started, so do it now
@@ -6542,7 +6545,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 
 			if ( vehicleRocketLock )
 			{
-				if ( veh && pm->ps->ammo < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
+				if ( veh && pm->ps->ammo[0] < g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].iAmmoPerShot )
 				{//check vehicle ammo
 					pm->ps->weaponstate = WEAPON_CHARGING;
 					goto rest;
@@ -6569,7 +6572,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 						}
 					}
 				} else {
-					if (pm->ps->ammo < (weaponFireData->cost + weaponFireData->cost))
+					if (pm->ps->ammo[GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation )] < (weaponFireData->cost + weaponFireData->cost))
 					{
 						pm->ps->weaponstate = WEAPON_CHARGING;
 						if ((pm->ps->weaponChargeSubtractTime - pm->ps->weaponChargeTime) < weaponFireData->chargeMaximum) {
@@ -6581,11 +6584,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 					{
 						if (pm->ps->weaponChargeSubtractTime < pm->cmd.serverTime)
 						{
-#ifdef QAGAME
-							gentity_t *Gself = &g_entities[pm->ps->clientNum];
-							Gself->client->ammoTable[GetWeaponAmmoIndex(pm->ps->weapon, pm->ps->weaponVariation)] -= weaponFireData->cost;
-#endif
-							pm->ps->ammo -= weaponFireData->cost;
+							pm->ps->ammo[GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation )] -= weaponFireData->cost;
 							pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponFireData->chargeTime;
 						}
 					}
@@ -6617,9 +6616,8 @@ rest:
 #endif
 
 		// dumb, but since we shoot a charged weapon on button-up, we need to repress this button for now
-		//pm->cmd.buttons |= BUTTON_ALT_ATTACK;
-		//pm->ps->eFlags |= (EF_FIRING|EF_ALT_FIRING);
-		pm->ps->eFlags |= EF_FIRING;
+		pm->cmd.buttons |= BUTTON_ALT_ATTACK;
+		pm->ps->eFlags |= (EF_FIRING|EF_ALT_FIRING);
 	}
 
 	return qfalse; // continue with the rest of the weapon code
@@ -6766,11 +6764,6 @@ qboolean PM_CanSetWeaponAnims(void)
 		return qfalse;
 	}
 
-	if(BG_IsSprinting (pm->ps, &pm->cmd, pm->ns))
-	{
-		return qfalse;
-	}
-
 	return qtrue;
 }
 
@@ -6798,10 +6791,9 @@ void PM_VehicleWeaponAnimate(void)
 	{ //slightly hacky I guess, but whatever.
 		return;
 	}
-//backAgain:
+backAgain:
 	// If they're firing, play the right fire animation.
-	//if ( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ALT_ATTACK ) )
-	if ( pm->cmd.buttons & BUTTON_ATTACK )
+	if ( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ALT_ATTACK ) )
 	{
 		iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 		iBlend = 200;
@@ -6809,11 +6801,11 @@ void PM_VehicleWeaponAnimate(void)
 		switch ( pm->ps->weapon )
 		{
 			case WP_SABER:
-				/*if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+				if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 				{ //don't do anything.. I guess.
 					pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 					goto backAgain;
-				}*/
+				}
 				// If we're already in an attack animation, leave (let it continue).
 				if (pm->ps->torsoTimer <= 0)
 				{ //we'll be starting a new attack
@@ -7039,7 +7031,7 @@ Generates weapon events and modifes the weapon counter
 extern int PM_KickMoveForConditions(void);
 static void PM_Weapon( void )
 {
-	int		addTime = 0;
+	int		addTime;
 	int amount;
 	int		killAfterItem = 0;
 	bgEntity_t *veh = NULL;
@@ -7047,8 +7039,6 @@ static void PM_Weapon( void )
 	// Jedi Knight Galaxies
 	int doStdAnim;
 	static qboolean jkg_didGrenadeCook[MAX_CLIENTS];
-	const weaponData_t *weaponData;
-	weaponData_t *wp = BG_GetWeaponDataByIndex(pm->ps->weaponId);
 
 #ifdef QAGAME
 	if (pm->ps->clientNum >= MAX_CLIENTS &&
@@ -7085,7 +7075,7 @@ static void PM_Weapon( void )
 
 		if (weap != -1)
 		{
-			pm->cmd.weapon = BG_GetWeaponIndexFromClass (weap, 0);
+			pm->cmd.weapon = weap;
 			pm->ps->weapon = weap;
 			pm->ps->weaponVariation = 0;
 			return;
@@ -7102,7 +7092,7 @@ static void PM_Weapon( void )
 			//keep saber off, do no weapon stuff at all!
 			pm->ps->saberHolstered = 2;
 #ifdef QAGAME
-			//pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);
+			pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);
 #else
 			if ( g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID].fHoming
 				||  g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID].fHoming )
@@ -7110,26 +7100,22 @@ static void PM_Weapon( void )
 				vehicleRocketLock = qtrue;
 				pm->cmd.buttons &= ~BUTTON_ATTACK;
 			}
-			/*else
-			{
-				pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);
-			}*/
 			else
 			{
-				pm->cmd.buttons &= ~(BUTTON_ATTACK);
+				pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);
 			}
 #endif
 		}
 	}
 
 	/* JKG - Don't allow the secondary fire when the weapon data tells me that we can't and don't have a zoom function! */
-	//if ( !pm->ps->m_iVehicleNum && ( pm->cmd.buttons & BUTTON_ALT_ATTACK ) &&
-	//    !GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->hasSecondary &&
-	//    GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->zoomType == ZOOM_NONE )
-	//{
-	//	pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
-	//	pm->cmd.buttons |= BUTTON_ATTACK;
-	//}
+	if ( !pm->ps->m_iVehicleNum && ( pm->cmd.buttons & BUTTON_ALT_ATTACK ) &&
+	    !GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->hasSecondary &&
+	    GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->zoomType == ZOOM_NONE )
+	{
+		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
+		pm->cmd.buttons |= BUTTON_ATTACK;
+	}
 
 	/*
 	if (pm->ps->weapon != WP_DISRUPTOR //not using disruptor
@@ -7392,7 +7378,7 @@ static void PM_Weapon( void )
 
 	if (pm->ps->duelInProgress)
 	{
-		pm->cmd.weapon = BG_GetWeaponIndexFromClass (WP_SABER, 0);
+		pm->cmd.weapon = WP_SABER;
 		pm->ps->weapon = WP_SABER;
 		pm->ps->weaponVariation = 0;
 
@@ -7406,7 +7392,7 @@ static void PM_Weapon( void )
 
 	if (pm->ps->weapon == WP_SABER && pm->ps->saberMove != LS_READY && pm->ps->saberMove != LS_NONE)
 	{
-		pm->cmd.weapon = BG_GetWeaponIndexFromClass (WP_SABER, 0); //don't allow switching out mid-attack
+		pm->cmd.weapon = WP_SABER; //don't allow switching out mid-attack
 	}
 
 	if (pm->ps->weapon == WP_SABER)
@@ -7428,18 +7414,18 @@ static void PM_Weapon( void )
 		{
 			if (pm->ps->weapon == WP_THERMAL)
 			{
-				if ((pm->ps->torsoAnim) == GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->anims.firing.torsoAnim &&
+				if ((pm->ps->torsoAnim) == GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoFiringAnimation &&
 					(pm->ps->weaponTime-200) <= 0)
 				{
-					PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->anims.ready.torsoAnim );
+					PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoReadyAnimation );
 				}
 			}
 			else
 			{
-				if ((pm->ps->torsoAnim) == GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->anims.firing.torsoAnim &&
+				if ((pm->ps->torsoAnim) == GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoFiringAnimation &&
 					(pm->ps->weaponTime-700) <= 0)
 				{
-					PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->anims.ready.torsoAnim );
+					PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoReadyAnimation );
 				}
 			}
 		}
@@ -7555,13 +7541,13 @@ static void PM_Weapon( void )
 
 	if (pm->ps->weapon == WP_EMPLACED_GUN && pm->ps->emplacedIndex)
 	{
-		pm->cmd.weapon = BG_GetWeaponIndexFromClass (WP_EMPLACED_GUN, 0); //No switch for you!
+		pm->cmd.weapon = WP_EMPLACED_GUN; //No switch for you!
 		PM_StartTorsoAnim( BOTH_GUNSIT1 );
 	}
 
 	if (pm->ps->isJediMaster || pm->ps->duelInProgress || pm->ps->trueJedi)
 	{
-		pm->cmd.weapon = BG_GetWeaponIndexFromClass (WP_SABER, 0);
+		pm->cmd.weapon = WP_SABER;
 		pm->ps->weapon = WP_SABER;
 		pm->ps->weaponVariation = 0;
 
@@ -7571,7 +7557,7 @@ static void PM_Weapon( void )
 		}
 	}
 
-	amount = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->firemodes[pm->ps->firingMode].cost;
+	amount = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary.cost;
 
 	// take an ammo away if not infinite
 
@@ -7633,8 +7619,8 @@ static void PM_Weapon( void )
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
 	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
-		if ( (pm->cmd.weapon != pm->ps->weaponId) && pm->ps->weaponstate != WEAPON_DROPPING ) {
-			PM_BeginWeaponChange( pm->cmd.weapon );
+		if ( pm->ps->weapon != pm->cmd.weapon || pm->ps->weaponVariationChanged ) {
+			PM_BeginWeaponChange( pm->cmd.weapon, pm->ps->weaponVariation );
 		}
 	}
 
@@ -7642,7 +7628,7 @@ static void PM_Weapon( void )
 		return;
 	}
 
-	/*if ( GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->zoomType != ZOOM_NONE && pm->ps->zoomMode == 1 )
+	if ( GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->zoomType != ZOOM_NONE && pm->ps->zoomMode == 1 )
 	{
 		if (pm->cmd.forwardmove ||
 			pm->cmd.rightmove ||
@@ -7650,15 +7636,13 @@ static void PM_Weapon( void )
 		{
 			return;
 		}
-	}*/
+	}
 
 	// change weapon if time
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
 		PM_FinishWeaponChange();
 		return;
 	}
-	
-	weaponData = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation );
 
 	if ( pm->ps->weaponstate == WEAPON_RAISING || pm->ps->weaponstate == WEAPON_RELOADING )
 	{
@@ -7688,7 +7672,7 @@ static void PM_Weapon( void )
 					}
 					else
 					{
-						PM_StartTorsoAnim( weaponData->anims.ready.torsoAnim );
+						PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoReadyAnimation );
 					}
 				}
 			}
@@ -7696,62 +7680,51 @@ static void PM_Weapon( void )
 		return;
 	}
 
-	if (PM_CanSetWeaponAnims())
+	if (PM_CanSetWeaponAnims() &&
+		!PM_IsRocketTrooper() &&
+		pm->ps->weaponstate == WEAPON_READY && pm->ps->weaponTime <= 0 &&
+		(pm->ps->weapon >= WP_BRYAR_PISTOL || pm->ps->weapon == WP_STUN_BATON) &&
+		pm->ps->torsoTimer <= 0 &&
+		(pm->ps->torsoAnim) != GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoReadyAnimation &&
+		pm->ps->torsoAnim != TORSO_WEAPONIDLE3 &&
+		pm->ps->weapon != WP_EMPLACED_GUN)
 	{
-	    if ( !PM_IsRocketTrooper() &&
-		    pm->ps->weaponstate == WEAPON_READY && pm->ps->weaponTime <= 0 &&
-		    (pm->ps->weapon >= WP_BRYAR_PISTOL || pm->ps->weapon == WP_STUN_BATON) &&
-		    pm->ps->torsoTimer <= 0 &&
-			(pm->ps->torsoAnim) != weaponData->anims.ready.torsoAnim &&
-		    pm->ps->torsoAnim != TORSO_WEAPONIDLE3 &&
-		    pm->ps->weapon != WP_EMPLACED_GUN )
+		PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoReadyAnimation );
+	}
+	else if (PM_CanSetWeaponAnims() &&
+		pm->ps->weapon == WP_MELEE)
+	{
+		if (pm->ps->weaponTime <= 0 &&
+			pm->ps->forceHandExtend == HANDEXTEND_NONE)
 		{
-			if(BG_IsSprinting (pm->ps, &pm->cmd, pm->ns))
-			{
-				if(pm->ps->torsoAnim != wp->anims.sprint.torsoAnim)
+			int desTAnim = pm->ps->legsAnim;
+
+			if (desTAnim == BOTH_STAND1 ||
+				desTAnim == BOTH_STAND2)
+			{ //remap the standard standing anims for melee stance
+				desTAnim = BOTH_STAND6;
+			}
+
+			if (!(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
+			{ //don't do this while holding attack
+				if (pm->ps->torsoAnim != desTAnim)
 				{
-					// Mark 
+					PM_StartTorsoAnim( desTAnim );
 				}
-				PM_StartTorsoAnim( wp->anims.sprint.torsoAnim );
 			}
-			else
+		}
+	}
+	else if (PM_CanSetWeaponAnims() && PM_IsRocketTrooper())
+	{
+		int desTAnim = pm->ps->legsAnim;
+
+		if (!(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)))
+		{ //don't do this while holding attack
+			if (pm->ps->torsoAnim != desTAnim)
 			{
-				PM_StartTorsoAnim( weaponData->anims.ready.torsoAnim );
+				PM_StartTorsoAnim( desTAnim );
 			}
-		}	
-	    else if (pm->ps->weapon == WP_MELEE || pm->ps->weapon == WP_NONE)
-	    {
-		    if (pm->ps->weaponTime <= 0 &&
-			    pm->ps->forceHandExtend == HANDEXTEND_NONE)
-		    {
-			    int desTAnim = pm->ps->legsAnim;
-			    if ((desTAnim == BOTH_STAND1 || desTAnim == BOTH_STAND2) &&
-			        pm->ps->weapon == WP_MELEE)
-			    { //remap the standard standing anims for melee stance
-				    desTAnim = BOTH_STAND6;
-			    }
-
-			    if (!(pm->cmd.buttons & (BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/)) || pm->ps->weapon == WP_NONE)
-			    { //don't do this while holding attack
-				    if (pm->ps->torsoAnim != desTAnim)
-				    {
-					    PM_StartTorsoAnim( desTAnim );
-				    }
-			    }
-		    }
-	    }
-	    else if (PM_IsRocketTrooper())
-	    {
-		    int desTAnim = pm->ps->legsAnim;
-
-		    if (!(pm->cmd.buttons & (BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/)))
-		    { //don't do this while holding attack
-			    if (pm->ps->torsoAnim != desTAnim)
-			    {
-				    PM_StartTorsoAnim( desTAnim );
-			    }
-		    }
-	    }
+		}
 	}
 
 	/*if (((pm->ps->torsoAnim) == TORSO_WEAPONREADY4 ||
@@ -7811,11 +7784,11 @@ static void PM_Weapon( void )
 	if ( PM_DoChargedWeapons(vehicleRocketLock, veh))
 	{
 		// JKG - Check for cookable grenades (you must press both to start its event)
-		if ( weaponData->hasCookAbility &&
+		if ( GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->hasCookAbility &&
 		    pm->ps->clientNum < MAX_CLIENTS &&
 		    jkg_didGrenadeCook[pm->ps->clientNum] == 0 &&
 		    ( pm->cmd.buttons & BUTTON_ATTACK ) &&
-		    ( pm->cmd.buttons & BUTTON_IRONSIGHTS ))
+		    ( pm->cmd.buttons & BUTTON_ALT_ATTACK ))
 		{
 			PM_AddEvent( EV_GRENADE_COOK );
 			jkg_didGrenadeCook[pm->ps->clientNum] = 1;
@@ -7832,57 +7805,22 @@ static void PM_Weapon( void )
 	}
 
 	// check for fire
-	if ( !( pm->cmd.buttons & ( BUTTON_ATTACK /*| BUTTON_ALT_ATTACK*/ )))
+	if ( !( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ALT_ATTACK )))
 	{
 		pm->ps->weaponTime = 0;
 		pm->ps->weaponstate = WEAPON_READY;
 		return;
 	}
-	
-	if ( pm->ps->weapon == 0 )
-	{
-	    return;
-	}
-	
-	// JKG: Semi-automatic
-	/*if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
-	{
-	    if ( pm->ps->shotsRemaining & SHOTS_TOGGLEBIT )
-	    {
-	        if ( weaponData->firemodes[1].firingType == FT_SEMI )
-	        {
-	            return;
-	        }
-	        else if ( weaponData->firemodes[1].firingType == FT_BURST )
-	        {
-	            pm->ps->shotsRemaining = weaponData->firemodes[1].shotsPerBurst & ~SHOTS_TOGGLEBIT;
-	        }
-	    }
-	}
-	else*/
-	{
-	    if ( pm->ps->shotsRemaining & SHOTS_TOGGLEBIT )
-	    {
-			if ( weaponData->firemodes[pm->ps->firingMode].firingType == FT_SEMI )
-	        {
-	            return;
-	        }
-			else if ( weaponData->firemodes[pm->ps->firingMode].firingType == FT_BURST )
-	        {
-				pm->ps->shotsRemaining = weaponData->firemodes[pm->ps->firingMode].shotsPerBurst & ~SHOTS_TOGGLEBIT;
-	        }
-	    }
-	}
 
 	if (pm->ps->weapon == WP_EMPLACED_GUN)
 	{
-		addTime = weaponData->firemodes[pm->ps->firingMode].delay;
+		addTime = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary.delay;
 		pm->ps->weaponTime += addTime;
-		/*if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
+		if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
 		{
 			PM_AddEvent( EV_ALT_FIRE );
 		}
-		else*/
+		else
 		{
 			PM_AddEvent( EV_FIRE_WEAPON );
 		}
@@ -7894,11 +7832,11 @@ static void PM_Weapon( void )
 		pm->ps->weaponstate = WEAPON_FIRING;
 		pm->ps->weaponTime += 100;
 #ifdef QAGAME //hack, only do it game-side. vehicle weapons don't really need predicting I suppose.
-		/*if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
+		if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
 		{
 			G_CheapWeaponFire(pm->ps->clientNum, EV_ALT_FIRE);
 		}
-		else*/
+		else
 		{
 			G_CheapWeaponFire(pm->ps->clientNum, EV_FIRE_WEAPON);
 		}
@@ -7919,13 +7857,13 @@ static void PM_Weapon( void )
 	}
 
 	/* Can't use zoom when the zoom mode is still locked */
-	if ( weaponData->zoomType != ZOOM_NONE && ( pm->cmd.buttons & BUTTON_IRONSIGHTS ) && !pm->ps->zoomLocked )
+	if ( GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->zoomType != ZOOM_NONE && ( pm->cmd.buttons & BUTTON_ALT_ATTACK ) && !pm->ps->zoomLocked )
 	{
 		return;
 	}
 
 	/* Can't use zoom mode when you're using binoculars */
-	if ( weaponData->zoomType != ZOOM_NONE && ( pm->cmd.buttons & BUTTON_IRONSIGHTS ) && pm->ps->zoomMode == 2 )
+	if ( GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->zoomType != ZOOM_NONE && ( pm->cmd.buttons & BUTTON_ALT_ATTACK ) && pm->ps->zoomMode == 2 )
 	{
 		return;
 	}
@@ -7935,24 +7873,14 @@ static void PM_Weapon( void )
 	{
 		PM_StartTorsoAnim( BOTH_ATTACK4 );
 	}
-	else */
-#ifndef QAGAME
-	if (pm->ps->weapon == WP_MELEE)
-#else //!QAGAME
-	if (pm->ps->weapon == WP_MELEE
-		// UQ1: NPCs can hit you with their rifle butt at close range...
-		|| (g_entities[pm->ps->clientNum].s.eType == ET_NPC 
-			&& pm->ps->weapon != WP_SABER 
-			&& g_entities[pm->ps->clientNum].enemy
-			&& Distance(g_entities[pm->ps->clientNum].enemy->r.currentOrigin, g_entities[pm->ps->clientNum].r.currentOrigin) <= 72))
-#endif //QAGAME
+	else */if (pm->ps->weapon == WP_MELEE)
 	{ //special anims for standard melee attacks
 		//Alternate between punches and use the anim length as weapon time.
 		if (!pm->ps->m_iVehicleNum)
 		{ //if riding a vehicle don't do this stuff at all
 			if (pm->debugMelee &&
 				(pm->cmd.buttons & BUTTON_ATTACK) &&
-				(pm->cmd.buttons & BUTTON_IRONSIGHTS))
+				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //ok, grapple time
 #if 0 //eh, I want to try turning the saber off, but can't do that reliably for prediction..
 				qboolean icandoit = qtrue;
@@ -7998,8 +7926,8 @@ static void PM_Weapon( void )
 	#endif
 #endif
 			}
-			else if (/*pm->debugMelee &&*/
-				(pm->cmd.buttons & BUTTON_IRONSIGHTS) )
+			else if (pm->debugMelee &&
+				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			{ //kicks
 				if (!BG_KickingAnim(pm->ps->torsoAnim) &&
 					!BG_KickingAnim(pm->ps->legsAnim))
@@ -8078,14 +8006,6 @@ static void PM_Weapon( void )
 				int desTAnim = BOTH_MELEE1;
 				if (pm->ps->torsoAnim == BOTH_MELEE1)
 				{
-#ifdef QAGAME
-				if (!(pm->ps->weapon == WP_MELEE
-					// UQ1: NPCs can hit you with their rifle butt at close range...
-					|| (g_entities[pm->ps->clientNum].s.eType == ET_NPC 
-						&& pm->ps->weapon != WP_SABER 
-						&& g_entities[pm->ps->clientNum].enemy
-						&& Distance(g_entities[pm->ps->clientNum].enemy->r.currentOrigin, g_entities[pm->ps->clientNum].r.currentOrigin) <= 72)))
-#endif //QAGAME
 					desTAnim = BOTH_MELEE2;
 				}
 				PM_StartTorsoAnim( desTAnim );
@@ -8103,17 +8023,17 @@ static void PM_Weapon( void )
 		//PM_StartTorsoAnim( WeaponAttackAnim[pm->ps->weapon] );
 	}
 
-	/*if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+	if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 	{
-		amount = weaponData->firemodes[1].cost;
+		amount = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.cost;
 	}
 	else
 	{
-		amount = weaponData->firemodes[0].cost;
-	}*/ amount = weaponData->firemodes[pm->ps->firingMode].cost;
+		amount = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary.cost;
+	}
 
 	// take an ammo away if not infinite
-	if ( (pm->ps->clientNum < MAX_CLIENTS || pm_entSelf->s.eType == ET_NPC) && GetWeaponAmmoClip( pm->ps->weapon, pm->ps->weaponVariation ) != -1 )
+	if ( pm->ps->clientNum < MAX_CLIENTS && GetWeaponAmmoClip( pm->ps->weapon, pm->ps->weaponVariation ) != -1 )
 	{
 		// enough energy to fire this weapon?
 		// Jedi Knight Galaxies - Check clip also
@@ -8129,7 +8049,6 @@ static void PM_Weapon( void )
 				if (pm->ps->weapon != WP_DET_PACK || !pm->ps->hasDetPackPlanted)
 				{
 					PM_AddEventWithParm( EV_NOAMMO, WP_NUM_WEAPONS+pm->ps->weapon );
-					pm->ps->shotsRemaining = 0;
 					pm->ps->weaponstate = WEAPON_READY; // Abort charging the weapon (if it is charging to begin with)
 					if (pm->ps->weaponTime < 500)
 					{
@@ -8139,13 +8058,9 @@ static void PM_Weapon( void )
 				return;
 			}
 		} else {
-			if ((pm->ps->ammo - amount) >= 0) 
+			if ((pm->ps->ammo[GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation )] - amount) >= 0) 
 			{
-#ifdef QAGAME
-							gentity_t *Gself = &g_entities[pm->ps->clientNum];
-							Gself->client->ammoTable[GetWeaponAmmoIndex(pm->ps->weapon, pm->ps->weaponVariation)] -= amount;
-#endif
-				pm->ps->ammo -= amount;
+				pm->ps->ammo[GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation )] -= amount;
 			}
 			else	// Not enough energy
 			{
@@ -8153,7 +8068,6 @@ static void PM_Weapon( void )
 				if (pm->ps->weapon != WP_DET_PACK || !pm->ps->hasDetPackPlanted)
 				{
 					PM_AddEventWithParm( EV_NOAMMO, WP_NUM_WEAPONS+pm->ps->weapon );
-					pm->ps->shotsRemaining = 0;
 					pm->ps->weaponstate = WEAPON_READY;		// Abort charging the weapon (if it is charging to begin with)
 					if (pm->ps->weaponTime < 500)
 					{
@@ -8169,38 +8083,15 @@ static void PM_Weapon( void )
 	pm->ps->weaponstate = WEAPON_FIRING;
 
 	if (doStdAnim) {
-		PM_StartTorsoAnim( weaponData->anims.firing.torsoAnim );
+		PM_StartTorsoAnim( GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation)->torsoFiringAnimation );
 	}
 
-	/*if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
+	if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )
 	{
-		if ( weaponData->zoomType != ZOOM_NONE && pm->ps->zoomMode != 1 )
+		if ( GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->zoomType != ZOOM_NONE && pm->ps->zoomMode != 1 )
 		{
 			PM_AddEvent( EV_FIRE_WEAPON );
-			switch ( weaponData->firemodes[1].firingType )
-			{
-			    case FT_AUTOMATIC:
-			        addTime = weaponData->firemodes[1].delay;
-			        break;
-			        
-			    case FT_SEMI:
-			        addTime = weaponData->firemodes[1].delay;
-			        pm->ps->shotsRemaining = SHOTS_TOGGLEBIT;
-			        break;
-			        
-			    case FT_BURST:
-			        if ( (pm->ps->shotsRemaining & ~SHOTS_TOGGLEBIT) == 1 )
-			        {
-			            addTime = weaponData->firemodes[1].delay;
-			            pm->ps->shotsRemaining = SHOTS_TOGGLEBIT;
-			        }
-			        else
-			        {
-			            addTime = weaponData->firemodes[1].burstFireDelay;
-			            pm->ps->shotsRemaining = (pm->ps->shotsRemaining - 1) & ~SHOTS_TOGGLEBIT;
-			        }
-			        break;
-			}
+			addTime = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary.delay;
 		}
 		else
 		{
@@ -8209,63 +8100,17 @@ static void PM_Weapon( void )
 				PM_AddEvent( EV_ALT_FIRE );
 			}
 
-			switch ( weaponData->firemodes[1].firingType )
-			{
-			    case FT_AUTOMATIC:
-			        addTime = weaponData->firemodes[1].delay;
-			        break;
-			        
-			    case FT_SEMI:
-			        addTime = weaponData->firemodes[1].delay;
-			        pm->ps->shotsRemaining = SHOTS_TOGGLEBIT;
-			        break;
-			        
-			    case FT_BURST:
-			        if ( (pm->ps->shotsRemaining & ~SHOTS_TOGGLEBIT) == 1 )
-			        {
-			            addTime = weaponData->firemodes[1].delay;
-			            pm->ps->shotsRemaining = SHOTS_TOGGLEBIT;
-			        }
-			        else
-			        {
-			            addTime = weaponData->firemodes[1].burstFireDelay;
-			            pm->ps->shotsRemaining = (pm->ps->shotsRemaining - 1) & ~SHOTS_TOGGLEBIT;
-			        }
-			        break;
-			}
+			addTime = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->secondary.delay;
 		}
 	}
-	else*/
+	else
 	{
 		if ( pm->ps->weapon != WP_MELEE || !pm->ps->m_iVehicleNum )
 		{
 			PM_AddEvent( EV_FIRE_WEAPON );
 		}
 
-		switch ( weaponData->firemodes[pm->ps->firingMode].firingType )
-		{
-		    case FT_AUTOMATIC:
-				addTime = weaponData->firemodes[pm->ps->firingMode].delay;
-		        break;
-		        
-		    case FT_SEMI:
-				addTime = weaponData->firemodes[pm->ps->firingMode].delay;
-		        pm->ps->shotsRemaining = SHOTS_TOGGLEBIT;
-		        break;
-		        
-		    case FT_BURST:
-		        if ( (pm->ps->shotsRemaining & ~SHOTS_TOGGLEBIT) == 1 )
-		        {
-		            addTime = weaponData->firemodes[pm->ps->firingMode].delay;
-		            pm->ps->shotsRemaining = SHOTS_TOGGLEBIT;
-		        }
-		        else
-		        {
-		            addTime = weaponData->firemodes[pm->ps->firingMode].burstFireDelay;
-		            pm->ps->shotsRemaining = (pm->ps->shotsRemaining - 1) & ~SHOTS_TOGGLEBIT;
-		        }
-		        break;
-		}
+		addTime = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation )->primary.delay;
 	}
 
 	/*
@@ -8669,8 +8514,9 @@ void PM_AdjustAttackStates( pmove_t *pm )
 {
 	int amount;
 	weaponData_t *weapon = GetWeaponData (pm->ps->weapon, pm->ps->weaponVariation);
-	qboolean primFireDown;// = (pm->cmd.buttons & BUTTON_ATTACK);
-	//qboolean altFireDown;// = (pm->cmd.buttons & BUTTON_ALT_ATTACK);
+	unsigned char ammoIndex = GetWeaponAmmoIndex( pm->ps->weapon, pm->ps->weaponVariation );
+	qboolean primFireDown = (pm->cmd.buttons & BUTTON_ATTACK);
+	qboolean altFireDown = (pm->cmd.buttons & BUTTON_ALT_ATTACK);
 
 	if (pm_entSelf->s.NPC_class!=CLASS_VEHICLE
 		&&pm->ps->m_iVehicleNum)
@@ -8680,79 +8526,43 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			(veh->m_pVehicle && (veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || veh->m_pVehicle && veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)) )
 		{//riding a walker/fighter
 			//not firing, ever
-			pm->ps->eFlags &= ~(EF_FIRING/*|EF_ALT_FIRING*/);
+			pm->ps->eFlags &= ~(EF_FIRING|EF_ALT_FIRING);
 			return;
 		}
 	}
 	
-	// JKG: Keep attack button 'pressed' until no more shots
-	// are remaining.
-	if ( pm->ps->shotsRemaining & ~SHOTS_TOGGLEBIT )
-	{
-	    /*if ( pm->ps->eFlags & EF_ALT_FIRING )
-	    {
-	        if ( weapon->hasSecondary && weapon->firemodes[1].firingType == FT_BURST )
-	        {
-	            pm->cmd.buttons |= BUTTON_ALT_ATTACK;
-	        }
-	    }
-	    else */if ( pm->ps->eFlags & EF_FIRING )
-	    {
-			if ( weapon->firemodes[pm->ps->firingMode].firingType == FT_BURST )
-	        {
-	            pm->cmd.buttons |= BUTTON_ATTACK;
-	        }
-	    }
-	}
-	
-	primFireDown = (pm->cmd.buttons & BUTTON_ATTACK);
-	//altFireDown = (pm->cmd.buttons & BUTTON_ALT_ATTACK);
-	
 	// Iron sights!
-	if ( (pm->cmd.buttons & BUTTON_IRONSIGHTS || pm->ns->isInSights) && !(pm->ns->sprintTime & SPRINT_MSB) && pm->ns->ironsightsDebounceStart == 0 )
+	if ( pm->cmd.buttons & BUTTON_IRONSIGHTS )
 	{
-	    if ( !(pm->ns->ironsightsTime & IRONSIGHTS_MSB) )
+	    if ( !(pm->ps->ironsightsTime & IRONSIGHTS_MSB) )
 	    {
 	        //Com_Printf ("%d: Bringing ironsights up\n", pm->cmd.serverTime);
-	        pm->ns->ironsightsTime = pm->cmd.serverTime | IRONSIGHTS_MSB;
+	        pm->ps->ironsightsTime = pm->cmd.serverTime | IRONSIGHTS_MSB;
 	    }
 	}
-	else if ( pm->ns->ironsightsTime & IRONSIGHTS_MSB )
+	else if ( pm->ps->ironsightsTime & IRONSIGHTS_MSB )
 	{
 	    //Com_Printf ("%d: Bringing ironsights down\n", pm->cmd.serverTime);
-	    pm->ns->ironsightsTime = pm->cmd.serverTime & ~IRONSIGHTS_MSB;
-	}
-
-	else if( BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) && !(pm->ns->ironsightsTime & IRONSIGHTS_MSB))
-	{
-		if ( !(pm->ns->sprintTime & SPRINT_MSB) )
-	    {
-	        //Com_Printf ("%d: Bringing ironsights up\n", pm->cmd.serverTime);
-	        pm->ns->sprintTime = pm->cmd.serverTime | SPRINT_MSB;
-	    }
-	}
-	else if ( pm->ns->sprintTime & SPRINT_MSB )
-	{
-		pm->ns->sprintTime = pm->cmd.serverTime & ~SPRINT_MSB;
+	    pm->ps->ironsightsTime = pm->cmd.serverTime & ~IRONSIGHTS_MSB;
 	}
 	
 	// get ammo usage
 	if (primFireDown)
 	{
-		amount = pm->ps->stats[STAT_AMMO] - weapon->firemodes[pm->ps->firingMode].cost;
+		amount = pm->ps->ammo[ammoIndex] - weapon->secondary.cost;
 	}
-	//else
-	//{
-	//	amount = pm->ps->stats[STAT_AMMO] - weapon->firemodes[1].cost;
-	//}
+	else
+	{
+		amount = pm->ps->ammo[ammoIndex] - weapon->primary.cost;
+	}
 
 	if ( weapon->zoomType != ZOOM_NONE )
 	{
-		if ( pm->ps->weaponstate == WEAPON_READY || pm->ps->weaponstate == WEAPON_FIRING )
+	    if ( pm->ps->weaponstate == WEAPON_READY )
 	    {
-			if ( (pm->cmd.buttons & BUTTON_IRONSIGHTS || pm->ns->isInSights) &&
-		            (pm->ns->ironsightsTime & IRONSIGHTS_MSB) &&
-		            (((pm->ns->ironsightsTime & ~IRONSIGHTS_MSB) + IRONSIGHTS_TIME + 50) <= pm->cmd.serverTime) )
+		    if ( (pm->cmd.buttons & BUTTON_IRONSIGHTS) &&
+		            (pm->ps->ironsightsTime & IRONSIGHTS_MSB) &&
+		            (((pm->ps->ironsightsTime & ~IRONSIGHTS_MSB) + IRONSIGHTS_TIME + 50) <= pm->cmd.serverTime) )
 		    {
 			    // We just pressed the alt-fire key
 			    if ( !pm->ps->zoomMode && pm->ps->pm_type != PM_DEAD )
@@ -8787,7 +8597,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			        }
 		        }
 		    }
-			else if ( (!(pm->cmd.buttons & BUTTON_IRONSIGHTS) && !pm->ns->isInSights) &&
+		    else if ( !(pm->cmd.buttons & BUTTON_IRONSIGHTS) &&
 		                pm->ps->zoomLockTime < pm->cmd.serverTime )
 		    {
 		        if (pm->ps->zoomMode == 1 && pm->ps->zoomLockTime < pm->cmd.serverTime)
@@ -8796,7 +8606,7 @@ void PM_AdjustAttackStates( pmove_t *pm )
 				    pm->ps->zoomMode = 0;
 				    pm->ps->zoomTime = pm->ps->commandTime;
 				    pm->ps->zoomLocked = qfalse;
-				    //pm->ps->weaponTime = 1000;
+				    pm->ps->weaponTime = 1000;
 				    
 				    PM_AddEvent (EV_DISRUPTOR_ZOOMSOUND);
 			    }
@@ -8818,17 +8628,17 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			    //	just use whatever ammo was selected from above
 			    if ( pm->ps->zoomMode )
 			    {
-					amount = pm->ps->stats[STAT_AMMO] - weapon->firemodes[pm->ps->firingMode].cost;
+				    amount = pm->ps->ammo[ammoIndex] - weapon->primary.cost;
 			    }
 		    }
-		    /*else
+		    else
 		    {
 			    // alt-fire button pressing doesn't use any ammo
 			    amount = 0;
-		    }*/
+		    }
 		}
 		
-		/*if (pm->cmd.upmove > 0 ||
+		if (pm->cmd.upmove > 0 ||
 		    (pm->cmd.forwardmove && pm->ps->groundEntityNum != ENTITYNUM_NONE) ||
 		    (pm->cmd.rightmove && pm->ps->groundEntityNum != ENTITYNUM_NONE))
 	    {
@@ -8846,58 +8656,20 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			    
 			    return;
 		    }
-	    }*/
-	}
-	
-	// JKG: Burst fire
-	//if ( !(pm->ps->shotsRemaining & ~SHOTS_TOGGLEBIT) &&
-	//    ((primFireDown && !(pm->ps->eFlags & EF_FIRING)) ||
-	//        (altFireDown && !(pm->ps->eFlags & EF_ALT_FIRING))) )
-	if ( !(pm->ps->shotsRemaining & ~SHOTS_TOGGLEBIT) &&
-			(primFireDown && !(pm->ps->eFlags & EF_FIRING)) )
-	{
-	    if ( pm->ps->weaponTime <= 0 )
-	    {
-        /*if ( altFireDown )
-        {
-            if ( weapon->hasSecondary && weapon->firemodes[1].firingType == FT_BURST )
-            {
-                pm->ps->shotsRemaining = weapon->firemodes[1].shotsPerBurst & ~SHOTS_TOGGLEBIT;
-            }
-        }
-        else
-        {
-            if ( weapon->firemodes[0].firingType == FT_BURST )
-            {
-                pm->ps->shotsRemaining = weapon->firemodes[0].shotsPerBurst & ~SHOTS_TOGGLEBIT;
-            }
-        }*/
-			if ( weapon->firemodes[pm->ps->firingMode].firingType == FT_BURST )
-            {
-				pm->ps->shotsRemaining = weapon->firemodes[pm->ps->firingMode].shotsPerBurst & ~SHOTS_TOGGLEBIT;
-            }
-        }
-        else
-        {
-            //pm->cmd.buttons &= ~(BUTTON_ATTACK | BUTTON_ALT_ATTACK);
-			pm->cmd.buttons &= ~BUTTON_ATTACK;
-            primFireDown = /*altFireDown =*/ qfalse;
-        }
+	    }
 	}
 
 	// set the firing flag for continuous beam weapons, saber will fire even if out of ammo
 	if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && 
 			pm->ps->pm_type != PM_INTERMISSION && 
-			( primFireDown /*|| altFireDown*/ ) && 
-			( amount >= 0 || pm->ps->weapon == WP_SABER ) &&
-			// JKG: No firing while sprinting
-			!BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) )
+			( primFireDown || altFireDown ) && 
+			( amount >= 0 || pm->ps->weapon == WP_SABER ) )
 	{
-		/*if ( altFireDown )
+		if ( altFireDown )
 		{
 			pm->ps->eFlags |= EF_ALT_FIRING;
 		}
-		else*/
+		else
 		{
 			pm->ps->eFlags &= ~EF_ALT_FIRING;
 		}
@@ -8905,21 +8677,11 @@ void PM_AdjustAttackStates( pmove_t *pm )
 		// This flag should always get set, even when alt-firing
 		pm->ps->eFlags |= EF_FIRING;
 	} 
-	else
+	else 
 	{
 		// Clear 'em out
-		pm->ps->eFlags &= ~(EF_FIRING/*|EF_ALT_FIRING*/);
-		if ( pm->ps->shotsRemaining & SHOTS_TOGGLEBIT )
-		{
-		    pm->ps->shotsRemaining = 0;
-		}
+		pm->ps->eFlags &= ~(EF_FIRING|EF_ALT_FIRING);
 	}
-	
-	// JKG: No firing while sprinting
-    if ( BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) )
-    {
-        pm->cmd.buttons &= ~(BUTTON_ATTACK/* | BUTTON_ALT_ATTACK*/);
-    }
 	
 	if ( weapon->zoomType != ZOOM_NONE )
 	{
@@ -8929,10 +8691,10 @@ void PM_AdjustAttackStates( pmove_t *pm )
 			pm->cmd.buttons |= BUTTON_ALT_ATTACK;
 			pm->ps->eFlags |= EF_ALT_FIRING;
 		}
-		else */if ( pm->cmd.buttons & BUTTON_IRONSIGHTS && pm->ps->zoomMode == 1 && pm->ps->zoomLocked )
+		else */if ( pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->ps->zoomMode == 1 && pm->ps->zoomLocked )
 		{
-			pm->cmd.buttons &= ~BUTTON_IRONSIGHTS;
-			//pm->ps->eFlags &= ~EF_ALT_FIRING;
+			pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
+			pm->ps->eFlags &= ~EF_ALT_FIRING;
 		}
 	}
 }
@@ -9082,7 +8844,7 @@ void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 
 qboolean PM_SaberInTransition( int move );
 
-void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime, networkState_t *ns)
+void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 {
 	saberInfo_t	*saber;
 
@@ -9116,13 +8878,7 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime, network
 
 	if ( cmd->forwardmove < 0 && !(cmd->buttons&BUTTON_WALKING) && pm->ps->groundEntityNum != ENTITYNUM_NONE )
 	{//running backwards is slower than running forwards (like SP)
-		ps->speed *= 0.55f;
-	}
-
-	if(cmd->rightmove != 0 && cmd->forwardmove == 0)
-	{
-		// strafing reduces speed significantly
-		ps->speed *= 0.70f;
+		ps->speed *= 0.75f;
 	}
 
 	if (ps->fd.forcePowersActive & (1 << FP_GRIP))
@@ -9131,7 +8887,7 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime, network
 	}
 	
 	// Xy: sprinting
-	if ( BG_IsSprinting (ps, cmd, ns) )
+	if ( BG_IsSprinting (cmd) )
 	{
 	    ps->speed *= 1.5f;
 	}
@@ -9890,23 +9646,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 			strap_G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 			strap_G2API_SetBoneAngles(ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 			strap_G2API_SetBoneAngles(ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-
-			//eezstreet add
-			/*for(j = 0; j < ARMSLOT_MAX; j++)
-			{
-				if(armorGhoul2)
-				{
-					if(armorGhoul2[j])
-					{
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-					}
-				}
-			}*/
-			//eezstreet end
 		}
 		return;
 	}
@@ -9924,7 +9663,7 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 
 	// allow yaw to drift a bit
 	if ((( cent->legsAnim ) != BOTH_STAND1) || 
-		( cent->torsoAnim ) != GetWeaponData (cent->weapon, cent->weaponVariation)->anims.ready.torsoAnim  ) 
+			( cent->torsoAnim ) != GetWeaponData (cent->weapon, cent->weaponVariation)->torsoReadyAnimation  ) 
 	{
 		// if not standing still, always point all in the same direction
 		//cent->pe.torso.yawing = qtrue;	// always center
@@ -10137,7 +9876,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 		emplaced)
 	{ //if using an emplaced gun, then we want to make sure we're angled to "hold" it right
 		vec3_t facingAngles;
-		vec3_t savedAngles;
 
 		VectorSubtract(emplaced->pos.trBase, cent_lerpOrigin, facingAngles);
 		vectoangles(facingAngles, facingAngles);
@@ -10172,25 +9910,7 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 					tPitchAngle, tYawAngle, corrTime);
 				strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 				strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-				strap_G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-
-				//eezstreet add
-				/*for(j = 0; j < ARMSLOT_MAX; j++)
-				{
-					if(armorGhoul2 != NULL)
-					{
-						if(armorGhoul2[j])
-						{
-							BG_G2ClientSpineAngles(armorGhoul2[j], motionBolt, cent_lerpOrigin, cent_lerpAngles, cent, time,
-								viewAngles, ciLegs, ciTorso, angles, thoracicAngles, ulAngles, llAngles, modelScale,
-								tPitchAngle, tYawAngle, corrTime);
-							strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-							strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-							strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-						}
-					}
-				}*/
-				//eezstreet end
+				strap_G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 
 				VectorAdd(facingAngles, thoracicAngles, facingAngles);
 
@@ -10204,19 +9924,8 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 				//strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 				//strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 				strap_G2API_SetBoneAngles(ghoul2, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-
-				//eezstreet add
-				/*for(j = 0; j < ARMSLOT_MAX; j++)
-				{
-					if(armorGhoul2 != NULL)
-					{
-						if(armorGhoul2[j])
-							strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-					}
-				}*/
 			}
 
-			VectorCopy(facingAngles, savedAngles);
 			VectorScale(facingAngles, 0.6f, facingAngles);
 			strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 			VectorScale(facingAngles, 0.8f, facingAngles);
@@ -10229,31 +9938,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 			VectorScale(facingAngles, 0.6f, facingAngles);
 			strap_G2API_SetBoneAngles(ghoul2, 0, "cervical", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 
-			//eezstreet add- Run the above code over again for each slot
-			/*for(j = 0; j < ARMSLOT_MAX; j++)
-			{
-				if(armorGhoul2 != NULL)
-				{
-					if(armorGhoul2[j])
-					{
-						vec3_t tempAngles;
-						VectorCopy(facingAngles, savedAngles);
-						VectorScale(facingAngles, 0.6f, facingAngles);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-						VectorScale(facingAngles, 0.8f, facingAngles);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "upper_lumbar", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-						VectorScale(facingAngles, 0.8f, facingAngles);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "thoracic", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-
-						//Now we want the head angled toward where we are facing
-						VectorSet(facingAngles, 0.0f, dif, 0.0f);
-						VectorScale(facingAngles, 0.6f, facingAngles);
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "cervical", facingAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-					}
-				}
-			}*/
-			//eezstreet end
-
 			return; //don't have to bother with the rest then
 		}
 	}
@@ -10261,25 +9945,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	BG_G2ClientSpineAngles(ghoul2, motionBolt, cent_lerpOrigin, cent_lerpAngles, cent, time,
 		viewAngles, ciLegs, ciTorso, angles, thoracicAngles, ulAngles, llAngles, modelScale,
 		tPitchAngle, tYawAngle, corrTime);
-
-	//eezstreet add
-	/*for(j = 0; j < ARMSLOT_MAX; j++)
-	{
-		if(armorGhoul2 != NULL)
-		{
-			if(armorGhoul2[j])
-			{
-				if(armorGhoul2[j])
-				{
-					BG_G2ClientSpineAngles(armorGhoul2[j], motionBolt, cent_lerpOrigin, cent_lerpAngles, cent, time,
-				viewAngles, ciLegs, ciTorso, angles, thoracicAngles, ulAngles, llAngles, modelScale,
-				tPitchAngle, tYawAngle, corrTime);
-				}
-			}
-		}
-	}*/
-	//eezstreet end
-
 
 	VectorCopy(cent_lerpAngles, eyeAngles);
 
@@ -10293,20 +9958,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	BG_UpdateLookAngles(lookTime, lastHeadAngles, time, lookAngles, lookSpeed, -50.0f, 50.0f, -70.0f, 70.0f, -30.0f, 30.0f);
 
 	BG_G2ClientNeckAngles(ghoul2, time, lookAngles, headAngles, neckAngles, thoracicAngles, headClampMinAngles, headClampMaxAngles);
-	//eezstreet add
-	/*for(j = 0; j < ARMSLOT_MAX; j++)
-	{
-		if(armorGhoul2 != NULL)
-		{
-			if(armorGhoul2[j])
-			{
-				if(armorGhoul2[j])
-				{
-					BG_G2ClientNeckAngles(armorGhoul2[j], time, lookAngles, headAngles, neckAngles, thoracicAngles, headClampMinAngles, headClampMaxAngles);
-				}
-			}
-		}
-	}*/
 
 #ifdef BONE_BASED_LEG_ANGLES
 	{
@@ -10325,21 +9976,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 	strap_G2API_SetBoneAngles(ghoul2, 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 	//strap_G2API_SetBoneAngles(ghoul2, 0, "cervical", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-	/*for(j = 0; j < ARMSLOT_MAX; j++)
-	{
-		if(armorGhoul2 != NULL)
-		{
-			if(armorGhoul2[j])
-			{
-				if(armorGhoul2[j])
-				{
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
-						strap_G2API_SetBoneAngles(armorGhoul2[j], 0, "thoracic", thoracicAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time);
-				}
-			}
-		}
-	}*/
 }
 
 void BG_G2ATSTAngles(void *ghoul2, int time, vec3_t cent_lerpAngles )
@@ -11053,50 +10689,19 @@ void PM_MoveForKata(usercmd_t *ucmd)
 	}
 }
 
-qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, const networkState_t *ns )
+qboolean BG_IsSprinting ( const usercmd_t *cmd )
 {
-	if ( !(cmd->buttons & BUTTON_SPRINT) && !ns->isSprinting )
-    {
-        return qfalse;
-    }
-
-	if( (ns->ironsightsTime & IRONSIGHTS_MSB) )
-	{
-		return qfalse;
-	}
-
-	if( BG_InKnockDown( ps->torsoAnim ) || PM_RollingAnim( ps->torsoAnim ) ||
-		PM_SwimmingAnim( ps->torsoAnim ) )
-	{
-		return qfalse;
-	}
-
-	if(cmd->upmove < 0)
-	{
-		return qfalse;	// can't be done while crouching (fixme: use something else here like sneaking?)
-	}
-
-	if(cmd->forwardmove <= 0)
-	{
-		return qfalse; // MUST be moving, and moving forward.
-	}
-
-	/*if( !(ps->sprintTime & SPRINT_MSB) )
-	{
-		return qfalse;
-	}*/
-    
-    if ( ps->sprintMustWait )
+    if ( cmd->buttons & BUTTON_WALKING )
     {
         return qfalse;
     }
     
-    /*if ( ps->groundEntityNum == ENTITYNUM_NONE )
+    if ( !(cmd->buttons & BUTTON_SPRINT) )
     {
         return qfalse;
-    }*/
+    }
     
-    return qtrue;
+    return qfalse;
 }
 
 void PmoveSingle (pmove_t *pmove) {
@@ -11112,19 +10717,19 @@ void PmoveSingle (pmove_t *pmove) {
 	{	pm->cmd.buttons &= ~BUTTON_ATTACK;
 		pm->cmd.buttons &= ~BUTTON_USE_HOLDABLE;
 	}
-	/*if (pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->cmd.buttons & BUTTON_USE_HOLDABLE)
+	if (pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->cmd.buttons & BUTTON_USE_HOLDABLE)
 	{	pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 		pm->cmd.buttons &= ~BUTTON_USE_HOLDABLE;
-	}*/
+	}
 
-	/*if (pm->ps->emplacedIndex)
+	if (pm->ps->emplacedIndex)
 	{
 		if (pm->cmd.buttons & BUTTON_ALT_ATTACK)
 		{ //hackerrific.
 			pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 			pm->cmd.buttons |= BUTTON_ATTACK;
 		}
-	}*/
+	}
 
 	//set up these "global" bg ents
 	pm_entSelf = PM_BGEntForNum(pm->ps->clientNum);
@@ -11252,7 +10857,7 @@ void PmoveSingle (pmove_t *pmove) {
 		&& BG_FullBodyTauntAnim( pm->ps->torsoAnim ) )
 	{
 		if ( (pm->cmd.buttons&BUTTON_ATTACK)
-//			|| (pm->cmd.buttons&BUTTON_ALT_ATTACK)
+			|| (pm->cmd.buttons&BUTTON_ALT_ATTACK)
 			|| (pm->cmd.buttons&BUTTON_FORCEPOWER)
 			|| (pm->cmd.buttons&BUTTON_FORCEGRIP)
 			|| (pm->cmd.buttons&BUTTON_FORCE_LIGHTNING)
@@ -11369,7 +10974,7 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->cmd.upmove = pm->cmd.upmove < 0 ? pm->cmd.upmove : 0;
 		// Xy: TEMPORARY 'fix' mainly for close weapons video deadline.
 		// Need to discuss what the best thing to would be when scoping and player moves...
-		//pm->cmd.forwardmove = pm->cmd.rightmove = 0;
+		pm->cmd.forwardmove = pm->cmd.rightmove = 0;
 	}
 
 	if (stiffenedUp)
@@ -11382,7 +10987,7 @@ void PmoveSingle (pmove_t *pmove) {
 	if (pm->ps->fd.forceGripCripple)
 	{ //don't let attack or alt attack if being gripped I guess
 		pm->cmd.buttons &= ~BUTTON_ATTACK;
-		pm->cmd.buttons &= ~BUTTON_IRONSIGHTS;
+		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 	}
 
 	if ( BG_InRoll( pm->ps, pm->ps->legsAnim ) )
@@ -11391,44 +10996,18 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 	
 	// Xy: Go back to walking speed when ironsights are up
-	if( pm->ns )
+	if ( pm->ps->ironsightsTime & IRONSIGHTS_MSB )
 	{
-		if ( pm->ns->ironsightsTime & IRONSIGHTS_MSB )
-		{
-			pm->cmd.forwardmove = min (max (pm->cmd.forwardmove, -64), 64);
-			pm->cmd.rightmove = min (max (pm->cmd.rightmove, -64), 64);
-		}
+	    pm->cmd.forwardmove = min (max (pm->cmd.forwardmove, -64), 64);
+	    pm->cmd.rightmove = min (max (pm->cmd.rightmove, -64), 64);
 	}
 
 	PM_CmdForSaberMoves(&pm->cmd);
 
-	BG_AdjustClientSpeed(pm->ps, &pm->cmd, pm->cmd.serverTime, pm->ns);
+	BG_AdjustClientSpeed(pm->ps, &pm->cmd, pm->cmd.serverTime);
 
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
 		pm->tracemask &= ~CONTENTS_BODY;	// corpses can fly through bodies
-	}
-	
-	// Walking AND sprinting = sprinting!
-	if ( (pm->cmd.buttons & BUTTON_WALKING) && BG_IsSprinting (pm->ps, &pm->cmd, pm->ns) )
-	{
-	    pm->cmd.buttons &= ~BUTTON_WALKING;
-	    if ( pm->cmd.forwardmove > 0 )
-	    {
-	        pm->cmd.forwardmove = 127;
-	    }
-	    else if ( pm->cmd.forwardmove < 0 )
-	    {
-	        pm->cmd.forwardmove = -128;
-	    }
-	    
-	    if ( pm->cmd.rightmove > 0 )
-	    {
-	        pm->cmd.rightmove = 127;
-	    }
-	    else if ( pm->cmd.rightmove < 0 )
-	    {
-	        pm->cmd.rightmove = -128;
-	    }
 	}
 
 	// make sure walking button is clear if they are running, to avoid
@@ -11813,8 +11392,8 @@ void PmoveSingle (pmove_t *pmove) {
 		if ( veh && veh->m_pVehicle &&
 			(veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) )
 		{//*sigh*, until we get forced weapon-switching working?
-			pm->cmd.buttons &= ~(BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/);
-			pm->ps->eFlags &= ~(EF_FIRING/*|EF_ALT_FIRING*/);
+			pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK);
+			pm->ps->eFlags &= ~(EF_FIRING|EF_ALT_FIRING);
 			//pm->cmd.weapon = pm->ps->weapon;
 		}
 	}
@@ -12041,14 +11620,13 @@ void PmoveSingle (pmove_t *pmove) {
 
 				if (weap != -1)
 				{
-					pm->cmd.weapon = BG_GetWeaponIndexFromClass (weap, 0);
+					pm->cmd.weapon = weap;
 					pm->ps->weapon = weap;
-					pm->ps->weaponVariation = 0;
 				}
 			}
 			else
 			{
-				pm->cmd.weapon = BG_GetWeaponIndexFromClass (pm->ps->weapon, 0);
+				pm->cmd.weapon = pm->ps->weapon;
 			}
 		}
 	}

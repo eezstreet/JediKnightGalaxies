@@ -32,6 +32,19 @@ void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	G_FreeEntity( self );
 }
 
+qboolean G_HeavyMelee( gentity_t *attacker )
+{
+	if (g_gametype.integer == GT_SIEGE 
+		&& attacker 
+		&& attacker->client
+		&& attacker->client->siegeClass != -1 
+		&& (bgSiegeClasses[attacker->client->siegeClass].classflags & (1<<CFL_HEAVYMELEE)) )
+	{
+		return qtrue;
+	}
+	return qfalse;
+}
+
 int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 {
 	vec3_t			point, point_dir;
@@ -458,6 +471,13 @@ Adds score to both the client and his team
 extern qboolean g_dontPenalizeTeam; //g_cmds.c
 void AddScore( gentity_t *ent, vec3_t origin, int score )
 {
+	/*
+	if (g_gametype.integer == GT_SIEGE)
+	{ //no scoring in this gametype at all.
+		return;
+	}
+	*/
+
 	if ( !ent->client ) {
 		return;
 	}
@@ -488,6 +508,12 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	gentity_t *launched;
 	int weapon = self->s.weapon;
 	int ammoSub;
+	int ammoindex;
+
+	if (g_gametype.integer == GT_SIEGE)
+	{ //no dropping weaps
+		return;
+	}
 
 	if ( weapon < WP_BRYAR_PISTOL)
 	{ 
@@ -501,7 +527,8 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 
 	// find the item type for this weapon
 	item		= BG_FindItemForWeapon( weapon );
-	ammoSub		= (self->client->ps.ammo - bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity);
+	ammoindex	= GetWeaponAmmoIndex( self->client->ps.weapon, self->client->ps.weaponVariation );
+	ammoSub		= (self->client->ps.ammo[ammoindex] - bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity);
 
 	if (ammoSub < 0)
 	{
@@ -524,15 +551,15 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	launched->s.powerups = level.time + 1500;
 
 	launched->count = bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
-	self->client->ps.ammo -= bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
+	self->client->ps.ammo[ammoindex] -= bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
 
-	if (self->client->ps.ammo < 0)
+	if (self->client->ps.ammo[ammoindex] < 0)
 	{
-		launched->count -= (-self->client->ps.ammo);
-		self->client->ps.ammo = 0;
+		launched->count -= (-self->client->ps.ammo[ammoindex]);
+		self->client->ps.ammo[ammoindex] = 0;
 	}
 
-	if ((self->client->ps.ammo < 1 && weapon != WP_DET_PACK) ||
+	if ((self->client->ps.ammo[ammoindex] < 1 && weapon != WP_DET_PACK) ||
 		(weapon != WP_THERMAL && weapon != WP_DET_PACK && weapon != WP_TRIP_MINE))
 	{
 		int i = 0;
@@ -581,6 +608,11 @@ void TossClientItems( gentity_t *self ) {
 	int			i;
 	gentity_t	*drop;
 
+	if (g_gametype.integer == GT_SIEGE)
+	{ //just don't drop anything then
+		return;
+	}
+
 	// drop the weapon if not a gauntlet or machinegun
 	weapon = self->s.weapon;
 
@@ -590,11 +622,7 @@ void TossClientItems( gentity_t *self ) {
 	// their weapon change hasn't completed yet and they are still holding the MG.
 	if ( weapon == WP_BRYAR_PISTOL) {
 		if ( self->client->ps.weaponstate == WEAPON_DROPPING || self->client->ps.weaponstate == WEAPON_RELOADING ) {
-		    int variation;
-			if ( !BG_GetWeaponByIndex (self->client->pers.cmd.weapon, &weapon, &variation) )
-			{
-			    weapon = WP_NONE;
-			}
+			weapon = self->client->pers.cmd.weapon;
 		}
 		if ( !( self->client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
 			weapon = WP_NONE;
@@ -626,7 +654,7 @@ void TossClientItems( gentity_t *self ) {
 	}
 
 	// drop all the powerups if not in teamplay
-	if ( g_gametype.integer != GT_TEAM ) {
+	if ( g_gametype.integer != GT_TEAM && g_gametype.integer != GT_SIEGE ) {
 		angle = 45;
 		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
 			if ( self->client->ps.powerups[ i ] > level.time ) {
@@ -695,44 +723,6 @@ void BodyRid(gentity_t *ent)
 body_die
 ==================
 */
-//eezstreet add: body use function
-extern void JKG_PickItemsClean( gentity_t *ent, lootTable_t *loot );
-extern lootTable_t lootLookupTable[MAX_LOOT_TABLE_SIZE];
-static void LootBodyProper( gentity_t *self, gentity_t *other, gentity_t *activator){
-	int i;
-	char str[900];
-	if(!activator->client)
-		return;
-		
-	if ( (self->painDebounceTime + 200) > level.time )
-	{
-	    // Debounce uses so that we don't get spam of "object is busy" messages.
-	    return;
-	}
-		
-	if(self->currentLooter != NULL){
-	    // FIXME: Send command to client to show a dialog box
-		trap_SendServerCommand( activator->client->ps.clientNum, "print \"That object is busy\n\"" );
-		return;
-	}
-	self->currentLooter = activator;
-	trap_SendServerCommand( activator->client->ps.clientNum, "loot ol" );
-
-	str[0] = '\0';
-
-	i = 0;
-	while(self->inventory->items[i].id) {
-		Q_strcat (str, sizeof (str), va("\"%s\" ", self->inventory->items[i].id->displayName));
-		i++;
-	}
-	activator->currentlyLooting = self;
-	trap_SendServerCommand( activator->client->ps.clientNum, va("loot sil %s", str ));
-	trap_SendServerCommand( activator->client->ps.clientNum, va("loot sen %i", self->s.number));
-	
-	#ifdef _DEBUG
-	Com_Printf(str);
-	#endif
-}
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	// NOTENOTE No gibbing right now, this is star wars.
 	qboolean doDisint = qfalse;
@@ -2211,7 +2201,7 @@ extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
 extern void Boba_FlyStop( gentity_t *self );
-extern qboolean NPC_Humanoid_WaitingAmbush( gentity_t *self );
+extern qboolean Jedi_WaitingAmbush( gentity_t *self );
 void CheckExitRules( void );
 extern void Rancor_DropVictim( gentity_t *self );
 
@@ -2261,7 +2251,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	{ //kill everyone on board in the name of the attacker... if the vehicle has no death delay
 		gentity_t *murderer = NULL;
 		gentity_t *killEnt;
-		i = 0;
+		int i = 0;
 
 		if (self->client->ps.otherKillerTime >= level.time)
 		{ //use the last attacker
@@ -2362,144 +2352,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	self->client->ps.emplacedIndex = 0;
-	// JKG (Xy): Reset these to qfalse. Not sure if you want to keep these while you're dead
-	// but it doesn't seem like you would.
-	self->client->pmfreeze = qfalse;
-	self->client->pmlock = qfalse;
-	self->client->pmnomove = qfalse;
-
-	// K, let's see if we can raise the killstreak on the attacker
-#ifndef __MMO__
-	if(jkg_bounty.integer)
-	{
-		if( attacker != self )
-		{
-			if( attacker->client )
-			{
-				attacker->client->numKillsThisLife++;
-			}
-		}
-	}
-#endif
-
-	// JKG: Give credits for each kill
-	if(attacker->s.number < MAX_CLIENTS && (self->s.number < MAX_CLIENTS || self->s.eType == ET_NPC))
-	{
-		// TODO: Divide equally amongst party (once new party interface is done)
-		if(!OnSameTeam(attacker, self) && attacker != self)
-		{
-#ifndef __MMO__
-			int credits = jkg_creditsPerKill.integer;
-			int bounty = (self->client->numKillsThisLife >= 3) ? self->client->numKillsThisLife*jkg_bounty.integer : 0;
-			attacker->client->ps.persistant[PERS_CREDITS] += (credits + bounty);
-			// UQ1: Again, use an event :) creds as additional value on it.
-			// eez: events are sent to all players...
-			if(bounty > 0)
-			{
-				trap_SendServerCommand(attacker-g_entities, va("notify 1 \"Kill: +%i Credits, +%i Bounty\"", credits, bounty));
-			}
-			else
-			{
-				trap_SendServerCommand(attacker-g_entities, va("notify 1 \"Kill: +%i Credits\"", credits));
-			}
-#else //!__MMO__
-			G_AddEvent(attacker, EV_HITMARKER_KILL, jkg_creditsPerKill.integer);
-#endif //__MMO__
-		}
-	}
-#ifndef __MMO__
-	// Need to send this as an event. This is incredibly ugly atm
-	if(jkg_bounty.integer)
-	{
-		if(self->client && attacker->client && self->client->numKillsThisLife >= 3 )
-		{
-			trap_SendServerCommand(-1, va("chat 100 \"%s^7's bounty was claimed by %s.\"", self->client->pers.netname, attacker->client->pers.netname));
-		}
-		if(attacker->client && attacker->client->numKillsThisLife == 3)
-		{
-			trap_SendServerCommand(-1, va("chat 100 \"%s ^7has a bounty on their head!\"", attacker->client->pers.netname));
-		}
-		self->client->numKillsThisLife = 0;
-	}
-#endif
-
-	if(self->s.number < MAX_CLIENTS)
-	{
-		// Assists
-		if(self->assistData.hitRecords)
-		{
-			for(i = 0; i < self->assistData.numRecords; i++)
-			{
-				gclient_t *selfClient;
-				if( i >= (self->assistData.memAllocated/2) )
-				{
-					// what.
-					entityHitRecord_t *reallocated = (entityHitRecord_t *)realloc( self->assistData.hitRecords, (sizeof(entityHitRecord_t))*(self->assistData.memAllocated*2) );
-					JKG_Assert(reallocated);
-					if(reallocated == NULL)
-					{
-						continue;
-					}
-					self->assistData.hitRecords = reallocated;
-					self->assistData.memAllocated *= 2;
-					//break;		// No need to break. There's probably more records to deal with.
-				}
-				if( !self->assistData.hitRecords[i].entWhoHit /*|| !self->assistData.hitRecords[i].entWhoHit->client*/ )
-				{
-					continue;
-				}
-				if( ((self->assistData.hitRecords[i].entWhoHit-g_entities) > MAX_CLIENTS && g_entities[self->assistData.hitRecords[i].entWhoHit-g_entities].s.eType != ET_NPC) ||
-					(self->assistData.hitRecords[i].entWhoHit-g_entities) < 0)
-				{
-					continue;
-				}
-				selfClient = &level.clients[(self->assistData.hitRecords[i].entWhoHit-g_entities)];
-				if( (self->assistData.hitRecords[i].timeHit+ASSIST_LAST_TIME) > level.time &&
-					self->assistData.hitRecords[i].entWhoHit &&
-					!OnSameTeam(self, self->assistData.hitRecords[i].entWhoHit) &&
-					self->assistData.hitRecords[i].entWhoHit != attacker)		// attacker shouldn't be getting the assist! naughty naughty!
-				{
-					// Valid.
-					int assistCredits = (jkg_creditsPerKill.value/100)*self->assistData.hitRecords[i].damageDealt;
-					if(assistCredits >= 1)		// FIX: +0 credits on assist
-					{
-						if(assistCredits >= jkg_creditsPerKill.integer)
-						{
-							assistCredits = jkg_creditsPerKill.integer - 1;
-						}
-						selfClient->ps.persistant[PERS_CREDITS] += assistCredits;
-#ifndef __MMO__ // UQ1: Use events! 1 event with credits param...
-						//trap_SendServerCommand(self->assistData.hitRecords[i].entWhoHit->client->ps.clientNum, "hitmarker");
-						trap_SendServerCommand(selfClient->ps.clientNum,
-							va("notify 1 \"Assist: +%i Credits\"", assistCredits));
-						trap_SendServerCommand(selfClient->ps.clientNum, "hitmarker");
-#else //!__MMO__
-						G_AddEvent(self, EV_HITMARKER_ASSIST, assistCredits);
-#endif //__MMO__
-					}
-				}
-			}
-			self->assistData.numRecords = 0;
-		}
-	}
 
 	G_BreakArm(self, 0); //unbreak anything we have broken
 	self->client->ps.saberEntityNum = self->client->saberStoredIndex; //in case we died while our saber was knocked away.
 
 	self->client->bodyGrabIndex = ENTITYNUM_NONE;
 	self->client->bodyGrabTime = 0;
-
-	//eezstreet add
-	if(self->client && self->currentlyLooting != NULL){
-		//We are looting a target, or so the game thinks so.
-		self->currentlyLooting = NULL;
-		if(self->client->ps.clientNum < level.maxclients){
-			//We are a player.
-			trap_SendServerCommand(self->client->ps.clientNum, "loot cl"); //Close the menu. Don't want this still up after death!
-		}
-	}
-	//eezstreet end
-
 
 	if (self->client->holdingObjectiveItem > 0)
 	{ //carrying a siege objective item - make sure it updates and removes itself from us now in case this is an instant death-respawn situation
@@ -2513,7 +2371,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// JKG - check if he was holding a primed thermal detonator
 	if (self->client && self->client->ps.weapon == WP_THERMAL && !self->grenadeCookTime) {
-		WP_RecalculateTheFreakingMuzzleCrap( self ); // Fix to keep the grenades from spawning at enemies :P --eez
 		if (self->client->ps.weaponstate == WEAPON_CHARGING) {
 			WP_DropThermalDetonator(self, qfalse);
 		} else if (self->client->ps.weaponstate == WEAPON_CHARGING_ALT) {
@@ -2571,7 +2428,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	if ( self->NPC )
 	{
-		if ( self->client && NPC_Humanoid_WaitingAmbush( self ) )
+		if ( self->client && Jedi_WaitingAmbush( self ) )
 		{//ambushing trooper
 			self->client->noclip = qfalse;
 		}
@@ -2628,21 +2485,6 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			trap_G2API_CleanGhoul2Models( &self->client->weaponGhoul2[0] );
 		}
 		/* JKG - Muzzle Calculation End */
-
-		/* JKG (eez) - drop items */
-		if(self->client->deathLootIndex != -1 && lootLookupTable[self->client->deathLootIndex].numItems > 0)
-		{
-			JKG_PickItemsClean(self, &lootLookupTable[self->client->deathLootIndex]);
-			//Let's try this the other way, for effect!
-			self->r.svFlags |= SVF_PLAYER_USABLE;
-			self->painDebounceTime = 0;
-			self->use = LootBodyProper;
-		}
-		/* JKG (eez) - drop items end */
-	}
-	else
-	{
-		// Stuff that does not happen to NPC, but does happen to players --eez
 	}
 	if ( attacker && attacker->NPC && attacker->NPC->group && attacker->NPC->group->enemy == self )
 	{
@@ -2741,20 +2583,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	}
 
 	if ( killer < 0 || killer >= MAX_CLIENTS ) {
-		gentity_t *killerEnt = &g_entities[killer];
-		
-		if (killerEnt && killerEnt->inuse && killerEnt->s.eType == ET_NPC)
-		{
-			if (killerEnt->client->pers.netname && killerEnt->client->pers.netname[0])
-				killerName = killerEnt->client->pers.netname; // UQ1: NPCs have names now...
-			else
-				killerName = va("A %s NPC", killerEnt->NPC_type);
-		}
-		else
-		{
-			killer = ENTITYNUM_WORLD;
-			killerName = "<world>";
-		}
+		killer = ENTITYNUM_WORLD;
+		killerName = "<world>";
 	}
 
 	if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) {
@@ -3089,6 +2919,13 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			
 			// JKG - Add custom handling for dismemberment here
 
+
+			/*if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
+			{ //update the anim on the actual skeleton (so bolt point will reflect the correct position) and then check for dismem
+				G_UpdateClientAnims(self, 1.0f);
+				G_CheckForDismemberment(self, attacker, self->pos1, damage, anim, qfalse);
+			}*/
+
 			//[FullDismemberment]
 			//weapon dismemberment so saber isn't the only one  
 			if (meansOfDeath == MOD_SABER
@@ -3096,7 +2933,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				|| meansOfDeath == MOD_TURBLAST
 				|| meansOfDeath == MOD_FLECHETTE
 				|| meansOfDeath == MOD_FLECHETTE_ALT_SPLASH
-				|| meansOfDeath == MOD_CONC)//saber or heavy melee (claws)
+				|| meansOfDeath == MOD_CONC
+				|| (meansOfDeath == MOD_MELEE && G_HeavyMelee(attacker)))//saber or heavy melee (claws)
 			//if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
 			{ //update the anim on the actual skeleton (so bolt point will reflect the correct position) and then check for dismem
 				G_UpdateClientAnims(self, 1.0f);
@@ -3120,16 +2958,12 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			//[/FullDismemberment]
 
 		}
-		//eezstreet edit
-		//NO.
-		//DO NOT FUCKING WANT.
 		else if (self->NPC && self->client && self->client->NPC_class != CLASS_MARK1 &&
 			self->client->NPC_class != CLASS_VEHICLE)
 		{ //in this case if we're an NPC it's my guess that we want to get removed straight away.
 			self->think = G_FreeEntity;
 			self->nextthink = level.time;
 		}
-		
 
 		//self->client->ps.legsAnim = anim;
 		//self->client->ps.torsoAnim = anim;
@@ -4070,6 +3904,7 @@ qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hit
 
 	if ( ent->client 
 		&& ( ent->client->NPC_class == CLASS_R2D2 
+			|| ent->client->NPC_class == CLASS_R2D2 
 			|| ent->client->NPC_class == CLASS_GONK
 			|| ent->client->NPC_class == CLASS_MOUSE
 			|| ent->client->NPC_class == CLASS_SENTRY
@@ -4701,7 +4536,6 @@ void G_CheckForBlowingUp(gentity_t *ent, gentity_t *enemy, vec3_t point, int dam
 void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int dflags, int *damage)
 {
 	int hitLoc = -1;
-	int armorSlot = 0;
 
 	if (!g_locationBasedDamage.integer)
 	{ //then leave it alone
@@ -4737,7 +4571,6 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 
 		if (hitSurface[0])
 		{
-		    //trap_SendServerCommand (-1, va ("print \"%s\n\"", hitSurface));
 			G_GetHitLocFromSurfName(ent, hitSurface, &hitLoc, point, vec3_origin, vec3_origin, MOD_UNKNOWN);
 		}
 	}
@@ -4751,75 +4584,34 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 	{
 	case HL_FOOT_RT:
 	case HL_FOOT_LT:
-		armorSlot = ARMSLOT_BOOTS;
 		*damage *= 0.5f;
 		break;
 	case HL_LEG_RT:
 	case HL_LEG_LT:
-		armorSlot = ARMSLOT_LEGS;
 		*damage *= 0.7f;
 		break;
 	case HL_WAIST:
-		armorSlot = ARMSLOT_LEGS;
-		break;
 	case HL_BACK_RT:
 	case HL_BACK_LT:
 	case HL_BACK:
 	case HL_CHEST_RT:
 	case HL_CHEST_LT:
 	case HL_CHEST:
-		armorSlot = ARMSLOT_TORSO;
 		break; //normal damage
 	case HL_ARM_RT:
 	case HL_ARM_LT:
-		armorSlot = ARMSLOT_SHOULDER;
 		*damage *= 0.85f;
 		break;
 	case HL_HAND_RT:
 	case HL_HAND_LT:
-		armorSlot = ARMSLOT_GLOVES;
 		*damage *= 0.6f;
 		break;
 	case HL_HEAD:
-		armorSlot = ARMSLOT_HEAD;
 		*damage *= 1.3f;
 		break;
 	default:
 		break; //do nothing then
 	}
-
-	//eezstreet add - Defense n Armor
-	if( ent->client && ent->s.eType != ET_NPC && !(ent->r.svFlags & SVF_BOT) && hitLoc != HL_NONE )
-	{ //Valid player
-		int armorItem = ent->client->armorItems[armorSlot];
-		itemInstance_t *item = &ent->inventory->items[armorItem];
-		if(armorItem && item->id->itemID)
-		{ //Valid item and armor
-			/*if((item->durabilityCurrent > 0 && item->id->baseDurabilityMax > 0) ||
-				item->id->baseDurabilityMax <= 0)
-			{
-				*damage *= ((125 - item->defense)/125); //Defense formula
-				//One point of defense is worth 0.8% damage reduction
-				if(Q_irand(1,10) == 1) //Random probability - 1 in 10 chance of losing durability
-				{
-					if(item->id->baseDurabilityMax > 0)
-					{ //This item has a max durability of > 0 (because some items are indestructible)
-						item->durabilityCurrent--;
-						if(item->durabilityCurrent <= 0)
-						{ //Item breaks.
-							//lolol do item breaking code here
-						}
-					}
-				}
-			}*/
-			// durability check removed for now
-			if(item->defense > 0)
-			{
-				*damage *= ((100 - item->defense)/100); //Defense formula
-			}
-		}
-	}
-
 }
 /*
 ===================================
@@ -4890,7 +4682,7 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, fl
 	//{
 	//	return;
 	//}
-	//else if ( NPC_Humanoid_StopKnockdown( self, attacker, pushDir ) )
+	//else if ( Jedi_StopKnockdown( self, attacker, pushDir ) )
 	//{//They can sometimes backflip instead of be knocked down
 	//	return;
 	//}
@@ -5024,6 +4816,7 @@ dflags		these flags are used to control how T_Damage works
 	DAMAGE_HALF_ARMOR_REDUCTION		Any damage that shields incur is halved
 ============
 */
+extern qboolean gSiegeRoundBegun;
 
 int gPainMOD = 0;
 int gPainHitLoc = -1;
@@ -5042,77 +4835,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	float		famt = 0;
 	float		hamt = 0;
 	float		shieldAbsorbed = 0;
-	
-	if ( !damage )
-	{
-	    // No damage to deal
-	    return;
-	}
-
-	if (targ
-		&& targ->client
-		&& targ->s.eType == ET_NPC 
-		&& (attacker && (attacker->s.eType == ET_PLAYER || attacker->s.eType == ET_NPC)))
-	{// UQ1: Civilians don't take damage from players or other NPCs.
-
-		switch( targ->client->NPC_class)
-		{// UQ1: Vendor types... Stand still for now...
-		case CLASS_CIVILIAN:
-		case CLASS_GENERAL_VENDOR:
-		case CLASS_WEAPONS_VENDOR:
-		case CLASS_ARMOR_VENDOR:
-		case CLASS_SUPPLIES_VENDOR:
-		case CLASS_FOOD_VENDOR:
-		case CLASS_MEDICAL_VENDOR:
-		case CLASS_GAMBLER_VENDOR:
-		case CLASS_TRADE_VENDOR:
-		case CLASS_ODDITIES_VENDOR:
-		case CLASS_DRUG_VENDOR:
-		case CLASS_TRAVELLING_VENDOR:
-			{
-				targ->enemy = NULL; // Make sure civilians never have an enemy... (no AI for it, no weapon for it)
-
-				if (attacker && attacker->s.eType == ET_NPC)
-					attacker->enemy = NULL; // Make sure this does not happen again...
-
-				return;
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
-	if (targ
-		&& targ->client
-		&& targ->s.eType == ET_NPC 
-		&& attacker 
-		&& attacker->s.eType == ET_PLAYER
-		&& OnSameTeam( targ, attacker)
-		&& targ != attacker)
-	{// UQ1: NPCs don't take damage from same team players (unless they suicide somehow, like falling).
-		return;
-	}
-
-	if (targ
-		&& targ->client
-		&& targ->s.eType == ET_NPC 
-		&& attacker 
-		&& attacker->s.eType == ET_NPC
-		&& attacker->client->playerTeam == targ->client->playerTeam
-		&& targ != attacker)
-	{// UQ1: NPCs don't take damage from other same team NPCs (unless they suicide somehow, like falling).
-		return;
-	}
 
 	if (targ && targ->damageRedirect)
 	{
 		G_Damage(&g_entities[targ->damageRedirectTo], inflictor, attacker, dir, point, damage, dflags, mod);
 		return;
 	}
-
-	if (attacker && targ && OnSameTeam(targ, attacker) && g_gametype.integer == GT_WARZONE)
-		return; // No team damage in warzone gametype.
 
 	// TODO: GLua hook!
 
@@ -5131,6 +4859,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				targ->client->ps.electrifyTime = level.time + Q_irand( 300, 800 );
 			}
 		}
+	}
+
+	if (g_gametype.integer == GT_SIEGE &&
+		!gSiegeRoundBegun)
+	{ //nothing can be damaged til the round starts.
+		return;
 	}
 
 	if (!targ->takedamage) {
@@ -5167,7 +4901,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-    // TODO: Rewrite a lot of this code. Heavy weapon attribute should be assigned to weapons.
 	if ((targ->flags & FL_DMG_BY_HEAVY_WEAP_ONLY))
 	{ //only take damage from explosives and such
 		if (mod != MOD_REPEATER_ALT &&
@@ -5190,7 +4923,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			mod != MOD_TELEFRAG &&
 			mod != MOD_TRIGGER_HURT)
 		{
-			return;
+			if ( mod != MOD_MELEE || !G_HeavyMelee( attacker ) )
+			{ //let classes with heavy melee ability damage heavy wpn dmg doors with fists
+				return;
+			}
 		}
 	}
 
@@ -5199,9 +4935,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if (mod == MOD_DEMP2 ||
 			mod == MOD_DEMP2_ALT ||
 			mod == MOD_BRYAR_PISTOL ||
-			mod == MOD_BRYAR_PISTOL_ALT)
+			mod == MOD_BRYAR_PISTOL_ALT ||
+			mod == MOD_MELEE)
 		{ //these don't damage bbrushes.. ever
-			return;
+			if ( mod != MOD_MELEE || !G_HeavyMelee( attacker ) )
+			{ //let classes with heavy melee ability damage breakable brushes with fists
+				return;
+			}
 		}
 	}
 
@@ -5259,6 +4999,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
+	/*if ( attacker->client
+		&& attacker != targ 
+		&& attacker->s.eType == ET_PLAYER 
+		&& g_gametype.integer != GT_SIEGE ) 
+	{
+		max = attacker->client->ps.stats[STAT_MAX_HEALTH];
+		damage = damage * max / 100;
+	}*/
 
 	if ( !(dflags&DAMAGE_NO_HIT_LOC) )
 	{//see if we should modify it by damage location
@@ -5403,30 +5151,51 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		targ->client->ps.otherKillerDebounceTime = level.time + 25000;
 	}
 
-	if(attacker->client && !attacker->NPC)
-	{
-		if( mod >= MOD_STUN_BATON && mod <= MOD_SENTRY && attacker != targ )
-		{
-			if(mod == MOD_REPEATER && attacker->client->lastHitmarkerTime < (level.time-250))
+	
+	if ( (g_trueJedi.integer || g_gametype.integer == GT_SIEGE)
+		&& client )
+	{//less explosive damage for jedi, more saber damage for non-jedi
+		if ( client->ps.trueJedi 
+			|| (g_gametype.integer == GT_SIEGE&&client->ps.weapon == WP_SABER))
+		{//if the target is a trueJedi, reduce splash and explosive damage to 1/2
+			switch ( mod )
 			{
-				// Small hack to prevent the ACP array gun from ear-raping people so much --eez
-#ifndef __MMO__ // UQ1: This is just a sound and a message? Worth the spam????
-				trap_SendServerCommand(attacker->client->ps.clientNum, "hitmarker");
-#else //!__MMO__
-				G_AddEvent(attacker, EV_HITMARKER_ASSIST, 0);
-#endif //__MMO__
-				attacker->client->lastHitmarkerTime = level.time;
-			}
-			else if(attacker->client->lastHitmarkerTime < (level.time-100))
-			{
-#ifndef __MMO__
-				trap_SendServerCommand(attacker->client->ps.clientNum, "hitmarker");
-#else //!__MMO__
-				G_AddEvent(attacker, EV_HITMARKER_ASSIST, 0);
-#endif //__MMO__
-				attacker->client->lastHitmarkerTime = level.time;
+			case MOD_REPEATER_ALT:
+			case MOD_REPEATER_ALT_SPLASH:
+			case MOD_DEMP2_ALT:
+			case MOD_FLECHETTE_ALT_SPLASH:
+			case MOD_ROCKET:
+			case MOD_ROCKET_SPLASH:
+			case MOD_ROCKET_HOMING:
+			case MOD_ROCKET_HOMING_SPLASH:
+			case MOD_THERMAL:
+			case MOD_THERMAL_SPLASH:
+			case MOD_TRIP_MINE_SPLASH:
+			case MOD_TIMED_MINE_SPLASH:
+			case MOD_DET_PACK_SPLASH:
+				damage *= 0.75f;
+				break;
 			}
 		}
+		else if ( (client->ps.trueNonJedi || (g_gametype.integer == GT_SIEGE&&client->ps.weapon != WP_SABER))
+			&& mod == MOD_SABER )
+		{//if the target is a trueNonJedi, take more saber damage... combined with the 1.5f in the w_saber stuff, this is 6 times damage!
+			if ( damage < 100 )
+			{
+				damage *= 4;
+				if ( damage > 100 )
+				{
+					damage = 100;
+				}
+			}
+		}
+	}
+
+	if (attacker->client && targ->client && g_gametype.integer == GT_SIEGE &&
+		targ->client->siegeClass != -1 && (bgSiegeClasses[targ->client->siegeClass].classflags & (1<<CFL_STRONGAGAINSTPHYSICAL)))
+	{ //this class is flagged to take less damage from physical attacks.
+		//For now I'm just decreasing against any client-based attack, this can be changed later I guess.
+		damage *= 0.5f;
 	}
 
 	// check for completely getting out of the damage
@@ -5511,6 +5280,41 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	//check for teamnodmg
 	//NOTE: non-client objects hitting clients (and clients hitting clients) purposely doesn't obey this teamnodmg (for emplaced guns)
+	if ( attacker && !targ->client )
+	{//attacker hit a non-client
+		if ( g_gametype.integer == GT_SIEGE &&
+			!g_ff_objectives.integer )
+		{//in siege mode (and...?)
+			if ( targ->teamnodmg )
+			{//targ shouldn't take damage from a certain team
+				if ( attacker->client )
+				{//a client hit a non-client object
+					if ( targ->teamnodmg == attacker->client->sess.sessionTeam )
+					{
+						return;
+					}
+				}
+				else if ( attacker->teamnodmg )
+				{//a non-client hit a non-client object
+					//FIXME: maybe check alliedTeam instead?
+					if ( targ->teamnodmg == attacker->teamnodmg )
+					{
+						if (attacker->activator &&
+							attacker->activator->inuse &&
+							attacker->activator->s.number < MAX_CLIENTS &&
+							attacker->activator->client &&
+							attacker->activator->client->sess.sessionTeam != targ->teamnodmg)
+						{ //uh, let them damage it I guess.
+						}
+						else
+						{
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
@@ -5538,7 +5342,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// always give half damage if hurting self... but not in siege.  Heavy weapons need a counter.
 	// calculated after knockback, so rocket jumping works
 	if ( targ == attacker && !(dflags & DAMAGE_NO_SELF_PROTECTION)) {
-		damage *= 0.5f;
+		if ( g_gametype.integer == GT_SIEGE )
+		{
+			damage *= 1.5f;
+		}
+		else
+		{
+			damage *= 0.5f;
+		}
 	}
 
 	if ( damage < 1 ) {
@@ -6120,7 +5931,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				targ->client &&
 				(targ->s.eFlags & EF_DEAD))
 			{ //an NPC that's already dead. Maybe we can cut some more limbs off!
-				if ( mod == MOD_SABER //saber or heavy melee (claws)
+				if ( (mod == MOD_SABER || (mod == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
 					&& take > 2
 					&& !(dflags&DAMAGE_NO_DISMEMBER) )
 				{
@@ -6165,69 +5976,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 
 		G_LogWeaponDamage(attacker->s.number, mod, take);
-	}
-	if(attacker->client && !attacker->NPC)
-	{
-		int i;
-
-		if(targ->client && !targ->NPC && !OnSameTeam(attacker, targ))
-		{
-			// Add to our assist data
-
-			// Check for memory first
-			if( targ->assistData.numRecords >= (targ->assistData.memAllocated/2) )
-			{
-				// Handle memory crapola
-				entityHitRecord_t *hitRecord = (entityHitRecord_t *)realloc(targ->assistData.hitRecords, (sizeof(entityHitRecord_t))*(targ->assistData.memAllocated*2));
-				JKG_Assert(hitRecord);
-				if(!hitRecord)
-				{
-					return;
-				}
-				targ->assistData.memAllocated *= 2;
-				targ->assistData.hitRecords = hitRecord;
-			}
-
-			// Make sure that we already haven't been added to the record
-			for(i = 0; i < targ->assistData.numRecords; i++)
-			{
-				if(i > targ->assistData.memAllocated)
-				{
-					break;
-				}
-
-				if(targ->assistData.hitRecords[i].entWhoHit == attacker && targ->assistData.hitRecords[i].timeHit+ASSIST_LAST_TIME < level.time)
-				{
-					// This guy has already inflicted damage, BUT he isn't considered a person who assisted our kill.
-					// In order to correct this, we'll be giving this guy what is considered to be a blank slate.
-					targ->assistData.hitRecords[i].damageDealt = take;
-					targ->assistData.hitRecords[i].timeHit = level.time;
-					break;
-				}
-				else if(targ->assistData.hitRecords[i].entWhoHit == attacker)
-				{
-					// This guy has already inflicted damage, BUT he's already hit us!
-					// Add on to the amount of damage that he did before, so the history is accurate.
-					targ->assistData.hitRecords[i].damageDealt += take;
-					targ->assistData.hitRecords[i].timeHit = level.time;
-					break;
-				}
-				else
-				{
-					// Not our target.
-					continue;
-				}
-			}
-			if(i == targ->assistData.numRecords)
-			{
-				// New guy! Fun fun...
-				targ->assistData.hitRecords[i].entWhoHit = attacker;
-				targ->assistData.hitRecords[i].damageDealt = take;
-				targ->assistData.hitRecords[i].timeHit = level.time;
-
-				targ->assistData.numRecords++;
-			}
-		}
 	}
 
 }
@@ -6384,10 +6132,9 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			{
 				G_Damage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 			}
-			// JKG: No knockdown for now. Will add it back as weapon attribute later!
-			/*if (points > 10) {
+			if (points > 10) {
 				G_Knockdown(ent, attacker, dir, points, qtrue);
-			}*/
+			}
 
 			if (ent && ent->client && roastPeople && missile &&
 				!VectorCompare(ent->r.currentOrigin, missile->r.currentOrigin))

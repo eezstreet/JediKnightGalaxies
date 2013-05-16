@@ -1,17 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_enginefuncs.h
-// (c) 2013 Jedi Knight Galaxies
 
 #ifndef _GL_ENGINEFUNCS_H
 #define _GL_ENGINEFUNCS_H
@@ -37,8 +23,18 @@
 #define CVAR_INTERNAL		0x00000800		// cvar won't be displayed, ever (for passwords and such)
 #define	CVAR_PARENTAL		0x00001000		// lets cvar system know that parental stuff needs to be updated
 
+#define MAX_QPATH 64
+
+typedef unsigned char byte;
 typedef enum {qfalse, qtrue}	qboolean;
 typedef int fileHandle_t;
+typedef int sfxHandle_t;
+
+typedef float vec_t;
+typedef vec_t vec2_t[2];
+typedef vec_t vec3_t[3];
+typedef vec_t vec4_t[4];
+typedef vec_t vec5_t[5];
 
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
 #define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
@@ -83,12 +79,19 @@ typedef enum {
 	FS_APPEND_SYNC
 } fsMode_t;
 
+typedef enum {
+	FS_SEEK_CUR,
+	FS_SEEK_END,
+	FS_SEEK_SET
+} fsOrigin_t;
+
 cvar_t *Cvar_FindVar(const char *cvarname);
 void Cvar_Set2(const char *cvarname, const char *newvalue, int force);
 cvar_t *Cvar_Get(const char *cvarname, const char *value, int flags);
 int Cvar_GetValueInt(const char *cvarname);
 float Cvar_GetValueFloat(const char *cvarname);
 const char *Cvar_String(const char *cvarname);
+char *Cvar_VariableString(const char *cvarname);
 
 void Com_Printf(const char *fmt, ...);
 void Com_DPrintf(const char *fmt, ...);
@@ -129,6 +132,9 @@ static void FS_ReplaceSeparators( char *path );
 
 char *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 qboolean FS_FileExists( const char *file );
+int FS_CopyFile(const char *filename);
+int FS_ReadFile( const char *qpath, void **buffer );
+void FS_FreeFile( void *buffer );
 
 void Com_sprintf( char *dest, int size, const char *fmt, ...);
 

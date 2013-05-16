@@ -7,15 +7,6 @@
 
 #define GLUA_UNUSED(x) (void)x
 
-// Stack balancing asserts
-#ifdef _DEBUG
-	#define STACKGUARD_INIT(L) int luastackguard = lua_gettop(L);
-	#define STACKGUARD_CHECK(L) if (lua_gettop(L) != luastackguard) assert(!"WARNING: Lua stack unbalanced in "__FUNCTION__);
-#else
-	#define STACKGUARD_INIT(L)
-	#define STACKGUARD_CHECK(L)
-#endif
-
 // Structs
 
 // Property list struct

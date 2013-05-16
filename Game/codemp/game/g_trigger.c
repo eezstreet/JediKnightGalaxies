@@ -125,6 +125,8 @@ qboolean G_NameInTriggerClassList(char *list, char *str)
 	return qfalse;
 }
 
+extern qboolean gSiegeRoundBegun;
+void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier);
 void multi_trigger( gentity_t *ent, gentity_t *activator ) 
 {
 	qboolean haltTrigger = qfalse;
@@ -132,6 +134,163 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 	if ( ent->think == multi_trigger_run )
 	{//already triggered, just waiting to run
 		return;
+	}
+
+	if (g_gametype.integer == GT_SIEGE &&
+		!gSiegeRoundBegun)
+	{ //nothing can be used til the round starts.
+		return;
+	}
+
+	if (g_gametype.integer == GT_SIEGE &&
+		activator && activator->client &&
+		ent->alliedTeam &&
+		activator->client->sess.sessionTeam != ent->alliedTeam)
+	{ //this team can't activate this trigger.
+		return;
+	}
+
+	if (g_gametype.integer == GT_SIEGE &&
+		ent->idealclass && ent->idealclass[0])
+	{ //only certain classes can activate it
+		if (!activator ||
+			!activator->client ||
+			activator->client->siegeClass < 0)
+		{ //no class
+			return;
+		}
+
+		if (!G_NameInTriggerClassList(bgSiegeClasses[activator->client->siegeClass].name, ent->idealclass))
+		{ //wasn't in the list
+			return;
+		}
+	}
+
+	if (g_gametype.integer == GT_SIEGE && ent->genericValue1)
+	{
+		haltTrigger = qtrue;
+
+		if (activator && activator->client &&
+			activator->client->holdingObjectiveItem &&
+			ent->targetname && ent->targetname[0])
+		{
+			gentity_t *objItem = &g_entities[activator->client->holdingObjectiveItem];
+
+			if (objItem && objItem->inuse)
+			{
+				if (objItem->goaltarget && objItem->goaltarget[0] &&
+					!Q_stricmp(ent->targetname, objItem->goaltarget))
+				{
+					if (objItem->genericValue7 != activator->client->sess.sessionTeam)
+					{ //The carrier of the item is not on the team which disallows objective scoring for it
+						if (objItem->target3 && objItem->target3[0])
+						{ //if it has a target3, fire it off instead of using the trigger
+							G_UseTargets2(objItem, objItem, objItem->target3);
+
+                            //3-24-03 - want to fire off the target too I guess, if we have one.
+							if (ent->targetname && ent->targetname[0])
+							{
+								haltTrigger = qfalse;
+							}
+						}
+						else
+						{
+							haltTrigger = qfalse;
+						}
+
+						//now that the item has been delivered, it can go away.
+						SiegeItemRemoveOwner(objItem, activator);
+						objItem->nextthink = 0;
+						objItem->neverFree = qfalse;
+						G_FreeEntity(objItem);
+					}
+				}
+			}
+		}
+	}
+	else if (ent->genericValue1)
+	{ //Never activate in non-siege gametype I guess.
+		return;
+	}
+
+	if (ent->genericValue2)
+	{ //has "teambalance" property
+		int i = 0;
+		int team1ClNum = 0;
+		int team2ClNum = 0;
+		int owningTeam = ent->genericValue3;
+		int newOwningTeam = 0;
+		int numEnts = 0;
+		int entityList[MAX_GENTITIES];
+		gentity_t *cl;
+
+		if (g_gametype.integer != GT_SIEGE)
+		{
+			return;
+		}
+
+		if (!activator->client ||
+			(activator->client->sess.sessionTeam != SIEGETEAM_TEAM1 && activator->client->sess.sessionTeam != SIEGETEAM_TEAM2))
+		{ //activator must be a valid client to begin with
+			return;
+		}
+
+		//Count up the number of clients standing within the bounds of the trigger and the number of them on each team
+		numEnts = trap_EntitiesInBox( ent->r.absmin, ent->r.absmax, entityList, MAX_GENTITIES );
+		while (i < numEnts)
+		{
+			if (entityList[i] < MAX_CLIENTS)
+			{ //only care about clients
+				cl = &g_entities[entityList[i]];
+
+				//the client is valid
+				if (cl->inuse && cl->client &&
+					(cl->client->sess.sessionTeam == SIEGETEAM_TEAM1 || cl->client->sess.sessionTeam == SIEGETEAM_TEAM2) &&
+					cl->health > 0 &&
+					!(cl->client->ps.eFlags & EF_DEAD))
+				{
+					//See which team he's on
+					if (cl->client->sess.sessionTeam == SIEGETEAM_TEAM1)
+					{
+						team1ClNum++;
+					}
+					else
+					{
+						team2ClNum++;
+					}
+				}
+			}
+			i++;
+		}
+
+		if (!team1ClNum && !team2ClNum)
+		{ //no one in the box? How did we get activated? Oh well.
+			return;
+		}
+
+		if (team1ClNum == team2ClNum)
+		{ //if equal numbers the ownership will remain the same as it is now
+			return;
+		}
+
+		//decide who owns it now
+		if (team1ClNum > team2ClNum)
+		{
+			newOwningTeam = SIEGETEAM_TEAM1;
+		}
+		else
+		{
+			newOwningTeam = SIEGETEAM_TEAM2;
+		}
+
+		if (owningTeam == newOwningTeam)
+		{ //it's the same one it already was, don't care then.
+			return;
+		}
+
+		//Set the new owner and set the variable which will tell us to activate a team-specific target
+		ent->genericValue3 = newOwningTeam;
+		ent->genericValue4 = newOwningTeam;
 	}
 
 	if (haltTrigger)
@@ -199,13 +358,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 	{//set by target_deactivate
 		return;
 	}
-
-#ifdef _PHASE1
-	if (self->spawnflags & 32 && jkg_arearestrictions.integer)
-	{
-		return;	// eezstreet: Pande's orders
-	}
-#endif
 
 	if( self->alliedTeam )
 	{
@@ -284,6 +436,22 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 		if (self->genericValue7)
 		{ //we have to be holding the use key in this trigger for x milliseconds before firing
+			if (g_gametype.integer == GT_SIEGE &&
+				self->idealclass && self->idealclass[0])
+			{ //only certain classes can activate it
+				if (!other ||
+					!other->client ||
+					other->client->siegeClass < 0)
+				{ //no class
+					return;
+				}
+
+				if (!G_NameInTriggerClassList(bgSiegeClasses[other->client->siegeClass].name, self->idealclass))
+				{ //wasn't in the list
+					return;
+				}
+			}
+
 			if (!G_PointInBounds( other->client->ps.origin, self->r.absmin, self->r.absmax ))
 			{
 				return;
@@ -308,18 +476,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			}
 			else
 			{ //hack in progress
-				// UQ1: Added this code from below... It would never have gotten there before...
-				if (other->client->ps.torsoAnim != BOTH_BUTTON_HOLD &&
-					other->client->ps.torsoAnim != BOTH_CONSOLE1)
-				{
-					G_SetAnim( other, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
-				}
-				else
-				{
-					other->client->ps.torsoTimer = 500;
-				}
-				other->client->ps.weaponTime = other->client->ps.torsoTimer;
-				// UQ1: End added...
 				return;
 			}
 		}
@@ -327,8 +483,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if ( self->spawnflags & 8 )
 	{//FIRE_BUTTON
-		if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK )/* &&
-			!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK )*/ )
+		if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
+			!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
 		{//not pressing fire button or altfire button
 			return;
 		}
@@ -346,8 +502,8 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 		if ( G_PointInBounds( eyeSpot, self->r.absmin, self->r.absmax ) )
 		{
-			if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK )/* &&
-				!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK )*/ )
+			if( !( other->client->pers.cmd.buttons & BUTTON_ATTACK ) &&
+				!( other->client->pers.cmd.buttons & BUTTON_ALT_ATTACK ) )
 			{//not attacking, so hiding bonus
 				/*
 				//FIXME:  should really have sound events clear the hiddenDist
@@ -367,7 +523,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	// UQ1: WTF. This would never play.... Moved into code above. (edit: copied, just in case)
 	if ( self->spawnflags & 4 )
 	{//USE_BUTTON
 		if (other->client->ps.torsoAnim != BOTH_BUTTON_HOLD &&
@@ -1143,6 +1298,22 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 
 void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	int		dflags;
+
+	if (g_gametype.integer == GT_SIEGE && self->team && self->team[0])
+	{
+		int team = atoi(self->team);
+
+		if (other->inuse && other->s.number < MAX_CLIENTS && other->client &&
+			other->client->sess.sessionTeam != team)
+		{ //real client don't hurt
+			return;
+		}
+		else if (other->inuse && other->client && other->s.eType == ET_NPC &&
+			other->s.NPC_class == CLASS_VEHICLE && other->s.teamowner != team)
+		{ //vehicle owned by team don't hurt
+			return;
+		}
+	}
 
 	if ( self->flags & FL_INACTIVE )
 	{//set by target_deactivate

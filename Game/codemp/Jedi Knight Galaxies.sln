@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60CEBCB0-CED6-4272-B801-AAC5DDED89D4}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Side Module (cgame)", "cgame\JK2_cgame.vcproj", "{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Side Module (game)", "game\JK2_game.vcproj", "{5B587283-8429-4F8B-AECA-C09BF364B617}"
@@ -57,12 +59,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(DevPartner Solution Properties) = postSolution
-	EndGlobalSection
-	GlobalSection(DevPartner) = postSolution
-	EndGlobalSection
-	GlobalSection(DevPartner) = postSolution
 	EndGlobalSection
 	GlobalSection(DevPartner Solution Properties) = postSolution
 	EndGlobalSection

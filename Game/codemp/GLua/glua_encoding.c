@@ -204,11 +204,6 @@ static const struct luaL_reg encoding_f [] = {
 };
 
 void GLua_Define_Encoding(lua_State *L) {
-
-	STACKGUARD_INIT(L)
-
 	luaL_register(L, "encoding", encoding_f);
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

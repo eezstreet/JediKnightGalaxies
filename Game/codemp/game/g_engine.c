@@ -166,7 +166,7 @@ static int LockMemory(int address, int size) {
 
 static PatchData_t *JKG_PlacePatch( int type, unsigned int address, unsigned int destination ) {
 	PatchData_t *patch = malloc(sizeof(PatchData_t));
-	//int addr = address;
+	int addr = address;
 	int sz = 0;
 
 	ud_t ud;
@@ -318,7 +318,7 @@ static void *_Hook_ProtocolVersionCheck()
 #ifdef _WIN32
 		__asm2__(	lea	eax, [esp+0x40]			);	// Get unserinfo address
 #else
-		__asm2__(	lea	eax, [ebp+0x518A0]		);	// Get unserinfo address
+		__asm1__(	lea	eax, [ebp+0x518A0]		);	// Get unserinfo address
 #endif
 		__asm1__(	push	eax					);	// Push userinfo
 		__asm1__(	call	JKG_CheckProtocol	);	// Call JKG_CheckProtocol
@@ -349,7 +349,7 @@ static int FUNC_USED JKG_CheckProtocol(const char *userinfo, netadr_t *addr) {
 		return 0;
 	} else if (version == 26) {
 		// v1.01 non-jkg client
-		NET_OutOfBandPrint(1,*addr,"print\nPlease download Jedi Knight Galaxies to play on this server\nVisit www.terrangaming.com/projects/jkg for more info.\n");
+		NET_OutOfBandPrint(1,*addr,"print\nPlease download Jedi Knight Galaxies to play on this server\nVisit www.jkgalaxies.com for more info.\n");
 		Com_DPrintf("Rejecting client from %s: Does not have JKG installed\n", NET_AdrToString(*addr));
 		return 0;
 	} else if (version == 27) {
@@ -850,7 +850,7 @@ static void *_Hook_DiscoMsgOverride()
 // Moved to auxiliary library
 
 // =================================================
-// Hook 9:
+// Hook 8:
 // JKG Encrypted BSP support
 // -------------------------------------------------
 // This hook will facilitate the loading of
@@ -949,148 +949,6 @@ BOOL CtrlHandler( DWORD fdwCtrlType ) {
 #endif
 */
 
-// =================================================
-// Hook 10:
-// Protected PK3
-// -------------------------------------------------
-// This allows the game to use secure PK3s
-// =================================================
-
-static PatchData_t *pPAKSS1;
-static PatchData_t *pPAKSS2;
-static PatchData_t *pPAKSS3;
-static unsigned int retAddy;
-#define _PAK_PATCHPOS_SERVERSIDE1 0x00422164
-#define _PAK_PATCHPOS_SERVERSIDE2 0x00421F76
-#define _PAK_PATCHPOS_SERVERSIDE3 0x0042237F
-void  *_Hook_PAKHook1()
-{
-	__JKG_StartHook(8);
-	//LOC: 0x00422164
-	{
-		__asm2__( mov eax, [esi+0x58] );		// Normal PK3?
-		__asm2__( test eax, eax );
-		__asm1__( pushfd );
-		__asm1__( je label_success );
-		__asm2__( cmp eax, 0x0800 );			// Magically encrypted?
-		__asm1__( je label_success  );
-		__asm1__( popfd );
-		__asm1__( push 0x004221C5 ); //0x0042216B
-		__asm1__( ret );
-		__asm label_success:
-		__asm1__( popfd );
-		__asm1__( push 0x0042216B ); // 0x004221C5
-		__asm1__( ret );
-	}
-	__JKG_EndHook(8);
-}
-
-void *_Hook_PAKHook2()
-{
-	__JKG_StartHook(9);
-	//LOC: 0x00421F76
-	{
-		__asm2__( test eax, eax );
-		__asm1__( je label_success );
-		__asm2__( cmp eax, 8 );
-		__asm1__( je label_success );
-		__asm2__( test eax, 0x0800 );
-		__asm1__( jne label_success );
-		__asm2__( cmp eax, 0x808 );
-		__asm1__( je label_success );
-		__asm2__( mov edx, 0x00421F7F );
-		__asm1__( jmp edx );
-		__asmL__(  label_success: );
-		__asm2__( mov edx, 0x00421F84 );
-		__asm1__( jmp edx );
-	}
-	__JKG_EndHook(9);
-}
-
-void *_Hook_PAKHook3()
-{
-	__JKG_StartHook(10);
-	//LOC: 0x0042237F
-	{
-		__asm2__( cmp edx, ebx );
-		__asm2__( mov edx, [esi+3Ch] );
-		__asm2__( mov [edi+48h], edx );
-		__asm2__( mov [edi+44h], ebx );
-		__asm2__( mov ecx, [esi+34h] );
-		// Hook start
-		__asm1__( je label_success );
-		__asm2__( mov edx, [esi+34h] );
-		__asm2__( cmp edx, 0x800 );
-		__asm1__( je label_success );
-		// Failed all checks
-		__asm2__( mov eax, 0 );
-		__asm1__( jmp label_exit );
-		__asmL__( label_success: );
-		__asm2__( mov eax, 1 );
-		__asmL__( label_exit: );
-		__asm2__( mov edx, 0x00422390 );
-		__asm1__( jmp edx );
-
-	}
-	__JKG_EndHook(10);
-}
-
-// =================================================
-// Hook 11:
-// Nerfed /donedl
-// -------------------------------------------------
-// This command, when executed, allows people to
-// bypass some things such as LMS lives and whatnot.
-// In MB2, this allowed players to respawn and avoid
-// losing lives.
-// This also causes players to lose flags and other carryables.
-// Thanks to Sil and Raz0r for this patch.
-// =================================================
-
-#ifdef _WIN32
-#define DDL_HOOKPOS      0x43AEF4  //  mov dword ptr [esi], CS_PRIMED
-#define DDL_RETSUCCESS    0x43AEFA  //  mov dword ptr [esi+39430h], 0
-#define DDL_ORIGBYTES    { 0xC7, 0x06, 0x03, 0x00, 0x00 }
-#define NET_ADDRTOSTRING	0x00419F10;
-#else
-#define DDL_HOOKPOS      0x804CF54  // mov dword ptr [esi], CS_PRIMED
-#define DDL_RETSUCCESS    0x804CF5A  // mov eax, [esi+39458h]
-#define DDL_ORIGBYTES    { 0xC7, 0x06, 0x03, 0x00, 0x00 }
-#endif //_WIN32
-
-static PatchData_t *DoneDLPatch;
-
-void (*NET_AddrToString)(char *address, size_t size, netadr_t *add) = (void(*)(char *, size_t, netadr_t *))NET_ADDRTOSTRING;
-
-static void __cdecl DoneDL_Handler( client_t *client )
-{
-	// fix: set CS_PRIMED only when CS_CONNECTED is current state
-	if ( client->state == CS_CONNECTED )
-		client->state = CS_PRIMED;
-	else
-	{
-		char tmpIP[10] = {0};
-		NET_AddrToString( tmpIP, sizeof( tmpIP ), &client->netchan.remoteAddress );
-		G_LogPrintf( "Client %d (%s) probably tried \"donedl\" exploit when client->state(%d)!=CS_CONNECTED(%d) [IP: %s]\n", client->gentity->s.number, client->name, client->state, CS_CONNECTED, tmpIP );
-	}
-}
-
-void *_Hook_DoneDL()
-{//DoneDL patch
-	__JKG_StartHook( 11 )
-	{
-		__asm1__( pushad );
-		__asm1__( push esi );
-		__asm1__( call DoneDL_Handler );
-		__asm2__( add esp, 4 );
-		__asm1__( popad );
-		__asm1__( push DDL_RETSUCCESS );
-		__asm1__( ret );
-	}	
-
-    __JKG_EndHook( 11 )	
-}
-
 #ifdef _WIN32
 #define _CLIENTCAPPOS1	0x4426B6
 #define _CLIENTCAPPOS2	0x4426BA
@@ -1131,11 +989,7 @@ void JKG_PatchEngine() {
 	// Patch 1: Change protocol version shown by getinfo to 27 (q3fill bait)
 	///////////////////////////////
 	UnlockMemory(_PVCHECK_INFOPROTOCOL,1);
-#ifdef __PTR
-	*(unsigned char *)_PVCHECK_INFOPROTOCOL = 28;
-#else
 	*(unsigned char *)_PVCHECK_INFOPROTOCOL = 27;
-#endif
 	LockMemory(_PVCHECK_INFOPROTOCOL,1);
 
 	pIBFix = JKG_PlacePatch(PATCH_CALL, _IBFIX_PATCHPOS, (unsigned int)_Hook_InfoBoomFix()); // We'll be overwriting a call here
@@ -1191,39 +1045,30 @@ void JKG_PatchEngine() {
     }
 
 	///////////////////////////////
-	// Hook 11: DoneDL exploit prevention
-	///////////////////////////////
-
-	DoneDLPatch = JKG_PlacePatch(PATCH_JUMP, DDL_HOOKPOS, (unsigned int)_Hook_DoneDL());
-	if(!DoneDLPatch) {
-		Com_Printf("Warning: Failed to place hook 11: DoneDL protection\n");
-	}
-
-	///////////////////////////////
 	// Patch 3: Client cap elevation
 	///////////////////////////////
 
 	UnlockMemory(_CLIENTCAPPOS1,1);
-	*(unsigned char *)_CLIENTCAPPOS1 = (unsigned char)MAX_CLIENTS;
+	*(unsigned char *)_CLIENTCAPPOS1 = (unsigned char)0x40;
 	LockMemory(_CLIENTCAPPOS1,1);
 #ifdef _CLIENTCAPPOS2
 	UnlockMemory(_CLIENTCAPPOS2,1);
-	*(unsigned char *)_CLIENTCAPPOS2 = (unsigned char)MAX_CLIENTS;
+	*(unsigned char *)_CLIENTCAPPOS2 = (unsigned char)0x40;
 	LockMemory(_CLIENTCAPPOS2,1);
 #endif
 #ifdef _CLIENTCAPPOS3
     UnlockMemory(_CLIENTCAPPOS3,1);
-	*(unsigned char *)_CLIENTCAPPOS3 = (unsigned char)MAX_CLIENTS;
+	*(unsigned char *)_CLIENTCAPPOS3 = (unsigned char)0x40;
 	LockMemory(_CLIENTCAPPOS3,1);
 #endif
 #ifdef _CLIENTCAPPOS4
     UnlockMemory(_CLIENTCAPPOS4,1);
-	*(unsigned char *)_CLIENTCAPPOS4 = (unsigned char)MAX_CLIENTS;
+	*(unsigned char *)_CLIENTCAPPOS4 = (unsigned char)0x40;
 	LockMemory(_CLIENTCAPPOS4,1);
 #endif
 #ifdef _CLIENTCAPPOS5
     UnlockMemory(_CLIENTCAPPOS5,1);
-	*(unsigned char *)_CLIENTCAPPOS5 = (unsigned char)MAX_CLIENTS;
+	*(unsigned char *)_CLIENTCAPPOS5 = (unsigned char)0x40;
 	LockMemory(_CLIENTCAPPOS5,1);
 #endif
 
@@ -1243,14 +1088,6 @@ void JKG_PatchEngine() {
 	*(char *)_TOKFIX = 0x77; // (replaces JG (0x7F) by JA (0x77))
 	LockMemory(_TOKFIX, 1);	
 
-	pPAKSS1 = JKG_PlacePatch(PATCH_JUMP, _PAK_PATCHPOS_SERVERSIDE1, (unsigned int)_Hook_PAKHook1());
-	pPAKSS2 = JKG_PlacePatch(PATCH_JUMP, _PAK_PATCHPOS_SERVERSIDE2, (unsigned int)_Hook_PAKHook2());
-	pPAKSS3 = JKG_PlacePatch(PATCH_JUMP, _PAK_PATCHPOS_SERVERSIDE3, (unsigned int)_Hook_PAKHook3());
-	if(!pPAKSS1)
-	{
-		Com_Printf("Warning: Failed to place PK3 Protection Patch\n");
-	}
-
 	Com_Printf("Finished\n");
 }
 
@@ -1261,9 +1098,6 @@ void JKG_UnpatchEngine() {
 	JKG_RemovePatch(&pCACHFix);
 	JKG_RemovePatch(&pPLISO);
 	JKG_RemovePatch(&pDHFIX);
-	JKG_RemovePatch(&pPAKSS1);
-	JKG_RemovePatch(&pPAKSS2);
-	JKG_RemovePatch(&pPAKSS3);
 	UnlockMemory(_PVCHECK_INFOPROTOCOL,1);
 	*(unsigned char *)_PVCHECK_INFOPROTOCOL = 26;
 	LockMemory(_PVCHECK_INFOPROTOCOL,1);

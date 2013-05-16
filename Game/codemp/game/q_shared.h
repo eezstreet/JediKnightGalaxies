@@ -1,23 +1,7 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// q_shared.h
-// Copyright (C) 1999-2000 Id Software, Inc., Copyright (c) 2013 Jedi Knight Galaxies
-
+// Copyright (C) 1999-2000 Id Software, Inc.
+//
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
-
-// Include Global Definitions Header...
-#include "../game/z_global_defines.h"
 
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
@@ -30,44 +14,6 @@
 #include "qcommon/disablewarnings.h"
 
 #include "teams.h" //npc team stuff
-#include <time.h>
-
-#ifdef __SECONDARY_NETWORK__
-// ================================================================================================================================
-//
-// UQ1: Secondary Network - Packet Event Types. 
-//
-// ================================================================================================================================
-//
-// Adding New Stuff:
-//
-// Add the new event type you need here, then add the functionality inside the switch in GetDataFromPacket 
-// in ClientGame.cpp or ServerGame.cpp.
-//
-// jkg_net_send_packet() is the bridge you can use to quickly send packets from within the game/cgame code 
-// (or make your own - see below).
-//
-// It is also possible to make longer packets, but for now those will be needed to be done with their own functions in 
-// ClientGame.cpp, and jkg_clientsidenetwork.cpp, -or- ServerGame.cpp, and jkg_serversidenetwork.cpp.
-//
-//
-// There is no limit to how we use these packets. The system is very adaptable and uses only the bandwidth we actually need.
-//
-// ================================================================================================================================
-
-enum PacketEventTypes {
-	PACKETEVENT_NONE,
-	PACKETEVENT_TEST_TEXT,
-};
-
-#ifdef CGAME
-void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize );
-#else //GAME
-void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int entityNum );
-#endif //GAME
-
-// ================================================================================================================================
-#endif //__SECONDARY_NETWORK__
 
 #define MAX_WORLD_COORD		( 64 * 1024 )
 #define MIN_WORLD_COORD		( -64 * 1024 )
@@ -1069,11 +1015,7 @@ enum
 typedef int material_t;
 
 //rww - bot stuff that needs to be shared
-#ifdef __AUTOWAYPOINT__
-#define MAX_WPARRAY_SIZE 32000
-#else //!__AUTOWAYPOINT__
 #define MAX_WPARRAY_SIZE 4096
-#endif //__AUTOWAYPOINT__
 #define MAX_NEIGHBOR_SIZE 32
 
 #define MAX_NEIGHBOR_LINK_DISTANCE 128
@@ -1085,7 +1027,6 @@ typedef struct wpneighbor_s
 {
 	int num;
 	int forceJumpTo;
-	float	cost;
 } wpneighbor_t;
 
 typedef struct wpobject_s
@@ -1102,9 +1043,6 @@ typedef struct wpobject_s
 
 	int neighbornum;
 	wpneighbor_t neighbors[MAX_NEIGHBOR_SIZE];
-
-	//int			coverpointNum;		// UQ1: Number of waypoints this node can be used as cover for...
-	//int			coverpointFor[1024];	// UQ1: List of all the waypoints this waypoint is cover for...
 } wpobject_t;
 
 
@@ -1231,7 +1169,7 @@ extern	vec4_t		colorDkBlue;
 
 #define Q_COLOR_ESCAPE	'^'
 // you MUST have the last bit on here about colour strings being less than 7 or taiwanese strings register as colour!!!!
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '9' && *((p)+1) >= '0' )
+#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '7' && *((p)+1) >= '0' )
 
 
 #define COLOR_BLACK		'0'
@@ -1485,16 +1423,8 @@ typedef struct {
 #define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define VectorSet5(v,x,y,z,a,b)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z), (v)[3]=(a), (v)[4]=(b)) //rwwRMG - added
-
-#define Vector2Set(v, x, y)			((v)[0]=(x),(v)[1]=(y)) // UQ1: Added
-#define Vector2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1]) // UQ1: Added
-#define Vector2Subtract(a,b,c)		((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1]) // UQ1: Added
-
-#define Vector4Set(v, x, y, z, n)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(n)) // UQ1: Added
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
-#define	Vector4MA(v, s, b, o)		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s)) // UQ1: Added
-#define	Vector4Average(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s))) // UQ1: Added
-static ID_INLINE void Vector4Clear ( vec4_t v )
+ID_INLINE void Vector4Clear ( vec4_t v )
 {
     v[0] = v[1] = v[2] = v[3] = 0.0f;
 }
@@ -1687,27 +1617,11 @@ int		Q_rand( int *seed );
 float	Q_random( int *seed );
 float	Q_crandom( int *seed );
 
-enum meridiem {
-	M_AM,
-	M_PM,
-};
-
-int		T_year( void );
-int		T_month( void );
-int		T_weekday( void );
-int		T_monthday( void );
-int		T_yearday( void );
-int		T_hour( qboolean twentyfourhour );
-int		T_minute( void );
-int		T_second( void );
-int		T_meridiem( void );
-
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
 void vectoangles( const vec3_t value1, vec3_t angles);
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] );
-void AxisToAngles( vec3_t axis[3], vec3_t angles ); // UQ1: Added. We need this...
 
 void AxisClear( vec3_t axis[3] );
 void AxisCopy( vec3_t in[3], vec3_t out[3] );
@@ -1824,7 +1738,7 @@ int		Q_strncmp (const char *s1, const char *s2, int n);
 int		Q_stricmpn (const char *s1, const char *s2, int n);
 char	*Q_strlwr( char *s1 );
 char	*Q_strupr( char *s1 );
-char	*Q_strrchr( const char* string, char c );
+char	*Q_strrchr( const char* string, int c );
 
 // buffer size safe library replacements
 qboolean	Q_stratt( char *dest, unsigned int iSize, char *source );
@@ -1851,27 +1765,6 @@ typedef struct
 	byte	b6;
 	byte	b7;
 } qint64;
-
-typedef enum {
-	AXIS_SIDE,
-	AXIS_FORWARD,
-	AXIS_UP,
-	AXIS_ROLL,
-	AXIS_YAW,
-	AXIS_PITCH,
-	MAX_JOYSTICK_AXIS
-} joystickAxis_t;
-
-typedef enum {
-  // bk001129 - make sure SE_NONE is zero
-	SE_NONE = 0,	// evTime is still valid
-	SE_KEY,		// evValue is a key code, evValue2 is the down flag
-	SE_CHAR,	// evValue is an ascii char
-	SE_MOUSE,	// evValue and evValue2 are reletive signed x / y moves
-	SE_JOYSTICK_AXIS,	// evValue is an axis number and evValue2 is the current state (-127 to 127)
-	SE_CONSOLE,	// evPtr is a char*
-	SE_PACKET	// evPtr is a netadr_t followed by data bytes to evPtrLength
-} sysEventType_t;
 
 //=============================================
 /*
@@ -2125,11 +2018,9 @@ typedef int soundChannel_t;
 //
 #ifdef _XBOX
 #define MAX_CLIENTS			16
-#elif defined __MMO__
-#define	MAX_CLIENTS			127		// absolute limit
-#else //!__MMO__
+#else
 #define	MAX_CLIENTS			64		// absolute limit
-#endif //__MMO__
+#endif
 #define MAX_RADAR_ENTITIES	MAX_GENTITIES
 #define MAX_TERRAINS		1//32 //rwwRMG: inserted
 #define MAX_LOCATIONS		64
@@ -2300,8 +2191,6 @@ typedef enum {
 //Crazy optimization attempt to take all those 1 bit values and shove them into a single
 //send. May help us not have to send so many 1/0 bits to acknowledge modified values. -rww
 
-// JKG: Toggle bit for shots remaining. Just like in JK2 with anims :D
-#define SHOTS_TOGGLEBIT (1 << 7)
 #define _OPTIMIZED_VEHICLE_NETWORKING
 //Instead of sending 2 full playerStates for the pilot and the vehicle, send a smaller,
 //specialized pilot playerState and vehicle playerState.  Also removes some vehicle
@@ -2393,9 +2282,7 @@ typedef struct playerState_s {
 	int			stats[MAX_STATS];
 	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
-	int			ammo;					// Total ammo available for reloading (like an ammo pool)	//FIXME: remove?
-
-	int		unused[18];				// Unused fields	(see what I did here?)		
+	int			ammo[MAX_WEAPONS];
 
 	int			generic1;
 	int			loopSound;
@@ -2573,24 +2460,19 @@ typedef struct playerState_s {
 
 #ifndef _XBOX
 	unsigned char	weaponVariation;
-	unsigned char	weaponId;
-	unsigned char   shotsRemaining;
-	unsigned char	sprintMustWait;
+	unsigned char	weaponVariationChanged;
+	unsigned short	userShort1;
 	
-	int				unused1;			// Unused
-	unsigned int    unused2;			// Unused; this used to be the iron sights stuff.
-	unsigned int	unused3;			// Unused; this used to be the sprint stuff. got migrated to second playerstate.
+	int				sprintDebounceTime;
+	unsigned int    ironsightsTime; // The MSB is used to tell whether the last change was to bring the ironsights up or down.
+	                                // 0 = take down, 1 = bring up
 
-	int 			damageTypeFlags;
-	int 			freezeTorsoAnim;
-	int 			freezeLegsAnim;
+	float			userFloat1;
+	float			userFloat2;
+	float			userFloat3;
 
-	int				userInt1;
-	unsigned char	firingMode;
-	unsigned char	userByte1;
-	unsigned char	userByte2;
-	unsigned char	userByte3;
 	vec3_t			userVec1;
+	vec3_t			userVec2;
 #endif
 
 #ifdef _ONEBIT_COMBO
@@ -2600,7 +2482,6 @@ typedef struct playerState_s {
 } playerState_t;
 // For ironsights
 #define IRONSIGHTS_MSB (1 << 31)
-#define SPRINT_MSB IRONSIGHTS_MSB
 
 typedef struct siegePers_s
 {
@@ -2627,7 +2508,7 @@ typedef struct siegePers_s
 										// won't generate footsteps
 #define	BUTTON_USE				32			// the ol' use key returns!
 #define BUTTON_FORCEGRIP		64			// 
-//#define BUTTON_ALT_ATTACK		128
+#define BUTTON_ALT_ATTACK		128
 
 #define	BUTTON_ANY				256			// any key whatsoever
 
@@ -3004,20 +2885,18 @@ typedef struct entityState_s {
 	//amount of any of these above 1 bit.
 
 	unsigned char	weaponVariation;
-	unsigned char	firingMode;
-	unsigned char	weaponstate;
-	unsigned char	userByte1;
+	unsigned char	userChar1;
+	unsigned short	userShort1;
 
-	int 			damageTypeFlags;
+	int				userInt2;
+	unsigned int    ironsightsTime; // The MSB is used to tell whether the last change was to bring the ironsights up or down.
+	                                // 0 = take down, 1 = bring up
 
-    int             attackTime;     // Time when attack button was first pressed
-	int 			freezeTorsoAnim;
-	int 			freezeLegsAnim;
+	float			userFloat1;
+	float			userFloat2;
+	float			userFloat3;
 
-	unsigned int			userInt1;
-	unsigned int	userInt2;
-	unsigned int    userInt3;
-	unsigned int	userInt4;
+	vec3_t			userVec1;
 	vec3_t			userVec2;
 } entityState_t;
 
@@ -3212,17 +3091,9 @@ typedef struct qtime_s {
 
 
 // server browser sources
-//[MasterServer]
 #define AS_LOCAL			0
-#define AS_FAVORITES		2
 #define AS_GLOBAL			1
-#define AS_GLOBAL2			3
-#define AS_GLOBAL3			4
-#define AS_GLOBAL4			5
-#define AS_GLOBAL5			6
-//[/MasterServer]
-
-
+#define AS_FAVORITES		2
 
 #define AS_MPLAYER			3 // (Obsolete)
 
@@ -3406,225 +3277,9 @@ enum {
 	FONT_SMALL=1,
 	FONT_MEDIUM,
 	FONT_LARGE,
-	FONT_SMALL2,
-	FONT_SMALL3,
-	FONT_SMALL4,
+	FONT_SMALL2
 };
 
-// HERE BE MACROS
-#define BUMP(x,y)	if(x < y) x = y
-#define  CAP(x,y)	if(x > y) x = y
-#define CLAMP( var, min, max )			BUMP( var,		min );	CAP( var,		max)
-#define CLAMPVEC( vec, idx, min, max )	BUMP( vec[idx], min );	CAP( vec[idx],	max)
 
-double coslerp(
-   double start,double end,
-   double phase);
-
-#define	FLOAT_INT_BITS	13
-#define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
-
-typedef struct {
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
-	qboolean	oob;			// set to true if the buffer size failed (with allowoverflow set)
-	byte	*data;
-	int		maxsize;
-	int		cursize;
-	int		readcount;
-	int		bit;				// for bitwise reads and writes
-} msg_t;
-
-typedef struct {
-	char	*name;
-	int		offset;
-	int		bits;		// 0 = float
-} netField_t;
-
-#pragma pack(4)
-// align 4 for these two structs and for the structs below them, regardless of whether this is a debug build or not
-
-// Be sure to change networkStateFields in networkstate.c
-typedef struct networkState_s
-{
-	int start;
-	unsigned int ironsightsTime; // The MSB is used to tell whether the last change was to bring the ironsights up or down.
-	                                // 0 = take down, 1 = bring up
-
-	unsigned int	sprintTime;		// The MSB is used to determine whether we're starting or ending sprinting
-	int sprintDebounceTime;
-
-	unsigned int ironsightsDebounceStart;	// Just the next time we can bring ironsights back up.
-											// brought this up because people were going into ironsights
-											// at really tacky/awkward times (such as while reloading)
-
-	qboolean		isSprinting;			// Only used for spectators.
-	qboolean		isInSights;				// Only used for spectators.
-
-	// This code always exists on at least one gametype --eez
-	// Put this in the second playerstate (networkstate) so that clients can see their lives display
-#ifdef __JKG_NINELIVES__
-	unsigned char iLivesLeft;
-#elif defined __JKG_TICKETING__
-	unsigned char iLivesLeft;
-#elif defined __JKG_ROUNDBASED__
-	unsigned char iLivesLeft;
-#endif
-}networkState_t;
-
-
-
-// Be sure to change extraStateFields in networkstate.c
-typedef struct extraState_s
-{
-	int		number;
-	int		testInt;
-	float	testFloat;
-}extraState_t;
-
-#pragma pack()
-
-typedef struct {
-	int				areabytes;
-	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
-	playerState_t	ps;
-	playerState_t	vps;
-	int				num_entities;
-	int				first_entity;		// into the circular sv_packet_entities[]
-										// the entities MUST be in increasing state number
-										// order, otherwise the delta compression will fail
-	int				messageSent;		// time the message was transmitted
-	int				messageAcked;		// time the message was acked
-	int				messageSize;		// used to rate drop packets
-} clientSnapshot_t;
-
-// snapshots are a view of the server at a given time
-typedef struct {
-	qboolean		valid;			// cleared if delta parsing was invalid
-	int				snapFlags;		// rate delayed and dropped commands
-
-	int				serverTime;		// server time the message is valid for (in msec)
-
-	int				messageNum;		// copied from netchan->incoming_sequence
-	int				deltaNum;		// messageNum the delta is from
-	int				ping;			// time from when cmdNum-1 was sent to time packet was reeceived
-	byte			areamask[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
-
-	int				cmdNum;			// the next cmdNum the server is expecting
-	playerState_t	ps;						// complete information about the current player at this time
-	playerState_t	vps;	//vehicle I'm riding's playerstate (if applicable) -rww
-
-	int				numEntities;			// all of the entities that need to be presented
-	int				parseEntitiesNum;		// at the time of this snapshot
-
-	int				serverCommandNum;		// execute all commands up to this before
-											// making the snapshot current
-} clSnapshot_t;
-
-
-// using the stringizing operator to save typing...
-#define	NSF(x) #x,(int)&((networkState_t*)0)->x
-
-#ifdef __JKG_NINELIVES__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_TICKETING__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_ROUNDBASED__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#else
-extern netField_t	networkStateFields[7];		// increment count whenever you change the number of fields.
-#endif
-extern netField_t	extraStateFields[3];		// increment count whenever you change the number of fields.
-extern int numNetworkStateFields;
-extern int numExtraStateFields;
-
-#define ESF(x) #x,(int)&((extraState_t*)0)->x
-
-//netField_t extraStateFields[] =
-//{
-//	{ ESF(number), GENTITYNUM_BITS },
-//	{ ESF(testInt), 32 },				
-//	{ ESF(testFloat), 0 }
-//};
-
-
-
-//netField_t	networkStateFields[] = 
-//{
-//{ NSF(testInt), 32 },				
-//{ NSF(testFloat), 0 }
-//};
-
-typedef struct
-{
-	void **elements;
-	int numElements;
-	unsigned int memAllocated;
-	size_t elementSize;
-} GenericMemoryObject;
-void JKG_NewGenericMemoryObject(GenericMemoryObject *gmo, size_t size);
-void JKG_DeleteGenericMemoryObject(GenericMemoryObject *gmo);
-void JKG_ClearGenericMemoryObject(GenericMemoryObject *gmo);
-void JKG_GenericMemoryObject_AddElement(GenericMemoryObject *gmo, void *element);
-void JKG_GenericMemoryObject_DeleteElement(GenericMemoryObject *gmo, unsigned int number);
-void Q_RGBCopy( vec4_t *output, vec4_t source );
-qboolean Text_IsExtColorCode(const char *text);
-qboolean StringContainsWord(const char *haystack, const char *needle);
-
-/*==============================================*/
-/** 
- *  @brief stdcall function pointer declaration.
- *
- *  Declares the type for a STDCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define STDCALL_FUNCTION( R, N, A )  typedef R (__stdcall *N) A
-
-/*==============================================*/
-/**
- *  @brief fastcall function pointer declaration.
- *
- *  Declares the type for a FASTCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define FASTCALL_FUNCTION( R, N, A ) typedef R (__fastcall *N) A
-
-/*==============================================*/
-/**
- *  @brief cdecl function pointer declaration.
- *
- *  Declares the type for a CDECL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define CDECL_FUNCTION( R, N, A ) typedef R (__cdecl *N) A
-
-/*==============================================*/
-/**
- *  @brief thiscall function pointer declaration.
- *
- *  Declares the type for a THISCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define THISCALL_FUNCTION( R, N, A ) typedef R (__thiscall *N) A
-
-/*==============================================*/
-/*
- * blank function type
- */
-/*==============================================*/
-
-#define BLANK_FUNCTION( R, N, A ) typedef R (*N) A
 
 #endif	// __Q_SHARED_H

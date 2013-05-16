@@ -9,7 +9,6 @@
 *
 \*******************************************/
 
-#include <assert.h>
 #include <encoding/base128.h>
 //#include "libs/dhkeyexchange.h"
 #include <encoding/bitstream.h>
@@ -146,7 +145,7 @@ const char *CH_ProcessChallengeRequest(challenge_t *challenge)
 
 	// Secret tag: Bit 19 must always be set
 	// The following code ensures this is always the case
-	ch = (unsigned int)-1;	// Start with all bits set to 1
+	ch = -1;	// Start with all bits set to 1
 	for (i=0; i<32; i+=4) {
 		ch ^= (*(unsigned int *)&skey[i] << 12 );	// Shift the 19th bit (and all below) to 31st and xor it with the 'challenge'
 	}
@@ -173,7 +172,6 @@ const char *CH_ProcessChallengeRequest(challenge_t *challenge)
 	BitStream_WriteUInt(&stream, 0x18ABD591);
 	//BitStream_WriteUInt64(&stream, p2);
 	BitStream_WriteBigNum(&stream, dh->pub_key);
-	assert (dh->pub_key);
 
 	BN_free(p);
 	DH_free(dh);

@@ -27,7 +27,7 @@ char *GetFlagStr( int flags )
 	char *flagstr;
 	int i;
 
-	flagstr = (char *)malloc(128);
+	flagstr = (char *)B_TempAlloc(128);
 	i = 0;
 
 	if (!flags)
@@ -334,7 +334,7 @@ checkprint:
 		gLastPrintedIndex = bestindex;
 		G_Printf(S_COLOR_YELLOW "Waypoint %i\nFlags - %i (%s) (w%f)\nOrigin - (%i %i %i)\n", (int)(gWPArray[bestindex]->index), (int)(gWPArray[bestindex]->flags), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]), (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2]));
 		//GetFlagStr allocates 128 bytes for this, if it's changed then obviously this must be as well
-		free(flagstr); //flagstr
+		B_TempFree(128); //flagstr
 
 		plum = G_TempEntity( gWPArray[bestindex]->origin, EV_SCOREPLUM );
 		plum->r.svFlags |= SVF_BROADCAST;
@@ -350,8 +350,7 @@ void TransferWPData(int from, int to)
 {
 	if (!gWPArray[to])
 	{
-		//gWPArray[to] = (wpobject_t *)malloc(sizeof(wpobject_t));
-		gWPArray[to] = (wpobject_t *)malloc(sizeof(wpobject_t));
+		gWPArray[to] = (wpobject_t *)B_Alloc(sizeof(wpobject_t));
 	}
 
 	if (!gWPArray[to])
@@ -369,63 +368,6 @@ void TransferWPData(int from, int to)
 	VectorCopy(gWPArray[from]->origin, gWPArray[to]->origin);
 }
 
-qboolean TooCloseToOtherWaypoint(vec3_t origin)
-{
-	int i = 0;
-
-	for (i = 0; i < gWPNum; i++)
-	{
-		if (gWPArray[i]->origin[0] == origin[0] 
-			&& gWPArray[i]->origin[1] == origin[1] 
-			&& gWPArray[i]->origin[2] == origin[2])
-			return qtrue;
-		
-		if (Distance(gWPArray[i]->origin, origin) <= 64)
-			return qtrue;
-	}
-
-	return qfalse;
-}
-
-void CreateNewWP_Automated(vec3_t origin, int flags)
-{
-	if (gWPNum >= MAX_WPARRAY_SIZE)
-	{
-		if (!g_RMG.integer)
-		{
-			G_Printf(S_COLOR_YELLOW "Warning: Waypoint limit hit (%i)\n", MAX_WPARRAY_SIZE);
-		}
-		return;
-	}
-
-	if (!gWPArray[gWPNum])
-	{
-		//gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
-		gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
-	}
-
-	if (!gWPArray[gWPNum])
-	{
-		G_Printf(S_COLOR_RED "ERROR: Could not allocated memory for waypoint\n");
-	}
-
-	if (TooCloseToOtherWaypoint(origin))
-		return;
-
-	gWPArray[gWPNum]->flags = flags;
-	gWPArray[gWPNum]->weight = 0; //calculated elsewhere
-	gWPArray[gWPNum]->associated_entity = ENTITYNUM_NONE; //set elsewhere
-	gWPArray[gWPNum]->forceJumpTo = 0;
-	gWPArray[gWPNum]->disttonext = 0; //calculated elsewhere
-	gWPArray[gWPNum]->index = gWPNum;
-	gWPArray[gWPNum]->inuse = 1;
-	VectorCopy(origin, gWPArray[gWPNum]->origin);
-
-	G_Printf("^2Added waypoint %i at %f %f %f.\n", gWPNum, origin[0], origin[1], origin[2]);
-
-	gWPNum++;
-}
-
 void CreateNewWP(vec3_t origin, int flags)
 {
 	if (gWPNum >= MAX_WPARRAY_SIZE)
@@ -439,8 +381,7 @@ void CreateNewWP(vec3_t origin, int flags)
 
 	if (!gWPArray[gWPNum])
 	{
-		//gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
-		gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
+		gWPArray[gWPNum] = (wpobject_t *)B_Alloc(sizeof(wpobject_t));
 	}
 
 	if (!gWPArray[gWPNum])
@@ -456,9 +397,6 @@ void CreateNewWP(vec3_t origin, int flags)
 	gWPArray[gWPNum]->index = gWPNum;
 	gWPArray[gWPNum]->inuse = 1;
 	VectorCopy(origin, gWPArray[gWPNum]->origin);
-
-	G_Printf("^2Added waypoint %i at %f %f %f.\n", gWPNum, origin[0], origin[1], origin[2]);
-
 	gWPNum++;
 }
 
@@ -473,8 +411,7 @@ void CreateNewWP_FromObject(wpobject_t *wp)
 
 	if (!gWPArray[gWPNum])
 	{
-		//gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
-		gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
+		gWPArray[gWPNum] = (wpobject_t *)B_Alloc(sizeof(wpobject_t));
 	}
 
 	if (!gWPArray[gWPNum])
@@ -530,7 +467,7 @@ void RemoveWP(void)
 		return;
 	}
 
-	//free((wpobject_t *)gWPArray[gWPNum]);
+	//B_Free((wpobject_t *)gWPArray[gWPNum]);
 	if (gWPArray[gWPNum])
 	{
 		memset( gWPArray[gWPNum], 0, sizeof(gWPArray[gWPNum]) );
@@ -593,7 +530,7 @@ void RemoveWP_InTrail(int afterindex)
 	{
 		if (gWPArray[i] && gWPArray[i]->index == foundindex)
 		{
-			//free(gWPArray[i]);
+			//B_Free(gWPArray[i]);
 
 			//Keep reusing the memory
 			memset( gWPArray[i], 0, sizeof(gWPArray[i]) );
@@ -605,7 +542,7 @@ void RemoveWP_InTrail(int afterindex)
 		else if (gWPArray[i] && didchange)
 		{
 			TransferWPData(i, i-1);
-			//free(gWPArray[i]);
+			//B_Free(gWPArray[i]);
 
 			//Keep reusing the memory
 			memset( gWPArray[i], 0, sizeof(gWPArray[i]) );
@@ -676,8 +613,7 @@ int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 
 			if (!gWPArray[i])
 			{
-				//gWPArray[i] = (wpobject_t *)malloc(sizeof(wpobject_t));
-				gWPArray[i] = (wpobject_t *)malloc(sizeof(wpobject_t));
+				gWPArray[i] = (wpobject_t *)B_Alloc(sizeof(wpobject_t));
 			}
 
 			gWPArray[i]->flags = flags;
@@ -756,8 +692,7 @@ int CreateNewWP_InsertUnder(vec3_t origin, int flags, int afterindex)
 
 			if (!gWPArray[i])
 			{
-				//gWPArray[i] = (wpobject_t *)malloc(sizeof(wpobject_t));
-				gWPArray[i] = (wpobject_t *)malloc(sizeof(wpobject_t));
+				gWPArray[i] = (wpobject_t *)B_Alloc(sizeof(wpobject_t));
 			}
 
 			gWPArray[i]->flags = flags;
@@ -2069,437 +2004,6 @@ void CalculateJumpRoutes(void)
 	}
 }
 
-#ifdef __AUTOWAYPOINT__
-//
-// UQ1: Autowaypoint nodes to JKA waypoint conversion...
-//
-
-void CreateNewWP_FromAWPNode(int index, vec3_t origin, int flags, int weight, int associated_entity, float disttonext, int forceJumpTo, int num_links, int *links, int *link_flags)
-{
-	int i;
-
-	if (gWPNum >= MAX_WPARRAY_SIZE)
-	{
-		return;
-	}
-
-	if (!gWPArray[gWPNum])
-	{
-		//gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
-		gWPArray[gWPNum] = (wpobject_t *)malloc(sizeof(wpobject_t));
-	}
-
-	if (!gWPArray[gWPNum])
-	{
-		G_Printf(S_COLOR_RED "ERROR: Could not allocated memory for waypoint\n");
-	}
-
-	//G_Printf("DEBUG: Adding waypoint (%i) %i at %f %f %f with %i links.\n", gWPNum, index, origin[0], origin[1], origin[2], num_links);
-
-	gWPArray[gWPNum]->flags = flags;
-	gWPArray[gWPNum]->weight = weight;
-	gWPArray[gWPNum]->associated_entity = associated_entity;
-	gWPArray[gWPNum]->disttonext = disttonext;
-	gWPArray[gWPNum]->forceJumpTo = forceJumpTo;
-	gWPArray[gWPNum]->index = index;
-	gWPArray[gWPNum]->inuse = 1;
-	VectorCopy(origin, gWPArray[gWPNum]->origin);
-	gWPArray[gWPNum]->neighbornum = num_links;
-	
-	i = num_links;
-
-	while (i >= 0)
-	{
-		gWPArray[gWPNum]->neighbors[i].num = links[i];
-		//if (link_flags & WPFLAG_JUMP)
-		//	gWPArray[gWPNum]->neighbors[i].forceJumpTo = 1;
-		//else
-			gWPArray[gWPNum]->neighbors[i].forceJumpTo = 0;
-		
-		i--;
-	}
-
-	if (gWPArray[gWPNum]->flags & WPFLAG_RED_FLAG)
-	{
-		flagRed = gWPArray[gWPNum];
-		oFlagRed = flagRed;
-	}
-	else if (gWPArray[gWPNum]->flags & WPFLAG_BLUE_FLAG)
-	{
-		flagBlue = gWPArray[gWPNum];
-		oFlagBlue = flagBlue;
-	}
-
-	gWPNum++;
-}
-
-#define		MOD_DIRECTORY "JKG"
-#define		BOT_MOD_NAME	"aimod"
-float		NOD_VERSION = 1.1f;
-
-// UQ1: These are AWP node flag types...
-#define NODE_MOVE					0       // Move Node
-#define NODE_OBJECTIVE				1
-#define NODE_TARGET					2
-#define NODE_LAND_VEHICLE			4
-#define NODE_FASTHOP				8
-#define NODE_COVER					16
-#define NODE_WATER					32
-#define NODE_LADDER					64      // Ladder Node
-#define	NODE_MG42					128		//node is at an mg42
-#define	NODE_DYNAMITE				256
-#define	NODE_BUILD					512
-#define	NODE_JUMP					1024
-#define	NODE_DUCK					2048
-#define	NODE_ICE					4096	// Node is located on ice (slick)...
-#define NODE_ALLY_UNREACHABLE		8192
-#define NODE_AXIS_UNREACHABLE		16384
-#define	NODE_AXIS_DELIVER			32768	//place axis should deliver stolen documents/objective
-#define	NODE_ALLY_DELIVER			65536	//place allies should deliver stolen documents/objective
-
-int Convert_AWP_Flags ( int flags )
-{
-	int out_flags = 0;
-
-/*
-#define WPFLAG_JUMP					0x00000010 //jump when we hit this
-#define WPFLAG_DUCK					0x00000020 //duck while moving around here
-#define WPFLAG_NOVIS				0x00000400 //go here for a bit even with no visibility
-#define WPFLAG_SNIPEORCAMPSTAND		0x00000800 //a good position to snipe or camp - stand
-#define WPFLAG_WAITFORFUNC			0x00001000 //wait for a func brushent under this point before moving here
-#define WPFLAG_SNIPEORCAMP			0x00002000 //a good position to snipe or camp - crouch
-#define WPFLAG_ONEWAY_FWD			0x00004000 //can only go forward on the trial from here (e.g. went over a ledge)
-#define WPFLAG_ONEWAY_BACK			0x00008000 //can only go backward on the trail from here
-#define WPFLAG_GOALPOINT			0x00010000 //make it a goal to get here.. goal points will be decided by setting "weight" values
-#define WPFLAG_RED_FLAG				0x00020000 //red flag
-#define WPFLAG_BLUE_FLAG			0x00040000 //blue flag
-#define WPFLAG_SIEGE_REBELOBJ		0x00080000 //rebel siege objective
-#define WPFLAG_SIEGE_IMPERIALOBJ	0x00100000 //imperial siege objective
-#define WPFLAG_NOMOVEFUNC			0x00200000 //don't move over if a func is under
-#define WPFLAG_CALCULATED			0x00400000 //don't calculate it again
-#define WPFLAG_NEVERONEWAY			0x00800000 //never flag it as one-way
-//[TABBot]
-#define WPFLAG_DESTROY_FUNCBREAK	0x01000000 //destroy all the func_breakables in the area
-												//before moving to this waypoint
-#define WPFLAG_REDONLY				0x02000000 //only bots on the red team will be able to
-												//use this waypoint
-#define WPFLAG_BLUEONLY				0x04000000 //only bots on the blue team will be able to
-												//use this waypoint
-#define WPFLAG_FORCEPUSH			0x08000000 //force push all the active func_doors in the
-												//area before moving to this waypoint.
-#define WPFLAG_FORCEPULL			0x10000000 //force pull all the active func_doors in the
-												//area before moving to this waypoint.			
-//[/TABBot]
-*/
-
-	if (flags & NODE_FASTHOP)
-		out_flags |= WPFLAG_JUMP;
-
-	if (flags & NODE_JUMP)
-		out_flags |= WPFLAG_JUMP;
-
-	if (flags & NODE_DUCK)
-		out_flags |= WPFLAG_DUCK;
-
-	if (flags & NODE_AXIS_DELIVER)
-		out_flags |= WPFLAG_SIEGE_IMPERIALOBJ;
-
-	if (flags & NODE_ALLY_DELIVER)
-		out_flags |= WPFLAG_SIEGE_REBELOBJ;
-
-	//if (flags & NODE_ALLY_UNREACHABLE)
-	//	out_flags |= WPFLAG_REDONLY;
-
-	//if (flags & NODE_AXIS_UNREACHABLE)
-	//	out_flags |= WPFLAG_BLUEONLY;
-
-	return out_flags;
-}
-
-extern qboolean AIMOD_LoadCoverPoints ( void );
-
-/* */
-qboolean
-AIMOD_NODES_LoadNodes2 ( void )
-{
-	FILE			*f;
-	int				i, j;
-	//char			filename[600];
-	vmCvar_t		mapname, fs_homepath, fs_game;
-	char			name[] = BOT_MOD_NAME;
-	short int		objNum[3] = { 0, 0, 0 },
-	objFlags, numLinks;
-	int				flags;
-	vec3_t			vec;
-	short int		fl2;
-	int				target;
-	char			nm[64] = "";
-	float			version;
-	char			map[64] = "";
-	char			mp[64] = "";
-	/*short*/ int		numberNodes;
-	short int		temp, fix_aas_nodes;
-
-	/*i = 0;
-
-	trap_Cvar_Register( &fs_homepath, "fs_homepath", "", CVAR_SERVERINFO | CVAR_ROM );
-	trap_Cvar_Register( &fs_game, "fs_game", "", CVAR_SERVERINFO | CVAR_ROM );
-
-	Q_strcat( filename, sizeof(filename), fs_homepath.string );
-	Q_strcat( filename, sizeof(filename), "/" );
-	Q_strcat( filename, sizeof(filename), MOD_DIRECTORY );
-	Q_strcat( filename, sizeof(filename), "/nodes/" );
-	Q_strcat( filename, sizeof(filename), mapname.string );
-	
-	f = fopen( filename, "rb" );
-	*/
-
-	i = 0;
-
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-	trap_Cvar_Register( &fs_homepath, "fs_homepath", "", CVAR_SERVERINFO | CVAR_ROM );
-	trap_Cvar_Register( &fs_game, "fs_game", "", CVAR_SERVERINFO | CVAR_ROM );
-	
-	f = fopen( va("%s/%s/nodes/%s.bwp", fs_homepath.string, fs_game.string, mapname.string), "rb" );
-
-	if ( !f )
-	{
-		G_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", mapname.string );
-		G_Printf( "^1*** ^3       ^5  You need to make bot routes for this map.\n" );
-		G_Printf( "^1*** ^3       ^5  Bots will move randomly for this map.\n" );
-		return qfalse;
-	}
-
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_ROM | CVAR_SERVERINFO );	//get the map name
-	strcpy( mp, mapname.string );
-
-	fread( &nm, strlen( name) + 1, 1, f);
-
-	fread( &version, sizeof(float), 1, f);
-	if ( version != NOD_VERSION && version != 1.0f)
-	{
-		G_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", mapname.string );
-		G_Printf( "^1*** ^3       ^5  Old node file detected.\n" );
-		fclose(f);
-		return qfalse;
-	}
-
-	fread( &map, strlen( mp) + 1, 1, f);
-	if ( Q_stricmp( map, mp) != 0 )
-	{
-		G_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", mapname.string );
-		G_Printf( "^1*** ^3       ^5  Node file is not for this map!\n" );
-		fclose(f);
-		return qfalse;
-	}
-
-	if (version == NOD_VERSION)
-	{
-		fread( &numberNodes, sizeof(/*short*/ int), 1, f);
-	}
-	else
-	{
-		fread( &temp, sizeof(short int), 1, f);
-		numberNodes = temp;
-	}
-
-	for ( i = 0; i < numberNodes; i++ )					//loop through all the nodes
-	{
-		int links[32];
-		int link_flags[32];
-		int new_flags = 0;
-
-		for (j = 0; j < 32; j++)
-		{
-			links[j] = -1;
-			link_flags[j] = -1;
-		}
-
-		//read in all the node info stored in the file
-		fread( &vec, sizeof(vec3_t), 1, f);
-		fread( &flags, sizeof(int), 1, f);
-		fread( objNum, (sizeof(short int) * 3), 1, f);
-		fread( &objFlags, sizeof(short int), 1, f);
-		fread( &numLinks, sizeof(short int), 1, f);
-
-		//Load_AddNode( vec, flags, objNum, objFlags );	//add the node
-
-		//loop through all of the links and read the data
-		for ( j = 0; j < numLinks; j++ )
-		{
-			if (version == NOD_VERSION)
-			{
-				fread( &target, sizeof(/*short*/ int), 1, f);
-			}
-			else
-			{
-				fread( &temp, sizeof(short int), 1, f);
-				target = temp;
-			}
-
-			fread( &fl2, sizeof(short int), 1, f);
-			//ConnectNodes( i, target, fl2 );				//add any links
-			links[j] = target;
-			link_flags[j] = fl2;
-		}
-
-		// Set node objective flags..
-		//AIMOD_NODES_SetObjectiveFlags( i );
-
-		new_flags = Convert_AWP_Flags(flags);
-		CreateNewWP_FromAWPNode(i, vec, new_flags, 1/*weight*/, -1/*associated_entity*/, 64.0f/*disttonext*/, -1, numLinks, links, link_flags);
-	}
-
-	fread( &fix_aas_nodes, sizeof(short int), 1, f);
-
-	fclose(f);
-	G_Printf( "^1*** ^3%s^5: Successfully loaded %i waypoints from advanced waypoint file ^7nodes/%s.bwp^5.\n", GAME_VERSION,
-			  numberNodes, mapname.string );
-
-	//nodes_loaded = qtrue;
-
-	AIMOD_LoadCoverPoints();
-	return qtrue;
-}
-
-/* */
-qboolean
-AIMOD_NODES_LoadNodes ( void )
-{
-	fileHandle_t	f;
-	int				i, j;
-	char			filename[60];
-	vmCvar_t		mapname;
-	short int		objNum[3] = { 0, 0, 0 },
-	objFlags, numLinks;
-	int				flags;
-	vec3_t			vec;
-	short int		fl2;
-	int				target;
-	char			name[] = BOT_MOD_NAME;
-	char			nm[64] = "";
-	float			version;
-	char			map[64] = "";
-	char			mp[64] = "";
-	/*short*/ int		numberNodes;
-	short int		temp, fix_aas_nodes;
-
-	gWPNum = 0;
-
-	i = 0;
-	strcpy( filename, "nodes/" );
-
-	////////////////////
-	trap_Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof(filename) );
-	if ( strlen( filename) > 0 )
-	{
-		trap_Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
-	}
-	else
-	{
-		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-	}
-
-	Q_strcat( filename, sizeof(filename), mapname.string );
-
-	///////////////////
-	//open the node file for reading, return false on error
-	trap_FS_FOpenFile( va( "nodes/%s.bwp", filename), &f, FS_READ );
-	if ( !f )
-	{
-		trap_FS_FCloseFile( f );
-		return AIMOD_NODES_LoadNodes2();
-	}
-
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_ROM | CVAR_SERVERINFO );	//get the map name
-	strcpy( mp, mapname.string );
-	trap_FS_Read( &nm, strlen( name) + 1, f );									//read in a string the size of the mod name (+1 is because all strings end in hex '00')
-	trap_FS_Read( &version, sizeof(float), f );			//read and make sure the version is the same
-
-	if ( version != NOD_VERSION && version != 1.0f )
-	{
-		G_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", filename );
-		G_Printf( "^1*** ^3       ^5  Old node file detected.\n" );
-		trap_FS_FCloseFile( f );
-		return qfalse;
-	}
-
-	trap_FS_Read( &map, strlen( mp) + 1, f );			//make sure the file is for the current map
-	if ( Q_stricmp( map, mp) != 0 )
-	{
-		G_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", filename );
-		G_Printf( "^1*** ^3       ^5  Node file is not for this map!\n" );
-		trap_FS_FCloseFile( f );
-		return qfalse;
-	}
-
-	if (version == NOD_VERSION)
-	{
-		trap_FS_Read( &numberNodes, sizeof(/*short*/ int), f ); //read in the number of nodes in the map
-	}
-	else
-	{
-		trap_FS_Read( &temp, sizeof(short int), f ); //read in the number of nodes in the map
-		numberNodes = temp;
-	}
-
-	for ( i = 0; i < numberNodes; i++ )					//loop through all the nodes
-	{
-		int links[32];
-		int link_flags[32];
-		int new_flags = 0;
-
-		for (j = 0; j < 32; j++)
-		{
-			links[j] = -1;
-			link_flags[j] = -1;
-		}
-
-		//read in all the node info stored in the file
-		trap_FS_Read( &vec, sizeof(vec3_t), f );
-		trap_FS_Read( &flags, sizeof(int), f );
-		trap_FS_Read( objNum, sizeof(short int) * 3, f );
-		trap_FS_Read( &objFlags, sizeof(short int), f );
-		trap_FS_Read( &numLinks, sizeof(short int), f );
-
-		//Load_AddNode( vec, flags, objNum, objFlags );	//add the node
-
-		//loop through all of the links and read the data
-		for ( j = 0; j < numLinks; j++ )
-		{
-			if (version == NOD_VERSION)
-			{
-				trap_FS_Read( &target, sizeof(/*short*/ int), f );
-			}
-			else
-			{
-				trap_FS_Read( &temp, sizeof(short int), f );
-				target = temp;
-			}
-
-			trap_FS_Read( &fl2, sizeof(short int), f );
-			//ConnectNodes( i, target, fl2 );				//add any links
-			links[j] = target;
-			link_flags[j] = fl2;
-		}
-
-		// Set node objective flags..
-		//AIMOD_NODES_SetObjectiveFlags( i );
-		new_flags = Convert_AWP_Flags(flags);
-		CreateNewWP_FromAWPNode(i, vec, new_flags, 1/*weight*/, -1/*associated_entity*/, 64.0f/*disttonext*/, -1, numLinks, links, link_flags);
-	}
-
-	trap_FS_Read( &fix_aas_nodes, sizeof(short int), f );
-	trap_FS_FCloseFile( f );							//close the file
-	G_Printf( "^1*** ^3%s^5: Successfully loaded %i waypoints from advanced waypoint file ^7nodes/%s.bwp^5.\n", GAME_VERSION,
-			  numberNodes, filename );
-	//nodes_loaded = qtrue;
-
-	AIMOD_LoadCoverPoints();
-	return qtrue;
-}
-#endif //__AUTOWAYPOINT__
-
 int LoadPathData(const char *filename)
 {
 	fileHandle_t f;
@@ -2511,28 +2015,20 @@ int LoadPathData(const char *filename)
 	int i, i_cv;
 	int nei_num;
 
-#ifdef __AUTOWAYPOINT__
-	if (AIMOD_NODES_LoadNodes()) return 1; // UQ1: Load/Convert Auto-Waypoint Nodes... (Now default)
-#endif //__AUTOWAYPOINT__
-
 	i = 0;
 	i_cv = 0;
 
-	routePath = (char *)malloc(1024);
+	routePath = (char *)B_TempAlloc(1024);
 
 	Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
 
 	len = trap_FS_FOpenFile(routePath, &f, FS_READ);
 
-	free(routePath); //routePath
+	B_TempFree(1024); //routePath
 
 	if (!f)
 	{
-//#ifdef __AUTOWAYPOINT__
-//		if (AIMOD_NODES_LoadNodes()) return 1; // UQ1: Load/Convert Auto-Waypoint Nodes...
-//#else //!__AUTOWAYPOINT__
 		G_Printf(S_COLOR_YELLOW "Bot route data not found for %s\n", filename);
-//#endif //__AUTOWAYPOINT__
 		return 2;
 	}
 
@@ -2542,8 +2038,8 @@ int LoadPathData(const char *filename)
 		return 0;
 	}
 
-	fileString = (char *)malloc(524288);
-	currentVar = (char *)malloc(2048);
+	fileString = (char *)B_TempAlloc(524288);
+	currentVar = (char *)B_TempAlloc(2048);
 
 	trap_FS_Read(fileString, len, f);
 
@@ -2732,10 +2228,15 @@ int LoadPathData(const char *filename)
 		i++;
 	}
 
-	free(fileString);
-	free(currentVar);
+	B_TempFree(524288); //fileString
+	B_TempFree(2048); //currentVar
 
 	trap_FS_FCloseFile(f);
+
+	if (g_gametype.integer == GT_SIEGE)
+	{
+		CalculateSiegeGoals();
+	}
 
 	CalculateWeightGoals();
 	//calculate weights for idle activity goals when
@@ -2744,8 +2245,6 @@ int LoadPathData(const char *filename)
 	CalculateJumpRoutes();
 	//Look at jump points and mark them as requiring
 	//force jumping as needed
-
-	G_Printf("^2Loaded %i waypoints for from %s.\n", gWPNum, filename);
 
 	return 1;
 }
@@ -2889,17 +2388,17 @@ int SavePathData(const char *filename)
 		return 0;
 	}
 
-	routePath = (char *)malloc(1024);
+	routePath = (char *)B_TempAlloc(1024);
 
 	Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
 
 	trap_FS_FOpenFile(routePath, &f, FS_WRITE);
 
-	free(routePath);
+	B_TempFree(1024); //routePath
 
 	if (!f)
 	{
-		G_Printf(va("^1ERROR: Could not open file %s to write path data\n", filename));
+		G_Printf(S_COLOR_RED "ERROR: Could not open file to write path data\n");
 		return 0;
 	}
 
@@ -2913,8 +2412,8 @@ int SavePathData(const char *filename)
 
 	FlagObjects(); //currently only used for flagging waypoints nearest CTF flags
 
-	fileString = (char *)malloc(524288);
-	storeString = (char *)malloc(4096);
+	fileString = (char *)B_TempAlloc(524288);
+	storeString = (char *)B_TempAlloc(4096);
 
 	Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
@@ -2990,8 +2489,8 @@ int SavePathData(const char *filename)
 
 	trap_FS_Write(fileString, strlen(fileString), f);
 
-	free(fileString);
-	free(storeString);
+	B_TempFree(524288); //fileString
+	B_TempFree(4096); //storeString
 
 	trap_FS_FCloseFile(f);
 

@@ -51,6 +51,7 @@ int StrToDword(const char *str) {
 
 void Cmd_DisAsmDirect_f() {
 	char Addrbuf[32];
+	int a;
 	ud_t disasm;
 	int Addr;
 	if (trap_Argc() < 2) {

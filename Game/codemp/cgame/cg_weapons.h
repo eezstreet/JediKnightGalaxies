@@ -1,22 +1,9 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// cg_weapons.h
-// Copyright (c) 2013 Jedi Knight Galaxies
-
 #ifndef CG_WEAPONS_H
 #define CG_WEAPONS_H
 
 #include "../game/q_shared.h"
+
+#define MAX_WEAPON_INFO_SLOTS (64)
 
 // Forward declaration
 typedef struct weaponInfo_s weaponInfo_t;
@@ -165,15 +152,15 @@ typedef struct weaponEventsHandler_s
 {
     const char *handlerName;
 
-    void (*WeaponRenderWorld) ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode, const vec3_t angles );
+    void (*WeaponRenderWorld) ( centity_t *cent, const weaponDrawData_t *weaponData, qboolean altFire, const vec3_t angles );
     void (*WeaponRenderView) ( const weaponDrawData_t *weaponData );
-    void (*WeaponFire) ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode );
+    void (*WeaponFire) ( centity_t *cent, const weaponDrawData_t *weaponData, qboolean altFire );
     void (*WeaponCharge) ( const centity_t *cent, const weaponDrawData_t *weaponData );
     
     void (*TracelineRender) ( const weaponDrawData_t *weaponData, const vec3_t start, const vec3_t end );
     void (*GrenadeBounce) ( const centity_t *cent, const weaponDrawData_t *weaponData );
     
-    void (*ExplosiveRender) ( const centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode );
+    void (*ExplosiveRender) ( const centity_t *cent, const weaponDrawData_t *weaponData, qboolean altFire );
     void (*ExplosiveBlow) ( const centity_t *cent, const weaponDrawData_t *weaponData );
     void (*ExplosiveArm) ( const centity_t *cent, const weaponDrawData_t *weaponData );
     
@@ -183,8 +170,6 @@ typedef struct weaponEventsHandler_s
     void (*ProjectileHitPlayer) ( const weaponDrawData_t *weaponData, const vec3_t impactOrigin, const vec3_t impactNormal );
     void (*ProjectileDeflected) ( const weaponDrawData_t *weaponData, const vec3_t origin, const vec3_t normal );
 } weaponEventsHandler_t;
-
-float JKG_CalculateIronsightsPhase ( const networkState_t *ps );
 
 void CG_InitWeapons ( void );
 weaponInfo_t *CG_WeaponInfo ( unsigned int weaponNum, unsigned int variation );
@@ -200,19 +185,19 @@ void JKG_RenderTraceline ( const centity_t *cent, const vec3_t start, const vec3
 void JKG_BounceGrenade ( const centity_t *cent, qboolean altFire );
 
 void JKG_BlowExplosive ( const centity_t *cent, qboolean altFire );
-void JKG_RenderExplosive ( const centity_t *cent, unsigned char firingMode );
+void JKG_RenderExplosive ( const centity_t *cent, qboolean altFire );
 void JKG_ArmExplosive ( const centity_t *cent, qboolean altFire );
 
-void JKG_RenderProjectile ( const centity_t *cent, unsigned char firingMode );
+void JKG_RenderProjectile ( const centity_t *cent, qboolean altFire );
 void JKG_RenderProjectileMiss ( const centity_t *cent, const vec3_t origin, const vec3_t direction, qboolean altFire );
-void JKG_RenderProjectileDeath ( const centity_t *cent, const vec3_t origin, const vec3_t direction, unsigned char firingMode );
+void JKG_RenderProjectileDeath ( const centity_t *cent, const vec3_t origin, const vec3_t direction, qboolean altFire );
 void JKG_RenderProjectileHitPlayer ( const centity_t *cent, const vec3_t origin, const vec3_t direction, qboolean altFire );
 
 void JKG_ToggleScope ( const centity_t *cent );
 void JKG_ZoomScope ( const centity_t *cent );
 void JKG_RenderScope ( const centity_t *cent );
 
-void JKG_SetWeaponEventsHandler ( weaponInfo_t *weaponInfo, const char *eventHandlerName, unsigned char firingMode );
+void JKG_SetWeaponEventsHandler ( weaponInfo_t *weaponInfo, const char *primaryEventHandlerName, const char *altEventHandlerName );
 qboolean JKG_ShouldRenderWeaponViewModel ( const centity_t *cent, const playerState_t *ps );
 
 #endif

@@ -866,13 +866,6 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-#ifdef _PHASE1
-	if ( ent->spawnflags & 32 && jkg_arearestrictions.integer)
-	{
-		return;		// eezstreet: Pande's orders (for servers restricting access to sewers on Coruscant I guess)
-	}
-#endif
-
 	// only the master should be used
 	if ( ent->flags & FL_TEAMSLAVE ) 
 	{

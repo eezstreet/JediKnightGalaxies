@@ -1,19 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_enginefuncs.c
-// Duplicates the functionality of various Q_ funcs
-// (c) 2013 Jedi Knight Galaxies
-
 #include "gl_enginefuncs.h"
 #include <stdio.h>
 #include <windows.h>
@@ -509,6 +493,18 @@ const char *Cvar_String(const char *cvarname) {
 	}
 }
 
+char *Cvar_VariableString(const char *cvarname) {
+	__asm {
+		mov		edi, cvarname
+		mov		eax, 0x4393B0
+		call	eax
+		test	eax, eax
+		je		badcvar
+		mov		eax, [eax+4]
+badcvar:
+	}
+}
+
 /*
 ===================
 FS_BuildOSPath
@@ -516,6 +512,7 @@ FS_BuildOSPath
 Qpath may have either forward or backwards slashes
 ===================
 */
+#if 0
 #define	MAX_OSPATH			256	
 char *FS_BuildOSPath( const char *base, const char *game, const char *qpath ) {
 	char	temp[MAX_OSPATH];
@@ -534,6 +531,18 @@ char *FS_BuildOSPath( const char *base, const char *game, const char *qpath ) {
 	
 	return ospath[toggle];
 }
+#else
+char * FS_BuildOSPath( const char *base, const char *game, const char *qpath )  {
+	__asm {
+		mov		eax, game
+		mov		edx, qpath
+		push	base
+		mov		ebx, 0x43A550
+		call	ebx
+		add		esp, 4
+	}
+}
+#endif
 
 /*
 ================
@@ -559,4 +568,30 @@ qboolean FS_FileExists( const char *file )
 		return qtrue;
 	}
 	return qfalse;
+}
+
+int FS_CopyFile(const char *filename) {
+	__asm {
+		mov		eax, filename
+		mov		ebx, 0x450900
+		call	ebx
+	}
+}
+
+int FS_ReadFile( const char *qpath, void **buffer ) {
+	__asm {
+		push qpath
+		mov edi, buffer
+		mov eax, 0x43C470
+		call eax
+		add esp, 4
+	}
+}
+
+void FS_FreeFile( void *buffer ) {
+	__asm {
+		mov esi, buffer
+		mov eax, 0x43C720
+		call eax
+	}
 }

@@ -84,10 +84,6 @@ static const struct luaL_reg file_f [] = {
 };
 
 void GLua_Define_File(lua_State *L) {
-	STACKGUARD_INIT(L)
-
 	luaL_register(L, "file", file_f);
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

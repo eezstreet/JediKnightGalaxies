@@ -113,7 +113,7 @@ int Base64_Encode(const char *data, unsigned int length, char *base64, unsigned 
 	return 1;
 }
 
-int Base64_EncodeURL(const unsigned char *data, unsigned int length, char *base64, unsigned int base64len)
+int Base64_EncodeURL(const char *data, unsigned int length, char *base64, unsigned int base64len)
 {
 	unsigned char *r = (unsigned char *)data;
 	unsigned char *w = (unsigned char *)base64;

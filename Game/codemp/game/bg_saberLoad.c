@@ -38,6 +38,8 @@ int BG_SoundIndex(char *sound)
 #endif
 }
 
+extern stringID_table_t FPTable[];
+
 #define MAX_SABER_DATA_SIZE 0x80000
 static char SaberParms[MAX_SABER_DATA_SIZE];
 
@@ -1061,6 +1063,23 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber )
 			if ( n )
 			{
 				saber->saberFlags |= SFL_TWO_HANDED;
+			}
+			continue;
+		}
+
+		//force power restrictions
+		if ( !Q_stricmp( token, "forceRestrict" ) ) 
+		{
+			int fp;
+
+			if ( COM_ParseString( &p, &value ) ) 
+			{
+				continue;
+			}
+			fp = GetIDForString( FPTable, value );
+			if ( fp >= FP_FIRST && fp < NUM_FORCE_POWERS )
+			{
+				saber->forceRestrictions |= (1<<fp);
 			}
 			continue;
 		}

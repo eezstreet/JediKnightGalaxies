@@ -149,8 +149,9 @@ static int GLua_Cvar_Create(lua_State *L) {
 }
 
 void GLua_Define_Cvar(lua_State *L) {
-
-	STACKGUARD_INIT(L)
+	// Defines the Entities object so it can be used
+	lua_newtable(L);
+	//EntDataRef = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	lua_pushcclosure(L, GLua_Cvar_Create, 0);
 	lua_setglobal(L, "CreateCvar");
@@ -167,6 +168,4 @@ void GLua_Define_Cvar(lua_State *L) {
 	lua_settable(L,-3);
 
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

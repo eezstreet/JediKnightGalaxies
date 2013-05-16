@@ -1,17 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// exports.h
-// (c) 2013 Jedi Knight Galaxies
 // Auxiliary library imports and exports for the client-side
 
 #define		GL_AUX_VERSION		3
@@ -45,6 +31,9 @@ typedef struct auxlib_ui_exports_s {
 	void (* GL_Task_GetTermsOfUse)( void (*callback)(void *) );
 	void (* GL_Task_RegisterUser)(const char *username, const char *password, const char *email, void (*callback)(void *));
 	void (* GL_Task_Login)(const char *username, const char *password, void (*callback)(void *));
+	// Sound System
+	void (* GL_S_Init)(void);
+	void (* GL_S_Update)(void);
 } gl_ui_exports_t;
 
 typedef struct auxlib_cg_imports_s {

@@ -1,18 +1,8 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_cin.c
-// OGV/OGM Playback Support
-// (c) 2013 Jedi Knight Galaxies
+//////////////////////////////////////
+//
+// OGV/OGM Playback support - JKG
+//
+/////////////////////////////////////
 
 // This here is to enable the playback of ogg theora/vorbis video files
 // While theora creates videos with quality comparable to Xvid and DivX
@@ -230,12 +220,12 @@ int __cdecl CIN_PlayCinematic(const char *filename, int x, int y, int w, int h, 
 			} else if (aspect < targetaspect) {
 				cin->xpos = x;
 				cin->width = w;
-				cin->height = (int)((float)h / targetaspect * aspect);
+				cin->height = (float)h / targetaspect * aspect;
 				cin->ypos = y + ((h - cin->height) / 2);
 			} else {
 				cin->ypos = y;
 				cin->height = h;
-				cin->width = (int)((float)w / aspect * targetaspect);
+				cin->width = (float)w / aspect * targetaspect;
 				cin->xpos = x + ((w - cin->width) / 2);
 			}
 		} else {

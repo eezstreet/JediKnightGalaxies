@@ -1,18 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// jkg_framebuffers.h
-// Copyright (c) 2013 Jedi Knight Galaxies
-
 #ifndef JKG_FRAMEBUFFERS_H
 #define JKG_FRAMEBUFFERS_H
 
@@ -38,8 +23,6 @@ typedef struct texture_s
 {
     unsigned int id;
     
-    unsigned int width, height;
-    
     textureTarget_t target;
 } texture_t;
 
@@ -64,6 +47,7 @@ framebuffer_t* FBO_CreateFramebuffer ( void );
 void FBO_AttachColorTextureToFramebuffer ( framebuffer_t* framebuffer, const texture_t* texture, unsigned int slot );
 void FBO_AttachDepthTextureToFramebuffer ( framebuffer_t* framebuffer, const texture_t* texture );
 void FBO_AttachDepthRenderbufferToFramebuffer ( framebuffer_t* framebuffer, unsigned int renderbufferId );
+void FBO_AttachStencilRenderbufferToFramebuffer ( framebuffer_t* framebuffer, unsigned int renderbufferId );
 void FBO_CheckFramebuffer ( const framebuffer_t* framebuffer );
 
 void FBO_BindDefaultFramebuffer ( void );

@@ -990,9 +990,6 @@ static void cJSON_SS_SkipToken(cJSON_StringStream *ss)
 			case '/':
 				if (*(ss->pos+1) == '*' || *(ss->pos+1) == '/') {		// Comment, bail out
 					inToken = 0;
-				} else {
-					ss->pos++;
-					ss->col++;
 				}
 				break;
 			case '{':

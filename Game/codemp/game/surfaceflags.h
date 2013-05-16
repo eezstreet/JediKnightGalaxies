@@ -1,24 +1,11 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// surfaceflags.h
-// This file must be identical in the quake and utils directories
+// Copyright (C) 1999-2000 Id Software, Inc.
 //
+// This file must be identical in the quake and utils directories
+
 // contents flags are seperate bits
 // a given brush can contribute multiple content bits
-//
+
 // these definitions also need to be in q_shared.h!
-//
-// Copyright (C) 1999-2000 Id Software, Inc.
 
 #define	CONTENTS_SOLID			0x00000001	// Default setting. An eye is never valid in a solid
 #define	CONTENTS_LAVA			0x00000002

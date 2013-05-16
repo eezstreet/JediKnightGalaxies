@@ -19,7 +19,6 @@ enum {
 	CHM_GLOBAL,
 	CHM_PRIVATE,
 	CHM_ACTION,
-	CHM_TEAM,		// versus only --eez
 	CHM_MAX,
 };
 
@@ -40,15 +39,13 @@ struct {
 
 #define CHATBOX_MAXTEXT 140
 
-static const char *chatModeText[] = { "Say^7: ", "Whisper^7: ", "Yell^7: ", "Comlink^7: ", "Global^7: ", "Private: ", "Action: ", "Team: "};
+static const char *chatModeText[] = { "Say^7: ", "Whisper^7: ", "Yell^7: ", "Comlink^7: ", "Global^7: ", "Private: ", "Action: "};
 
 static int cb_privtarget = 0;		// Target for private chat (CHM_PRIVATE)
 static int cb_chatmode = CHM_NORMAL;
 static int cb_fadeTime = 0;
 static int cb_fadeMode = 0; // 0 = off, 1 = fade in, 2 = on, 3 = fade out
 
-extern void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
-		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars, qhandle_t textShader );
 
 void ChatBox_InitChat() {
 	cg.isChatting = 1;
@@ -100,6 +97,24 @@ void ChatBox_SetPaletteAlpha(float alpha) {
 	}
 	// Drop shadow color
 	*(float *)(0x5582B8 + 12) = alpha;
+}
+
+static int Text_IsExtColorCode(const char *text) {
+	const char *r, *g, *b;
+	r = text+1;
+	g = text+2;
+	b = text+3;
+	// Get the color levels (if the numbers are invalid, it'll return -1, which we can use to validate)
+	if ((*r < '0' || *r > '9') && (*r < 'a' || *r > 'f') && (*r < 'A' || *r > 'F')) {
+		return 0;
+	}
+	if ((*g < '0' || *g > '9') && (*g < 'a' || *g > 'f') && (*g < 'A' || *g > 'F')) {
+		return 0;
+	}
+	if ((*b < '0' || *b > '9') && (*b < 'a' || *b > 'f') && (*b < 'A' || *b > 'F')) {
+		return 0;
+	}
+	return 1;
 }
 
 float Text_GetWidth(const char *text, int iFontIndex, float scale) {
@@ -300,22 +315,12 @@ void Text_DrawText(int x, int y, const char *text, const float* rgba, int iFontI
 }
 
 void ChatBox_NewChatMode() {
-    char *p = strchr (cb_data.buff, ' ');
-    if ( !p )
-    {
-	    cb_data.buff[0] = 0;
-	}
-	else
-	{
-	    char temp[sizeof (cb_data.buff)] = { 0 };
-	    Q_strncpyz (temp, p + 1, sizeof (temp));
-	    Q_strncpyz (cb_data.buff, temp, sizeof (cb_data.buff));
-	}
+	cb_data.buff[0] = 0;
 	cb_data.cursor = 0;
 	cb_data.scroll = 0;
 	cb_data.len = 0;
-	cb_data.offset = Text_GetWidth(chatModeText[cb_chatmode], cgDC.Assets.qhSmall4Font, 0.6f);
-	cb_data.maxwidth = 205 - cb_data.offset;
+	cb_data.offset = Text_GetWidth(chatModeText[cb_chatmode], cgDC.Assets.qhSmallFont, 0.6f);
+	cb_data.maxwidth = 220 - cb_data.offset;
 }
 
 
@@ -332,7 +337,7 @@ const char *ChatBox_PrintableText(int iFontIndex, float scale) {
 	s[1] = 0;
 
 	while (*t) {
-		if (*t == '^' && *(t + 1)) {
+		if (*t == '^') {
 			if (*(t+1) >= '0' && *(t+1) <= '9') {
 				*u = *t;
 				u++; t++;
@@ -375,13 +380,13 @@ void ChatBox_UpdateScroll() {
 		// Odd condition
 		for (i = cb_data.cursor; i> cb_data.scroll; i--) {
 			s[0] = cb_data.buff[i];
-			w += Text_GetWidth(s, cgDC.Assets.qhSmall4Font, 0.6f);
+			w += Text_GetWidth(s, cgDC.Assets.qhSmallFont, 0.6f);
 		}
 		w *= -1; // Invert, since we gotta go back a lot :P
 	} else {
 		for (i = cb_data.scroll; i < cb_data.cursor; i++) {
 			s[0] = cb_data.buff[i];
-			w += Text_GetWidth(s, cgDC.Assets.qhSmall4Font, 0.6f);
+			w += Text_GetWidth(s, cgDC.Assets.qhSmallFont, 0.6f);
 		}
 	}
 
@@ -397,12 +402,12 @@ void ChatBox_UpdateScroll() {
 			// Go back 1 character
 			cb_data.scroll--;
 			s[0] = cb_data.buff[cb_data.scroll];
-			w += Text_GetWidth(s, cgDC.Assets.qhSmall4Font, 0.6f);
+			w += Text_GetWidth(s, cgDC.Assets.qhSmallFont, 0.6f);
 			wf = w / cb_data.maxwidth;
 		}
 	} else if (wf > 0.75f) {
 		// Above 75%, try scrolling forward
-		wx = Text_GetWidth(&cb_data.buff[cb_data.scroll], cgDC.Assets.qhSmall4Font, 0.6f);
+		wx = Text_GetWidth(&cb_data.buff[cb_data.scroll], cgDC.Assets.qhSmallFont, 0.6f);
 		wxf	= wx / cb_data.maxwidth;
 		while (1) {
 			float wid;
@@ -413,7 +418,7 @@ void ChatBox_UpdateScroll() {
 			// Go forward 1 character
 			cb_data.scroll++;
 			s[0] = cb_data.buff[cb_data.scroll-1];
-			wid = Text_GetWidth(s, cgDC.Assets.qhSmall4Font, 0.6f);
+			wid = Text_GetWidth(s, cgDC.Assets.qhSmallFont, 0.6f);
 			w -= wid;
 			wf = w / cb_data.maxwidth;
 
@@ -429,47 +434,41 @@ void ChatBox_CheckModes() {
 	// start with the string comparing
 	if (cb_data.buff[0] == '/') {
 		// possible command here :P
-		if (cb_data.len >= 4) {
+		if (cb_data.len == 3) {
+			// Check for 3 char commands
+			if (!Q_stricmp(cb_data.buff, "/n ")) {
+				cb_chatmode = CHM_NORMAL;
+				ChatBox_NewChatMode();
+				return;
+			}
+			if (!Q_stricmp(cb_data.buff, "// ")) {
+				cb_chatmode = CHM_GLOBAL;
+				ChatBox_NewChatMode();
+				return;
+			}
+			if (!Q_stricmp(cb_data.buff, "/e ")) {
+				cb_chatmode = CHM_ACTION;
+				ChatBox_NewChatMode();
+				return;
+			}
+			if (!Q_stricmp(cb_data.buff, "/y ")) {
+				cb_chatmode = CHM_YELL;
+				ChatBox_NewChatMode();
+				return;
+			}
+			if (!Q_stricmp(cb_data.buff, "/w ")) {
+				cb_chatmode = CHM_WHISPER;
+				ChatBox_NewChatMode();
+				return;
+			}
+		} else if (cb_data.len == 4) {
 			// Check for 4 char commands
-			if (!Q_stricmpn(cb_data.buff, "/me ", 4)) {
+			if (!Q_stricmp(cb_data.buff, "/me ")) {
 				cb_chatmode = CHM_ACTION;
 				ChatBox_NewChatMode();
 				return;
 			}
 
-		}
-		else if (cb_data.len >= 3) {
-			// Check for 3 char commands
-			if (!Q_stricmpn(cb_data.buff, "/n ", 3)) {
-				cb_chatmode = CHM_NORMAL;
-				ChatBox_NewChatMode();
-				return;
-			}
-			if (!Q_stricmpn(cb_data.buff, "// ", 3)) {
-				cb_chatmode = CHM_GLOBAL;
-				ChatBox_NewChatMode();
-				return;
-			}
-			if (!Q_stricmpn(cb_data.buff, "/e ", 3)) {
-				cb_chatmode = CHM_ACTION;
-				ChatBox_NewChatMode();
-				return;
-			}
-			if (!Q_stricmpn(cb_data.buff, "/y ", 3)) {
-				cb_chatmode = CHM_YELL;
-				ChatBox_NewChatMode();
-				return;
-			}
-			if (!Q_stricmpn(cb_data.buff, "/w ", 3)) {
-				cb_chatmode = CHM_WHISPER;
-				ChatBox_NewChatMode();
-				return;
-			}
-			if (!Q_stricmpn(cb_data.buff, "/t ", 3)) {
-				cb_chatmode = CHM_TEAM;
-				ChatBox_NewChatMode();
-				return;
-			}
 		}
 
 	}
@@ -658,9 +657,6 @@ void ChatBox_HandleKey(int key, qboolean down) {
 				case CHM_PRIVATE:
 					trap_SendClientCommand(va("tell %i \"%s\"\n", cb_privtarget, ChatBox_EscapeChat(cb_data.buff)));
 					break;
-				case CHM_TEAM:
-					trap_SendClientCommand(va("say_team \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
-					break;
 				default:
 					break;
 			}
@@ -672,10 +668,6 @@ void ChatBox_HandleKey(int key, qboolean down) {
 }
 
 qboolean ChatBox_CanUseChat() {
-
-	if (!cg.snap)		// HOTFIX
-		return qfalse;
-
 	if (cg.snap->ps.stats[STAT_HEALTH] < 1)
 		return qfalse;
 	if (cg.deathcamTime)
@@ -695,9 +687,7 @@ void ChatBox_MessageMode() {
 
 	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
-
-	// VERSUS ONLY --eez
-	cb_chatmode = CHM_GLOBAL;
+	cb_chatmode = CHM_NORMAL;
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
@@ -714,7 +704,7 @@ void ChatBox_MessageMode2() {
 
 	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
-	cb_chatmode = CHM_TEAM;
+	cb_chatmode = CHM_GLOBAL;
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
@@ -750,8 +740,6 @@ void ChatBox_MessageMode4() {
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
-
-	// VERSUS ONLY --eez
 
 	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
@@ -810,7 +798,6 @@ void ChatBox_DrawBackdrop(menuDef_t *menu) {
 		}
 	}
 	
-#pragma region h_chat
 	item = Menu_FindItemByName(menu, "h_chat");
 	if (item) {
 		Vector4Copy(item->window.foreColor, color);
@@ -819,7 +806,6 @@ void ChatBox_DrawBackdrop(menuDef_t *menu) {
 		trap_R_SetColor( color );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
 	}
-#pragma endregion
 }
 
 void ChatBox_DrawChat(menuDef_t *menu) {
@@ -834,81 +820,50 @@ void ChatBox_DrawChat(menuDef_t *menu) {
 	if (!cg.isChatting) {
 		return;
 	}
-#pragma region t_chat
 	item = Menu_FindItemByName(menu, "t_chat");
 	if (item) {
-		/*trap_R_Font_DrawString(
+		trap_R_Font_DrawString(
 				item->window.rect.x,
 				item->window.rect.y,
 				chatModeText[cb_chatmode],
 				newColor,
-				cgDC.Assets.qhSmall4Font,
+				cgDC.Assets.qhSmallFont,
 				-1,
-				0.6f);*/
-		CG_DrawStringExt(
-			item->window.rect.x,
-			item->window.rect.y + 12,
-			chatModeText[cb_chatmode],
-			newColor,
-			qtrue, qfalse,
-			5, 8,
-			strlen(chatModeText[cb_chatmode]),
-			cgs.media.charset_Arial);
-		text = ChatBox_PrintableText(cgDC.Assets.qhSmall4Font, 0.6f);
+				0.6);
+		text = ChatBox_PrintableText(cgDC.Assets.qhSmallFont, 0.6f);
 		offset = cb_data.cursor - cb_data.scroll;
 
 		MAKERGBA(newColor, colorWhite[0], colorWhite[1], colorWhite[2], colorWhite[3]*cg.jkg_HUDOpacity);
 		
 		// We use Text_DrawText here to ensure correct spacing
-		/*Text_DrawText(
+		Text_DrawText(
 				item->window.rect.x + cb_data.offset,
 				item->window.rect.y,
 				text,
 				newColor,
-				cgDC.Assets.qhSmall4Font,
+				cgDC.Assets.qhSmallFont,
 				-1,
-				0.6f);*/
-		CG_DrawStringExt(
-			item->window.rect.x + cb_data.offset,
-			item->window.rect.y + 12,
-			text,
-			newColor,
-			qfalse, qfalse,
-			4, 8,
-			strlen(text),
-			cgs.media.charset_Arial);
+				0.6f);
 
 		if (cg.time >> 8 & 1) {
 			// Draw the cursor
 			if (offset > strlen(text)) {
 				// Shouldn't happen.. but still, just in case
-				//cursorpos = Text_GetWidth(text, cgDC.Assets.qhSmall4Font, 0.6f);
-				cursorpos = 0;
+				cursorpos = Text_GetWidth(text, cgDC.Assets.qhSmallFont, 0.6f);
 			} else {
 				((char *)text)[offset] = 0;
-				//cursorpos = Text_GetWidth(text, cgDC.Assets.qhSmall4Font, 0.6f);
-				cursorpos = (int)strlen(text) * 3;
+				cursorpos = Text_GetWidth(text, cgDC.Assets.qhSmallFont, 0.6f);
 			}
-			/*Text_DrawText(
+			Text_DrawText(
 					item->window.rect.x + cb_data.offset + cursorpos,
 					item->window.rect.y,
 					cb_data.overwrite ? "_" : "|" ,
 					newColor,
-					cgDC.Assets.qhSmall4Font,
+					cgDC.Assets.qhSmallFont,
 					-1,
-					0.6f);*/
-			CG_DrawStringExt(
-				item->window.rect.x + cb_data.offset + cursorpos,
-				item->window.rect.y + 12,
-				cb_data.overwrite ? "_" : "|" ,
-				newColor,
-				qtrue, qfalse,
-				4, 8,
-				2,
-				cgs.media.charset_Arial);
+					0.6f);
 		}
 	}
-#pragma endregion
 }
 
 void ChatBox_InterruptChat() {
@@ -921,12 +876,6 @@ void ChatBox_InterruptChat() {
 			cb_fadeMode = 3;
 			trap_Key_SetCatcher(0);
 			return;
-		}
-		
-		// Don't send empty message
-		if ( cb_data.buff[0] == '\0' )
-		{
-		    return;
 		}
 		strncat(cb_data.buff, "-", sizeof(cb_data.buff)-2);
 		ChatBox_HandleKey(A_ENTER, qtrue);

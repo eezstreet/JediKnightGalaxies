@@ -377,7 +377,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		UI_ShowPostGame(qtrue);
 	}
 
-	/*if ( Q_stricmp (cmd, "ui_testmaster") == 0) {
+	if ( Q_stricmp (cmd, "ui_testmaster") == 0) {
 		JKG_GLUI_Task_Test(testMasterFinalFunc);
 		return qtrue;
 	}
@@ -409,7 +409,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 		JKG_GLUI_Task_Login(username, password, loginFinalFunc);
 		return qtrue;
-	}*/
+	}
 
 	
 	
@@ -421,6 +421,19 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	
 	if ( Q_stricmp (cmd, "ui_load") == 0 ) {
 		UI_Load();
+		return qtrue;
+	}
+
+	if ( Q_stricmp (cmd, "ui_opensiegemenu" ) == 0 ) 
+	{
+		if ( trap_Cvar_VariableValue ( "g_gametype" ) == GT_SIEGE )
+		{
+			Menus_CloseAll();
+			if (Menus_ActivateByName(UI_Argv(1)))
+			{
+				trap_Key_SetCatcher( KEYCATCH_UI );
+			}
+		}
 		return qtrue;
 	}
 

@@ -402,8 +402,6 @@ static const struct luaL_reg ciphercontext_m [] = {
 };
 
 void GLua_Define_Cryptography(lua_State *L) {
-	STACKGUARD_INIT(L)
-
 	luaL_register(L, "crypto", cryptography_f);
 	lua_pop(L,1);
 
@@ -433,6 +431,4 @@ void GLua_Define_Cryptography(lua_State *L) {
 	lua_settable(L,-3);
 
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

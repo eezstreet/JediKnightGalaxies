@@ -241,7 +241,7 @@ void BIO_clear_flags(BIO *b, int flags);
 #define BIO_RR_ACCEPT			0x03
 
 /* These are passed by the BIO callback */
-#define BIO_Cfree	0x01
+#define BIO_CB_FREE	0x01
 #define BIO_CB_READ	0x02
 #define BIO_CB_WRITE	0x03
 #define BIO_CB_PUTS	0x04

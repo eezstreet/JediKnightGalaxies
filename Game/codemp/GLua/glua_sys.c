@@ -269,10 +269,6 @@ static const struct luaL_reg sys_f [] = {
 };
 
 void GLua_Define_Sys(lua_State *L) {
-	STACKGUARD_INIT(L)
-
 	luaL_register(L, "sys", sys_f);
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

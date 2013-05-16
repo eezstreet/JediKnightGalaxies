@@ -514,7 +514,7 @@ static int GLua_NPC_SetWeapon(lua_State *L) {
 	if (!npc) return 0;
 	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS) return 0;
 	// Check if player has the weapon in question
-	if (!(npc->client->ps.stats[STAT_WEAPONS] & (1 << weapon))) return 0;
+	if (!npc->client->ps.stats[STAT_WEAPONS] & (1 << weapon)) return 0;
 	ChangeWeapon(npc, weapon, 0);
 	return 0;
 }
@@ -591,7 +591,7 @@ static int GLua_NPC_GetForceLevel(lua_State *L) {
 	int force = luaL_checkinteger(L,2);
 	if (!npc) return 0;
 	if (force < FP_FIRST || force >= NUM_FORCE_POWERS) return 0;
-	if (!(npc->client->ps.fd.forcePowersKnown & (1 << force))) return 0;
+	if (!npc->client->ps.fd.forcePowersKnown & (1 << force)) return 0;
 	lua_pushinteger(L,npc->client->ps.fd.forcePowerLevel[force]);
 	return 1;
 }
@@ -1373,62 +1373,6 @@ static int GLua_NPC_GetDPitch(lua_State *L) {
 	return 1;
 }
 
-/*
-eezstreet add
-*/
-static int GLua_NPC_DeathLootTable(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if (!npc) return 0;
-	lua_pushinteger(L,npc->client->deathLootIndex);
-	return 1;
-}
-
-static int GLua_NPC_PickPocketLootTable(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if (!npc) return 0;
-	lua_pushinteger(L,npc->client->pickPocketLootIndex);
-	return 1;
-}
-
-static int GLua_NPC_SetDeathLootTable(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if (!npc) return 0;
-	npc->client->deathLootIndex = luaL_checkinteger(L, 2);
-	return 0;
-}
-
-static int GLua_NPC_SetPickPocketLootTable(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if (!npc) return 0;
-	npc->client->pickPocketLootIndex = luaL_checkinteger(L, 2);
-	return 0;
-}
-
-//v2
-static int GLua_NPC_GetCurrentLooter(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	lua_pushinteger(L, npc->currentLooter->s.number);
-	return 0;
-}
-
-static int GLua_NPC_SetCurrentLooter(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	npc->currentLooter = &g_entities[luaL_checkinteger(L, 2)];
-	return 0;
-}
-
-static int GLua_NPC_GetVendorIndex(lua_State *L) {
-	/*gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	npc->vendorData*/
-	return 0;
-}
-/*
-eezstreet end
-*/
-
 static int GLua_NPC_SetViewTarget(lua_State *L) {		// Does not have a Get equivalent!
 	gentity_t *npc = GLua_CheckNPC(L, 1);
 	gentity_t	*viewtarget;
@@ -1615,19 +1559,6 @@ static int GLua_NPC_SetAnimHoldTime(lua_State *L) {
 	return 0;
 }
 
-static int GLua_NPC_SetAsVendor(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	JKG_CreateNewVendor(npc, -1, qtrue, qtrue);
-	return 0;
-}
-
-static int GLua_NPC_RefreshVendorStock(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	JKG_CreateNewVendor(npc, npc->vendorData.ourID, qtrue, qtrue);
-	return 0;
-}
 
 static int GLua_NPC_SetUseRange(lua_State *L)
 {
@@ -1889,7 +1820,7 @@ static int GLua_Player_GiveHoldable(lua_State *L) {
 }
 
 void Jetpack_Off(gentity_t *ent);
-void NPC_Humanoid_Decloak( gentity_t *self );
+void Jedi_Decloak( gentity_t *self );
 
 static int GLua_Player_TakeHoldable(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
@@ -2072,8 +2003,6 @@ static const struct luaL_reg npc_m [] = {
 	{"TakeHoldable", GLua_Player_TakeHoldable},
 	{"HasHoldable", GLua_Player_HasHoldable},
 	*/
-	{"VendorSet", GLua_NPC_SetAsVendor},
-	{"VendorStockRefresh", GLua_NPC_RefreshVendorStock},
 	{NULL, NULL},
 };
 
@@ -2123,14 +2052,6 @@ static const struct GLua_Prop npc_p [] = {
 	{"NoKnockback", GLua_NPC_HasNoKnockback, GLua_NPC_SetNoKnockback},
 	{"NoTarget", GLua_NPC_HasNoTarget, GLua_NPC_SetNoTarget},
 	{"UseRange", GLua_NPC_GetUseRange, GLua_NPC_SetUseRange},
-	//eezstreet add
-	{"DeathLootIndex", GLua_NPC_DeathLootTable, GLua_NPC_SetDeathLootTable},
-	{"PickPocketLootIndex", GLua_NPC_PickPocketLootTable, GLua_NPC_SetPickPocketLootTable},
-	//v2
-	{"CurrentLooter", GLua_NPC_GetCurrentLooter, GLua_NPC_SetCurrentLooter},
-	//v3
-	//{"VendorIndex", 
-	//eezstreet end
 	{NULL,		NULL,						NULL},
 };
 
@@ -2425,8 +2346,6 @@ int GLua_Spawn_NPC(gentity_t* npc, gentity_t *spawner) {
 
 
 void GLua_Define_NPC(lua_State *L) {
-
-	STACKGUARD_INIT(L)
 	// Defines the NPC object so it can be used
 
 	luaL_newmetatable(L,"NPC");
@@ -2442,6 +2361,4 @@ void GLua_Define_NPC(lua_State *L) {
 	lua_settable(L,-3);
 
 	lua_pop(L,1);
-
-	STACKGUARD_CHECK(L)
 }

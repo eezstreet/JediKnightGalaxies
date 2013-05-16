@@ -153,11 +153,11 @@ void ATST_Ranged( qboolean visible, qboolean advance, qboolean altAttack )
 	{
 		TIMER_Set( NPC, "atkDelay", Q_irand( 500, 3000 ) );
 
-		/*if (altAttack)
+		if (altAttack)
 		{
 			ucmd.buttons |= BUTTON_ATTACK|BUTTON_ALT_ATTACK;
 		}
-		else*/
+		else
 		{
 			ucmd.buttons |= BUTTON_ATTACK;
 		}
@@ -296,6 +296,7 @@ ATST_Idle
 */
 void ATST_Idle( void )
 {
+
 	NPC_BSIdle();
 
 	NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_STAND1, SETANIM_FLAG_NORMAL );

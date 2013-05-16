@@ -11,7 +11,6 @@
 
 gl_ui_exports_t gl_ui_exports;
 gl_ui_imports_t *gl_ui_imports;
-
 #undef INFINITE
 
 #include <windows.h>
@@ -76,6 +75,9 @@ void JKG_UI_LoadAuxiliaryLibrary()
 		Com_Error(0, "JKG_UI_LoadAuxiliaryLibrary failed: GL_UI_AuxLinkup failed\n");
 		return;
 	}
+	// Temp: Start-up sound system
+	gl_ui_imports->GL_S_Init();
+
 	// Initialize the threading system
 	gl_ui_imports->GL_InitBackgroundWorker();
 	// Purge pending tasks
@@ -106,6 +108,8 @@ void JKG_GLUI_ProcessTasks()
 	}
 	gl_ui_imports->GL_ProcessTasks();
 
+	// Temp testing:
+	gl_ui_imports->GL_S_Update();
 }
 
 void JKG_GLUI_Task_Test(void (*callback)(asyncTask_t *task))

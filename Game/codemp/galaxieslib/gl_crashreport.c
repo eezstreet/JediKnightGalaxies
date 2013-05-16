@@ -1,21 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_crashreport.c
-// Jedi Knight Galaxies crash handler
-// In the somewhat unlikely event of a crash, this code will create a thorough crash log so the
-// cause can be determined.
-// (c) 2013 Jedi Knight Galaxies
-
 ////////////////////////////////
 //							  
 // Jedi Knight Galaxies crash handler 
@@ -141,12 +123,12 @@ static const char *JKG_Crash_GetCrashlogName() {
 	struct tm * timeinfo;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	strftime(Buff, 1024,"JKG-CLCrashlog_%Y-%m-%d_%H-%M-%S.log",timeinfo);
+	strftime(Buff, 1024,"JKG-CLCrashlog_%d-%m-%Y_%H-%M-%S.log",timeinfo);
 	return Buff;
 }
 
 static void JKG_FS_WriteString(const char *msg, fileHandle_t f) {
-	FS_Write((void *)msg, strlen(msg), f);
+	FS_Write(msg, strlen(msg), f);
 }
 
 static cvar_t *fs_basepath;
