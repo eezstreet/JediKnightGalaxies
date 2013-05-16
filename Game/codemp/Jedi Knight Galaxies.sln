@@ -4,8 +4,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Side Module (cgame)"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Side Module (game)", "game\JK2_game.vcxproj", "{5B587283-8429-4F8B-AECA-C09BF364B617}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bot Library (botlib)", "botlib\botlib.vcxproj", "{07CCC82A-B905-4384-8AC5-E8A8E352B14C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "User Interface Module (ui)", "ui\ui.vcxproj", "{2DDA2041-6A68-4754-B342-14039CC91695}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Auxiliary Library (galaxieslib)", "galaxieslib\galaxieslib.vcxproj", "{13EE074D-17E3-48AE-A7F5-64248369F986}"
@@ -31,11 +29,6 @@ Global
 		{5B587283-8429-4F8B-AECA-C09BF364B617}.Final|Win32.Build.0 = Final|Win32
 		{5B587283-8429-4F8B-AECA-C09BF364B617}.Release|Win32.ActiveCfg = Release|Win32
 		{5B587283-8429-4F8B-AECA-C09BF364B617}.Release|Win32.Build.0 = Release|Win32
-		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Final|Win32.ActiveCfg = Final|Win32
-		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Final|Win32.Build.0 = Final|Win32
-		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Release|Win32.ActiveCfg = Release|Win32
-		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Release|Win32.Build.0 = Release|Win32
 		{2DDA2041-6A68-4754-B342-14039CC91695}.Debug|Win32.ActiveCfg = Debug|Win32
 		{2DDA2041-6A68-4754-B342-14039CC91695}.Debug|Win32.Build.0 = Debug|Win32
 		{2DDA2041-6A68-4754-B342-14039CC91695}.Final|Win32.ActiveCfg = Final|Win32

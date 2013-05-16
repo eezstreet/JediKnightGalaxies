@@ -2,6 +2,7 @@
 *.opensdf
 *.sdf
 Game/codemp/ipch/*
+/Game/codemp/[Dd]ebug/*
 
 # Object files
 *.o
