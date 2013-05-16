@@ -845,6 +845,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 
 }
 
+
 /*
 void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 {
@@ -890,6 +891,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 	}
 }
 */
+
 
 void UI_GetSaberForMenu( char *saber, int saberNum )
 {
