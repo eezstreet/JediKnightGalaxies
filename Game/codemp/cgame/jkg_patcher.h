@@ -1,22 +1,12 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// jkg_patcher.h
-// DetourPatcher by Deathspike
-// A generic patcher class created to simplify the
-// detours and patches being placed for JKG. It will
-// automatically create trampolines, allow inline
-// patches, and more.
-// Copyright (c) 2013 Jedi Knight Galaxies
+
+	/**************************************************
+	* DetourPatcher by Deathspike
+	*
+	* A generic patcher class created to simplify the
+	* detours and patches being placed for JKG. It will
+	* automatically create trampolines, allow inline
+	* patches, and more.
+	**************************************************/
 
 	#define MakeDelta( cast, x, y )		( cast )(( unsigned long )( x ) - ( unsigned long )( y ))
 	#define MakePtr( cast, x, y )		( cast )(( unsigned long )( x ) + ( unsigned long )( y ))

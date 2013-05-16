@@ -10,6 +10,20 @@ void JKG_Easy_AddItemToInventory(itemInstance_t *buffer, inv_t *inventory, unsig
 	JKG_A_RollItem(itemID, 0, inventory);
 }
 
+void JKG_Easy_RemoveItemFromInventory(int number, itemInstance_t **inventory)
+{
+	int i;
+	if(number <= 0)
+		return;
+	for(i = number; i < MAX_INVENTORY_ITEMS; i++)
+	{
+		if(!inventory[number]->id->itemID)
+			break;
+		inventory[number] = inventory[number+1];
+		i++;
+	}
+}
+
 int JKG_Easy_FindItemByInternal(char *internalName)
 {
 	int i;
@@ -47,17 +61,15 @@ void JKG_Easy_DIMA_GlobalInit(void)
 
 void JKG_Easy_DIMA_CleanEntity(int entNum)
 {
-	itemInstance_t *reallocated = (itemInstance_t *)realloc(g_entities[entNum].inventory->items, sizeof(itemInstance_t) * DIMA_PREALLOC);
-	JKG_Assert(reallocated);
 	g_entities[entNum].inventory->elements = 0;
-	g_entities[entNum].inventory->items = reallocated;
+	g_entities[entNum].inventory->items = realloc(g_entities[entNum].inventory->items, sizeof(itemInstance_t) * DIMA_PREALLOC);
 	g_entities[entNum].inventory->size = sizeof(itemInstance_t) * DIMA_PREALLOC;
 }
 
 void JKG_Easy_DIMA_Cleanup(void)
 {
 	int i = 0;
-	for( ; i < MAX_GENTITIES; i++)
+	for(i; i < MAX_GENTITIES; i++)
 	{
 		free(g_entities[i].inventory);
 	}
@@ -72,19 +84,13 @@ void JKG_Easy_DIMA_Add(inv_t *inventory, itemInstance_t item)
 	unsigned int newElements = inventory->elements + 1;
 	if(((inventory->elements + 1) * sizeof(itemInstance_t)) > sizeof(inventory->size))
 	{
-		itemInstance_t *reallocated;
 		inventory->size += (sizeof(itemInstance_t) * DIMA_PREALLOC);
-
-		reallocated = (itemInstance_t *)realloc(inventory->items, inventory->size);
-		JKG_Assert(reallocated);
-
-		if(!reallocated)
+		inventory->items = realloc(inventory->items, inventory->size);
+		if(!inventory->items)
 		{
-			// FIXME: Unneeded? (I guess maybe not if in release, but hey..)
 			Com_Error(ERR_FATAL, "JKG_Easy_DIMA_Add: Out of memory.");
 			return;
 		}
-		inventory->items = reallocated;
 	}
 	inventory->items[inventory->elements++] = item;
 }
@@ -95,14 +101,14 @@ void JKG_Easy_DIMA_Add(inv_t *inventory, itemInstance_t item)
 
 void JKG_Easy_DIMA_Remove(inv_t *inventory, unsigned int invID)
 {
-	if(invID > inventory->elements)
+	if(invID > inventory->elements || invID < 0)
 		return;
 	if(invID != inventory->elements-1)
 	{
 		int i = invID + 1;
-		for( ; i < inventory->elements; i++)
+		for(i; i < inventory->elements - 1; i++)
 		{
-			inventory->items[i-1] = inventory->items[i];
+			inventory->items[i] = inventory->items[i-1];
 		}
 	}
 	inventory->elements--;
@@ -117,7 +123,7 @@ int JKG_Easy_DIMA_CMPInternal(inv_t *inventory, char *c1)
 {
 	int i = 0;
 
-	for( ; i < inventory->elements; i++)
+	for(i; i < inventory->elements; i++)
 	{
 		if(!Q_stricmp(c1, inventory->items[i].id->internalName))
 			return i;
@@ -136,7 +142,7 @@ int JKG_Easy_DIMA_CMPItemID(inv_t *inventory, unsigned int itemID)
 	if(!itemID)
 		return -1;
 
-	for( ; i < inventory->elements; i++)
+	for(i; i < inventory->elements; i++)
 	{
 		if(inventory->items[i].id->itemID == itemID)
 			return i;
@@ -155,13 +161,4 @@ unsigned int JKG_Easy_GetItemIDFromInternal(const char *internalName)
 			return i;
 	}
 	return -1;
-}
-
-void JKG_Easy_RemoveItemFromInventory(int number, itemInstance_t **inventory, gentity_t *owner, qboolean NPC)
-{
-	JKG_Easy_DIMA_Remove((inv_t *)inventory, number);
-	if(!NPC)
-	{
-		trap_SendServerCommand(owner->client->ps.clientNum, va("pInv rem %i", number));
-	}
 }

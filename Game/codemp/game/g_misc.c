@@ -1287,6 +1287,18 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		return;
 	}
 
+	if ( g_gametype.integer == GT_SIEGE 
+		&& other 
+		&& other->client 
+		&& other->client->siegeClass )
+	{
+		if ( !bgSiegeClasses[other->client->siegeClass].maxarmor )
+		{//can't use it!
+			G_Sound(self, CHAN_AUTO, G_SoundIndex("sound/interface/shieldcon_empty"));
+			return;
+		}
+	}
+
 	if (self->setTime < level.time)
 	{
 		int	maxArmor;
@@ -1297,7 +1309,17 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		}
 		self->setTime = level.time + 100;
 
-		maxArmor = activator->client->ps.stats[STAT_MAX_HEALTH];
+		if ( g_gametype.integer == GT_SIEGE 
+			&& other 
+			&& other->client 
+			&& other->client->siegeClass != -1 )
+		{
+			maxArmor = bgSiegeClasses[other->client->siegeClass].maxarmor;
+		}
+		else
+		{
+			maxArmor = activator->client->ps.stats[STAT_MAX_HEALTH];
+		}
 		dif = maxArmor - activator->client->ps.stats[STAT_ARMOR];
 
 		if (dif > 0)					// Already at full armor?
@@ -1326,11 +1348,10 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 			}
 			stop = 0;
 
-			self->fly_sound_debounce_time = level.time + 100;
+			self->fly_sound_debounce_time = level.time + 500;
 			self->activator = activator;
 
 			activator->client->ps.stats[STAT_ARMOR] += add;
-
 		}
 	}
 
@@ -1351,7 +1372,7 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		self->s.loopIsSoundset = qfalse;
 		if (self->setTime < level.time)
 		{
-			self->setTime = level.time + self->genericValue5+5000;
+			self->setTime = level.time + self->genericValue5+100;
 		}
 	}
 }
@@ -1440,7 +1461,7 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 			i++;
 		}
 		*/
-		int i = 0;
+		int i = AMMO_BLASTER;
 		if (!self->s.loopSound)
 		{
 			self->s.loopSound = G_SoundIndex("sound/interface/ammocon_run");
@@ -1449,14 +1470,57 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 		//self->setTime = level.time + 100;
 		self->fly_sound_debounce_time = level.time + 500;
 		self->activator = activator;
-		while (i < JKG_MAX_AMMO_INDICES)
+		while (i < AMMO_MAX)
 		{
-			add = 1;
-			activator->client->ammoTable[i] += add;
+			add = xweaponAmmo[i].ammoMax * 0.05f;
+			if (add < 1)
+			{
+				add = 1;
+			}
+			if ( ( (activator->client->ps.eFlags & EF_DOUBLE_AMMO) && (activator->client->ps.ammo[i] < xweaponAmmo[i].ammoMax*2)) ||
+				( activator->client->ps.ammo[i] < xweaponAmmo[i].ammoMax ) )
+			{
+				gaveSome = qtrue;
+				if ( g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && activator->client->ps.ammo[i] >= 10 )
+				{ //this stuff is already a freaking mess, so..
+					gaveSome = qfalse;
+				}
+				activator->client->ps.ammo[i] += add;
+				if ( g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && activator->client->ps.ammo[i] >= 10 )
+				{	// fixme - this should SERIOUSLY be externed.
+					activator->client->ps.ammo[i] = 10;
+				}
+				else if ( activator->client->ps.eFlags & EF_DOUBLE_AMMO )
+				{
+					if (activator->client->ps.ammo[i] >= xweaponAmmo[i].ammoMax * 2)
+					{	// yuck.
+						activator->client->ps.ammo[i] = xweaponAmmo[i].ammoMax * 2;
+					}
+					else
+					{
+						stop = 0;
+					}
+				}
+				else
+				{
+					if (activator->client->ps.ammo[i] >= xweaponAmmo[i].ammoMax)
+					{
+						activator->client->ps.ammo[i] = xweaponAmmo[i].ammoMax;
+					}
+					else
+					{
+						stop = 0;
+					}
+				}
+			}
 			i++;
 			if (!self->genericValue12 && gaveSome)
 			{
-				int sub = 1;
+				int sub = (add*0.2f);
+				if (sub < 1)
+				{
+					sub = 1;
+				}
 				self->count -= sub;
 				if (self->count <= 0)
 				{
@@ -1466,7 +1530,6 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 				}
 			}
 		}
-		// TODO: Add proper ammo array stuff here
 	}
 
 	if (stop || self->count <= 0)
@@ -1767,25 +1830,24 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 
 		if (self->count)	// Has it got any power left?
 		{
-			int i = 0;
-			while (i < JKG_MAX_AMMO_INDICES)
+			int i = AMMO_BLASTER;
+			while (i < AMMO_MAX)
 			{
 				add = xweaponAmmo[i].ammoMax*0.1f;
 				if (add < 1)
 				{
 					add = 1;
 				}
-				if (activator->client->ammoTable[i] < xweaponAmmo[i].ammoMax)
+				if (activator->client->ps.ammo[i] < xweaponAmmo[i].ammoMax)
 				{
-					activator->client->ammoTable[i] += add;
-					if (activator->client->ammoTable[i] > xweaponAmmo[i].ammoMax)
+					activator->client->ps.ammo[i] += add;
+					if (activator->client->ps.ammo[i] > xweaponAmmo[i].ammoMax)
 					{
-						activator->client->ammoTable[i] = xweaponAmmo[i].ammoMax;
+						activator->client->ps.ammo[i] = xweaponAmmo[i].ammoMax;
 					}
 				}
 				i++;
 			}
-			activator->client->ps.ammo += add;
 			if (!self->genericValue12)
 			{
 				self->count -= add;
@@ -1836,7 +1898,6 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 			}
 			*/
 		}
-		// TODO: Add proper ammo array here
 	}
 
 	if (stop)

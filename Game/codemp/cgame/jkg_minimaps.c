@@ -138,8 +138,7 @@ void MiniMap_Init() {
 
 	minimap_data.maskshader = trap_R_RegisterShaderNoMip("minimaps/mask");
 	minimap_data.overlayshader = trap_R_RegisterShaderNoMip("gfx/jkghud/minimap_visionmask.png");
-	//minimap_data.nomapshader = trap_R_RegisterShader("gfx/jkghud/minimap_nomap.png");
-	minimap_data.nomapshader = trap_R_RegisterShader("gfx/jkghud/minimap_backup_radar.png");
+	minimap_data.nomapshader = trap_R_RegisterShader("gfx/jkghud/minimap_nomap.png");
 
 	len = trap_FS_FOpenFile(va("minimaps/%s.mmd", cgs.rawmapname), &f, FS_READ);
 	if (len < 1) {
@@ -221,14 +220,6 @@ static void MiniMap_UpdateMapArea() {
 		minimap_data.newarea = newArea;
 		minimap_data.fadetime = cg.time;
 	}
-}
-
-qboolean HaveMiniMap( void )
-{
-	if (!minimap_data.maploaded)
-		return qfalse;
-
-	return qtrue;
 }
 
 void MiniMap_Render(menuDef_t *menu, float radiusScale) {

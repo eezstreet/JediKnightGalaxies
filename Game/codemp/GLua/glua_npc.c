@@ -514,7 +514,7 @@ static int GLua_NPC_SetWeapon(lua_State *L) {
 	if (!npc) return 0;
 	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS) return 0;
 	// Check if player has the weapon in question
-	if (!(npc->client->ps.stats[STAT_WEAPONS] & (1 << weapon))) return 0;
+	if (!npc->client->ps.stats[STAT_WEAPONS] & (1 << weapon)) return 0;
 	ChangeWeapon(npc, weapon, 0);
 	return 0;
 }
@@ -591,7 +591,7 @@ static int GLua_NPC_GetForceLevel(lua_State *L) {
 	int force = luaL_checkinteger(L,2);
 	if (!npc) return 0;
 	if (force < FP_FIRST || force >= NUM_FORCE_POWERS) return 0;
-	if (!(npc->client->ps.fd.forcePowersKnown & (1 << force))) return 0;
+	if (!npc->client->ps.fd.forcePowersKnown & (1 << force)) return 0;
 	lua_pushinteger(L,npc->client->ps.fd.forcePowerLevel[force]);
 	return 1;
 }
@@ -1418,13 +1418,6 @@ static int GLua_NPC_SetCurrentLooter(lua_State *L) {
 	npc->currentLooter = &g_entities[luaL_checkinteger(L, 2)];
 	return 0;
 }
-
-static int GLua_NPC_GetVendorIndex(lua_State *L) {
-	/*gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	npc->vendorData*/
-	return 0;
-}
 /*
 eezstreet end
 */
@@ -1615,19 +1608,6 @@ static int GLua_NPC_SetAnimHoldTime(lua_State *L) {
 	return 0;
 }
 
-static int GLua_NPC_SetAsVendor(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	JKG_CreateNewVendor(npc, -1, qtrue, qtrue);
-	return 0;
-}
-
-static int GLua_NPC_RefreshVendorStock(lua_State *L) {
-	gentity_t *npc = GLua_CheckNPC(L, 1);
-	if(!npc) return 0;
-	JKG_CreateNewVendor(npc, npc->vendorData.ourID, qtrue, qtrue);
-	return 0;
-}
 
 static int GLua_NPC_SetUseRange(lua_State *L)
 {
@@ -1889,7 +1869,7 @@ static int GLua_Player_GiveHoldable(lua_State *L) {
 }
 
 void Jetpack_Off(gentity_t *ent);
-void NPC_Humanoid_Decloak( gentity_t *self );
+void Jedi_Decloak( gentity_t *self );
 
 static int GLua_Player_TakeHoldable(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
@@ -2072,8 +2052,6 @@ static const struct luaL_reg npc_m [] = {
 	{"TakeHoldable", GLua_Player_TakeHoldable},
 	{"HasHoldable", GLua_Player_HasHoldable},
 	*/
-	{"VendorSet", GLua_NPC_SetAsVendor},
-	{"VendorStockRefresh", GLua_NPC_RefreshVendorStock},
 	{NULL, NULL},
 };
 
@@ -2128,8 +2106,6 @@ static const struct GLua_Prop npc_p [] = {
 	{"PickPocketLootIndex", GLua_NPC_PickPocketLootTable, GLua_NPC_SetPickPocketLootTable},
 	//v2
 	{"CurrentLooter", GLua_NPC_GetCurrentLooter, GLua_NPC_SetCurrentLooter},
-	//v3
-	//{"VendorIndex", 
 	//eezstreet end
 	{NULL,		NULL,						NULL},
 };

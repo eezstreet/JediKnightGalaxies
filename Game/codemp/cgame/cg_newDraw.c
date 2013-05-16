@@ -66,7 +66,7 @@ float CG_GetValue(int ownerDraw) {
   case CG_PLAYER_AMMO_VALUE:
 		if ( cent->currentState.weapon ) 
 		{
-			return ps->ammo;
+			return ps->ammo[GetWeaponAmmoIndex( cent->currentState.weapon, cent->currentState.weaponVariation )];
 		}
     break;
   case CG_PLAYER_SCORE:
@@ -231,11 +231,9 @@ const char *CG_GetGameStatusText(void) {
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
 			s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0] );
 		} else if ( cg.teamScores[0] >= cg.teamScores[1] ) {
-			//s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
-			s = va("%s, %i / %i", CG_GetStringEdString2(bgGangWarsTeams[cgs.redTeam].leadstring), cg.teamScores[0], cg.teamScores[1] );
+			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
 		} else {
-			//s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
-			s = va("%s, %i / %i", CG_GetStringEdString2(bgGangWarsTeams[cgs.blueTeam].leadstring), cg.teamScores[0], cg.teamScores[1] );
+			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
 		}
 	}
 	return s;
@@ -561,7 +559,7 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 
 	
 //
-void CG_OwnerDraw(void *alwaysNull, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font, int ownerDrawID) {
+void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font, int ownerDrawID) {
 
 //Ignore all this, at least for now. May put some stat stuff back in menu files later.
 #if 0

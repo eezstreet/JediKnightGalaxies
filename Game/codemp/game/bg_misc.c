@@ -5,7 +5,6 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_strap.h"
-#include "jkg_gangwars.h"
 
 #ifdef QAGAME
 #include "g_local.h"
@@ -240,498 +239,83 @@ int forcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 		//NUM_FORCE_POWERS
 };
 
-//Weapon and force power tables are also used in NPC parsing code and some other places.
-stringID_table_t WPTable[] =
+/*int WeaponReadyAnim[WP_NUM_WEAPONS] =
 {
-	"NULL",WP_NONE,
-	ENUM2STRING(WP_NONE),
-	// Player weapons
-	ENUM2STRING(WP_STUN_BATON),
-	ENUM2STRING(WP_MELEE),
-	ENUM2STRING(WP_SABER),
-	ENUM2STRING(WP_BRYAR_PISTOL),
-	"WP_BLASTER_PISTOL", WP_BRYAR_PISTOL,
-	ENUM2STRING(WP_BLASTER),
-	ENUM2STRING(WP_DISRUPTOR),
-	ENUM2STRING(WP_BOWCASTER),
-	ENUM2STRING(WP_REPEATER),
-	ENUM2STRING(WP_DEMP2),
-	ENUM2STRING(WP_FLECHETTE),
-	ENUM2STRING(WP_ROCKET_LAUNCHER),
-	ENUM2STRING(WP_THERMAL),
-	ENUM2STRING(WP_TRIP_MINE),
-	ENUM2STRING(WP_DET_PACK),
-	ENUM2STRING(WP_CONCUSSION),
-	ENUM2STRING(WP_BRYAR_OLD),
-	ENUM2STRING(WP_EMPLACED_GUN),
-	ENUM2STRING(WP_TURRET),
-	"", 0
+	TORSO_DROPWEAP1,//WP_NONE,
+
+	TORSO_WEAPONREADY3,//WP_STUN_BATON,
+	TORSO_WEAPONREADY3,//WP_MELEE,
+	BOTH_STAND2,//WP_SABER,
+	TORSO_WEAPONREADY2,//WP_BRYAR_PISTOL,
+	TORSO_WEAPONREADY3,//WP_BLASTER,
+	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
+	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
+	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY6,//WP_REPEATER,
+	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY7,//WP_DEMP2,
+	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
+	TORSO_WEAPONREADY3,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
+	TORSO_WEAPONREADY10,//WP_THERMAL,
+	TORSO_WEAPONREADY10,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
+	TORSO_WEAPONREADY10,//TORSO_WEAPONREADY12,//WP_DET_PACK,
+	TORSO_WEAPONREADY3,//WP_CONCUSSION
+	TORSO_WEAPONREADY2,//WP_BRYAR_OLD,
+
+	//NOT VALID (e.g. should never really be used):
+	BOTH_STAND1,//WP_EMPLACED_GUN,
+	TORSO_WEAPONREADY1//WP_TURRET,
 };
 
-stringID_table_t FPTable[] =
+int WeaponReadyLegsAnim[WP_NUM_WEAPONS] =
 {
-	ENUM2STRING(FP_HEAL),
-	ENUM2STRING(FP_LEVITATION),
-	ENUM2STRING(FP_SPEED),
-	ENUM2STRING(FP_PUSH),
-	ENUM2STRING(FP_PULL),
-	ENUM2STRING(FP_TELEPATHY),
-	ENUM2STRING(FP_GRIP),
-	ENUM2STRING(FP_LIGHTNING),
-	ENUM2STRING(FP_RAGE),
-	ENUM2STRING(FP_PROTECT),
-	ENUM2STRING(FP_ABSORB),
-	ENUM2STRING(FP_TEAM_HEAL),
-	ENUM2STRING(FP_TEAM_FORCE),
-	ENUM2STRING(FP_DRAIN),
-	ENUM2STRING(FP_SEE),
-	ENUM2STRING(FP_SABER_OFFENSE),
-	ENUM2STRING(FP_SABER_DEFENSE),
-	ENUM2STRING(FP_SABERTHROW),
-	"",	-1
+	BOTH_STAND1,//WP_NONE,
+
+	BOTH_STAND1,//WP_STUN_BATON,
+	BOTH_STAND1,//WP_MELEE,
+	BOTH_STAND2,//WP_SABER,
+	BOTH_STAND1,//WP_BRYAR_PISTOL,
+	BOTH_STAND1,//WP_BLASTER,
+	BOTH_STAND1,//TORSO_WEAPONREADY4,//WP_DISRUPTOR,
+	BOTH_STAND1,//TORSO_WEAPONREADY5,//WP_BOWCASTER,
+	BOTH_STAND1,//TORSO_WEAPONREADY6,//WP_REPEATER,
+	BOTH_STAND1,//TORSO_WEAPONREADY7,//WP_DEMP2,
+	BOTH_STAND1,//TORSO_WEAPONREADY8,//WP_FLECHETTE,
+	BOTH_STAND1,//TORSO_WEAPONREADY9,//WP_ROCKET_LAUNCHER,
+	BOTH_STAND1,//WP_THERMAL,
+	BOTH_STAND1,//TORSO_WEAPONREADY11,//WP_TRIP_MINE,
+	BOTH_STAND1,//TORSO_WEAPONREADY12,//WP_DET_PACK,
+	BOTH_STAND1,//WP_CONCUSSION
+	BOTH_STAND1,//WP_BRYAR_OLD,
+
+	//NOT VALID (e.g. should never really be used):
+	BOTH_STAND1,//WP_EMPLACED_GUN,
+	BOTH_STAND1//WP_TURRET,
 };
 
-stringID_table_t HoldableTable[] =
+int WeaponAttackAnim[WP_NUM_WEAPONS] =
 {
-	ENUM2STRING(HI_NONE),
+	BOTH_ATTACK1,//WP_NONE, //(shouldn't happen)
 
-	ENUM2STRING(HI_SEEKER),
-	ENUM2STRING(HI_SHIELD),
-	ENUM2STRING(HI_MEDPAC),
-	ENUM2STRING(HI_MEDPAC_BIG),
-	ENUM2STRING(HI_BINOCULARS),
-	ENUM2STRING(HI_SENTRY_GUN),
-	ENUM2STRING(HI_JETPACK),
-	ENUM2STRING(HI_HEALTHDISP),
-	ENUM2STRING(HI_AMMODISP),
-	ENUM2STRING(HI_EWEB),
-	ENUM2STRING(HI_CLOAK),
+	BOTH_ATTACK3,//WP_STUN_BATON,
+	BOTH_ATTACK3,//WP_MELEE,
+	BOTH_STAND2,//WP_SABER, //(has its own handling)
+	BOTH_ATTACK2,//WP_BRYAR_PISTOL,
+	BOTH_ATTACK3,//WP_BLASTER,
+	BOTH_ATTACK3,//BOTH_ATTACK4,//WP_DISRUPTOR,
+	BOTH_ATTACK3,//BOTH_ATTACK5,//WP_BOWCASTER,
+	BOTH_ATTACK3,//BOTH_ATTACK6,//WP_REPEATER,
+	BOTH_ATTACK3,//BOTH_ATTACK7,//WP_DEMP2,
+	BOTH_ATTACK3,//BOTH_ATTACK8,//WP_FLECHETTE,
+	BOTH_ATTACK3,//BOTH_ATTACK9,//WP_ROCKET_LAUNCHER,
+	BOTH_THERMAL_THROW,//WP_THERMAL,
+	BOTH_ATTACK3,//BOTH_ATTACK11,//WP_TRIP_MINE,
+	BOTH_ATTACK3,//BOTH_ATTACK12,//WP_DET_PACK,
+	BOTH_ATTACK3,//WP_CONCUSSION
+	BOTH_ATTACK2,//WP_BRYAR_OLD,
 
-	"", -1
-};
-
-stringID_table_t PowerupTable[] =
-{
-	ENUM2STRING(PW_NONE),
-	ENUM2STRING(PW_QUAD),
-	ENUM2STRING(PW_BATTLESUIT),
-	ENUM2STRING(PW_PULL),
-	ENUM2STRING(PW_REDFLAG),
-	ENUM2STRING(PW_BLUEFLAG),
-	ENUM2STRING(PW_NEUTRALFLAG),
-	ENUM2STRING(PW_SHIELDHIT),
-	ENUM2STRING(PW_SPEEDBURST),
-	ENUM2STRING(PW_DISINT_4),
-	ENUM2STRING(PW_SPEED),
-	ENUM2STRING(PW_CLOAKED),
-	ENUM2STRING(PW_FORCE_ENLIGHTENED_LIGHT),
-	ENUM2STRING(PW_FORCE_ENLIGHTENED_DARK),
-	ENUM2STRING(PW_FORCE_BOON),
-	ENUM2STRING(PW_YSALAMIRI),
-
-	"", -1
-};
-
-//======================================
-//Parsing functions
-//======================================
-void BG_StripTabs(char *buf)
-{
-	int i = 0;
-	int i_r = 0;
-
-	while (buf[i])
-	{
-		if (buf[i] != /*SIEGECHAR_TAB*/ '\t')		// REALLY, RAVEN, REALLY?
-													// YOU SET '\t' as a MACRO??!
-													// FFFFFFFFFFFF
-		{ //not a tab, just stick it in
-			buf[i_r] = buf[i];
-		}
-		else
-		{ //If it's a tab, convert it to a space.
-			buf[i_r] = ' ';
-		}
-
-		i_r++;
-		i++;
-	}
-
-	buf[i_r] = '\0';
-}
-
-int BG_GetValueGroup(char *buf, char *group, char *outbuf)
-{
-	int i = 0;
-	int j;
-	char checkGroup[4096];
-	qboolean isGroup;
-	int parseGroups = 0;
-
-	while (buf[i])
-	{
-		if (buf[i] != ' ' && buf[i] != '{' && buf[i] != '}' && buf[i] != '\n' && buf[i] != '\r' && buf[i] != '\t')
-		{ //we're on a valid character
-			if (buf[i] == '/' &&
-				buf[i+1] == '/')
-			{ //this is a comment, so skip over it
-				while (buf[i] && buf[i] != '\n' && buf[i] != '\r' && buf[i] != '\t')
-				{
-					i++;
-				}
-			}
-			else
-			{ //parse to the next space/endline/eos and check this value against our group value.
-				j = 0;
-
-				while (buf[i] != ' ' && buf[i] != '\n' && buf[i] != '\r' && buf[i] != '\t' && buf[i] != '{' && buf[i])
-				{
-					if (buf[i] == '/' && buf[i+1] == '/')
-					{ //hit a comment, break out.
-						break;
-					}
-
-					checkGroup[j] = buf[i];
-					j++;
-					i++;
-				}
-				checkGroup[j] = 0;
-
-				//Make sure this is a group as opposed to a globally defined value.
-				if (buf[i] == '/' && buf[i+1] == '/')
-				{ //stopped on a comment, so first parse to the end of it.
-                    while (buf[i] && buf[i] != '\n' && buf[i] != '\r')
-					{
-						i++;
-					}
-					while (buf[i] == '\n' || buf[i] == '\r')
-					{
-						i++;
-					}
-				}
-
-				if (!buf[i])
-				{
-					Com_Error(ERR_DROP, "Unexpected EOF while looking for group '%s'", group);
-				}
-
-				isGroup = qfalse;
-
-				while (buf[i] && buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r')
-				{ //parse to the next valid character
-					i++;
-				}
-
-				if (buf[i] == '{')
-				{ //if the next valid character is an opening bracket, then this is indeed a group
-					isGroup = qtrue;
-				}
-
-				//Is this the one we want?
-				if (isGroup && !Q_stricmp(checkGroup, group))
-				{ //guess so. Parse until we hit the { indicating the beginning of the group.
-					while (buf[i] != '{' && buf[i])
-					{
-						i++;
-					}
-
-					if (buf[i])
-					{ //We're at the start of the group now, so parse to the closing bracket.
-						j = 0;
-
-						parseGroups = 0;
-
-						while ((buf[i] != '}' || parseGroups) && buf[i])
-						{
-							if (buf[i] == '{')
-							{ //increment for the opening bracket.
-								parseGroups++;
-							}
-							else if (buf[i] == '}')
-							{ //decrement for the closing bracket
-								parseGroups--;
-							}
-
-							if (parseGroups < 0)
-							{ //Syntax error, I guess.
-								Com_Error(ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
-							}
-
-							if ((buf[i] != '{' || parseGroups > 1) &&
-								(buf[i] != '}' || parseGroups > 0))
-							{ //don't put the start and end brackets for this group into the output buffer
-								outbuf[j] = buf[i];
-								j++;
-							}
-
-							if (buf[i] == '}' && !parseGroups)
-							{ //Alright, we can break out now.
-								break;
-							}
-
-							i++;
-						}
-						outbuf[j] = 0;
-
-						//Verify that we ended up on the closing bracket.
-						if (buf[i] != '}')
-						{
-							Com_Error(ERR_DROP, "Group '%s' is missing a closing bracket", group);
-						}
-
-						//Strip the tabs so we're friendly for value parsing.
-						BG_StripTabs(outbuf);
-
-						return 1; //we got it, so return 1.
-					}
-					else
-					{
-						Com_Error(ERR_DROP, "Error parsing group in file, unexpected EOF before opening bracket while looking for group '%s'", group);
-					}
-				}
-				else if (!isGroup)
-				{ //if it wasn't a group, parse to the end of the line
-					while (buf[i] && buf[i] != '\n' && buf[i] != '\r')
-					{
-						i++;
-					}
-				}
-				else
-				{ //this was a group but we not the one we wanted to find, so parse by it.
-					parseGroups = 0;
-
-					while (buf[i] && (buf[i] != '}' || parseGroups))
-					{
-						if (buf[i] == '{')
-						{
-							parseGroups++;
-						}
-						else if (buf[i] == '}')
-						{
-							parseGroups--;
-						}
-
-						if (parseGroups < 0)
-						{ //Syntax error, I guess.
-							Com_Error(ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
-						}
-
-						if (buf[i] == '}' && !parseGroups)
-						{ //Alright, we can break out now.
-							break;
-						}
-
-						i++;
-					}
-
-					if (buf[i] != '}')
-					{
-						Com_Error(ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
-					}
-
-					i++;
-				}
-			}
-		}
-		else if (buf[i] == '{')
-		{ //we're in a group that isn't the one we want, so parse to the end.
-			parseGroups = 0;
-
-			while (buf[i] && (buf[i] != '}' || parseGroups))
-			{
-				if (buf[i] == '{')
-				{
-					parseGroups++;
-				}
-				else if (buf[i] == '}')
-				{
-					parseGroups--;
-				}
-
-				if (parseGroups < 0)
-				{ //Syntax error, I guess.
-					Com_Error(ERR_DROP, "Found a closing bracket without an opening bracket while looking for group '%s'", group);
-				}
-
-				if (buf[i] == '}' && !parseGroups)
-				{ //Alright, we can break out now.
-					break;
-				}
-
-				i++;
-			}
-
-			if (buf[i] != '}')
-			{
-				Com_Error(ERR_DROP, "Found an opening bracket without a matching closing bracket while looking for group '%s'", group);
-			}
-		}
-
-		if (!buf[i])
-		{
-			break;
-		}
-		i++;
-	}
-
-	return 0; //guess we never found it.
-}
-
-int BG_GetPairedValue(char *buf, char *key, char *outbuf)
-{
-	int i = 0;
-	int j;
-	int k;
-	char checkKey[4096];
-
-	while (buf[i])
-	{
-		if (buf[i] != ' ' && buf[i] != '{' && buf[i] != '}' && buf[i] != '\n' && buf[i] != '\r')
-		{ //we're on a valid character
-			if (buf[i] == '/' &&
-				buf[i+1] == '/')
-			{ //this is a comment, so skip over it
-				while (buf[i] && buf[i] != '\n' && buf[i] != '\r')
-				{
-					i++;
-				}
-			}
-			else
-			{ //parse to the next space/endline/eos and check this value against our key value.
-				j = 0;
-
-				while (buf[i] != ' ' && buf[i] != '\n' && buf[i] != '\r' && buf[i] != '\t' && buf[i])
-				{
-					if (buf[i] == '/' && buf[i+1] == '/')
-					{ //hit a comment, break out.
-						break;
-					}
-
-					checkKey[j] = buf[i];
-					j++;
-					i++;
-				}
-				checkKey[j] = 0;
-
-				k = i;
-
-				while (buf[k] && (buf[k] == ' ' || buf[k] == '\n' || buf[k] == '\r'))
-				{
-					k++;
-				}
-
-				if (buf[k] == '{')
-				{ //this is not the start of a value but rather of a group. We don't want to look in subgroups so skip over the whole thing.
-					int openB = 0;
-
-					while (buf[i] && (buf[i] != '}' || openB))
-					{
-						if (buf[i] == '{')
-						{
-							openB++;
-						}
-						else if (buf[i] == '}')
-						{
-							openB--;
-						}
-
-						if (openB < 0)
-						{
-							Com_Error(ERR_DROP, "Unexpected closing bracket (too many) while parsing to end of group '%s'", checkKey);
-						}
-
-						if (buf[i] == '}' && !openB)
-						{ //this is the end of the group
-							break;
-						}
-						i++;
-					}
-
-					if (buf[i] == '}')
-					{
-						i++;
-					}
-				}
-				else
-				{
-					//Is this the one we want?
-					if (buf[i] != '/' || buf[i+1] != '/')
-					{ //make sure we didn't stop on a comment, if we did then this is considered an error in the file.
-						if (!Q_stricmp(checkKey, key))
-						{ //guess so. Parse along to the next valid character, then put that into the output buffer and return 1.
-							while ((buf[i] == ' ' || buf[i] == '\n' || buf[i] == '\r' || buf[i] == '\t') && buf[i])
-							{
-								i++;
-							}
-
-							if (buf[i])
-							{ //We're at the start of the value now.
-								qboolean parseToQuote = qfalse;
-
-								if (buf[i] == '\"')
-								{ //if the value is in quotes, then stop at the next quote instead of ' '
-									i++;
-									parseToQuote = qtrue;
-								}
-
-								j = 0;
-								while ( ((!parseToQuote && buf[i] != ' ' && buf[i] != '\n' && buf[i] != '\r') || (parseToQuote && buf[i] != '\"')) )
-								{
-									if (buf[i] == '/' &&
-										buf[i+1] == '/')
-									{ //hit a comment after the value? This isn't an ideal way to be writing things, but we'll support it anyway.
-										break;
-									}
-									outbuf[j] = buf[i];
-									j++;
-									i++;
-
-									if (!buf[i])
-									{
-										if (parseToQuote)
-										{
-											Com_Error(ERR_DROP, "Unexpected EOF while looking for endquote, error finding paired value for '%s'", key);
-										}
-										else
-										{
-											Com_Error(ERR_DROP, "Unexpected EOF while looking for space or endline, error finding paired value for '%s'", key);
-										}
-									}
-								}
-								outbuf[j] = 0;
-
-								return 1; //we got it, so return 1.
-							}
-							else
-							{
-								Com_Error(ERR_DROP, "Error parsing file, unexpected EOF while looking for valud '%s'", key);
-							}
-						}
-						else
-						{ //if that wasn't the desired key, then make sure we parse to the end of the line, so we don't mistake a value for a key
-							while (buf[i] && buf[i] != '\n')
-							{
-								i++;
-							}
-						}
-					}
-					else
-					{
-						Com_Error(ERR_DROP, "Error parsing file, found comment, expected value for '%s'", key);
-					}
-				}
-			}
-		}
-
-		if (!buf[i])
-		{
-			break;
-		}
-		i++;
-	}
-
-	return 0; //guess we never found it.
-}
+	//NOT VALID (e.g. should never really be used):
+	BOTH_STAND1,//WP_EMPLACED_GUN,
+	BOTH_ATTACK1//WP_TURRET,
+};*/
 
 qboolean BG_FileExists(const char *fileName)
 {
@@ -789,7 +373,7 @@ void BG_ParseField( BG_field_t *l_fields, const char *key, const char *value, by
 			case F_LSTRING:
 #ifdef QAGAME
 				//*(char **)(b+f->ofs) = G_NewString (value);
-				G_NewString2((void **)(b+f->ofs), value);
+				G_NewString2((char **)(b+f->ofs), value);
 #else
 				*(char **)(b+f->ofs) = CG_NewString (value);
 #endif
@@ -1093,9 +677,9 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 			final_Powers[FP_SABER_DEFENSE] = 1;
 		}
 	}
-	if (final_Powers[FP_LEVITATION] < bgConstants.baseForceJumpLevel)
+	if (final_Powers[FP_LEVITATION] < 1)
 	{
-		final_Powers[FP_LEVITATION] = bgConstants.baseForceJumpLevel;
+		final_Powers[FP_LEVITATION] = 1;
 	}
 
 	i = 0;
@@ -1114,7 +698,7 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	  //If jump is disabled, down-cap it to level 1. Otherwise don't do a thing.
 		if (fpDisabled & (1 << FP_LEVITATION))
 		{
-			final_Powers[FP_LEVITATION] = bgConstants.baseForceJumpLevel;
+			final_Powers[FP_LEVITATION] = 1;
 		}
 		if (fpDisabled & (1 << FP_SABER_OFFENSE))
 		{
@@ -2438,7 +2022,7 @@ void BG_CycleForce(playerState_t *ps, int direction)
 	int presel = i;
 	int foundnext = -1;
 
-	if (!(ps->fd.forcePowersKnown & (1 << x)) ||
+	if (!ps->fd.forcePowersKnown & (1 << x) ||
 		x >= NUM_FORCE_POWERS ||
 		x == -1)
 	{ //apparently we have no valid force powers
@@ -2656,7 +2240,6 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	switch( item->giType ) {
 	case IT_WEAPON:
-		// TODO: move this into inventory stuff
 		if (ent->generic1 == ps->clientNum && ent->powerups)
 		{
 			return qfalse;
@@ -2666,19 +2249,18 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		{ //weaponstay stuff.. if this isn't dropped, and you already have it, you don't get it.
 			return qfalse;
 		}
-		/*if (item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK)
+		if (item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK)
 		{ //check to see if full on ammo for this, if so, then..
 			int ammoIndex = GetWeaponAmmoIndexSingle( item->giTag );
 			if ( ps->ammo[ammoIndex] >= GetWeaponAmmoMaxSingle( item->giTag ))
 			{ //don't need it
 				return qfalse;
 			}
-		}*/
+		}
 		return qtrue;	// weapons are always picked up
 
 	case IT_AMMO:
-		// TODO: make ammo items
-		/*if (item->giTag == -1)
+		if (item->giTag == -1)
 		{ //special case for "all ammo" packs
 			return qtrue;
 		}
@@ -2686,7 +2268,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		if ( ps->ammo[item->giTag] >= GetWeaponAmmoMaxSingle( item->giTag ))
 		{
 			return qfalse;		// can't hold any more
-		}*/
+		}
 		return qtrue;
 
 	case IT_ARMOR:
@@ -3324,53 +2906,9 @@ qboolean BG_IsValidCharacterModel(const char *modelName, const char *skinName)
 	}
 	return qtrue;
 }
-#ifdef CGAME
-extern cg_t				cg;
-#endif
 
-qboolean BG_ValidateSkinForTeam( char *modelName, char *skinName, int team, float *colors, int redTeam, int blueTeam, int clientNum )
+qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors )
 {
-	int teamNum;
-	if (Q_stricmp(bgGangWarsTeams[teamNum=((team == TEAM_RED) ? redTeam : blueTeam)].modelStore[0], "NULL"))
-	{
-		// First entry is not NULL, therefore we need to check the skin
-		int i = 0;
-		char buffer[MAX_QPATH];
-#ifdef CGAME
-		if(cg.clientNum == clientNum)
-		{
-			// Eh. Why bother. Let custom skin nerds have their fun.
-			return qtrue;
-		}
-#endif
-		sprintf(buffer, "%s/%s", modelName, skinName);
-		for(; i < bgGangWarsTeams[teamNum].numModelsInStore; i++)
-		{
-			if(!Q_stricmp(buffer, bgGangWarsTeams[teamNum].modelStore[i]))
-			{
-				// We're off scott-free.
-				return qtrue;
-			}
-		}
-		// NOPE
-		Q_strncpyz( modelName, bgGangWarsTeams[teamNum].defaultModel, MAX_QPATH );
-		Q_strncpyz( skinName, ((bgGangWarsTeams[teamNum].useTeamColors) ? ((team == TEAM_RED) ? "red" : "blue") : "default"), MAX_QPATH ); 
-		return qtrue;
-	}
-	if ( team == TEAM_RED )
-	{
-		if( !bgGangWarsTeams[redTeam].useTeamColors )
-		{
-			return qtrue;	// Let 'em use whatever colors they want. Honey badger doesn't care.
-		}
-	}
-	else if ( team == TEAM_BLUE )
-	{
-		if( !bgGangWarsTeams[blueTeam].useTeamColors )
-		{
-			return qtrue;	// Let 'em use whatever colors they want.
-		}
-	}
 	if (!Q_stricmpn(modelName, "jedi_",5))
 	{ //argh, it's a custom player skin!
 		if (team == TEAM_RED && colors)
@@ -3590,8 +3128,6 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 	s->weapon = ps->weapon;
 	s->weaponVariation = ps->weaponVariation;
 	s->groundEntityNum = ps->groundEntityNum;
-	s->firingMode = ps->firingMode;
-	s->weaponstate = ps->weaponstate;
 
 	s->powerups = 0;
 	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
@@ -3632,8 +3168,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 
 	s->m_iVehicleNum = ps->m_iVehicleNum;
 	
-	//s->ironsightsTime = ps->ironsightsTime;
-	//s->sprintTime = ps->sprintTime;
+	s->ironsightsTime = ps->ironsightsTime;
 	
 	s->damageTypeFlags = ps->damageTypeFlags;
 	s->freezeLegsAnim = ps->freezeLegsAnim;
@@ -3752,8 +3287,6 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->weapon = ps->weapon;
 	s->weaponVariation = ps->weaponVariation;
 	s->groundEntityNum = ps->groundEntityNum;
-	s->firingMode = ps->firingMode;
-	s->weaponstate = ps->weaponstate;
 
 	s->powerups = 0;
 	for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
@@ -3794,25 +3327,11 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 
 	s->m_iVehicleNum = ps->m_iVehicleNum;
 	
-//	s->ironsightsTime = ps->ironsightsTime;
+	s->ironsightsTime = ps->ironsightsTime;
 	s->damageTypeFlags = ps->damageTypeFlags;
 	s->freezeLegsAnim = ps->freezeLegsAnim;
 	s->freezeTorsoAnim = ps->freezeTorsoAnim;
-
-//	s->sprintTime = ps->sprintTime;
 }
-
-/*
-=========================
-Extra hax --eez
-=========================
-*/
-
-void BG_NetworkStateToExtraState( networkState_t *ns, extraState_t *x )
-{
-}
-
-
 
 /*
 =============================================================================
@@ -3858,6 +3377,179 @@ int BG_ModelCache(const char *modelName, const char *skinName)
 	return trap_R_RegisterModel(modelName);
 #endif
 }
+
+#ifdef _XBOX	// Hacky BG_Alloc replacement
+
+// This file claims to be stateless. Yeah, right. Regardless, I'm not setting
+// aside 5.5 MB of static buffers for this crap. Let's use Z_Malloc. Of course,
+// we still need to deal with the fact that any code using BG_Malloc is almost
+// certainly leaking memory like a sieve.
+
+// Dave addendum - TAG_BG_ALLOC is entirely freed when the level starts.
+void *BG_Alloc ( int size )
+{
+	return Z_Malloc(size, TAG_BG_ALLOC, qfalse, 4);
+}
+
+void *BG_AllocUnaligned ( int size )
+{
+	// Ignore the unaligned hint, this function isn't called anyway
+	return Z_Malloc(size, TAG_BG_ALLOC, qfalse, 4);
+}
+
+// Because the interface to BG_TempAlloc/BG_TempFree is brain-dead, we need
+// to remember our last few temporary allocations performed.
+#define MAX_TEMP_ALLOCS	3
+static void	*tempAllocPointers[MAX_TEMP_ALLOCS] = { 0 };
+static int	tempAllocSizes[MAX_TEMP_ALLOCS] = { 0 };
+
+void *BG_TempAlloc( int size )
+{
+	int i;
+
+	// Do we have a free spot?
+	for (i = 0; i < MAX_TEMP_ALLOCS; ++i)
+		if (!tempAllocPointers[i])
+			break;
+
+	if (i == MAX_TEMP_ALLOCS)
+	{
+		assert(!"No space for TempAlloc -> Increase MAX_TEMP_ALLOCS");
+		return NULL;
+	}
+
+	tempAllocPointers[i] = Z_Malloc(size, TAG_TEMP_WORKSPACE, qfalse, 4);
+	tempAllocSizes[i] = size;
+
+	return tempAllocPointers[i];
+}
+
+void BG_TempFree( int size )
+{
+	int i;
+
+	// Find the allocation
+	for (i = MAX_TEMP_ALLOCS - 1; i >= 0; --i)
+		if (tempAllocPointers[i] && (tempAllocSizes[i] == size))
+			break;
+
+	if (i < 0)
+	{
+		assert(!"BG_TempFree doesn't match a call to BG_TempAlloc");
+		return;
+	}
+
+	Z_Free(tempAllocPointers[i]);
+	tempAllocPointers[i] = 0;
+	tempAllocSizes[i] = 0;
+
+	return;
+}
+
+char *BG_StringAlloc ( const char *source )
+{
+	char *dest;
+
+	dest = (char *) BG_Alloc ( strlen ( source ) + 1 );
+	strcpy ( dest, source );
+	return dest;
+}
+
+qboolean BG_OutOfMemory ( void )
+{
+	// Never called
+	return qfalse;
+}
+
+#else // _XBOX
+
+#ifdef QAGAME
+#define MAX_POOL_SIZE	3000000 //1024000
+#elif defined CGAME //don't need as much for cgame stuff. 2mb will be fine.
+#define MAX_POOL_SIZE	2048000
+#else //And for the ui the only thing we'll be using this for anyway is allocating anim data for g2 menu models
+#define MAX_POOL_SIZE	512000
+#endif
+
+//I am using this for all the stuff like NPC client structures on server/client and
+//non-humanoid animations as well until/if I can get dynamic memory working properly
+//with casted datatypes, which is why it is so large.
+
+
+static char		bg_pool[MAX_POOL_SIZE];
+static int		bg_poolSize = 0;
+static int		bg_poolTail = MAX_POOL_SIZE;
+
+void *BG_Alloc ( int size )
+{
+	bg_poolSize = ((bg_poolSize + 0x00000003) & 0xfffffffc);
+
+	if (bg_poolSize + size > bg_poolTail)
+	{
+		Com_Error( ERR_DROP, "BG_Alloc: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+		return 0;
+	}
+
+	bg_poolSize += size;
+
+	return &bg_pool[bg_poolSize-size];
+}
+
+void *BG_AllocUnaligned ( int size )
+{
+	if (bg_poolSize + size > bg_poolTail)
+	{
+		Com_Error( ERR_DROP, "BG_AllocUnaligned: buffer exceeded tail (%d > %d)", bg_poolSize + size, bg_poolTail);
+		return 0;
+	}
+
+	bg_poolSize += size;
+
+	return &bg_pool[bg_poolSize-size];
+}
+
+void *BG_TempAlloc( int size )
+{
+	size = ((size + 0x00000003) & 0xfffffffc);
+
+	if (bg_poolTail - size < bg_poolSize)
+	{
+		Com_Error( ERR_DROP, "BG_TempAlloc: buffer exceeded head (%d > %d)", bg_poolTail - size, bg_poolSize);
+		return 0;
+	}
+
+	bg_poolTail -= size;
+
+	return &bg_pool[bg_poolTail];
+}
+
+void BG_TempFree( int size )
+{
+	size = ((size + 0x00000003) & 0xfffffffc);
+
+	if (bg_poolTail+size > MAX_POOL_SIZE)
+	{
+		Com_Error( ERR_DROP, "BG_TempFree: tail greater than size (%d > %d)", bg_poolTail+size, MAX_POOL_SIZE );
+	}
+
+	bg_poolTail += size;
+}
+
+char *BG_StringAlloc ( const char *source )
+{
+	char *dest;
+
+	dest = BG_Alloc ( strlen ( source ) + 1 );
+	strcpy ( dest, source );
+	return dest;
+}
+
+qboolean BG_OutOfMemory ( void )
+{
+	return bg_poolSize >= MAX_POOL_SIZE;
+}
+
+#endif // _XBOX && QAGAME
 
 #include "../cgame/animtable.h"
 int BG_ParseGenericAnimationFile ( animation_t *animset, size_t maxAnimations, const stringID_table_t *animTable, const char *filename, const char *fileText )

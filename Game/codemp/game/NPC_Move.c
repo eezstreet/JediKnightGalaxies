@@ -18,11 +18,6 @@ extern qboolean FlyingCreature( gentity_t *ent );
 extern qboolean PM_InKnockDown( playerState_t *ps );
 #include "../namespace_end.h"
 
-#ifdef __DOMINANCE_NPC__
-extern qboolean NPC_FollowRoutes( void ) ;
-extern int DOM_GetBestWaypoint(vec3_t org, int ignore, int badwp);
-#endif //__DOMINANCE_NPC__
-
 /*
 -------------------------
 NPC_ClearPathToGoal
@@ -347,52 +342,24 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 	//NPCs cheat and store this directly because converting movement into a ucmd loses precision
 	VectorCopy( dir, self->client->ps.moveDir );
 
-	if (cmd->buttons & BUTTON_WALKING
-		|| NPC->client->ps.speed == NPCInfo->stats.walkSpeed)
+	fDot = DotProduct( forward, dir ) * 127.0f;
+	rDot = DotProduct( right, dir ) * 127.0f;
+	//Must clamp this because DotProduct is not guaranteed to return a number within -1 to 1, and that would be bad when we're shoving this into a signed byte
+	if ( fDot > 127.0f )
 	{
-		fDot = DotProduct( forward, dir ) * 48.0f;
-		rDot = DotProduct( right, dir ) * 48.0f;
-
-		//Must clamp this because DotProduct is not guaranteed to return a number within -1 to 1, and that would be bad when we're shoving this into a signed byte
-		if ( fDot > 48.0f )
-		{
-			fDot = 48.0f;
-		}
-		if ( fDot < -48.0f )
-		{
-			fDot = -48.0f;
-		}
-		if ( rDot > 48.0f )
-		{
-			rDot = 48.0f;
-		}
-		if ( rDot < -48.0f )
-		{
-			rDot = -48.0f;
-		}
+		fDot = 127.0f;
 	}
-	else
+	if ( fDot < -127.0f )
 	{
-		fDot = DotProduct( forward, dir ) * 127.0f;
-		rDot = DotProduct( right, dir ) * 127.0f;
-
-		//Must clamp this because DotProduct is not guaranteed to return a number within -1 to 1, and that would be bad when we're shoving this into a signed byte
-		if ( fDot > 127.0f )
-		{
-			fDot = 127.0f;
-		}
-		if ( fDot < -127.0f )
-		{
-			fDot = -127.0f;
-		}
-		if ( rDot > 127.0f )
-		{
-			rDot = 127.0f;
-		}
-		if ( rDot < -127.0f )
-		{
-			rDot = -127.0f;
-		}
+		fDot = -127.0f;
+	}
+	if ( rDot > 127.0f )
+	{
+		rDot = 127.0f;
+	}
+	if ( rDot < -127.0f )
+	{
+		rDot = -127.0f;
 	}
 	cmd->forwardmove = floor(fDot);
 	cmd->rightmove = floor(rDot);
@@ -411,102 +378,6 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 	*/
 }
 
-#if	AI_TIMERS
-extern int navTime;
-#endif//	AI_TIMERS
-
-#ifdef __DOMINANCE_NPC__
-extern qboolean NPC_EnemyVisible( gentity_t *self, gentity_t *enemy );
-extern gentity_t *NPC_PickEnemyExt( qboolean checkAlerts );
-
-qboolean NPC_MoveToGoal( qboolean tryStraight ) 
-{
-	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
-	{// If taking full body pain, don't move...
-		return qfalse;
-	}
-
-	if (!NPC_FollowRoutes())
-	{
-		//G_Printf("NPC_FollowRoutes failed!\n");
-		return qfalse;
-	}
-
-	return qtrue;
-}
-/*
-qboolean NPC_MoveToGoal( qboolean tryStraight ) 
-{
-	qboolean ENEMY_VISIBLE = qfalse;
-
-#if	AI_TIMERS
-	int	startTime = GetTime(0);
-#endif//	AI_TIMERS
-	
-	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
-	{// If taking full body pain, don't move...
-		return qfalse;
-	}
-
-	if (!NPC->enemy)
-	{
-		NPCInfo->goalEntity = NPC->enemy = NPC_PickEnemyExt( qtrue );
-	}
-
-	if (NPC->enemy)
-		ENEMY_VISIBLE = NPC_EnemyVisible( NPC, NPC->enemy );
-
-	if (NPC->enemy 
-		&& ENEMY_VISIBLE
-		&& NPC->s.weapon == WP_SABER
-		&& Distance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin) > 96)
-	{// Enemy is visible, but out of range for lghtsaber... Move closer
-		NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
-	}
-	else if (NPC->enemy && !ENEMY_VISIBLE)
-	{// Have an enemy that is not currently visible...
-		if (NPC->genericValue14 < level.time)
-		{// Give up...
-			NPC->enemy = NULL;
-			NPCInfo->goalEntity = NULL;
-			NPC->longTermGoal = -1;
-		}
-
-		NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
-	}
-	else if (NPC->enemy && ENEMY_VISIBLE)
-	{// Enemy is visible and in range, no need to move at the moment...
-		NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
-		return qfalse;
-	}
-	else
-	{// No enemy at all, continue to follow routes...
-		if (NPC->genericValue14 < level.time)
-		{// Give up...
-			NPC->enemy = NULL;
-			NPCInfo->goalEntity = NULL;
-			NPC->longTermGoal = -1;
-		}
-
-		NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
-	}
-
-	// Do the actual routing and movement...
-	if (!NPC_FollowRoutes())
-	{
-		//G_Printf("NPC_FollowRoutes failed!\n");
-		return qfalse;
-	}
-
-#if	AI_TIMERS
-	navTime += GetTime( startTime );
-#endif//	AI_TIMERS
-
-	return qtrue;
-}
-*/
-
-#else //!__DOMINANCE_NPC__
 /*
 -------------------------
 NPC_MoveToGoal
@@ -514,7 +385,9 @@ NPC_MoveToGoal
   Now assumes goal is goalEntity, was no reason for it to be otherwise
 -------------------------
 */
-
+#if	AI_TIMERS
+extern int navTime;
+#endif//	AI_TIMERS
 qboolean NPC_MoveToGoal( qboolean tryStraight ) 
 {
 	float	distance;
@@ -526,82 +399,8 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 	//If taking full body pain, don't move
 	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
 	{
-		return qfalse;
-	}
-
-#ifdef __DOMINANCE_NPC__
-	if (NPC->enemy 
-		&& NPC->s.weapon == WP_SABER
-		&& (!NPC_EnemyVisible( NPC, NPC->enemy ) || (Distance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin) > 96 || NPC->genericValue15 < level.time)))
-	{
-		// Enemy is visible, but out of range for lghtsaber... Move closer...
-		NPC->client->ps.speed = NPCInfo->stats.runSpeed;
-
-		if (!NPC_FollowRoutes())
-		{
-			//G_Printf("NPC_FollowRoutes failed!\n");
-			return qfalse;
-		}
-
 		return qtrue;
 	}
-	else if (NPC->enemy 
-		&& NPC_EnemyVisible( NPC, NPC->enemy ))
-	{
-		// Enemy is visible and in range, no need to move at the moment...
-		return qfalse;
-	}
-	else if (NPC->enemy)
-	{// Have an enemy that is not currently visible...
-		if (NPC->s.weapon == WP_SABER
-			&& (Distance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin) > 96 || NPC->genericValue15 < level.time))
-		{
-			if (NPC->genericValue14 < level.time)
-			{
-				// Give up...
-				NPC->enemy = NULL;
-				NPCInfo->goalEntity = NULL;
-				NPC->longTermGoal = -1;
-			}
-		}
-		else if (NPC->enemy 
-			&& NPC->genericValue15 < level.time)
-		{
-			if (NPC->genericValue14 < level.time)
-			{
-				// Give up...
-				NPC->enemy = NULL;
-				NPCInfo->goalEntity = NULL;
-				NPC->longTermGoal = -1;
-			}
-		}
-
-		NPC->client->ps.speed = NPCInfo->stats.runSpeed;
-
-		if (!NPC_FollowRoutes())
-		{
-			//G_Printf("NPC_FollowRoutes failed!\n");
-			return qfalse;
-		}
-
-		return qtrue;
-	}
-	else
-	{// Dominance: Use bot waypointing AI if it is available! - Unique1
-		NPC->enemy = NULL;
-		NPCInfo->goalEntity = NULL;
-
-		NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
-
-		if (!NPC_FollowRoutes())
-		{
-			//G_Printf("NPC_FollowRoutes failed!\n");
-			return qfalse;
-		}
-
-		return qtrue;
-	}
-#endif //__DOMINANCE_NPC__
 
 	/*
 	if( NPC->s.eFlags & EF_LOCKED_TO_WEAPON )
@@ -675,7 +474,6 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 #endif//	AI_TIMERS
 	return qtrue;
 }
-#endif //__DOMINANCE_NPC__
 
 /*
 -------------------------

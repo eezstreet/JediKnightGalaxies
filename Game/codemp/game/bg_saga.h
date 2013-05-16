@@ -55,7 +55,7 @@ typedef struct
 {
 	char		name[512];
 	char		forcedModel[256];
-	char		forcedSkin[64];
+	char		forcedSkin[256];
 	char		saber1[64];
 	char		saber2[64];
 	int			saberStance;

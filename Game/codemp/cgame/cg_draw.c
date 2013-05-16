@@ -17,6 +17,8 @@
 extern float CG_RadiusForCent( centity_t *cent );
 qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y);
 qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle );
+static void CG_DrawSiegeTimer(int timeRemaining, qboolean isMyTeam);
+static void CG_DrawSiegeDeathTimer( int timeRemaining );
 // nmckenzie: DUEL_HEALTH
 void CG_DrawDuelistHealth ( float x, float y, float w, float h, int duelist );
 
@@ -37,11 +39,6 @@ extern float zoomFov; //this has to be global client-side
 char systemChat[256];
 char teamChat1[256];
 char teamChat2[256];
-
-#ifdef __AUTOWAYPOINT__
-extern float aw_percent_complete;
-extern void AIMod_AutoWaypoint_DrawProgress( void );
-#endif //__AUTOWAYPOINT__
 
 // The time at which you died and the time it will take for you to rejoin game.
 int cg_siegeDeathTime = 0;
@@ -107,14 +104,6 @@ char *showPowersName[] =
 
 void ChatBox_SetPaletteAlpha(float alpha);
 
-
-#ifdef __MUSIC_ENGINE__
-#ifdef _WIN32
-extern void CG_DrawMusicInformation( void );
-#endif //_WIN32
-#endif //__MUSIC_ENGINE__
-
-
 int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid) 
 {
 	return BG_ParseAnimationFile(filename, animset, isHumanoid);
@@ -128,8 +117,6 @@ int MenuFontToHandle(int iMenuFont)
 		case FONT_SMALL2:	return cgDC.Assets.qhSmall2Font;
 		case FONT_MEDIUM:	return cgDC.Assets.qhMediumFont;
 		case FONT_LARGE:	return cgDC.Assets.qhMediumFont;//cgDC.Assets.qhBigFont;
-		case FONT_SMALL3:	return cgDC.Assets.qhSmall3Font;
-		case FONT_SMALL4:	return cgDC.Assets.qhSmall4Font;
 			//fixme? Big fonr isn't registered...?
 	}
 
@@ -869,7 +856,7 @@ void CG_DrawForceSelect( void )
 
 	if ( showPowersName[cg.forceSelect] ) 
 	{
-		UI_DrawProportionalString(320, y + 30 + yOffset, CG_GetStringEdString("SP_INGAME", showPowersName[cg.forceSelect]), UI_CENTER | UI_SMALLFONT, colorTable[CT_ICON_BLUE], FONT_SMALL);
+		UI_DrawProportionalString(320, y + 30 + yOffset, CG_GetStringEdString("SP_INGAME", showPowersName[cg.forceSelect]), UI_CENTER | UI_SMALLFONT, colorTable[CT_ICON_BLUE]);
 	}
 }
 
@@ -932,7 +919,7 @@ void CG_DrawInvenSelect( void )
 	if (!count)
 	{
 		y2 = 0; //err?
-		UI_DrawProportionalString(320, y2 + 22, "EMPTY INVENTORY", UI_CENTER | UI_SMALLFONT, colorTable[CT_ICON_BLUE], FONT_SMALL);
+		UI_DrawProportionalString(320, y2 + 22, "EMPTY INVENTORY", UI_CENTER | UI_SMALLFONT, colorTable[CT_ICON_BLUE]);
 		return;
 	}
 
@@ -1031,11 +1018,11 @@ void CG_DrawInvenSelect( void )
 			
 			if ( trap_SP_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 			{
-				UI_DrawProportionalString(320, y+45, text, UI_CENTER | UI_SMALLFONT, textColor, FONT_SMALL);
+				UI_DrawProportionalString(320, y+45, text, UI_CENTER | UI_SMALLFONT, textColor);
 			}
 			else
 			{
-				UI_DrawProportionalString(320, y+45, bg_itemlist[itemNdex].classname, UI_CENTER | UI_SMALLFONT, textColor, FONT_SMALL);
+				UI_DrawProportionalString(320, y+45, bg_itemlist[itemNdex].classname, UI_CENTER | UI_SMALLFONT, textColor);
 			}
 		}
 	}
@@ -1257,7 +1244,7 @@ void CG_DrawVehicleAmmo( const menuDef_t *menuHUD, const centity_t *veh )
 	}
 
 	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[0].ammoMax;
-	currValue = cg.predictedVehicleState.ammo;
+	currValue = cg.predictedVehicleState.ammo[0];
 	
 	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
 	for (i=1;i<=MAX_VHUD_AMMO_TICS;i++)
@@ -1328,7 +1315,7 @@ void CG_DrawVehicleAmmoUpper( const menuDef_t *menuHUD, const centity_t *veh )
 	}
 
 	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[0].ammoMax;
-	currValue = cg.predictedVehicleState.ammo;
+	currValue = cg.predictedVehicleState.ammo[0];
 
 	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
 	for (i=1;i<MAX_VHUD_AMMO_TICS;i++)
@@ -1400,7 +1387,7 @@ void CG_DrawVehicleAmmoLower( const menuDef_t *menuHUD, const centity_t *veh )
 	}
 
 	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[1].ammoMax;
-	currValue = cg.predictedVehicleState.ammo;
+	currValue = cg.predictedVehicleState.ammo[1];
 
 	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
 	for (i=1;i<MAX_VHUD_AMMO_TICS;i++)
@@ -1976,7 +1963,7 @@ qboolean CG_DrawVehicleHud( const centity_t *cent )
 		// Has he targeted an enemy?
 		if (CG_CheckTargetVehicle( &veh, &alpha ))
 		{
-			CG_DrawVehicleDamageHUD(veh,veh->currentState.brokenLimbs,((float)veh->currentState.generic1/10.0f),"enemyvehicledamagehud",alpha);
+			CG_DrawVehicleDamageHUD(veh,veh->currentState.brokenLimbs,((float)veh->currentState.activeForcePass/10.0f),"enemyvehicledamagehud",alpha);
 		}
 
 		return qfalse;	// Don't draw player HUD
@@ -2135,19 +2122,13 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 
 	hcolor[3] = alpha;
 	if ( team == TEAM_RED ) {
-		/*hcolor[0] = 1;
+		hcolor[0] = 1;
 		hcolor[1] = .2f;
-		hcolor[2] = .2f;*/
-		hcolor[0] = bgGangWarsTeams[cgs.redTeam].teamColor[0];
-		hcolor[1] = bgGangWarsTeams[cgs.redTeam].teamColor[1];
-		hcolor[2] = bgGangWarsTeams[cgs.redTeam].teamColor[2];
+		hcolor[2] = .2f;
 	} else if ( team == TEAM_BLUE ) {
-		/*hcolor[0] = .2f;
+		hcolor[0] = .2f;
 		hcolor[1] = .2f;
-		hcolor[2] = 1;*/
-		hcolor[0] = bgGangWarsTeams[cgs.blueTeam].teamColor[0];
-		hcolor[1] = bgGangWarsTeams[cgs.blueTeam].teamColor[1];
-		hcolor[2] = bgGangWarsTeams[cgs.blueTeam].teamColor[2];
+		hcolor[2] = 1;
 	} else {
 		return;
 	}
@@ -2186,42 +2167,20 @@ static float CG_DrawMiniScoreboard ( float y )
 		return y;
 	}
 
-	if ( cgs.gametype == GT_WARZONE )
-	{
-		//scoreStr = va("Red: %i Blue: %i", cgs.redtickets, cgs.bluetickets);
-		//strcpy ( temp, va("%s: ", CG_GetStringEdString("MP_INGAME", "RED")));
-		strcpy ( temp, va("Imperials: "));
-		Q_strcat ( temp, MAX_QPATH, va("%i",cgs.redtickets) );
-		//Q_strcat ( temp, MAX_QPATH, va(" %s: ", CG_GetStringEdString("MP_INGAME", "BLUE")) );
-		Q_strcat ( temp, MAX_QPATH, va(" Rebels: ") );
-		Q_strcat ( temp, MAX_QPATH, va("%i",cgs.bluetickets) );
-
-		CG_Text_Paint( 630 - CG_Text_Width ( temp, 0.7f, FONT_SMALL ) + xOffset, y, 0.7f, colorWhite, temp, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_SMALL );
-		y += 15;
+	if (cgs.gametype == GT_SIEGE)
+	{ //don't bother with this in siege
+		return y;
 	}
-	else if ( cgs.gametype >= GT_TEAM )
+
+	if ( cgs.gametype >= GT_TEAM )
 	{
-		// GANG WARS STUFF
-		//strcpy ( temp, va("%s: ", CG_GetStringEdString("MP_INGAME", "RED")));
-		temp[0] = '\0';
-		strcpy( temp, va("%s: ", CG_GetStringEdString2(bgGangWarsTeams[cgs.redTeam].name)) );
+		strcpy ( temp, va("%s: ", CG_GetStringEdString("MP_INGAME", "RED")));
 		Q_strcat ( temp, MAX_QPATH, cgs.scores1==SCORE_NOT_PRESENT?"-":(va("%i",cgs.scores1)) );
-		//Q_strcat ( temp, MAX_QPATH, va(" %s: ", CG_GetStringEdString("MP_INGAME", "BLUE")) );
-		Q_strcat ( temp, MAX_QPATH, va(" %s: ", CG_GetStringEdString2(bgGangWarsTeams[cgs.blueTeam].name)) );
+		Q_strcat ( temp, MAX_QPATH, va(" %s: ", CG_GetStringEdString("MP_INGAME", "BLUE")) );
 		Q_strcat ( temp, MAX_QPATH, cgs.scores2==SCORE_NOT_PRESENT?"-":(va("%i",cgs.scores2)) );
 
-		// Check if we're in spectator
-		if(cgs.clientinfo[cg.clientNum].team != TEAM_RED && cgs.clientinfo[cg.clientNum].team != TEAM_BLUE)
-		{
-			// If so, draw normally
-			CG_Text_Paint( 630 - CG_Text_Width ( temp, 0.7f, FONT_MEDIUM ) + xOffset, y, 0.7f, colorWhite, temp, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM );
-			y += 15;
-		}
-		else
-		{
-			CG_Text_Paint( 630 - CG_Text_Width ( temp, 0.7f, FONT_MEDIUM ) + xOffset, 75, 0.7f, colorWhite, temp, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM );
-			y = 90;
-		}
+		CG_Text_Paint( 630 - CG_Text_Width ( temp, 0.7f, FONT_MEDIUM ) + xOffset, y, 0.7f, colorWhite, temp, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM );
+		y += 15;
 	}
 	else
 	{
@@ -2450,6 +2409,72 @@ static float CG_DrawSnapshot( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+/*
+==================
+CG_DrawFPS
+==================
+*/
+#define	FPS_FRAMES	16
+static float CG_DrawFPS( float y ) {
+	char		*s;
+	int			w;
+	static unsigned short previousTimes[FPS_FRAMES];
+	static unsigned short index;
+	static int	previous, lastupdate;
+	int		t, i, fps, total;
+	unsigned short frameTime;
+#ifdef _XBOX
+	const int		xOffset = -40;
+#else
+	//const int		xOffset = 0;
+#endif
+	vec4_t	fpscolor;
+
+	// don't use serverTime, because that will be drifting to
+	// correct for internet lag changes, timescales, timedemos, etc
+	t = trap_Milliseconds();
+	frameTime = t - previous;
+	previous = t;
+	if (t - lastupdate > 50)	//don't sample faster than this
+	{
+		lastupdate = t;
+		previousTimes[index % FPS_FRAMES] = frameTime;
+		index++;
+	}
+	// average multiple frames together to smooth changes out a bit
+	total = 0;
+	for ( i = 0 ; i < FPS_FRAMES ; i++ ) {
+		total += previousTimes[i];
+	}
+	if ( !total ) {
+		total = 1;
+	}
+	fps = 1000 * FPS_FRAMES / total;
+
+    s = va( "%i fps", fps );
+    if (cg_drawFPS.integer == 2) {
+        Q_strcat (s, 64, va ("\n%.3f mspf", (float)total / (float)FPS_FRAMES));
+    }
+	if (fps < 10) {
+		VectorSet(fpscolor, 1, 0, 0);
+	} else if (fps > 50) {
+		VectorSet(fpscolor, 0, 1, 0);
+	} else {
+		int hue = (fps - 10) * 3; //(0 to 120)
+		HSL2RGB((float)hue/360, 1, 0.5f, &fpscolor[0], &fpscolor[1], &fpscolor[2]);
+	}
+	fpscolor[3] = 1;
+
+
+	w = trap_R_Font_StrLenPixels(s, cgDC.Assets.qhSmallFont, 0.5f);
+	//w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+
+	trap_R_Font_DrawString(480 - w, y+25, s, fpscolor, cgDC.Assets.qhSmallFont | STYLE_DROPSHADOW, -1, 0.5f);
+	//CG_DrawBigString( 635 - w + xOffset, y + 2, s, 1.0F);
+
+	return y; //y + BIGCHAR_HEIGHT + 4;
+}
+
 // nmckenzie: DUEL_HEALTH
 #define MAX_HEALTH_FOR_IFACE	100
 void CG_DrawHealthBarRough (float x, float y, int width, int height, float ratio, const float *color1, const float *color2)
@@ -2504,8 +2529,7 @@ CG_DrawRadar
 //#define RADAR_RANGE				2500
 float	cg_radarRange = 2500.0f;
 
-//#define RADAR_RADIUS			60
-float RADAR_RADIUS	=		30;
+#define RADAR_RADIUS			60
 #define RADAR_X					(580 - RADAR_RADIUS)
 //#define RADAR_Y					10 //dynamic based on passed Y val
 #define RADAR_CHAT_DURATION		6000
@@ -2514,10 +2538,6 @@ static int impactSoundDebounceTime = 0;
 #define	RADAR_MISSILE_RANGE					3000.0f
 #define	RADAR_ASTEROID_RANGE				10000.0f
 #define	RADAR_MIN_ASTEROID_SURF_WARN_DIST	1200.0f
-
-extern vmCvar_t	d_poff;
-extern vmCvar_t	d_roff;
-extern vmCvar_t	d_yoff;
 
 float CG_DrawRadar ( float y )
 {
@@ -2531,32 +2551,6 @@ float CG_DrawRadar ( float y )
 	float			arrowBaseScale;
 	float			zScale;
 	int				xOffset = 0;
-	int				y2 = y;
-
-	// UQ1: Use radar when minimap is not available...
-	// Get MiniMap Location...
-	/*
-	itemDef_t *item;
-	vec4_t overlayColor = {1,1,1,0.7f};
-	vec4_t transcolor = {1,1,1,1};
-	vec4_t opacity;
-	
-	MAKERGBA(opacity, 1, 1, 1, 1*cg.jkg_HUDOpacity);
-
-	item = Menu_FindItemByName(Menus_FindByName("hud_minimap"), "maparea");
-	if (!item) {
-		return y;
-	}
-
-	xOffset = item->window.rect.x;
-	y2 = item->window.rect.y;
-	*/
-
-	// UQ1: Place over the minimap image...
-	y2 = -1;//d_poff.integer;
-	xOffset = 23;//d_roff.integer;
-	RADAR_RADIUS = 40;//d_yoff.value;
-	//zScale = d_yoff.value
 
 	if (!cg.snap)
 	{
@@ -2588,8 +2582,7 @@ float CG_DrawRadar ( float y )
 	color[0] = color[1] = color[2] = 1.0f;
 	color[3] = 0.6f;
 	trap_R_SetColor ( color );
-	// UQ1: Don't draw the radar image itself...
-	//CG_DrawPic( RADAR_X + xOffset, y2, RADAR_RADIUS*2, RADAR_RADIUS*2, cgs.media.radarShader );
+	CG_DrawPic( RADAR_X + xOffset, y, RADAR_RADIUS*2, RADAR_RADIUS*2, cgs.media.radarShader );
 
 	//Always green for your own team.
 	VectorCopy ( g_color_table[ColorIndex(COLOR_GREEN)], teamColor );
@@ -2649,7 +2642,7 @@ float CG_DrawRadar ( float y )
 					vec4_t    color;
 
 					x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
-					ly = y2 + (float)RADAR_RADIUS + (float)cos (angle) * distance;
+					ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
 
 					arrowBaseScale = 9.0f;
 					shader = 0;
@@ -2735,21 +2728,6 @@ float CG_DrawRadar ( float y )
 							shader = cgs.media.siegeItemShader;
 						}
 					
-						if (cent->currentState.eType == ET_FLAG)
-						{
-							if (cent->currentState.teamowner == TEAM_RED)
-							{
-								shader = cgs.media.redFlagRadarShader;
-							}
-							else if (cent->currentState.teamowner == TEAM_BLUE)
-							{
-								shader = cgs.media.blueFlagRadarShader;
-							}
-							else
-							{
-								shader = cgs.media.neutralFlagRadarShader;
-							}
-						}
 					}
 
 					if ( shader )
@@ -2784,7 +2762,7 @@ float CG_DrawRadar ( float y )
 						float  ly;
 			
 						x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
-						ly = y2 + (float)RADAR_RADIUS + (float)cos (angle) * distance;
+						ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
 
 						arrowBaseScale = 9.0f;
 						zScale = 1.0f;
@@ -2886,7 +2864,7 @@ float CG_DrawRadar ( float y )
 						distance = (actualDist/RADAR_ASTEROID_RANGE)*RADAR_RADIUS;
 
 						x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
-						ly = y2 + (float)RADAR_RADIUS + (float)cos (angle) * distance;
+						ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
 						
 						if ( asteroidScale > 3.0f )
 						{
@@ -2949,7 +2927,7 @@ float CG_DrawRadar ( float y )
 					float  ly;
 		
 					x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
-					ly = y2 + (float)RADAR_RADIUS + (float)cos (angle) * distance;
+					ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
 
 					arrowBaseScale = 3.0f;
 					if ( cg.predictedPlayerState.m_iVehicleNum )
@@ -3116,7 +3094,7 @@ float CG_DrawRadar ( float y )
 	arrow_h = arrowBaseScale * RADAR_RADIUS / 128;
 
 	trap_R_SetColor ( colorWhite );
-	CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + xOffset, y2 + RADAR_RADIUS, arrow_w, arrow_h, 
+	CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + xOffset, y + RADAR_RADIUS, arrow_w, arrow_h, 
 					   0, cgs.media.mAutomapPlayerIcon );
 
 	return y+(RADAR_RADIUS*2);
@@ -3127,8 +3105,6 @@ float CG_DrawRadar ( float y )
 CG_DrawTimer
 =================
 */
-//Time to retire this. It's time is up. ~eezstreet
-#if 0
 static float CG_DrawTimer( float y ) {
 	char		*s;
 	int			w;
@@ -3139,58 +3115,29 @@ static float CG_DrawTimer( float y ) {
 #ifdef _XBOX
 	xOffset = -40;
 #endif
-	if(cg_drawTimer.integer == 1 || cg_drawTimer.integer == 3)
-	{
-		//Draw server time
-		msec = cg.time - cgs.levelStartTime;
 
-		seconds = msec/1000;
-		// Convert time to hh:mm:ss format
-		hours = floor((float)seconds / 3600);
-		seconds -= (hours * 3600);
+	msec = cg.time - cgs.levelStartTime;
 
-		mins = floor((float)seconds/60);
-		seconds -= (mins * 60);
+	seconds = msec/1000;
+	// Convert time to hh:mm:ss format
+	hours = floor((float)seconds / 3600);
+	seconds -= (hours * 3600);
 
-	/*
-		seconds = msec / 1000;
-		mins = seconds / 60;
+	mins = floor((float)seconds/60);
+	seconds -= (mins * 60);
 
-		seconds -= mins * 60;
-		tens = seconds / 10;
-		seconds -= tens * 10;
-	*/
-		s = va( "%i:%.2i:%.2i", hours, mins, seconds );
-		
-		w = trap_R_Font_StrLenPixels(s, cgDC.Assets.qhSmallFont, 0.5f);
-		trap_R_Font_DrawString(540 - w, y+25, s, colorWhite, cgDC.Assets.qhSmallFont | STYLE_DROPSHADOW, -1, 0.5f);
-	}
-	if(cg_drawTimer.integer == 2 || cg_drawTimer.integer == 3)
-	{
-		//Draw real time (using system clock)
-		float newY;
-		if(cg_drawTimer.integer == 3)
-		{
-			//Draw both times at once, therefore we need a new y value
-			newY = y + (float)trap_R_Font_HeightPixels(cgDC.Assets.qhSmallFont, 0.5f);
-		}
-		else
-		{
-			newY = y;
-		}
-		//FIXME: Make cvar for 24 hour time format
-		if(T_meridiem())
-		{
-			s = va( "%i:%.2i PM", T_hour(qfalse), T_minute() );
-		}
-		else
-		{
-			s = va( "%i:%.2i AM", T_hour(qfalse), T_minute() );
-		}
+/*
+	seconds = msec / 1000;
+	mins = seconds / 60;
 
-		w = trap_R_Font_StrLenPixels(s, cgDC.Assets.qhSmallFont, 0.5f);
-		trap_R_Font_DrawString(540 - w, newY+25, s, colorWhite, cgDC.Assets.qhSmallFont | STYLE_DROPSHADOW, -1, 0.5f);
-	}
+	seconds -= mins * 60;
+	tens = seconds / 10;
+	seconds -= tens * 10;
+*/
+	s = va( "%.2i:%.2i:%.2i", hours, mins, seconds );
+	
+	w = trap_R_Font_StrLenPixels(s, cgDC.Assets.qhSmallFont, 0.5f);
+	trap_R_Font_DrawString(540 - w, y+25, s, colorWhite, cgDC.Assets.qhSmallFont | STYLE_DROPSHADOW, -1, 0.5f);
 	
 	//w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
@@ -3198,7 +3145,7 @@ static float CG_DrawTimer( float y ) {
 
 	return y;// + BIGCHAR_HEIGHT + 4;
 }
-#endif
+
 
 /*
 =================
@@ -3532,7 +3479,7 @@ static void CG_DrawPowerupIcons(int y)
 
 				if (j != PW_REDFLAG && j != PW_BLUEFLAG && secondsleft < 999)
 				{
-					UI_DrawProportionalString((640-(ico_size*1.1f))+(ico_size/2) + xOffset, y-8, va("%i", secondsleft), UI_CENTER | UI_BIGFONT | UI_DROPSHADOW, colorTable[CT_WHITE], FONT_MEDIUM);
+					UI_DrawProportionalString((640-(ico_size*1.1f))+(ico_size/2) + xOffset, y-8, va("%i", secondsleft), UI_CENTER | UI_BIGFONT | UI_DROPSHADOW, colorTable[CT_WHITE]);
 				}
 
 				y += (ico_size/3);
@@ -3548,17 +3495,13 @@ CG_DrawUpperRight
 
 =====================
 */
-extern qboolean HaveMiniMap( void );
-
 static void CG_DrawUpperRight( void ) {
 	float	y;
 
 #ifdef _XBOX
-	//y = 50;
-	y = 120;
+	y = 50;
 #else
-	//y = 0;
-	y = 120; // UQ1: Changed as the ACI covers this area!
+	y = 0;
 #endif
 
 	trap_R_SetColor( colorTable[CT_WHITE] );
@@ -3570,14 +3513,8 @@ static void CG_DrawUpperRight( void ) {
 		y = CG_DrawSnapshot( y );
 	}
 
-#ifdef __MUSIC_ENGINE__
-#ifdef _WIN32
-	CG_DrawMusicInformation();
-#endif //_WIN32
-#endif //__MUSIC_ENGINE__
-
 	// These two get a special treatment
-	/*{
+	{
 		int yoffs = 0;
 		if ( cg_drawFPS.integer ) {
 			yoffs = CG_DrawFPS( yoffs );
@@ -3585,14 +3522,11 @@ static void CG_DrawUpperRight( void ) {
 		if ( cg_drawTimer.integer ) {
 			yoffs = CG_DrawTimer( yoffs );
 		}
-	}*/
+	}
 	if ( ( cgs.gametype >= GT_TEAM || cg.predictedPlayerState.m_iVehicleNum )
 		&& cg_drawRadar.integer )
 	{//draw Radar in Siege mode or when in a vehicle of any kind
-		if (!HaveMiniMap())
-			CG_DrawRadar ( y );
-
-		//	y = CG_DrawRadar ( y );
+		//y = CG_DrawRadar ( y );
 	}
 
 	y = CG_DrawEnemyInfo ( y );
@@ -3600,11 +3534,6 @@ static void CG_DrawUpperRight( void ) {
 	y = CG_DrawMiniScoreboard ( y );
 
 	CG_DrawPowerupIcons(y);
-
-#ifdef __AUTOWAYPOINT__
-	if (aw_percent_complete > 0)
-		AIMod_AutoWaypoint_DrawProgress();
-#endif //__AUTOWAYPOINT__
 }
 
 /*
@@ -3938,7 +3867,6 @@ CENTER PRINTING
 ===============================================================================
 */
 
-#define CG_CP_NUMBER_OF_CHARACTERS_IN_LINE	50
 
 /*
 ==============
@@ -3950,9 +3878,6 @@ for a few moments
 */
 void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	char	*s;
-	char	*t = NULL;
-	char	*last = NULL;
-	char	*lastLine = NULL;
 
 	Q_strncpyz( cg.centerPrint, str, sizeof(cg.centerPrint) );
 
@@ -3960,43 +3885,9 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	cg.centerPrintY = y;
 	cg.centerPrintCharWidth = charWidth;
 
-	// insert new lines when necessary --eez
+	// count the number of lines for centering
 	cg.centerPrintLines = 1;
 	s = cg.centerPrint;
-	lastLine = cg.centerPrint;
-
-	while( 1 )
-	{
-		t = strchr(s, ' ');
-		if(t == NULL)
-		{
-			break; // done.
-		}
-
-		if((t - lastLine) >= CG_CP_NUMBER_OF_CHARACTERS_IN_LINE-1)
-		{
-			// find the last used character
-			if(last == NULL)
-			{
-				// no last space, ABORT!/truncate
-				break;
-			}
-			else
-			{
-				// replace that one with a \n
-				*last = '\n';
-				lastLine = last;
-			}
-		}
-
-		last = t;
-		s = t;
-		s += 1;
-	}
-
-	s = cg.centerPrint;
-
-	// count the number of lines for centering
 	while( *s ) {
 		if (*s == '\n')
 			cg.centerPrintLines++;
@@ -4036,7 +3927,7 @@ static void CG_DrawCenterString( void ) {
 	while ( 1 ) {
 		char linebuffer[1024];
 
-		for ( l = 0; l < CG_CP_NUMBER_OF_CHARACTERS_IN_LINE; l++ ) {
+		for ( l = 0; l < 50; l++ ) {
 			if ( !start[l] || start[l] == '\n' ) {
 				break;
 			}
@@ -4044,10 +3935,8 @@ static void CG_DrawCenterString( void ) {
 		}
 		linebuffer[l] = 0;
 
-		//w = CG_Text_Width(linebuffer, scale, FONT_MEDIUM);
-		h = CG_Text_Height(linebuffer, scale, FONT_MEDIUM);
 		w = CG_Text_Width(linebuffer, scale, FONT_MEDIUM);
-
+		h = CG_Text_Height(linebuffer, scale, FONT_MEDIUM);
 		x = (SCREEN_WIDTH - w) / 2;
 		CG_Text_Paint(x, y + h, scale, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM);
 		y += h + 6;
@@ -4076,6 +3965,149 @@ CROSSHAIR
 
 #define HEALTH_WIDTH		50.0f
 #define HEALTH_HEIGHT		5.0f
+
+//see if we can draw some extra info on this guy based on our class
+void CG_DrawSiegeInfo(centity_t *cent, float chX, float chY, float chW, float chH)
+{
+	siegeExtended_t *se = &cg_siegeExtendedData[cent->currentState.number];
+	clientInfo_t *ci;
+	const char *configstring, *v;
+	siegeClass_t *siegeClass;
+	vec4_t aColor;
+	vec4_t bColor;
+	vec4_t cColor;
+	float x;
+	float y;
+	float percent;
+	int ammoMax;
+
+	assert(cent->currentState.number < MAX_CLIENTS);
+
+	if (se->lastUpdated > cg.time)
+	{ //strange, shouldn't happen
+		return;
+	}
+	
+	if ((cg.time - se->lastUpdated) > 10000)
+	{ //if you haven't received a status update on this guy in 10 seconds, forget about it
+		return;
+	}
+
+	if (cent->currentState.eFlags & EF_DEAD)
+	{ //he's dead, don't display info on him
+		return;
+	}
+
+	if (cent->currentState.weapon != se->weapon)
+	{ //data is invalidated until it syncs back again
+		return;
+	}
+
+	ci = &cgs.clientinfo[cent->currentState.number];
+	if (ci->team != cg.predictedPlayerState.persistant[PERS_TEAM])
+	{ //not on the same team
+		return;
+	}
+
+	configstring = CG_ConfigString( cg.predictedPlayerState.clientNum + CS_PLAYERS );
+	v = Info_ValueForKey( configstring, "siegeclass" );
+
+	if (!v || !v[0])
+	{ //don't have siege class in info?
+		return;
+	}
+
+	siegeClass = BG_SiegeFindClassByName(v);
+
+	if (!siegeClass)
+	{ //invalid
+		return;
+	}
+
+    if (!(siegeClass->classflags & (1<<CFL_STATVIEWER)))
+	{ //doesn't really have the ability to see others' stats
+		return;
+	}
+
+	x = chX+((chW/2)-(HEALTH_WIDTH/2));
+	y = (chY+chH) + 8.0f;
+	percent = ((float)se->health/(float)se->maxhealth)*HEALTH_WIDTH;
+
+	//color of the bar
+	aColor[0] = 0.0f;
+	aColor[1] = 1.0f;
+	aColor[2] = 0.0f;
+	aColor[3] = 0.4f;
+
+	//color of the border
+	bColor[0] = 0.0f;
+	bColor[1] = 0.0f;
+	bColor[2] = 0.0f;
+	bColor[3] = 0.3f;
+
+	//color of greyed out "missing health"
+	cColor[0] = 0.5f;
+	cColor[1] = 0.5f;
+	cColor[2] = 0.5f;
+	cColor[3] = 0.4f;
+
+	//draw the background (black)
+	CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK]);
+
+	//now draw the part to show how much health there is in the color specified
+	CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor);
+
+	//then draw the other part greyed out
+	CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor);
+
+
+	//now draw his ammo
+	ammoMax = GetWeaponAmmoMax( cent->currentState.weapon, cent->currentState.weaponVariation );
+
+	if (( cent->currentState.eFlags & EF_DOUBLE_AMMO ))
+	{
+		ammoMax *= 2;
+	}
+
+	x = chX+((chW/2)-(HEALTH_WIDTH/2));
+	y = (chY+chH) + HEALTH_HEIGHT + 10.0f;
+
+	if ( !GetWeaponData( cent->currentState.weapon, cent->currentState.weaponVariation )->firemodes[0].cost && !GetWeaponData( cent->currentState.weapon, cent->currentState.weaponVariation )->firemodes[1].cost )
+	{ //a weapon that takes no ammo, so show full
+		percent = HEALTH_WIDTH;
+	}
+	else
+	{
+		percent = ((float)se->ammo/(float)ammoMax)*HEALTH_WIDTH;
+	}
+
+	//color of the bar
+	aColor[0] = 1.0f;
+	aColor[1] = 1.0f;
+	aColor[2] = 0.0f;
+	aColor[3] = 0.4f;
+
+	//color of the border
+	bColor[0] = 0.0f;
+	bColor[1] = 0.0f;
+	bColor[2] = 0.0f;
+	bColor[3] = 0.3f;
+
+	//color of greyed out "missing health"
+	cColor[0] = 0.5f;
+	cColor[1] = 0.5f;
+	cColor[2] = 0.5f;
+	cColor[3] = 0.4f;
+
+	//draw the background (black)
+	CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK]);
+
+	//now draw the part to show how much health there is in the color specified
+	CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor);
+
+	//then draw the other part greyed out
+	CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor);
+}
 
 //draw the health bar based on current "health" and maxhealth
 void CG_DrawHealthBar(centity_t *cent, float chX, float chY, float chW, float chH)
@@ -4346,7 +4378,7 @@ vec3_t cg_crosshairPos={0,0,0};
 	else
 	{
 		//set color based on what kind of ent is under crosshair
-		//if ( cg.crosshairClientNum >= ENTITYNUM_WORLD )
+		if ( cg.crosshairClientNum >= ENTITYNUM_WORLD )
 		{
 		    // JKG: Crosshair disappears for ironsights
 		    VectorSet (ecolor, 1.0f, 1.0f, 1.0f);
@@ -4356,26 +4388,13 @@ vec3_t cg_crosshairPos={0,0,0};
 		    }
 		    else
 		    {
-				float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
-				float sprintPhase = JKG_CalculateSprintPhase (&cg.networkState);
-				if(ironSightsPhase > 0)
-				{
-					ecolor[3] = 1.0f - ironSightsPhase;
-				}
-				else if(sprintPhase > 0)
-				{
-					ecolor[3] = 1.0f - sprintPhase;
-				}
-				else
-				{
-					ecolor[3] = 1.0f;
-				}
+                ecolor[3] = 1.0f - JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
             }
             
 			trap_R_SetColor( ecolor );
 		}
 		//rwwFIXMEFIXME: Write this a different way, it's getting a bit too sloppy looking
-		if ( cg.crosshairClientNum < ENTITYNUM_WORLD && chEntValid &&
+		else if (chEntValid &&
 			(cg_entities[cg.crosshairClientNum].currentState.number < MAX_CLIENTS ||
 			cg_entities[cg.crosshairClientNum].currentState.eType == ET_NPC ||
 			cg_entities[cg.crosshairClientNum].currentState.shouldtarget ||
@@ -4393,6 +4412,35 @@ vec3_t cg_crosshairPos={0,0,0};
 			}
 			else if ( crossEnt->currentState.number < MAX_CLIENTS )
 			{
+				/*if (cgs.gametype >= GT_TEAM &&
+					cgs.clientinfo[crossEnt->currentState.number].team == cgs.clientinfo[cg.snap->ps.clientNum].team )
+				{
+					//Allies are green
+					ecolor[0] = 0.0f;//R
+					ecolor[1] = 1.0f;//G
+					ecolor[2] = 0.0f;//B
+				}
+				else
+				{
+					if (cgs.gametype == GT_POWERDUEL &&
+						cgs.clientinfo[crossEnt->currentState.number].duelTeam == cgs.clientinfo[cg.snap->ps.clientNum].duelTeam)
+					{ //on the same duel team in powerduel, so he's a friend
+						ecolor[0] = 0.0f;//R
+						ecolor[1] = 1.0f;//G
+						ecolor[2] = 0.0f;//B
+					}
+					else
+					{ //Enemies are red
+						ecolor[0] = 1.0f;//R
+						ecolor[1] = 0.0f;//G
+						ecolor[2] = 0.0f;//B
+#ifdef _XBOX
+						cg_crossHairStatus = 1;
+#endif
+					}
+				}*/
+
+
 				// JKG - Proper crosshair coloring
 				if (TeamFriendly(crossEnt->currentState.number)) {
 					// He's in our party/team, so show as green
@@ -4405,6 +4453,8 @@ vec3_t cg_crosshairPos={0,0,0};
 					ecolor[1] = 0.0f;
 					ecolor[2] = 0.0f;
 				}
+
+
 
 				if (cg.snap->ps.duelInProgress)
 				{
@@ -4436,7 +4486,15 @@ vec3_t cg_crosshairPos={0,0,0};
 
 				if (crossEnt->currentState.eType == ET_NPC)
 				{
-					int plTeam = NPCTEAM_PLAYER;
+					int plTeam;
+					if (cgs.gametype == GT_SIEGE)
+					{
+						plTeam = cg.predictedPlayerState.persistant[PERS_TEAM];
+					}
+					else
+					{
+						plTeam = NPCTEAM_PLAYER;
+					}
 
 					if ( crossEnt->currentState.powerups & (1 <<PW_CLOAKED) )
 					{
@@ -4614,16 +4672,7 @@ vec3_t cg_crosshairPos={0,0,0};
             // JKG: Crosshair disappears for ironsights
             if ( !cg.renderingThirdPerson )
             {
-                float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
-				float sprintPhase = JKG_CalculateSprintPhase (&cg.networkState);
-				if(ironSightsPhase > 0)
-				{
-					ecolor[3] = 1.0f - ironSightsPhase;
-				}
-				else if(sprintPhase > 0)
-				{
-					ecolor[3] = 1.0f - sprintPhase;
-				}
+                ecolor[3] = 1.0f - JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
             }
             else
             {
@@ -4686,12 +4735,6 @@ vec3_t cg_crosshairPos={0,0,0};
 	chY = y + cg.refdef.y + 0.5f * (480 - h);
 	trap_R_DrawStretchPic( chX, chY, w, h, 0, 0, 1, 1, hShader );
 
-	// draw hitmarker --eez
-	if(cg.hitmarkerLastTime > cg.time)
-	{
-		trap_R_DrawStretchPic( chX, chY, w, h, 0, 0, 1, 1, cgs.media.hitmarkerGraphic );
-	}
-
 	//draw a health bar directly under the crosshair if we're looking at something
 	//that takes damage
 	if (crossEnt &&
@@ -4702,6 +4745,11 @@ vec3_t cg_crosshairPos={0,0,0};
 	}
 	else if (crossEnt && crossEnt->currentState.number < MAX_CLIENTS)
 	{
+		if (cgs.gametype == GT_SIEGE)
+		{
+			CG_DrawSiegeInfo(crossEnt, chX, chY, w, h);
+			chY += HEALTH_HEIGHT*4;
+		}
 		if (cg.crosshairVehNum && cg.time == cg.crosshairVehTime)
 		{ //it was in the crosshair this frame
 			centity_t *hisVeh = &cg_entities[cg.crosshairVehNum];
@@ -5228,7 +5276,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 	static	int oldDif = 0;
 	centity_t *cent = &cg_entities[lockEntNum];
 	vec4_t color={0.0f,0.0f,0.0f,0.0f};
-	float lockTimeInterval = 1200.0f/16.0f;
+	float lockTimeInterval = ((cgs.gametype==GT_SIEGE)?2400.0f:1200.0f)/16.0f;
 	//FIXME: if in a vehicle, use the vehicle's lockOnTime...
 	int dif = (cg.time - cg.snap->ps.rocketLockTime)/lockTimeInterval;
 	int i;
@@ -5817,697 +5865,6 @@ void CG_SanitizeString( char *in, char *out )
 	out[r] = 0;
 }
 
-int			next_vischeck[MAX_GENTITIES];
-qboolean	currently_visible[MAX_GENTITIES];
-
-qboolean CG_CheckClientVisibility ( centity_t *cent )
-{
-	trace_t		trace;
-	vec3_t		start, end;//, forward, right, up;
-	centity_t	*traceEnt = NULL;
-
-	if (next_vischeck[cent->currentState.number] > cg.time)
-	{
-		return currently_visible[cent->currentState.number];
-	}
-
-	next_vischeck[cent->currentState.number] = cg.time + 500 + Q_irand(500, 1000);
-
-	VectorCopy(cg.refdef.vieworg, start);
-	start[2]+=42;
-
-	VectorCopy(cent->lerpOrigin, end);
-	end[2]+=42;
-
-	CG_Trace( &trace, start, NULL, NULL, end, cg.clientNum, MASK_PLAYERSOLID/*MASK_SHOT*/ );
-
-	traceEnt = &cg_entities[trace.entityNum];
-
-	if (traceEnt == cent || trace.fraction == 1.0f)
-	{
-		currently_visible[cent->currentState.number] = qtrue;
-		return qtrue;
-	}
-
-	currently_visible[cent->currentState.number] = qfalse;
-	return qfalse;
-}
-
-extern vmCvar_t	d_poff;
-extern vmCvar_t	d_roff;
-#define clamp(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
-
-qboolean HumanNamesLoaded = qfalse;
-
-typedef struct
-{// FIXME: Add other species name files...
-	char	HumanNames[MAX_QPATH];
-} name_list_t;
-
-name_list_t NPC_NAME_LIST[8000];
-
-int NUM_HUMAN_NAMES = 0;
-
-/* */
-void
-Load_NPC_Names ( void )
-{				// Load bot first names from external file.
-	char			*s, *t;
-	int				len;
-	fileHandle_t	f;
-	char			*buf;
-	char			*loadPath;
-	int				num = 0;
-
-	if (HumanNamesLoaded)
-		return;
-
-	loadPath = va( "npc_names_list.dat" );
-
-	len = trap_FS_FOpenFile( loadPath, &f, FS_READ );
-
-	HumanNamesLoaded = qtrue;
-
-	if ( !f )
-	{
-		return;
-	}
-
-	if ( !len )
-	{			//empty file
-		trap_FS_FCloseFile( f );
-		return;
-	}
-
-	if ( (buf = (char *)malloc( len + 1)) == 0 )
-	{			//alloc memory for buffer
-		trap_FS_FCloseFile( f );
-		return;
-	}
-
-	trap_FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap_FS_FCloseFile( f );
-
-	strcpy( NPC_NAME_LIST[NUM_HUMAN_NAMES].HumanNames, "NONAME");
-	NUM_HUMAN_NAMES++;
-	strcpy( NPC_NAME_LIST[NUM_HUMAN_NAMES].HumanNames, "R2D2 Droid");
-	NUM_HUMAN_NAMES++;
-	strcpy( NPC_NAME_LIST[NUM_HUMAN_NAMES].HumanNames, "R5D2 Droid");
-	NUM_HUMAN_NAMES++;
-	strcpy( NPC_NAME_LIST[NUM_HUMAN_NAMES].HumanNames, "Protocol Droid");
-	NUM_HUMAN_NAMES++;
-	strcpy( NPC_NAME_LIST[NUM_HUMAN_NAMES].HumanNames, "Weequay");
-	NUM_HUMAN_NAMES++;
-
-	for ( t = s = buf; *t; /* */ )
-	{
-		num++;
-		s = strchr( s, '\n' );
-		if ( !s || num > len )
-		{
-			break;
-		}
-
-		while ( *s == '\n' )
-		{
-			*s++ = 0;
-		}
-
-		if ( *t )
-		{
-			if ( !Q_strncmp( "//", va( "%s", t), 2) == 0 && strlen( va( "%s", t)) > 0 )
-			{	// Not a comment either... Record it in our list...
-				Q_strncpyz( NPC_NAME_LIST[NUM_HUMAN_NAMES].HumanNames, va( "%s", t), strlen( va( "%s", t)) );
-				NUM_HUMAN_NAMES++;
-			}
-		}
-
-		t = s;
-	}
-
-	NUM_HUMAN_NAMES--;
-}
-
-void CG_DrawNPCNames( void )
-{// Float a NPC name above their head!
-	int				i;
-
-	// Load the list on first check...
-	Load_NPC_Names();
-
-	for (i = MAX_CLIENTS; i < MAX_GENTITIES; i++)
-	{// Cycle through them...
-		vec3_t			origin;
-		centity_t		*cent = &cg_entities[i];
-		char			*str1, *str2;
-		int				w, w2;
-		float			size, x, y, x2, y2, dist;
-		vec4_t			tclr =	{ 0.325f,	0.325f,	1.0f,	1.0f	};
-		vec4_t			tclr2 = { 0.325f,	0.325f,	1.0f,	1.0f	};
-		char			sanitized1[1024], sanitized2[1024];
-		int				baseColor = CT_BLUE;
-		float			multiplier = 1.0f;
-
-		if (!cent)
-			continue;
-
-		if (cent->currentState.eType != ET_NPC)
-			continue;
-
-		if (!cent->ghoul2)
-			continue;
-
-		if (!cent->npcClient)
-			continue;
-
-		if (cent->cloaked)
-			continue;
-
-		switch( cent->currentState.NPC_class )
-		{// UQ1: Supported Class Types...
-		case CLASS_CIVILIAN:
-			str2 = va("< Civilian >");
-			tclr[0] = 0.125f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.7f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.125f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.7f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_REBEL:
-			str2 = va("< Rebel >");
-			tclr[0] = 0.125f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.7f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.125f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.7f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_JEDI:
-		case CLASS_KYLE:
-		case CLASS_LUKE:
-		case CLASS_JAN:
-		case CLASS_MONMOTHA:			
-		case CLASS_MORGANKATARN:
-			str2 = va("< Jedi >");
-			tclr[0] = 0.125f;
-			tclr[1] = 0.325f;
-			tclr[2] = 0.7f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.125f;
-			tclr2[1] = 0.325f;
-			tclr2[2] = 0.7f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_GENERAL_VENDOR:
-			str2 = va("< General Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_WEAPONS_VENDOR:
-			str2 = va("< Weapons Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_ARMOR_VENDOR:
-			str2 = va("< Armor Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_SUPPLIES_VENDOR:
-			str2 = va("< Supplies Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_FOOD_VENDOR:
-			str2 = va("< Food Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_MEDICAL_VENDOR:
-			str2 = va("< Medical Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_GAMBLER_VENDOR:
-			str2 = va("< Gambling Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_TRADE_VENDOR:
-			str2 = va("< Trade Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_ODDITIES_VENDOR:
-			str2 = va("< Oddities Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_DRUG_VENDOR:
-			str2 = va("< Drug Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_TRAVELLING_VENDOR:
-			str2 = va("< Travelling Vendor >");
-			tclr[0] = 0.525f;
-			tclr[1] = 0.525f;
-			tclr[2] = 1.0f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.525f;
-			tclr2[1] = 0.525f;
-			tclr2[2] = 1.0f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_STORMTROOPER:
-		case CLASS_SWAMPTROOPER:
-		case CLASS_IMPWORKER:
-		case CLASS_IMPERIAL:
-		case CLASS_SHADOWTROOPER:
-		case CLASS_COMMANDO:
-			str2 = va("< Imperial >");
-			tclr[0] = 1.0f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.125f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 1.0f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.125f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_TAVION:
-		case CLASS_REBORN:
-		case CLASS_DESANN:
-			str2 = va("< Sith >");
-			tclr[0] = 1.0f;
-			tclr[1] = 0.325f;
-			tclr[2] = 0.125f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 1.0f;
-			tclr2[1] = 0.325f;
-			tclr2[2] = 0.125f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_BOBAFETT:
-			str2 = va("< Bounty Hunter >");
-			tclr[0] = 1.0f;
-			tclr[1] = 0.225f;
-			tclr[2] = 0.125f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 1.0f;
-			tclr2[1] = 0.225f;
-			tclr2[2] = 0.125f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_ATST:
-			str2 = va("< Vehicle >");
-			tclr[0] = 1.0f;
-			tclr[1] = 0.225f;
-			tclr[2] = 0.125f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 1.0f;
-			tclr2[1] = 0.225f;
-			tclr2[2] = 0.125f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_CLAW:
-		case CLASS_FISH:
-		case CLASS_FLIER2:
-		case CLASS_GLIDER:
-		case CLASS_HOWLER:
-		case CLASS_LIZARD:
-		case CLASS_MINEMONSTER:
-		case CLASS_SWAMP:
-		case CLASS_RANCOR:
-		case CLASS_WAMPA:
-			str2 = va("< Animal >");
-			tclr[0] = 1.0f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.125f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 1.0f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.125f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_VEHICLE:
-			str2 = va("< Vehicle >");
-			tclr[0] = 1.0f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.125f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 1.0f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.125f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_BESPIN_COP:
-		case CLASS_LANDO:
-		case CLASS_PRISONER:
-			str2 = va("< Rebel >");
-			tclr[0] = 0.125f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.7f;
-			tclr[3] = 1.0f;
-
-			tclr2[0] = 0.125f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.7f;
-			tclr2[3] = 1.0f;
-			break;
-		case CLASS_GALAK:
-		case CLASS_GRAN:
-		case CLASS_REELO:
-		case CLASS_MURJJ:
-		case CLASS_RODIAN:
-		case CLASS_TRANDOSHAN:
-		case CLASS_UGNAUGHT:
-		case CLASS_WEEQUAY:
-		case CLASS_BARTENDER:
-		case CLASS_JAWA:
-			if (cent->playerState->persistant[PERS_TEAM] == NPCTEAM_ENEMY)
-			{
-				str2 = va("< Thug >");
-				tclr[0] = 0.5f;
-				tclr[1] = 0.5f;
-				tclr[2] = 0.125f;
-				tclr[3] = 1.0f;
-
-				tclr2[0] = 0.5f;
-				tclr2[1] = 0.5f;
-				tclr2[2] = 0.125f;
-				tclr2[3] = 1.0f;
-			}
-			else if (cent->playerState->persistant[PERS_TEAM] == NPCTEAM_PLAYER)
-			{
-				str2 = va("< Rebel >");
-				tclr[0] = 0.125f;
-				tclr[1] = 0.125f;
-				tclr[2] = 0.7f;
-				tclr[3] = 1.0f;
-
-				tclr2[0] = 0.125f;
-				tclr2[1] = 0.125f;
-				tclr2[2] = 0.7f;
-				tclr2[3] = 1.0f;
-			}
-			else
-			{
-				str2 = va("< Civilian >");
-				tclr[0] = 0.7f;
-				tclr[1] = 0.7f;
-				tclr[2] = 0.125f;
-				tclr[3] = 1.0f;
-
-				tclr2[0] = 0.7f;
-				tclr2[1] = 0.7f;
-				tclr2[2] = 0.125f;
-				tclr2[3] = 1.0f;
-			}
-			break;
-		
-		default:
-			//CG_Printf("NPC %i is not a civilian or vendor (class %i).\n", cent->currentState.number, cent->currentState.NPC_class);
-			continue; // Unsupported...
-			break;
-		}
-
-		if (cent->currentState.generic1 > 0)
-		{// Was assigned a full name already! Yay!
-			switch( cent->currentState.NPC_class )
-			{// UQ1: Supported Class Types...
-			case CLASS_CIVILIAN:
-			case CLASS_GENERAL_VENDOR:
-			case CLASS_WEAPONS_VENDOR:
-			case CLASS_ARMOR_VENDOR:
-			case CLASS_SUPPLIES_VENDOR:
-			case CLASS_FOOD_VENDOR:
-			case CLASS_MEDICAL_VENDOR:
-			case CLASS_GAMBLER_VENDOR:
-			case CLASS_TRADE_VENDOR:
-			case CLASS_ODDITIES_VENDOR:
-			case CLASS_DRUG_VENDOR:
-			case CLASS_TRAVELLING_VENDOR:
-			case CLASS_LUKE:
-			case CLASS_JEDI:
-			case CLASS_KYLE:
-			case CLASS_JAN:
-			case CLASS_MONMOTHA:			
-			case CLASS_MORGANKATARN:
-			case CLASS_TAVION:
-			case CLASS_REBORN:
-			case CLASS_DESANN:
-			case CLASS_BOBAFETT:
-			case CLASS_COMMANDO:
-			case CLASS_WEEQUAY:
-			case CLASS_BARTENDER:
-			case CLASS_BESPIN_COP:
-			case CLASS_GALAK:
-			case CLASS_GRAN:
-			case CLASS_LANDO:			
-			case CLASS_REBEL:
-			case CLASS_REELO:
-			case CLASS_MURJJ:
-			case CLASS_PRISONER:
-			case CLASS_RODIAN:
-			case CLASS_TRANDOSHAN:
-			case CLASS_UGNAUGHT:
-			case CLASS_JAWA:
-				str1 = va("%s", NPC_NAME_LIST[cent->currentState.generic1].HumanNames);
-				break;
-			case CLASS_STORMTROOPER:
-			case CLASS_SWAMPTROOPER:
-			case CLASS_IMPWORKER:
-			case CLASS_IMPERIAL:
-			case CLASS_SHADOWTROOPER:
-				str1 = va("TK-%i", cent->currentState.generic1);	// EVIL. for a number of reasons --eez
-				break;
-			case CLASS_ATST:				// technically droid...
-				str1 = va("AT-ST");
-				break;
-			case CLASS_CLAW:
-				str1 = va("Claw");
-				break;
-			case CLASS_FISH:
-				str1 = va("Sea Creature");
-				break;
-			case CLASS_FLIER2:
-				str1 = va("Flier");
-				break;
-			case CLASS_GLIDER:
-				str1 = va("Glider");
-				break;
-			case CLASS_HOWLER:
-				str1 = va("Howler");
-				break;
-			case CLASS_LIZARD:
-				str1 = va("Lizard");
-				break;
-			case CLASS_MINEMONSTER:
-				str1 = va("Mine Monster");
-				break;
-			case CLASS_SWAMP:
-				str1 = va("Swamp Monster");
-				break;
-			case CLASS_RANCOR:
-				str1 = va("Rancor");
-				break;
-			case CLASS_WAMPA:
-				str1 = va("Wampa");
-				break;
-			case CLASS_VEHICLE:
-				str1 = va("");
-				break;
-			default:
-				//CG_Printf("NPC %i is not a civilian or vendor (class %i).\n", cent->currentState.number, cent->currentState.NPC_class);
-				continue; // Unsupported...
-				break;
-			}
-		}
-		else
-		{
-			continue;
-		}
-
-		if (cent->currentState.eFlags & EF_DEAD)
-		{
-			//CG_Printf("NPC is dead.\n");
-			continue;
-		}
-
-		if (cent->currentState.eFlags & EF_NODRAW)
-		{
-			//CG_Printf("NPC is NODRAW.\n");
-			continue;
-		}
-
-		VectorCopy( cent->lerpOrigin, origin );
-		origin[2] += 30;//60;
-
-		// Account for ducking
-		if ( cent->playerState->pm_flags & PMF_DUCKED )
-			origin[2] -= 18;
-	
-		// Draw the NPC name!
-		if (!CG_WorldCoordToScreenCoordFloat(origin, &x, &y))
-		{
-			//CG_Printf("FAILED %i screen coords are %fx%f. (%f %f %f)\n", cent->currentState.number, x, y, origin[0], origin[1], origin[2]);
-			continue;
-		}
-
-		if (x < 0 || x > 640 || y < 0 || y > 480)
-		{
-			//CG_Printf("FAILED2 %i screen coords are %fx%f. (%f %f %f)\n", cent->currentState.number, x, y, origin[0], origin[1], origin[2]);
-			continue;
-		}
-
-		VectorCopy( cent->lerpOrigin, origin );
-		origin[2] += 25;//50;
-
-		// Account for ducking
-		if ( cent->playerState->pm_flags & PMF_DUCKED )
-			origin[2] -= 18;
-
-		dist = Distance(cg.snap->ps.origin, origin);
-		
-		if (dist > 1024.0f/*2500.0f*/) continue; // Too far...
-		if (dist < 192.0f/*d_roff.value*//*350.0f*/) multiplier = 200.0f/*d_poff.value*//dist; // Cap short ranges...
-
-		if (!CG_WorldCoordToScreenCoordFloat(origin, &x2, &y2))
-		{
-			//CG_Printf("FAILED %i screen coords are %fx%f. (%f %f %f)\n", cent->currentState.number, x, y, origin[0], origin[1], origin[2]);
-			continue;
-		}
-
-		if (x2 < 0 || x2 > 640 || y2 < 0 || y2 > 480)
-		{
-			//CG_Printf("FAILED2 %i screen coords are %fx%f. (%f %f %f)\n", cent->currentState.number, x, y, origin[0], origin[1], origin[2]);
-			continue;
-		}
-
-		//CG_Printf("%i screen coords are %fx%f. (%f %f %f)\n", cent->currentState.number, x, y, origin[0], origin[1], origin[2]);
-
-		if (!CG_CheckClientVisibility(cent))
-		{
-			//CG_Printf("NPC is NOT visible.\n");
-			continue;
-		}
-
-		//CG_Printf("%i screen coords are %fx%f. (%f %f %f)\n", cent->currentState.number, x, y, origin[0], origin[1], origin[2]);
-
-		CG_SanitizeString(str1, sanitized1);
-		CG_SanitizeString(str2, sanitized2);
-		
-		size = dist * 0.0002;
-		
-		if (size > 0.99f) size = 0.99f;
-		if (size < 0.01f) size = 0.01f;
-
-		size = 1 - size;
-
-		size *= 0.3;
-
-		w = CG_Text_Width(sanitized1, size*2, FONT_SMALL);
-		y = y + CG_Text_Height(sanitized1, size*2, FONT_SMALL);
-		x -= (w * 0.5f);
-		
-		w2 = CG_Text_Width(sanitized2, size*1.5, FONT_SMALL3);
-		x2 -= (w2 * 0.5f);
-		y2 = y + 6 + CG_Text_Height(sanitized1, size*2, FONT_SMALL);
-
-		CG_Text_Paint( x, (y*(1-size))+((30*(1-size))*(1-size))+sqrt(sqrt((1-size)*30))+((1-multiplier)*30), size*2, tclr, sanitized1, 0, 0, ITEM_TEXTSTYLE_SHADOWED, FONT_SMALL);
-		CG_Text_Paint( x2, (y2*(1-size))+((30*(1-size))*(1-size))+sqrt(sqrt((1-size)*30))+((1-multiplier)*30), size*1.5, tclr2, sanitized2, 0, 0, ITEM_TEXTSTYLE_SHADOWED, FONT_SMALL3);
-
-		//CG_Printf("Draw %s - %s as size %f.\n", sanitized1, sanitized2, size);
-	}
-}
-
 /*
 =====================
 CG_DrawCrosshairNames
@@ -6532,18 +5889,11 @@ static void CG_DrawCrosshairNames( void ) {
 		return;
 	}
 	//rww - still do the trace, our dynamic crosshair depends on it
-
-	// TESTING EXTRASTATE
-	/*if ( cg_entities[cg.crosshairClientNum].extraState.testInt > 100 )
-	{
-		UI_DrawProportionalString (320, 170, "HERE BE WEREWOLVES", UI_CENTER, colorTable[CT_WHITE]);
-		return;
-	}*/
     
     //[USE_ITEMS]
     if ( cg_entities[cg.crosshairClientNum].currentState.eType == ET_ITEM )
     {
-        UI_DrawProportionalString (320, 170, "Press E to pick up weapon", UI_CENTER, colorTable[CT_WHITE], FONT_MEDIUM);
+        UI_DrawProportionalString (320, 170, "Press E to pick up weapon", UI_CENTER, colorTable[CT_WHITE]);
         return;
     }
     else
@@ -6565,19 +5915,7 @@ static void CG_DrawCrosshairNames( void ) {
 
 	if (cg.crosshairClientNum >= MAX_CLIENTS)
 	{
-		/*centity_t *NPC = &cg_entities[cg.crosshairClientNum];
-
-		if (NPC->currentState.eType == ET_NPC
-			&& NPC->currentState.NPC_class == CLASS_CIVILIAN
-			&& NPC->currentState.generic1 > 0
-			&& NPC->currentState.generic1 < NPC_NT_NUM)
-		{// Civilian NPCs should show that they are... (FIXME: Also add shopkeeper names!)
-
-		}
-		else*/
-		{
-			return;
-		}
+		return;
 	}
 
 	if (cg_entities[cg.crosshairClientNum].currentState.powerups & (1 << PW_CLOAKED))
@@ -6592,20 +5930,11 @@ static void CG_DrawCrosshairNames( void ) {
 		return;
 	}
 
-	/*if (cg_entities[cg.crosshairClientNum].currentState.eType == ET_NPC
-		&& cg_entities[cg.crosshairClientNum].currentState.NPC_class == CLASS_CIVILIAN
-		&& cg_entities[cg.crosshairClientNum].currentState.generic1 > 0
-		&& cg_entities[cg.crosshairClientNum].currentState.generic1 < NPC_NT_NUM)
-	{// Civilian NPCs should show that they are... (FIXME: Also add shopkeeper names!)
-		name = va("^5[ ^3Civilian %s ^5]", NPC_NAMES[cg_entities[cg.crosshairClientNum].currentState.generic1]);
-	}
-	else*/
-	{
-		name = cgs.clientinfo[ cg.crosshairClientNum ].name;
-	}
+	name = cgs.clientinfo[ cg.crosshairClientNum ].name;
 
 	if (cgs.gametype >= GT_TEAM)
 	{
+		//if (cgs.gametype == GT_SIEGE)
 		if (1)
 		{ //instead of team-based we'll make it oriented based on which team we're on
 			if (cgs.clientinfo[cg.crosshairClientNum].team == cg.predictedPlayerState.persistant[PERS_TEAM])
@@ -6632,14 +5961,7 @@ static void CG_DrawCrosshairNames( void ) {
 	else
 	{
 		//baseColor = CT_WHITE;
-		/*if (cg_entities[cg.crosshairClientNum].currentState.eType == ET_NPC
-			&& cg_entities[cg.crosshairClientNum].currentState.NPC_class == CLASS_CIVILIAN
-			&& cg_entities[cg.crosshairClientNum].currentState.generic1 > 0
-			&& cg_entities[cg.crosshairClientNum].currentState.generic1 < NPC_NT_NUM)
-		{// Civilian NPCs should show that they are... (FIXME: Also add shopkeeper names!)
-			baseColor = CT_WHITE;
-		}
-		else*/ if (cgs.gametype == GT_POWERDUEL &&
+		if (cgs.gametype == GT_POWERDUEL &&
 			cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR &&
 			cgs.clientinfo[cg.crosshairClientNum].duelTeam == cgs.clientinfo[cg.predictedPlayerState.clientNum].duelTeam)
 		{ //on the same duel team in powerduel, so he's a friend
@@ -6675,11 +5997,11 @@ static void CG_DrawCrosshairNames( void ) {
 	{
 		char str[MAX_STRING_CHARS];
 		Com_sprintf(str, MAX_STRING_CHARS, "%s (pilot)", sanitized);
-		UI_DrawProportionalString(320, 170, str, UI_CENTER, tcolor, FONT_MEDIUM);
+		UI_DrawProportionalString(320, 170, str, UI_CENTER, tcolor);
 	}
 	else
 	{
-		UI_DrawProportionalString(320, 170, sanitized, UI_CENTER, tcolor, FONT_MEDIUM);
+		UI_DrawProportionalString(320, 170, sanitized, UI_CENTER, tcolor);
 	}
 
 	trap_R_SetColor( NULL );
@@ -6817,10 +6139,6 @@ static void CG_DrawVote(void) {
 		if      ( stricmp("Free For All", cgs.voteString+11)==0 ) 
 		{
 			sParm = CG_GetStringEdString("MENUS", "FREE_FOR_ALL");
-		}
-		else if      ( stricmp("Warzone", cgs.voteString+11)==0 ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "WARZONE");
 		}
 		else if ( stricmp("Duel", cgs.voteString+11)==0 ) 
 		{
@@ -7154,7 +6472,8 @@ static void CG_DrawWarmup( void ) {
 	int			w;
 	int			sec;
 	int			i;
-	float		scale, cw;
+	float scale;
+	int			cw;
 	const char	*s;
 
 	sec = cg.warmup;
@@ -7223,14 +6542,14 @@ static void CG_DrawWarmup( void ) {
 	} else {
 		if ( cgs.gametype == GT_FFA ) {
 			s = CG_GetStringEdString("MENUS", "FREE_FOR_ALL");//"Free For All";
-		} else if ( cgs.gametype == GT_WARZONE ) {
-			s = CG_GetStringEdString("MENUS", "WARZONE");//"Warzone";
 		} else if ( cgs.gametype == GT_HOLOCRON ) {
 			s = CG_GetStringEdString("MENUS", "HOLOCRON_FFA");//"Holocron FFA";
 		} else if ( cgs.gametype == GT_JEDIMASTER ) {
 			s = CG_GetStringEdString("MENUS", "POWERDUEL");//"Jedi Master";??
 		} else if ( cgs.gametype == GT_TEAM ) {
 			s = CG_GetStringEdString("MENUS", "TEAM_FFA");//"Team FFA";
+		} else if ( cgs.gametype == GT_SIEGE ) {
+			s = CG_GetStringEdString("MENUS", "SIEGE");//"Siege";
 		} else if ( cgs.gametype == GT_CTF ) {
 			s = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");//"Capture the Flag";
 		} else if ( cgs.gametype == GT_CTY ) {
@@ -7252,7 +6571,9 @@ static void CG_DrawWarmup( void ) {
 	if ( sec != cg.warmupCount ) {
 		cg.warmupCount = sec;
 
-		switch ( sec ) {
+		if (cgs.gametype != GT_SIEGE)
+		{
+			switch ( sec ) {
 			case 0:
 				trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
 				break;
@@ -7264,6 +6585,7 @@ static void CG_DrawWarmup( void ) {
 				break;
 			default:
 				break;
+			}
 		}
 	}
 	scale = 0.45f;
@@ -7400,7 +6722,7 @@ void CG_DrawJetpackCloak(menuDef_t *menuHUD) {
 	}
 
 	percent /= 100;
-	//percent *= 0.75f;
+	percent *= 0.75f;
 
 	focusItem = Menu_FindItemByName(menuHUD, "bar1");
 	if (focusItem)
@@ -7632,13 +6954,193 @@ vec3_t gCGFallVector;
 CG_Draw2D
 =================
 */
+extern int cgSiegeRoundState;
+extern int cgSiegeRoundTime;
+
+extern int team1Timed;
+extern int team2Timed;
+
+int cg_beatingSiegeTime = 0;
+
+int cgSiegeRoundBeganTime = 0;
+int cgSiegeRoundCountTime = 0;
+
+static void CG_DrawSiegeTimer(int timeRemaining, qboolean isMyTeam)
+{ //rwwFIXMEFIXME: Make someone make assets and use them.
+  //this function is pretty much totally placeholder.
+//	int x = 0;
+//	int y = SCREEN_HEIGHT-160;
+	int fColor = 0;
+	int minutes = 0;
+	int seconds = 0;
+	char timeStr[1024];
+	menuDef_t	*menuHUD = NULL;
+	itemDef_t	*item = NULL;
+
+	menuHUD = Menus_FindByName("mp_timer");
+	if (!menuHUD)
+	{
+		return;
+	}
+
+	item = Menu_FindItemByName(menuHUD, "frame");
+
+	if (item)
+	{
+		trap_R_SetColor( item->window.foreColor );
+		CG_DrawPic( 
+			item->window.rect.x, 
+			item->window.rect.y, 
+			item->window.rect.w, 
+			item->window.rect.h, 
+			item->window.background );
+	}
+
+	seconds = timeRemaining;
+
+	while (seconds >= 60)
+	{
+		minutes++;
+		seconds -= 60;
+	}
+
+	strcpy(timeStr, va( "%i:%02i", minutes, seconds ));
+
+	if (isMyTeam)
+	{
+		fColor = CT_HUD_RED;
+	}
+	else
+	{
+		fColor = CT_HUD_GREEN;
+	}
+
+//	trap_Cvar_Set("ui_siegeTimer", timeStr);
+
+//	UI_DrawProportionalString( x+16, y+40, timeStr,
+//		UI_SMALLFONT|UI_DROPSHADOW, colorTable[fColor] );
+
+	item = Menu_FindItemByName(menuHUD, "timer");
+	if (item)
+	{
+		UI_DrawProportionalString( 
+			item->window.rect.x, 
+			item->window.rect.y, 
+			timeStr,
+			UI_SMALLFONT|UI_DROPSHADOW, 
+			colorTable[fColor] );
+	}
+
+}
+
+static void CG_DrawSiegeDeathTimer( int timeRemaining )
+{
+	int minutes = 0;
+	int seconds = 0;
+	char timeStr[1024];
+	menuDef_t	*menuHUD = NULL;
+	itemDef_t	*item = NULL;
+
+	menuHUD = Menus_FindByName("mp_timer");
+	if (!menuHUD)
+	{
+		return;
+	}
+
+	item = Menu_FindItemByName(menuHUD, "frame");
+
+	if (item)
+	{
+		trap_R_SetColor( item->window.foreColor );
+		CG_DrawPic( 
+			item->window.rect.x, 
+			item->window.rect.y, 
+			item->window.rect.w, 
+			item->window.rect.h, 
+			item->window.background );
+	}
+
+	seconds = timeRemaining;
+
+	while (seconds >= 60)
+	{
+		minutes++;
+		seconds -= 60;
+	}
+
+	if (seconds < 10)
+	{
+		strcpy(timeStr, va( "%i:0%i", minutes, seconds ));
+	}
+	else
+	{
+		strcpy(timeStr, va( "%i:%i", minutes, seconds ));
+	}
+
+	item = Menu_FindItemByName(menuHUD, "deathtimer");
+	if (item)
+	{
+		UI_DrawProportionalString( 
+			item->window.rect.x, 
+			item->window.rect.y, 
+			timeStr,
+			UI_SMALLFONT|UI_DROPSHADOW, 
+			item->window.foreColor );
+	}
+	
+}
+
+int cgSiegeEntityRender = 0;
+
+static void CG_DrawSiegeHUDItem(void)
+{
+	void *g2;
+	qhandle_t handle;
+	vec3_t origin, angles;
+	vec3_t mins, maxs;
+	float len;
+	centity_t *cent = &cg_entities[cgSiegeEntityRender];
+
+	if (cent->ghoul2)
+	{
+		g2 = cent->ghoul2;
+		handle = 0;
+	}
+	else
+	{
+		handle = cgs.gameModels[cent->currentState.modelindex];
+		g2 = NULL;
+	}
+
+	if (handle)
+	{
+		trap_R_ModelBounds( handle, mins, maxs );
+	}
+	else
+	{
+		VectorSet(mins, -16, -16, -20);
+		VectorSet(maxs, 16, 16, 32);
+	}
+
+	origin[2] = -0.5f * ( mins[2] + maxs[2] );
+	origin[1] = 0.5f * ( mins[1] + maxs[1] );
+	len = 0.5f * ( maxs[2] - mins[2] );		
+	origin[0] = len / 0.268f;
+
+	VectorClear(angles);
+	angles[YAW] = cg.autoAngles[YAW];
+
+	CG_Draw3DModel( 8, 8, 64, 64, handle, g2, cent->currentState.g2radius, 0, origin, angles );
+
+	cgSiegeEntityRender = 0; //reset for next frame
+}
 
 /*====================================
 chatbox functionality -rww
 
 This here is gettin some hefty modification here to work in JKG
 ====================================*/
-#define	CHATBOX_CUTOFF_LEN	216 //550
+#define	CHATBOX_CUTOFF_LEN	225 //550
 #define	CHATBOX_FONT_HEIGHT	8 //20
 
 //utility func, insert a string into a string at the specified
@@ -7671,6 +7173,29 @@ static const char *ChatBox_UnescapeChat(const char *message) {
 	}
 	*s = 0;
 	return &buff[0];
+}
+
+static int Text_IsExtColorCode(const char *text) {
+	const char *r, *g, *b;
+	if ( strlen (text) < 4 )
+	{
+	    return 0;
+	}
+	
+	r = text+1;
+	g = text+2;
+	b = text+3;
+	// Get the color levels (if the numbers are invalid, it'll return -1, which we can use to validate)
+	if ((*r < '0' || *r > '9') && (*r < 'a' || *r > 'f') && (*r < 'A' || *r > 'F')) {
+		return 0;
+	}
+	if ((*g < '0' || *g > '9') && (*g < 'a' || *g > 'f') && (*g < 'A' || *g > 'F')) {
+		return 0;
+	}
+	if ((*b < '0' || *b > '9') && (*b < 'a' || *b > 'f') && (*b < 'A' || *b > 'F')) {
+		return 0;
+	}
+	return 1;
 }
 
 const char *CG_ChatBox_TimeStamp()
@@ -7710,9 +7235,8 @@ void CG_ChatBox_AddString(char *chatStr, int fadeLevel)
 
 	// Trick: instead of usin the right scale, get the length at scale 1
 	// then scale down with a float, so we dont get rounding errors
-	//chatLen = trap_R_Font_StrLenPixels(chat->string, cgDC.Assets.qhSmall4Font, 1); //CG_Text_Width(chat->string, 1.0f, FONT_SMALL);
-	//chatLen *= 0.5f;
-	chatLen = strlen(chat->string)*4;
+	chatLen = trap_R_Font_StrLenPixels(chat->string, cgDC.Assets.qhSmallFont, 1); //CG_Text_Width(chat->string, 1.0f, FONT_SMALL);
+	chatLen *= 0.4f;
 
 	if (chatLen > CHATBOX_CUTOFF_LEN)
 	{ //we have to break it into segments...
@@ -7736,10 +7260,8 @@ void CG_ChatBox_AddString(char *chatStr, int fadeLevel)
 				}
 			}
 			*writeptr = chat->string[i];
-			//chatLen = ((float)trap_R_Font_StrLenPixels(buffer, cgDC.Assets.qhSmall4Font, 1) * 0.5f); //CG_Text_Width(s, 0.65f, FONT_SMALL);
+			chatLen = ((float)trap_R_Font_StrLenPixels(buffer, cgDC.Assets.qhSmallFont, 1) * 0.4f); //CG_Text_Width(s, 0.65f, FONT_SMALL);
 			//chatLen += trap_R_Font_StrLenPixels(s, cgDC.Assets.qhSmallFont, 0.4f); //CG_Text_Width(s, 0.65f, FONT_SMALL);
-			//The above is pretty derpy...
-			chatLen = strlen(buffer)*4;
             writeptr++;
 			if (chatLen >= CHATBOX_CUTOFF_LEN )
 			{
@@ -7783,21 +7305,21 @@ void CG_ChatBox_AddString(char *chatStr, int fadeLevel)
 	}
 	// Check if we exceeded the maximum line count
 	linecount = 0;
-	for (i=0; i<MAX_CHATBOX_ITEMS; i++) {
-		int idx = (cg.chatItemNext + i) % MAX_CHATBOX_ITEMS;
+	for (i=0; i<12; i++) {
+		int idx = (cg.chatItemNext + i) % 12;
 		if (!cg.chatItems[idx].active) {
 			continue;
 		}
 		linecount += cg.chatItems[idx].lines;
 	}
-	if (linecount > MAX_CHATBOX_ITEMS) {
+	if (linecount > 12) {
 		// We exceeded our limit, start removing old entries until we're under 12 again
-		for (i=0; i<MAX_CHATBOX_ITEMS; i++) {
-			int idx = (cg.chatItemNext + i) % MAX_CHATBOX_ITEMS;
+		for (i=0; i<12; i++) {
+			int idx = (cg.chatItemNext + i) % 12;
 			if (cg.chatItems[idx].active) {
 				linecount -= cg.chatItems[idx].lines;
 				cg.chatItems[idx].active = 0;
-				if (linecount <= MAX_CHATBOX_ITEMS) {
+				if (linecount <= 12) {
 					break;
 				}
 			}
@@ -7880,175 +7402,6 @@ static CGAME_INLINE void CG_ChatBox_DrawStrings(void)
 	}
 }
 */
-
-
-//===============================================================
-//
-// NOTIFICATION SYSTEM
-//
-// In the future, this will have two kinds of notifications:
-// - Push notification
-// This functions like a Windows message box of sorts
-// - Message notifications
-// This just adds messages to a box, like chat
-//
-// VERSUS ONLY: For right now, we only have Message type notifications
-//===============================================================
-
-
-void CG_Notifications_Add(char *string, qboolean weapon)
-{
-	char buffer[MAX_NOTIFICATION_CHARS];
-	notificationItem_t *notify = &cg.notificationBox[cg.notifyNext];
-	int linecount, i;
-
-	// Weapon notifications replace one that already exists
-	if( weapon )
-	{
-		int whatWeGot = 0;
-		for( i = 0; i < MAX_MESSAGE_NOTIFICATIONS; i++ )
-		{
-			if( cg.notificationBox[i].weaponNotification )
-			{
-				// Set it as this one, if it's showing
-				if( cg.time < (cg.notificationBox[i].active+(MESSAGE_NOTIFICATION_TIME/2)+MESSAGE_NOTIFICATION_FADE_TIME) )
-				{
-					notify = &cg.notificationBox[i];
-				}
-			}
-		}
-
-		// String is stringed
-		if(string[0] == '@')
-		{
-			whatWeGot = trap_SP_GetStringTextString( string+1, buffer, MAX_NOTIFICATION_CHARS );
-		}
-		else if(!Q_stricmpn(string, "??@", 3))
-		{
-			whatWeGot = trap_SP_GetStringTextString( string+3, buffer, MAX_NOTIFICATION_CHARS );
-		}
-		else
-		{
-			whatWeGot = trap_SP_GetStringTextString( string, buffer, MAX_NOTIFICATION_CHARS );
-		}
-		if(whatWeGot)
-		{
-			strcpy(string, buffer);
-		}
-
-		// Strip all newlines out of it and replace 'em with spaces
-		for(i = 0; i < strlen(string) && string[i]; i++)
-		{
-			if(string[i] == '\n')
-			{
-				string[i] = ' ';
-			}
-		}
-	}
-
-	memset(notify, 0, sizeof(notificationItem_t));
-
-	strcpy(notify->string, string);
-
-	notify->active = cg.time;
-	notify->weaponNotification = weapon;
-	notify->lines = 1;
-
-	notify->alpha = 1.0f;
-
-	cg.notifyNext++; 
-	if (cg.notifyNext >= MAX_MESSAGE_NOTIFICATIONS)
-	{
-		cg.notifyNext = 0;
-	}
-
-	// Check if we exceeded the maximum line count
-	linecount = 0;
-	for (i=0; i<MAX_MESSAGE_NOTIFICATIONS; i++) {
-		int idx = (cg.notifyNext + i) % MAX_MESSAGE_NOTIFICATIONS;
-		if (!cg.notificationBox[idx].active) {
-			continue;
-		}
-		linecount += cg.notificationBox[idx].lines;
-	}
-	if (linecount > MAX_MESSAGE_NOTIFICATIONS) {
-		// We exceeded our limit, start removing old entries until we're under 12 again
-		for (i=0; i<MAX_MESSAGE_NOTIFICATIONS; i++) {
-			int idx = (cg.notifyNext + i) % MAX_MESSAGE_NOTIFICATIONS;
-			if (cg.notificationBox[idx].active) {
-				linecount -= cg.notificationBox[idx].lines;
-				cg.notificationBox[idx].active = 0;
-				if (linecount <= MAX_MESSAGE_NOTIFICATIONS) {
-					break;
-				}
-			}
-		}
-	}
-
-}
-
-void CG_RemoveMessageNotification(int num)
-{
-	// Drop this message from the stack, shifting everything else up
-	int i;
-	for ( i = num; i < MAX_MESSAGE_NOTIFICATIONS-1; i++ )
-	{
-		memcpy(&cg.notificationBox[i], &cg.notificationBox[i+1], sizeof(notificationItem_t));
-	}
-	cg.notificationBox[MAX_MESSAGE_NOTIFICATIONS-1].active = 0;
-	cg.notificationBox[MAX_MESSAGE_NOTIFICATIONS-1].alpha = 0;
-}
-
-void CG_DrawMessageNotifications(void)
-{
-	menuDef_t *menuHUD;
-	itemDef_t *item;
-	int i;
-	float x, y, w;
-	float textHeight;
-	vec4_t color;
-
-	menuHUD = Menus_FindByName("hud_minimap");
-	if (!menuHUD) {
-		return;
-	}
-
-	item = Menu_FindItemByName(menuHUD, "notifications");
-	if (!item)
-	{
-		return;
-	}
-
-	x = item->window.rect.x;
-	y = item->window.rect.y;
-	w = item->window.rect.w;
-	textHeight = (trap_R_Font_HeightPixels(item->iMenuFont, 1.0f)*item->textscale);
-	VectorCopy4(item->window.foreColor, color);
-
-
-	for( i = 0; i < MAX_MESSAGE_NOTIFICATIONS; i++ )
-	{
-		int messageNotifyTime = cg.notificationBox[i].weaponNotification ? (MESSAGE_NOTIFICATION_TIME/2) : MESSAGE_NOTIFICATION_TIME;
-		if(cg.time > cg.notificationBox[i].active+messageNotifyTime+MESSAGE_NOTIFICATION_FADE_TIME)
-		{
-			// Already faded out and dealt with
-			CG_RemoveMessageNotification(i);
-		}
-		else if(cg.time > cg.notificationBox[i].active+messageNotifyTime)
-		{
-			// Fading out. Take care of that.
-			cg.notificationBox[i].alpha = (float)(1-(((double)cg.time - ((double)cg.notificationBox[i].active+(double)messageNotifyTime))/(double)MESSAGE_NOTIFICATION_FADE_TIME));
-		}
-		// The notifications are right aligned, so do some fancy crap here
-		color[3] = cg.notificationBox[i].alpha;
-		if(color[3] > 0)
-		{
-			// Optimization --eez
-			CG_Text_Paint(x + w - (trap_R_Font_StrLenPixels(cg.notificationBox[i].string, item->iMenuFont, 1.0f)*item->textscale) , y + (i*textHeight),
-				item->textscale, color, cg.notificationBox[i].string, 0, -1, 0, item->iMenuFont);
-		}
-	}
-}
 
 float CG_GetLowHealthPhase(int reset, float multiplier) {
 	static int lastCallTime = 0;
@@ -8606,9 +7959,6 @@ void CinBuild_Visualize2D();
 void ChatBox_DrawBackdrop(menuDef_t *menu);
 void ChatBox_DrawChat(menuDef_t *menu);
 
-extern void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
-		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars, qhandle_t textShader );
-
 void CG_DrawChatbox() {
 	menuDef_t *menuHUD;
 	itemDef_t *item;
@@ -8619,7 +7969,7 @@ void CG_DrawChatbox() {
 	if (!menuHUD) {
 		return;
 	}
-#pragma region h_
+
 	item = Menu_FindItemByName(menuHUD, "h_local");
 	if (item) {
 		Vector4Copy(item->window.foreColor, tmpCol);
@@ -8650,12 +8000,12 @@ void CG_DrawChatbox() {
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
 	}
-#pragma endregion
+
 	ChatBox_DrawBackdrop(menuHUD);
 
 
 
-#pragma region frame
+
 	item = Menu_FindItemByName(menuHUD, "frame");
 	if (item) {
 		MAKERGBA(color, 1, 1, 1, cg.jkg_HUDOpacity);
@@ -8668,8 +8018,6 @@ void CG_DrawChatbox() {
 			item->window.background 
 			);	
 	}
-#pragma endregion
-#pragma region text
 	item = Menu_FindItemByName(menuHUD, "text");
 
 	if (item)
@@ -8689,28 +8037,24 @@ void CG_DrawChatbox() {
 			if (cg.chatItems[idx].active) {
 				ChatBox_SetPaletteAlpha(cg.chatItems[idx].alpha*cg.jkg_HUDOpacity);
 				color[3] = cg.chatItems[idx].alpha*cg.jkg_HUDOpacity;
-				/*trap_R_Font_DrawString(
+				trap_R_Font_DrawString(
 					item->window.rect.x,
-					item->window.rect.y + (line*6),
+					item->window.rect.y + (line*8),
 					cg.chatItems[idx].string,
 					color,
-					cgDC.Assets.qhSmall4Font | STYLE_DROPSHADOW,
+					cgDC.Assets.qhSmallFont | STYLE_DROPSHADOW,
 					-1,
-					0.45f);*/
-				CG_DrawStringExt(item->window.rect.x, item->window.rect.y + (line * 8),
-					cg.chatItems[idx].string,
-					color, qfalse, qfalse, 5, 8, strlen(cg.chatItems[idx].string), cgs.media.charset_Segoeui);
+					0.4f);
 				line += cg.chatItems[idx].lines;
 			}
 		}
 		ChatBox_SetPaletteAlpha(1);
 	}
-#pragma endregion
 	
 	MAKERGBA(color, 1, 1, 1, 1*cg.jkg_HUDOpacity);
 	trap_R_SetColor(color);
 
-	/*item = Menu_FindItemByName(menuHUD, "l_local");
+	item = Menu_FindItemByName(menuHUD, "l_local");
 	if (item) {
 		trap_R_Font_DrawString(
 				item->window.rect.x,
@@ -8753,13 +8097,12 @@ void CG_DrawChatbox() {
 				cgDC.Assets.qhSmallFont,
 				-1,
 				0.5f);
-	}*/
+	}
 	ChatBox_DrawChat(menuHUD);
 	// Time to draw guidance boxes for the other highlights
 }
 
 void ChatBox_CloseChat();
-extern void JKG_DoDebugController(void);
 static void CG_Draw2D( void ) {
 	float			inTime = cg.invenSelectTime+WEAPON_SELECT_TIME;
 	float			wpTime = cg.weaponSelectTime+WEAPON_SELECT_TIME;
@@ -8857,8 +8200,6 @@ static void CG_Draw2D( void ) {
 	}
 	CinBuild_Visualize2D();
 
-	JKG_DoDebugController();
-
 
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
 		CG_DrawIntermission();
@@ -8928,13 +8269,8 @@ static void CG_Draw2D( void ) {
 				}
 	      
 				//CG_DrawTemporaryStats();
-#ifdef __SWF__
-				CG_DrawPic(0, 0, 60, 60, cgs.media.swfTestShader);
-#endif
 
 				CG_DrawAmmoWarning();
-
-				CG_DrawMessageNotifications();
 
 				CG_DrawCrosshairNames();
 
@@ -8964,8 +8300,6 @@ static void CG_Draw2D( void ) {
 				case 1:
 					CG_DrawInvenSelect();
 					break;
-				case 2:
-					break; //??? weapon select isn't done?
 				case 3:
 					CG_DrawForceSelect();
 					break;
@@ -9047,9 +8381,6 @@ static void CG_Draw2D( void ) {
 		}
 	}
 
-	// UQ1: Added. Draw NPC civilian names over their heads...
-	CG_DrawNPCNames();
-
 	CG_DrawVote();
 	CG_DrawTeamVote();
 
@@ -9063,6 +8394,175 @@ static void CG_Draw2D( void ) {
 
 	if ( !CG_DrawFollow() ) {
 		CG_DrawWarmup();
+	}
+
+	if (cgSiegeRoundState)
+	{
+		char pStr[1024];
+		int rTime = 0;
+
+		//cgSiegeRoundBeganTime = 0;
+
+		switch (cgSiegeRoundState)
+		{
+		case 1:
+			CG_CenterPrint(CG_GetStringEdString("MP_INGAME", "WAITING_FOR_PLAYERS"), SCREEN_HEIGHT * 0.30f, BIGCHAR_WIDTH);
+			break;
+		case 2:
+			rTime = (SIEGE_ROUND_BEGIN_TIME - (cg.time - cgSiegeRoundTime));
+		
+			if (rTime < 0)
+			{
+				rTime = 0;
+			}
+			if (rTime > SIEGE_ROUND_BEGIN_TIME)
+			{
+				rTime = SIEGE_ROUND_BEGIN_TIME;
+			}
+
+			rTime /= 1000;
+
+			rTime += 1;
+
+			if (rTime < 1)
+			{
+				rTime = 1;
+			}
+
+			if (rTime <= 3 && rTime != cgSiegeRoundCountTime)
+			{
+				cgSiegeRoundCountTime = rTime;
+
+				switch (rTime)
+				{
+				case 1:
+					trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
+					break;
+				case 2:
+					trap_S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
+					break;
+				case 3:
+					trap_S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
+					break;
+				default:
+					break;
+				}
+			}
+
+			strcpy(pStr, va("%s %i...", CG_GetStringEdString("MP_INGAME", "ROUNDBEGINSIN"), rTime));
+			CG_CenterPrint(pStr, SCREEN_HEIGHT * 0.30f, BIGCHAR_WIDTH);
+			//same
+			break;
+		default:
+			break;
+		}
+
+		cgSiegeEntityRender = 0;
+	}
+	else if (cgSiegeRoundTime)
+	{
+		CG_CenterPrint("", SCREEN_HEIGHT * 0.30f, BIGCHAR_WIDTH);
+		cgSiegeRoundTime = 0;
+
+		//cgSiegeRoundBeganTime = cg.time;
+		cgSiegeEntityRender = 0;
+	}
+	else if (cgSiegeRoundBeganTime)
+	{ //Draw how much time is left in the round based on local info.
+		int timedTeam = TEAM_FREE;
+		int timedValue = 0;
+
+		if (cgSiegeEntityRender)
+		{ //render the objective item model since this client has it
+			CG_DrawSiegeHUDItem();
+		}
+
+		if (team1Timed)
+		{
+			timedTeam = TEAM_RED; //team 1
+			if (cg_beatingSiegeTime)
+			{
+				timedValue = cg_beatingSiegeTime;
+			}
+			else
+			{
+				timedValue = team1Timed;
+			}
+		}
+		else if (team2Timed)
+		{
+			timedTeam = TEAM_BLUE; //team 2
+			if (cg_beatingSiegeTime)
+			{
+				timedValue = cg_beatingSiegeTime;
+			}
+			else
+			{
+				timedValue = team2Timed;
+			}
+		}
+
+		if (timedTeam != TEAM_FREE)
+		{ //one of the teams has a timer
+			int timeRemaining;
+			qboolean isMyTeam = qfalse;
+
+			if (cgs.siegeTeamSwitch && !cg_beatingSiegeTime)
+			{ //in switchy mode but not beating a time, so count up.
+				timeRemaining = (cg.time-cgSiegeRoundBeganTime);
+				if (timeRemaining < 0)
+				{
+					timeRemaining = 0;
+				}
+			}
+			else
+			{
+				timeRemaining = (((cgSiegeRoundBeganTime)+timedValue) - cg.time);
+			}
+
+			if (timeRemaining > timedValue)
+			{
+				timeRemaining = timedValue;
+			}
+			else if (timeRemaining < 0)
+			{
+				timeRemaining = 0;
+			}
+
+			if (timeRemaining)
+			{
+				timeRemaining /= 1000;
+			}
+
+			if (cg.predictedPlayerState.persistant[PERS_TEAM] == timedTeam)
+			{ //the team that's timed is the one this client is on
+				isMyTeam = qtrue;
+			}
+
+			CG_DrawSiegeTimer(timeRemaining, isMyTeam);
+		}
+	}
+	else
+	{
+		cgSiegeEntityRender = 0;
+	}
+
+	if ( cg_siegeDeathTime )
+	{
+		int timeRemaining = ( cg_siegeDeathTime - cg.time );
+
+		if ( timeRemaining < 0 )
+		{
+			timeRemaining = 0;
+			cg_siegeDeathTime = 0;
+		}
+
+		if ( timeRemaining )
+		{
+			timeRemaining /= 1000;
+		}
+
+		CG_DrawSiegeDeathTimer( timeRemaining );
 	}
 
 	// don't draw center string if scoreboard is up
@@ -9094,8 +8594,6 @@ void CalculateBlur(ppBlurParams_t *blurParams);
 
 extern vmCvar_t r_bloom_factor;
 extern vmCvar_t r_bloom_threshold;
-
-extern void PP_PreRender (void);
 
 void CG_DrawActive( stereoFrame_t stereoView ) {
 	float		separation;
@@ -9155,16 +8653,6 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	{
 	    ppColormod_t cm;
 	    ppBlurParams_t blurParams;
-#ifndef BLOOM
-		ppBloomParams_t bloomParams;
-#endif
-#ifdef __GL_ANAGLYPH__
-		ppAnaglyphParams_t anaglyphParams;
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-		ppEmbossParams_t embossParams;
-#endif //__GL_EMBOSS__
-
 	    int motionBlurTime;
 	
 	    if (!cg.cinematicState) {
@@ -9181,21 +8669,6 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
     	
 	    CalculateBlur(&blurParams);
         PP_DoPass ("gaussianblur", (const void *)&blurParams);
-
-#ifndef BLOOM
-		bloomParams.bloomFactor = r_bloom_factor.value;
-		bloomParams.brightnessThreshold = r_bloom_threshold.value;
-		PP_DoPass ("bloom", (const void *)&bloomParams);
-#endif
-
-#ifdef __GL_ANAGLYPH__
-		PP_DoPass ("anaglyph", (const void *)&anaglyphParams);
-#endif //__GL_ANAGLYPH__
-
-#ifdef __GL_EMBOSS__
-		embossParams.embossScale = 0.666f;
-		PP_DoPass ("emboss", (const void *)&embossParams);
-#endif //__GL_EMBOSS__
         
         PP_EndPostProcess();
 	}
@@ -9303,4 +8776,3 @@ int CalculateMotionBlur() {
 	MotionBlur += (cg.sprintTime * 1800);
 	return MotionBlur;
 }
-

@@ -195,7 +195,6 @@ static void DebuffPlayer ( gentity_t *player, damageArea_t *area, int damage )
         }
         
         player->client->damageTypeTime[i] = level.time;
-		player->client->damageTypeOwner[i] = area->context.attacker;
         
         switch ( damageType )
         {
@@ -353,7 +352,7 @@ void JKG_DoPlayerDamageEffects ( gentity_t *ent )
                     // FIXME: Need to know the attacker
                     // FIXME: Also need to add a new method of death.
                     ent->client->damageTypeLastEffectTime[i] = level.time;
-					G_Damage (ent, ent->client->damageTypeOwner[damageType], ent->client->damageTypeOwner[damageType], vec3_origin, ent->client->ps.origin, 2, 0, 0);
+                    G_Damage (ent, ent, ent, vec3_origin, ent->client->ps.origin, 2, 0, 0);
                 }
             }
             break;
@@ -362,7 +361,7 @@ void JKG_DoPlayerDamageEffects ( gentity_t *ent )
                 if ( (ent->client->damageTypeLastEffectTime[i] + 500) <= level.time )
                 {
                     ent->client->damageTypeLastEffectTime[i] = level.time;
-                    G_Damage (ent, ent->client->damageTypeOwner[damageType], ent->client->damageTypeOwner[damageType], vec3_origin, ent->client->ps.origin, 2, 0, 0);
+                    G_Damage (ent, ent, ent, vec3_origin, ent->client->ps.origin, 2, 0, 0);
                 }
             break;
         }
@@ -486,7 +485,7 @@ static void DamagePlayersInArea ( damageArea_t *area )
         
         // Apply the damage and its effects.
         damage = CalculateDamageForDistance (area, ent->r.absmin, ent->r.absmax, playerOrigin, damageRadius);
-		DebuffPlayer (ent, area, damage);
+        DebuffPlayer (ent, area, damage);
     }
 }
 

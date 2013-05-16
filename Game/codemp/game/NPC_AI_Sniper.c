@@ -832,7 +832,7 @@ void NPC_BSSniper_Attack( void )
 		if ( TIMER_Done( NPC, "attackDelay" ) )
 		{
 			WeaponThink( qtrue );
-			if ( ucmd.buttons&(BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/) )
+			if ( ucmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK) )
 			{
 				G_SoundOnEnt( NPC, CHAN_WEAPON, "sound/null.wav" );
 			}

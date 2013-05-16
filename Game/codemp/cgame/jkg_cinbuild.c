@@ -47,14 +47,6 @@ void CinBuild_Init() {
 	trap_AddCommand("cinbuild");
 	memset(&CinBuildData, 0, sizeof(CinBuildData));
 	orc_a_font = trap_R_RegisterFont("ocr_a");
-
-	// Some additional stuff I thought I could chuck here to fix the Pazaak blur bug --eez
-	if(ui_blurbackground.integer)
-	{
-		trap_Cvar_Set("ui_blurbackground", "0");
-		cg.turnOnBlurCvar = qtrue;
-	}
-	trap_Cvar_Set("ui_hidehud", "0");
 }
 
 static void CinBuild_RecalculateOffsets() {
@@ -919,6 +911,9 @@ static void Cin_DoCubicSplineInterpolation() {
 }
 
 // end cubic spline interpolation code
+
+
+#define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 static int Cin_GetBSplinePoint(int index, int count) {
 	if (index < 0)

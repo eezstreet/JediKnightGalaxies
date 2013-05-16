@@ -1,35 +1,17 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// jkg_cg_items.h
-// Jedi Knight Galaxies (c) 2011
-// File by eezstreet
-// jkg_cg_items.h - Defines clientside code for items.
-// Note that this file is needed by the entire clientside, so cg_local.h actually #includes this file.
-// Copyright (c) 2011 Jedi Knight Galaxies
+//Jedi Knight Galaxies (c) 2011
+//File by eezstreet
+//jkg_cg_items.h - Defines clientside code for items.
+//Note that this file is needed by the entire clientside, so cg_local.h actually #includes this file.
 
 
 /* Global Definitions */
 #ifndef CGITEMH
 #define CGITEMH
 
-//#include "../game/q_shared.h"
+#include "q_shared.h"
 #include "../game/bg_items.h"
 
 #define MAX_ARMOR_PIECES		1024
-
-// UQ1: Moved to bg_items.c to stop compile header issues...
-extern int shopItems[128];
-extern int numShopItems;
 
 /* Structure Definitions */
 typedef struct
@@ -43,12 +25,9 @@ typedef struct
 	//oboi, clientside time!
 	//Basic Item Characteristics
 	char displayName[MAX_ITEM_NAME];
-	char itemIcon [MAX_QPATH];
-	char xml[MAX_QPATH];
 	unsigned int itemID;
 	jkgItemType_t itemType;
 	unsigned int weight;
-	unsigned int cost;
 
 	//pSpell data needed by clientside
 	unsigned int pSpell[MAX_PSPELLS];
@@ -125,28 +104,6 @@ typedef enum
 	IPPARSE_EQUIPPED,
 	IPPARSE_MAX
 } itemPacketParse_t;
-
-typedef enum
-{
-	IPPARSEX_CMD,
-	IPPARSEX_MODE,
-	IPPARSEX_ITEMNUM,
-	IPPARSEX_ID, //This must always come first.
-	IPPARSEX_ACISLOT,
-	IPPARSEX_QUALITY,
-	IPPARSEX_AMOUNT1,
-	IPPARSEX_AMOUNT2,
-	IPPARSEX_AMOUNT3,
-	IPPARSEX_AMOUNT4,
-	IPPARSEX_AMOUNT5,
-	IPPARSEX_AMOUNT6,
-	IPPARSEX_AMOUNT7,
-	IPPARSEX_AMOUNT8,
-	IPPARSEX_AMOUNT9,
-	IPPARSEX_AMOUNT10,
-	IPPARSEX_EQUIPPED,
-	IPPARSEX_MAX
-} itemPacketParse_modified_t;
 
 typedef enum
 {

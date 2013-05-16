@@ -82,7 +82,7 @@ typedef struct {
 } netchan_t;
 
 
-/*typedef struct {
+typedef struct {
 	int				areabytes;
 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 	playerState_t	ps;
@@ -95,7 +95,7 @@ typedef struct {
 	int				messageSent;		// time the message was transmitted
 	int				messageAcked;		// time the message was acked
 	int				messageSize;		// used to rate drop packets
-} clientSnapshot_t;*/
+} clientSnapshot_t;
 
 typedef enum {
 	CS_FREE,		// can be reused for a new connection
@@ -193,12 +193,6 @@ typedef struct {
 
 	netadr_t	authorizeAddress;			// for rcon return messages
 } serverStatic_t;
-
-#define	MAX_SNAPSHOT_ENTITIES	1024
-typedef struct {
-	int		numSnapshotEntities;
-	int		snapshotEntities[MAX_SNAPSHOT_ENTITIES];	
-} snapshotEntityNumbers_t;
 
 /*\
 |* Acess to engine structures

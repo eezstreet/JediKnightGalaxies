@@ -1,19 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// jkg_threading.c
-// JKG Multi-Threading System
-// (c) 2013 Jedi Knight Galaxies
-
 //////////////////////////////////////////////////
 //
 //  JKG Multi-Threading System
@@ -37,6 +21,7 @@
 
 #include "gl_enginefuncs.h"
 #include "jkg_threading.h"
+#include "jkg_libcurl.h"
 #include <openssl/crypto.h>
 #include "json/cJSON.h"
 #include "jkg_threadingsq.h"
@@ -256,6 +241,11 @@ void JKG_MainThreadPoller ( int ui, int purge )
 
 static unsigned long __stdcall JKG_BackgroundWorker ( void *lulz /*Pass something useful if you need*/ )
 {
+	int errcode = 0;
+
+	errcode = JKG_Libcurl_Init();
+	if ( errcode ) return errcode;
+
 	backgrounderActive = qtrue;
 
 #ifndef FINAL_BUILD
@@ -265,6 +255,8 @@ static unsigned long __stdcall JKG_BackgroundWorker ( void *lulz /*Pass somethin
 	while ( !shuttingDown )
 	{
 		asyncTask_t *workTask = NULL;
+
+		JKG_Libcurl_Poller();
 
 		JKG_Task_ProcessDelayedTasks();
 
@@ -290,6 +282,8 @@ static unsigned long __stdcall JKG_BackgroundWorker ( void *lulz /*Pass somethin
 
 		JKG_ThreadSleep( 1 );
 	}
+
+	JKG_Libcurl_Shutdown();
 
 	shuttingDown = qfalse;
 	backgrounderActive = qfalse;
@@ -351,9 +345,6 @@ void JKG_ShutdownThreading ( int maxWaitTime )
 #endif
 
 	shuttingDown = qtrue;
-
-	// k, no more fooling around I say..
-	// Close this background worker with force!
 
 	while ( shuttingDown ) {
 		

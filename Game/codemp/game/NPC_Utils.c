@@ -272,7 +272,7 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 			}
 		}
 		
-		ucmd.angles[YAW] = ANGLE2SHORT( targetYaw + error ) - NPC->client->ps.delta_angles[YAW];
+		ucmd.angles[YAW] = ANGLE2SHORT( targetYaw + error ) - client->ps.delta_angles[YAW];
 	}
 
 	//FIXME: have a pitchSpeed?
@@ -308,10 +308,10 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 			}
 		}
 
-		ucmd.angles[PITCH] = ANGLE2SHORT( targetPitch + error ) - NPC->client->ps.delta_angles[PITCH];
+		ucmd.angles[PITCH] = ANGLE2SHORT( targetPitch + error ) - client->ps.delta_angles[PITCH];
 	}
 
-	ucmd.angles[ROLL] = ANGLE2SHORT ( NPC->client->ps.viewangles[ROLL] ) - NPC->client->ps.delta_angles[ROLL];
+	ucmd.angles[ROLL] = ANGLE2SHORT ( NPC->client->ps.viewangles[ROLL] ) - client->ps.delta_angles[ROLL];
 
 	if ( exact && trap_ICARUS_TaskIDPending( NPC, TID_ANGLE_FACE ) )
 	{
@@ -1096,7 +1096,6 @@ NPC_ValidEnemy
 qboolean NPC_ValidEnemy( gentity_t *ent )
 {
 	int entTeam = TEAM_FREE;
-
 	//Must be a valid pointer
 	if ( ent == NULL )
 		return qfalse;
@@ -1118,9 +1117,8 @@ qboolean NPC_ValidEnemy( gentity_t *ent )
 		return qfalse;
 
 	//Must be an NPC
-	if ( !ent->client )
+	if ( ent->client == NULL )
 	{
-		/*
 	//	if ( ent->svFlags&SVF_NONNPC_ENEMY )
 		if (ent->s.eType != ET_NPC)
 		{//still potentially valid
@@ -1137,19 +1135,16 @@ qboolean NPC_ValidEnemy( gentity_t *ent )
 		{
 			return qfalse;
 		}
-		*/
-
-		return qfalse;
 	}
-	else if ( ent->s.eType == ET_PLAYER && ent->client->sess.sessionTeam == TEAM_SPECTATOR )
+	else if ( ent->client && ent->client->sess.sessionTeam == TEAM_SPECTATOR )
 	{//don't go after spectators
 		return qfalse;
 	}
-	if ( ent->s.eType == ET_NPC && ent->client )
+	if ( ent->NPC && ent->client )
 	{
 		entTeam = ent->client->playerTeam;
 	}
-	else if ( ent->s.eType == ET_PLAYER )
+	else if ( ent->client )
 	{
 		if (g_gametype.integer < GT_TEAM)
 		{
@@ -1171,15 +1166,9 @@ qboolean NPC_ValidEnemy( gentity_t *ent )
 			}
 		}
 	}
-
-	// UQ1: May as well set their team permanently...
-	ent->client->playerTeam = entTeam;
-
 	//Can't be on the same team
 	if ( ent->client->playerTeam == NPC->client->playerTeam )
-	{
 		return qfalse;
-	}
 
 	//if haven't seen him in a while, give up
 	//if ( NPCInfo->enemyLastSeenTime != 0 && level.time - NPCInfo->enemyLastSeenTime > 7000 )//FIXME: make a stat?
@@ -1345,11 +1334,11 @@ gentity_t *NPC_PickEnemyExt( qboolean checkAlerts )
 			if ( event->level >= AEL_DISCOVERED )
 			{
 				//If it's the player, attack him
-				if ( event->owner == &g_entities[0] &&  NPC_ValidEnemy(event->owner) ) // UQ1: Errr only if they are enemy...
+				if ( event->owner == &g_entities[0] )
 					return event->owner;
 
-				//If it's on our team, then take its enemy as well  // UQ1: Errr only if they are enemy...
-				if ( ( event->owner->client ) && ( event->owner->client->playerTeam == NPC->client->playerTeam ) && NPC_ValidEnemy(event->owner))
+				//If it's on our team, then take its enemy as well
+				if ( ( event->owner->client ) && ( event->owner->client->playerTeam == NPC->client->playerTeam ) )
 					return event->owner->enemy;
 			}
 		}
@@ -1537,7 +1526,7 @@ qboolean NPC_FacePosition( vec3_t position, qboolean doPitch )
 	NPC_UpdateAngles( qtrue, qtrue );
 
 	//Find the delta between our goal and our current facing
-	yawDelta = AngleNormalize360( NPCInfo->desiredYaw - ( SHORT2ANGLE( ucmd.angles[YAW] + NPC->client->ps.delta_angles[YAW] ) ) );
+	yawDelta = AngleNormalize360( NPCInfo->desiredYaw - ( SHORT2ANGLE( ucmd.angles[YAW] + client->ps.delta_angles[YAW] ) ) );
 	
 	//See if we are facing properly
 	if ( fabs( yawDelta ) > VALID_ATTACK_CONE )
@@ -1546,7 +1535,7 @@ qboolean NPC_FacePosition( vec3_t position, qboolean doPitch )
 	if ( doPitch )
 	{
 		//Find the delta between our goal and our current facing
-		float currentAngles = ( SHORT2ANGLE( ucmd.angles[PITCH] + NPC->client->ps.delta_angles[PITCH] ) );
+		float currentAngles = ( SHORT2ANGLE( ucmd.angles[PITCH] + client->ps.delta_angles[PITCH] ) );
 		float pitchDelta = NPCInfo->desiredPitch - currentAngles;
 		
 		//See if we are facing properly

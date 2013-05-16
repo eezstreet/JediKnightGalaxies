@@ -9,7 +9,7 @@
 #include "g_local.h"
 
 typedef enum {
-	RCfree,		// Slot is free
+	RCB_FREE,		// Slot is free
 	RCB_BANNED,		// Permabanned
 	RCB_GRANTED,	// Access granted
 	RCB_DIRECT,		// Direct access, does not trigger the timeout
@@ -32,7 +32,7 @@ static RconBan_t RCBans[MAX_RCBANS];
 static int RCBanCount;
 
 static int RCB_IPMatch(unsigned int IP, RconBan_t *Ban) {
-	if (Ban->banType == RCfree) {
+	if (Ban->banType == RCB_FREE) {
 		return 0;
 	}
 	if ((IP & Ban->Mask) == Ban->IP) {
@@ -53,7 +53,7 @@ static unsigned int RCB_SetupMask(unsigned int *IP) {
 static int RCB_GetFreeSlot() {
 	int i;
 	for (i=0; i < RCBanCount; i++) {
-		if (RCBans[i].banType == RCfree) {
+		if (RCBans[i].banType == RCB_FREE) {
 			return i;
 		}
 	}
@@ -76,7 +76,7 @@ int RCB_IsBanned(unsigned int IP) {
 			}
 		}
 	}
-	if (b == RCfree || b == RCB_GRANTED) {
+	if (b == RCB_FREE || b == RCB_GRANTED) {
 		return 0;
 	} else if (b == RCB_BANNED || b == RCB_HAMMERBAN) {
 		return 1;

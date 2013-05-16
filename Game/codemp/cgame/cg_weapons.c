@@ -1,5 +1,3 @@
-
-
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // cg_weapons.c -- events and effects dealing with weapons
@@ -18,18 +16,8 @@ extern float	*hudTintColor;
 
 static weaponInfo_t cg_weapons[MAX_WEAPON_TABLE_SIZE];
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-extern void CG_RecordLightPosition( vec3_t org );
-#endif //__EXPERIMENTAL_SHADOWS__
-
-// I'm so damned lazy when it comes to these phases...
-// We ought to take these and add some sort of extra time
-// variable like we did with GSA in order to give the effect
-// that the guns are harder to control and manipulate. Gives
-// the guns a bit of weight behind them --eez
-
 //=========================================================
-// JKG_CalculateIronsightsPhase
+// JKG_CalculaeIronsightsPhase
 //---------------------------------------------------------
 // Returns a value between 0 and 1, where 0 represents
 // normal gun position, and 1 represents ironsights in
@@ -37,11 +25,11 @@ extern void CG_RecordLightPosition( vec3_t org );
 // position between normal position and ironsights
 // position.
 //=========================================================
-float JKG_CalculateIronsightsPhase ( const networkState_t *ns )
+float JKG_CalculateIronsightsPhase ( const playerState_t *ps )
 {
     double phase;
-    unsigned int time = ns->ironsightsTime & ~IRONSIGHTS_MSB;
-    if ( ns->ironsightsTime & IRONSIGHTS_MSB )
+    unsigned int time = ps->ironsightsTime & ~IRONSIGHTS_MSB;
+    if ( ps->ironsightsTime & IRONSIGHTS_MSB )
     {
         phase = CubicBezierInterpolate (min (cg.time - time, IRONSIGHTS_TIME) / (double)IRONSIGHTS_TIME, 0.0, 0.0, 1.0, 1.0);
         cg.ironsightsBlend = min (1.0f, max (0.0f, phase));
@@ -52,64 +40,6 @@ float JKG_CalculateIronsightsPhase ( const networkState_t *ns )
     }
     
     return min (1.0f, max (0.0f, phase));
-}
-
-//=========================================================
-// JKG_CalculateFiremodePhase
-//---------------------------------------------------------
-// Returns a value between 0 and 1, where 0 represents
-// previous gun position, and 1 represents gun in
-// correct position. All values in between are some
-// position between normal position and firing mode
-// position.
-//=========================================================
-
-float JKG_CalculateFireModePhase ( void )
-{
-    double phase;
-	unsigned int time = cg.fireModeChangeTime;
-
-	phase = min(cg.time - time, IRONSIGHTS_TIME)/(double)IRONSIGHTS_TIME;
-    
-    return min (1.0f, max (0.0f, phase));
-}
-
-qboolean JKG_FiringModeAnimsAreTheSame( int transition )
-{
-	switch(transition)
-	{
-		case FMTRANS_NONE_NONE:
-		case FMTRANS_RAISED_RAISED:
-		case FMTRANS_TILTED_TILTED:
-			return qtrue;
-		default:
-			return qfalse;
-	}
-}
-
-//=========================================================
-// JKG_CalculateSprintPhase
-//---------------------------------------------------------
-// Returns a value between 0 and 1, where 0 represents
-// normal gun position, and 1 represents sprinting in
-// full. All values in between are some position between 
-// normal position and full-on sprinting.
-//=========================================================
-float JKG_CalculateSprintPhase( const networkState_t *ns )
-{
-	double phase;
-    unsigned int time = ns->sprintTime & ~SPRINT_MSB;
-    if ( ns->sprintTime & SPRINT_MSB )
-    {
-        phase = CubicBezierInterpolate (min (cg.time - time, SPRINT_TIME) / (double)SPRINT_TIME, 0.0, 0.0, 1.0, 1.0);
-        cg.sprintBlend = min (1.0f, max (0.0f, phase));
-    }
-    else
-    {
-        phase = cg.sprintBlend - CubicBezierInterpolate (min (cg.time - time, SPRINT_TIME * cg.sprintBlend) / (double)(SPRINT_TIME * cg.sprintBlend), 0.0, 0.0, 1.0, 1.0);
-    }
-    
-	return min (1.0f, max (0.0f, phase));
 }
 
 void CG_InitWeapons ( void )
@@ -252,10 +182,7 @@ CG_MapTorsoToWeaponFrame
 =================
 */
 static int CG_MapTorsoToWeaponFrame( const clientInfo_t *ci, int frame, int animNum ) {
-	float animspeed = 1.0f;
-	const weaponData_t *weaponData = GetWeaponData(cg.predictedPlayerState.weapon, cg.predictedPlayerState.weaponVariation);
 	animation_t *animations = bgHumanoidAnimations;
-
 #ifdef WEAPON_FORCE_BUSY_HOLSTER
 	if (cg.snap->ps.forceHandExtend != HANDEXTEND_NONE || cgWeapFrameTime > cg.time)
 	{ //the reason for the after delay is so that it doesn't snap the weapon frame to the "idle" (0) frame
@@ -337,37 +264,7 @@ static int CG_MapTorsoToWeaponFrame( const clientInfo_t *ci, int frame, int anim
 		}
 
 		break;
-	}
-	if(animNum == weaponData->anims.sprint.torsoAnim)
-	{
-		if( weaponData->firstPersonSprintStyle == -1 )
-		{
-			// Jedi Knight Galaxies: Sprint animations (manually) via MD3 file. Uses 5 frames after the last (iirc?)
-			if( frame >= animations[animNum].firstFrame && frame < animations[animNum].firstFrame + 13 )
-			{
-				return frame - animations[animNum].firstFrame + 6 + 4 + 5;
-			}
-		}
-	}
-	else if(animNum == weaponData->anims.reload.torsoAnim)
-	{
-		// TODO: reload animations (probably whenever we get a decent weapon skeleton for some of these guns?)
-		if ( frame >= animations[animNum].firstFrame && frame < animations[animNum].firstFrame + animations[animNum].numFrames ) 
-		{
-			int theFrame = (frame - animations[animNum].firstFrame) + 6;
-			int frameDif = (animations[animNum].numFrames - theFrame) + 6;
-			if(frameDif <= 6 && cg.predictedPlayerState.weaponTime <= jkg_viewmodelPopup.integer)
-			{
-				// doesn't even matter what the frame is at this rate, just do it already
-				return 15-frameDif;
-			}
-			else
-			{
-				CAP(theFrame, 10);
-				return theFrame;
-			}
-		}
-	}
+	}	
 	return -1;
 }
 
@@ -411,16 +308,10 @@ void CG_AnimateViewWeapon ( const playerState_t *ps )
 CG_CalculateWeaponPosition
 ==============
 */
-extern int JKG_GetTransitionForFiringModeSet(int previous, int next);
 static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	float	scale;
-	float	swayscale;
 	int		delta;
 	float	fracsin;
-	float	sprintPhase = JKG_CalculateSprintPhase(&cg.networkState);
-	vec3_t defaultAngles, defaultOrigin;
-	weaponData_t *weaponData = GetWeaponData(cg.predictedPlayerState.weapon, cg.predictedPlayerState.weaponVariation);
-	weaponData_t *prevWeaponData = BG_GetWeaponDataByIndex(cg.lastFiringModeGun);
 
 	VectorCopy( cg.refdef.vieworg, origin );
 	VectorCopy( cg.refdef.viewangles, angles );
@@ -432,18 +323,10 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		scale = cg.xyspeed;
 	}
 
-	// idle drift
-	if(JKG_CalculateIronsightsPhase(&cg.networkState) < 0.4)
-	{	// EDIT 9/11/12: Don't do this when we're in ironsights. Looks bad, man.
-		swayscale = cg.xyspeed + 40;
-		fracsin = sin( cg.time * 0.001 );
-		angles[ROLL] += swayscale * fracsin * 0.01;
-		angles[YAW] += swayscale * fracsin * 0.01;
-		angles[PITCH] += swayscale * fracsin * 0.01;
-	}
-
-	VectorCopy( angles, defaultAngles );
-	VectorCopy( origin, defaultOrigin );
+	// gun angles from bobbing
+	angles[ROLL] += scale * cg.bobfracsin * 0.005;
+	angles[YAW] += scale * cg.bobfracsin * 0.01;
+	angles[PITCH] += cg.xyspeed * cg.bobfracsin * 0.005;
 
 	// drop the weapon when landing
 	delta = cg.time - cg.landTime;
@@ -452,206 +335,6 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	} else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME ) {
 		origin[2] += cg.landChange*0.25 * 
 			(LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
-	}
-
-	// oh well, i'm lumping this here too. just for the sake of the children or something --eez
-	if(cg.lastFiringMode != cg.predictedPlayerState.firingMode && cg.lastFiringModeGun != cg.predictedPlayerState.weaponId)
-	{
-		cg.fireModeTransition = JKG_GetTransitionForFiringModeSet( prevWeaponData->visuals.visualFireModes[ cg.lastFiringMode ].animType, weaponData->visuals.visualFireModes[ cg.predictedPlayerState.firingMode ].animType );
-
-		cg.lastFiringMode = cg.predictedPlayerState.firingMode;
-		cg.lastFiringModeTime = cg.time + 200; // matches SP 1:1
-		cg.lastFiringModeGun = cg.predictedPlayerState.weaponId;
-	}
-	else if(cg.lastFiringMode != cg.predictedPlayerState.firingMode)
-	{
-		cg.lastFiringMode = cg.predictedPlayerState.firingMode;
-		cg.lastFiringModeTime = cg.time + 200; // matches SP 1:1
-		cg.lastFiringModeGun = cg.predictedPlayerState.weaponId;
-	}
-
-	// Fire mode animations -- Jedi Knight Galaxies
-	if(!JKG_FiringModeAnimsAreTheSame(cg.fireModeTransition))
-	{
-		int transition = cg.fireModeTransition;
-		float firingModeAnimPhase = JKG_CalculateFireModePhase();
-		vec3_t beginningOrigin = {0, 0, 0}, endOrigin = { 0, 0, 0 };				// Start of the firing mode transition
-		vec3_t beginningDir = {0, 0, 0}, endDir = {0, 0, 0 };					// End of the firing mode transition
-
-		// Get the animation along its track there.
-		switch(transition)
-		{
-			case FMTRANS_NONE_RAISED:
-			case FMTRANS_TILTED_RAISED:
-				// Final destination for these use the same as the pistol sprint
-				// animation, for now. --eez
-				endDir[PITCH] = -15.0f;
-				endOrigin[2] = -1;
-				break;
-			case FMTRANS_RAISED_NONE:
-				beginningDir[PITCH] = -15.0f;
-				beginningOrigin[2] = -1;
-				// Cancel out the beginning of the dir and origin
-				endDir[PITCH] = 15.0f;
-				endOrigin[2] = 1;
-				break;
-		}
-
-		angles[PITCH] += (beginningDir[PITCH] + (endDir[PITCH] * firingModeAnimPhase));
-		angles[YAW] += (beginningDir[YAW] + (endDir[YAW] * firingModeAnimPhase));
-		angles[ROLL] += (beginningDir[ROLL] + (endDir[ROLL] * firingModeAnimPhase));
-
-		VectorMA( origin, beginningOrigin[0] + (endOrigin[0] * firingModeAnimPhase), cg.refdef.viewaxis[0], origin );
-		VectorMA( origin, beginningOrigin[1] + (endOrigin[1] * firingModeAnimPhase), cg.refdef.viewaxis[1], origin );
-		VectorMA( origin, beginningOrigin[2] + (endOrigin[2] * firingModeAnimPhase), cg.refdef.viewaxis[2], origin );
-	}
-
-	// gun angles from bobbing
-	// Sprinting animations -- Jedi Knight Galaxies
-	if(sprintPhase > 0)
-	{
-		// Now calculate where our gun will be angled
-		float sprintXAdd = /*jkg_debugSprintX.value*/ 0;
-		float sprintYAdd = /*jkg_debugSprintY.value*/ 0;
-		float sprintZAdd = /*jkg_debugSprintZ.value*/ 0;
-		float sprintPitchAdd = /*jkg_debugSprintPitch.value*/ 0;
-		float sprintYawAdd = /*jkg_debugSprintYaw.value*/ 0;
-		float sprintRollAdd = /*jkg_debugSprintRoll.value*/ 0;
-		//int sprintStyle = (jkg_debugSprintStyle.integer != -2) ? jkg_debugSprintStyle.integer : weaponData->firstPersonSprintStyle;		// the cvar lets us switch gun sprinting styles on the fly
-		int sprintStyle = weaponData->firstPersonSprintStyle;
-
-		switch(sprintStyle)
-		{
-			// ANGLES/ORIGIN BEFORE BOBBING
-			case SPRINTSTYLE_LOWERED:
-			case SPRINTSTYLE_LOWERED_SLIGHT:
-			case SPRINTSTYLE_LOWERED_HEAVY:
-				sprintXAdd = 1;
-				sprintYAdd = -1;
-				sprintZAdd = -2;
-				sprintPitchAdd = 20;
-				break;
-
-			case SPRINTSTYLE_SIDE:
-			case SPRINTSTYLE_SIDE_SLIGHT:
-			case SPRINTSTYLE_SIDE_HEAVY:
-				sprintXAdd = 1;
-				sprintZAdd = -1;
-				sprintPitchAdd = 15;
-				sprintYawAdd = 40;
-				sprintRollAdd = -10;
-				break;
-
-			case SPRINTSTYLE_RAISED:
-			case SPRINTSTYLE_RAISED_SLIGHT:
-			case SPRINTSTYLE_RAISED_HEAVY:
-				sprintPitchAdd = -35;
-				sprintZAdd = 1;
-				break;
-
-			case SPRINTSTYLE_ANGLED_DOWN:
-			case SPRINTSTYLE_ANGLED_DOWN_SLIGHT:
-			case SPRINTSTYLE_ANGLED_DOWN_HEAVY:
-				sprintPitchAdd = 20;
-				sprintZAdd = -1;
-				break;
-
-			case SPRINTSTYLE_SIDE_UP:
-			case SPRINTSTYLE_SIDE_UP_SLIGHT:
-			case SPRINTSTYLE_SIDE_UP_HEAVY:
-				sprintXAdd = 1;
-				sprintZAdd = 1;
-				sprintPitchAdd = 15;
-				sprintYawAdd = 40;
-				sprintRollAdd = -10;
-				break;
-
-			case SPRINTSTYLE_SIDE_MEDIUM:
-			case SPRINTSTYLE_SIDE_MEDIUM_SLIGHT:
-			case SPRINTSTYLE_SIDE_MEDIUM_HEAVY:
-				sprintZAdd = -2;
-				sprintYAdd = -1;
-				sprintPitchAdd = 5;
-				sprintYawAdd = 40;
-				sprintRollAdd = -10;
-				break;
-		}
-		// Messy-ish code out the yin-yang here
-		angles[PITCH] += (sprintPitchAdd * sprintPhase);
-		angles[YAW] += (sprintYawAdd * sprintPhase);
-		angles[ROLL] += (sprintRollAdd * sprintPhase);
-
-		VectorMA( origin, sprintXAdd * sprintPhase, cg.refdef.viewaxis[0], origin );
-		VectorMA( origin, sprintYAdd * sprintPhase, cg.refdef.viewaxis[1], origin );
-		VectorMA( origin, sprintZAdd * sprintPhase, cg.refdef.viewaxis[2], origin );
-
-		if(JKG_CalculateSprintPhase(&cg.networkState) > 0.001)
-		{
-			float bobPitchAdd = /*jkg_debugSprintBobPitch.value*/ 0;
-			float bobYawAdd = /*jkg_debugSprintBobYaw.value*/ 0;
-			float bobRollAdd = /*jkg_debugSprintBobRoll.value*/ 0;
-			float bobXAdd = /*jkg_debugSprintBobX.value*/ 0;
-			float bobYAdd = /*jkg_debugSprintBobY.value*/ 0;
-			float bobZAdd = /*jkg_debugSprintBobZ.value*/ 0;
-			// Calculate bobbing add
-			switch(sprintStyle)
-			{
-				// BOBBING ANGLE/ORIGIN
-				case SPRINTSTYLE_LOWERED_SLIGHT:
-					bobYAdd = 0.001;
-					bobYawAdd = 0.03;
-					break;
-
-				case SPRINTSTYLE_LOWERED_HEAVY:
-					bobYawAdd = 0.04;
-					bobPitchAdd = 0.01;
-					bobRollAdd = 0.01;
-					bobXAdd = 0.0005;
-					bobYAdd = 0.002;
-					break;
-				
-				case SPRINTSTYLE_SIDE_SLIGHT:
-				case SPRINTSTYLE_SIDE_UP_SLIGHT:
-				case SPRINTSTYLE_SIDE_MEDIUM_SLIGHT:
-					bobYawAdd = 0.02;
-					break;
-
-				case SPRINTSTYLE_SIDE_HEAVY:
-				case SPRINTSTYLE_SIDE_UP_HEAVY:
-				case SPRINTSTYLE_SIDE_MEDIUM_HEAVY:
-					bobYawAdd = 0.06;
-					bobPitchAdd = 0.002;
-					bobRollAdd = 0.002;
-					break;
-
-				case SPRINTSTYLE_RAISED_SLIGHT:
-				case SPRINTSTYLE_ANGLED_DOWN_SLIGHT:
-					bobZAdd = 0.0005;
-					bobPitchAdd = 0.005;
-					break;
-
-				case SPRINTSTYLE_RAISED_HEAVY:
-				case SPRINTSTYLE_ANGLED_DOWN_HEAVY:
-					bobZAdd = 0.001;
-					bobPitchAdd = 0.01;
-					bobRollAdd = 0.004;
-					break;
-			}
-
-			angles[ROLL] += scale * cg.bobfracsin * (0.005 + (bobPitchAdd*sprintPhase));
-			angles[YAW] += scale * cg.bobfracsin * (0.01 + (bobYawAdd*sprintPhase));
-			angles[PITCH] += cg.xyspeed * cg.bobfracsin * (0.005 + (bobRollAdd*sprintPhase));
-
-			VectorMA( origin, scale * cg.bobfracsin * (bobXAdd*sprintPhase), cg.refdef.viewaxis[0], origin );
-			VectorMA( origin, scale * cg.bobfracsin * (bobYAdd*sprintPhase), cg.refdef.viewaxis[1], origin );
-			VectorMA( origin, scale * cg.bobfracsin * (bobZAdd*sprintPhase), cg.refdef.viewaxis[2], origin );
-		}
-	}
-	else
-	{
-		angles[ROLL] += scale * cg.bobfracsin * 0.005;
-		angles[YAW] += scale * cg.bobfracsin * 0.01;
-		angles[PITCH] += cg.xyspeed * cg.bobfracsin * 0.005;
 	}
 
 #if 0
@@ -663,6 +346,13 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		origin[2] -= cg.stepChange*0.25 * (STEP_TIME - delta) / (STEP_TIME/2);
 	}
 #endif
+
+	// idle drift
+	scale = cg.xyspeed + 40;
+	fracsin = sin( cg.time * 0.001 );
+	angles[ROLL] += scale * fracsin * 0.01;
+	angles[YAW] += scale * fracsin * 0.01;
+	angles[PITCH] += scale * fracsin * 0.01;
 }
 
 
@@ -679,22 +369,19 @@ angle)
 */
 static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 //	trace_t  trace;
-//	refEntity_t  beam;
+	refEntity_t  beam;
 //	vec3_t   forward;
 //	vec3_t   muzzlePoint, endPoint;
 
 	//Must be a durational weapon that continuously generates an effect.
-//	if ( cent->currentState.weapon == WP_DEMP2 && cent->currentState.eFlags & EF_ALT_FIRING ) 
-//	{ /*nothing*/ }
-//	else
-//	{
-//		return;
-//	}
+	if ( cent->currentState.weapon == WP_DEMP2 && cent->currentState.eFlags & EF_ALT_FIRING ) 
+	{ /*nothing*/ }
+	else
+	{
+		return;
+	}
 
-//	memset( &beam, 0, sizeof( beam ) );
-
-	// uhm what
-	return;
+	memset( &beam, 0, sizeof( beam ) );
 
 	// NOTENOTE No lightning gun-ish stuff yet.
 /*
@@ -785,7 +472,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 CG_AddWeaponWithPowerups
 ========================
 */
-void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
+static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 	// add powerup effects
 	trap_R_AddRefEntityToScene( gun );
 
@@ -820,7 +507,7 @@ sound should only be done on the world model case.
 void JKG_WeaponIndicators_Update(const centity_t *cent, const playerState_t *ps);
 extern vec3_t cg_crosshairPos;
 
-void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team, vec3_t newAngles, qboolean thirdPerson) {
+void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team, vec3_t newAngles, qboolean thirdPerson ) {
 	refEntity_t	gun;
 	refEntity_t	barrel;
 	vec3_t		angles;
@@ -1373,17 +1060,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 			ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 		}		
 			
-		/*hand.frame = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.frame, cent->currentState.torsoAnim );
+		hand.frame = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.frame, cent->currentState.torsoAnim );
 		hand.oldframe = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.oldFrame, cent->currentState.torsoAnim );
-		hand.backlerp = cent->pe.torso.backlerp;*/
-		{
-			float currentFrame, animSpeed;
-			int startFrame,endFrame,flags; //Filler data to make the trap call not go kaboom
-			trap_G2API_GetBoneAnim(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, 0, 0);
-			hand.frame = CG_MapTorsoToWeaponFrame( ci, ceil(currentFrame), ps->torsoAnim );
-			hand.oldframe = CG_MapTorsoToWeaponFrame( ci, floor(currentFrame), ps->torsoAnim );
-			hand.backlerp = 1.0f - (currentFrame-floor(currentFrame));
-		}
+		hand.backlerp = cent->pe.torso.backlerp;
 	
 		// Handle the fringe situation where oldframe is invalid
 		if ( hand.frame == -1 )
@@ -1547,7 +1226,16 @@ void CG_DrawIconBackground(void)
 
 }
 
-extern cgItemData_t CGitemLookupTable[MAX_ITEM_TABLE_SIZE];
+qboolean CG_WeaponCheck(int weap)
+{
+	if ( cg.snap->ps.ammo[GetWeaponAmmoIndexSingle( weap )] < GetWeaponPrimaryCostSingle( weap ) && cg.snap->ps.ammo[GetWeaponAmmoIndexSingle( weap )] < GetWeaponSecondaryCostSingle( weap ))
+	{
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
 /*
 ===============
 CG_WeaponSelectable
@@ -1555,11 +1243,11 @@ CG_WeaponSelectable
 */
 static qboolean CG_WeaponSelectable( int i ) {
     // FIXME: temporary...until i get inventory working properly
-    //return qfalse;
+    return qfalse;
 	/*if ( !cg.snap->ps.ammo[weaponData[i].ammoIndex] ) {
 		return qfalse;
 	}*/
-	if (i < 0)
+	if (!i)
 	{
 		return qfalse;
 	}
@@ -1583,11 +1271,8 @@ static qboolean CG_WeaponSelectable( int i ) {
 	//	return qfalse;
 	//}
 
-	if(cg.playerACI[i] < 0)
-		return qfalse;
-
-	if( !cg.playerInventory[cg.playerACI[i]].id->weapon)
-		return qfalse;
+	/*if( !CGitemLookupTable[cg.playerACI[i]].weapon || !CGitemLookupTable[cg.playerACI[i]].variation )
+		return qfalse;*/
 
 	return qtrue;
 }
@@ -1600,18 +1285,11 @@ CG_NextWeapon_f
 void CG_NextWeapon_f( void ) {
 
 	// No longer use this
-	//return;
-	// Or do we?
-	qboolean doWeaponNotify = qtrue;
-	
-	int desiredWeaponSelect = cg.weaponSelect + 1;
-	int numIterations = 0;
-
-	if(!cg.snap)
-	{
+	return;
+#if 0
+	if ( !cg.snap ) {
 		return;
 	}
-
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
@@ -1621,66 +1299,50 @@ void CG_NextWeapon_f( void ) {
 		return;
 	}
 
-	// sprint check --eez
-	{
-		int current = trap_GetCurrentCmdNumber();
-		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
-		{
-			return;
-		}
-	}
-
-	while(numIterations < MAX_ACI_SLOTS)
-	{
-		if(desiredWeaponSelect >= MAX_ACI_SLOTS)
-		{
-			desiredWeaponSelect = 0;
-		}
-		if(cg.playerACI[desiredWeaponSelect] < 0)
-		{
-			desiredWeaponSelect++;
-			numIterations++;
-			continue;
-		}
-		if(!cg.playerInventory[cg.playerACI[desiredWeaponSelect]].id)
-		{
-			desiredWeaponSelect++;
-		}
-		else if(cg.playerInventory[cg.playerACI[desiredWeaponSelect]].id->itemType != ITEM_WEAPON)
-		{
-			desiredWeaponSelect++;
-		}
-		else
-		{
-			break;
-		}
-		numIterations++;
-	}
-	if(numIterations >= MAX_ACI_SLOTS)
-	{
-		return;	// FIXME: lame solution
-	}
-
-	if( desiredWeaponSelect == cg.weaponSelect )
-	{
-		doWeaponNotify = qfalse;
-	}
-
-	if(CG_WeaponSelectable(desiredWeaponSelect))
-	{
-		cg.weaponSelect = desiredWeaponSelect;
-		if( doWeaponNotify ) 
-		{
-			CG_Notifications_Add(cg.playerInventory[cg.playerACI[cg.weaponSelect]].id->displayName, qtrue);
-		}
-	}
-	else
+	if (cg.snap->ps.emplacedIndex)
 	{
 		return;
 	}
+
 	cg.weaponSelectTime = cg.time;
+	original = cg.weaponSelect;
+
+	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ ) {
+		//*SIGH*... Hack to put concussion rifle before rocketlauncher
+		/*if ( cg.weaponSelect == WP_FLECHETTE )
+		{
+			cg.weaponSelect = WP_CONCUSSION;
+		}
+		else if ( cg.weaponSelect == WP_CONCUSSION )
+		{
+			cg.weaponSelect = WP_ROCKET_LAUNCHER;
+		}
+		else if ( cg.weaponSelect == WP_DET_PACK )
+		{
+			cg.weaponSelect = WP_BRYAR_OLD;
+		}
+		else*/
+		{
+			cg.weaponSelect++;
+		}
+		if ( cg.weaponSelect == WP_NUM_WEAPONS ) {
+			cg.weaponSelect = 0;
+		}
+	//	if ( cg.weaponSelect == WP_STUN_BATON ) {
+	//		continue;		// never cycle to gauntlet
+	//	}
+		if ( CG_WeaponSelectable( cg.weaponSelect ) ) {
+			break;
+		}
+	}
+	if ( i == WP_NUM_WEAPONS ) {
+		cg.weaponSelect = original;
+	}
+	else
+	{
+		trap_S_MuteSound(cg.snap->ps.clientNum, CHAN_WEAPON);
+	}
+#endif
 }
 
 /*
@@ -1691,19 +1353,12 @@ CG_PrevWeapon_f
 void CG_PrevWeapon_f( void ) {
 
 	// No longer use this
-	//return;
+	return;
 
-	// Or do we?
-	qboolean doWeaponNotify = qtrue;
-
-	int desiredWeaponSelect = cg.weaponSelect - 1;
-	int numIterations = 0;
-
-	if(!cg.snap)
-	{
+#if 0
+	if ( !cg.snap ) {
 		return;
 	}
-
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
@@ -1713,87 +1368,50 @@ void CG_PrevWeapon_f( void ) {
 		return;
 	}
 
-	// sprint check --eez
-	{
-		int current = trap_GetCurrentCmdNumber();
-		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
-		{
-			return;
-		}
-	}
-
-	while(numIterations < MAX_ACI_SLOTS)
-	{
-		if(desiredWeaponSelect < 0)
-		{
-			desiredWeaponSelect = MAX_ACI_SLOTS-1;
-		}
-		if(cg.playerACI[desiredWeaponSelect] < 0)
-		{
-			desiredWeaponSelect--;
-			numIterations++;
-			continue;
-		}
-		if(!cg.playerInventory[cg.playerACI[desiredWeaponSelect]].id)
-		{
-			desiredWeaponSelect--;
-		}
-		else if(cg.playerInventory[cg.playerACI[desiredWeaponSelect]].id->itemType != ITEM_WEAPON)
-		{
-			desiredWeaponSelect--;
-		}
-		else
-		{
-			break;
-		}
-		numIterations++;
-	}
-
-	if( desiredWeaponSelect == cg.weaponSelect )
-	{
-		doWeaponNotify = qfalse;
-	}
-
-	if(CG_WeaponSelectable(desiredWeaponSelect))
-	{
-		cg.weaponSelect = desiredWeaponSelect;
-		if( doWeaponNotify )
-		{
-			CG_Notifications_Add(cg.playerInventory[cg.playerACI[cg.weaponSelect]].id->displayName, qtrue);
-		}
-	}
-	else
+	if (cg.snap->ps.emplacedIndex)
 	{
 		return;
 	}
-	cg.weaponSelectTime = cg.time;
-}
 
-/*
-===============
-JKG_FindNewACISlot
-Automatically fills an ACI slot with an item with the same ID number (if one exists)
-===============
-*/
-int JKG_FindNewACISlot( int slotNum )
-{
-	int i;
-	int slotID;
-	if(slotNum < 0 || slotNum > MAX_ACI_SLOTS)
-	{
-		return -1;
-	}
-	slotID = cg.playerInventory[cg.playerACI[slotNum]].id->itemID;
-	for(i = 0; cg.playerInventory[i].id && cg.playerInventory[i].id->itemID > 0; i++)
-	{
-		if(cg.playerInventory[i].id->itemID == slotID && i != cg.playerACI[slotNum])
+	cg.weaponSelectTime = cg.time;
+	original = cg.weaponSelect;
+
+	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ ) {
+		//*SIGH*... Hack to put concussion rifle before rocketlauncher
+		/*if ( cg.weaponSelect == WP_ROCKET_LAUNCHER )
 		{
-			return i;
+			cg.weaponSelect = WP_CONCUSSION;
+		}
+		else if ( cg.weaponSelect == WP_CONCUSSION )
+		{
+			cg.weaponSelect = WP_FLECHETTE;
+		}
+		else if ( cg.weaponSelect == WP_BRYAR_OLD )
+		{
+			cg.weaponSelect = WP_DET_PACK;
+		}
+		else*/
+		{
+			cg.weaponSelect--;
+		}
+		if ( cg.weaponSelect == -1) {
+			cg.weaponSelect = WP_NUM_WEAPONS-1;
+		}
+	//	if ( cg.weaponSelect == WP_STUN_BATON ) {
+	//		continue;		// never cycle to gauntlet
+	//	}
+		if ( CG_WeaponSelectable( cg.weaponSelect ) ) {
+			break;
 		}
 	}
-	return -1;
+	if ( i == WP_NUM_WEAPONS ) {
+		cg.weaponSelect = original;
+	}
+	else
+	{
+		trap_S_MuteSound(cg.snap->ps.clientNum, CHAN_WEAPON);
+	}
+#endif
 }
 
 /*
@@ -1803,8 +1421,6 @@ CG_Weapon_f
 */
 void CG_Weapon_f( void ) {
 	int		num;
-	int itemType;
-	qboolean doWeaponNotify = qtrue;
 
 	if ( !cg.snap ) {
 		return;
@@ -1818,79 +1434,112 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 
-	// sprint check --eez
-	{
-		int current = trap_GetCurrentCmdNumber();
-		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
-		{
-			return;
-		}
-	}
-
 	num = atoi( CG_Argv( 1 ) );
-	if(num < 0 || num > 9)
-	{
-		return;
-	}
-
-	if(cg.playerACI[num] < 0)
-	{
-		return;
-	}
-	if(!cg.playerInventory[cg.playerACI[num]].id)
-	{
-		return;
-	}
-	itemType = cg.playerInventory[cg.playerACI[num]].id->itemType;
-
-	if (itemType != ITEM_WEAPON)
-	{
-		// Not a weapon. Check the type!
-		switch(itemType)
-		{
-			case ITEM_CONSUMABLE:
-			case ITEM_UNKNOWN:
-				{
-					if(cg.playerInventory[cg.playerACI[num]].id->pSpell[0] < PSPELL_MAX && cg.playerInventory[cg.playerACI[num]].id->pSpell[0] > PSPELL_NONE)
-					{
-						CG_Notifications_Add(cg.playerInventory[cg.playerACI[num]].id->displayName, qtrue);
-						trap_SendClientCommand(va("inventoryUse %i", cg.playerACI[num]));
-						cg.playerACI[num] = JKG_FindNewACISlot(num);
-						return;
-					}
-				}
-				break;
-		}
-	}
-
-	// JKG - Manual saber detection
-	if(num == cg.weaponSelect)
-	{
-		if(cg.playerInventory[cg.playerACI[num]].id->varID == BG_GetWeaponIndex(WP_SABER, 0))
-		{
-			trap_SendClientCommand("togglesaber");
-		}
-		// Set our holster state
-		cg.holsterState = (cg.holsterState) ? qfalse : qtrue;
-		doWeaponNotify = qfalse;
-	}
-
 	// FIXME: TEMPORARY
-    if(CG_WeaponSelectable(num))
+    cg.weaponSelect = num;
+#if 0
+	if ( num < 1 || num > LAST_USEABLE_WEAPON ) {
+		return;
+	}
+
+	if (num == 1 && cg.snap->ps.weapon == WP_SABER)
 	{
-		cg.weaponSelect = num;
-		if(doWeaponNotify)
+		if (cg.snap->ps.weaponTime < 1)
 		{
-			CG_Notifications_Add(cg.playerInventory[cg.playerACI[num]].id->displayName, qtrue);
+			trap_SendConsoleCommand("sv_saberswitch\n");
 		}
+		return;
+	}
+
+	//rww - hack to make weapon numbers same as single player
+	if (num > WP_STUN_BATON)
+	{
+		//num++;
+		num += 2; //I suppose this is getting kind of crazy, what with the wp_melee in there too now.
 	}
 	else
 	{
+		if (cg.snap->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+		{
+			num = WP_SABER;
+		}
+		else
+		{
+			num = WP_MELEE;
+		}
+	}
+
+	if (num > LAST_USEABLE_WEAPON+1)
+	{ //other weapons are off limits due to not actually being weapon weapons
 		return;
 	}
+
+	if (num >= WP_THERMAL && num <= WP_DET_PACK)
+	{
+		int weap, i = 0;
+
+		if (cg.snap->ps.weapon >= WP_THERMAL &&
+			cg.snap->ps.weapon <= WP_DET_PACK)
+		{
+			// already in cycle range so start with next cycle item
+			weap = cg.snap->ps.weapon + 1;
+		}
+		else
+		{
+			// not in cycle range, so start with thermal detonator
+			weap = WP_THERMAL;
+		}
+
+		// prevent an endless loop
+		while ( i <= 4 )
+		{
+			if (weap > WP_DET_PACK)
+			{
+				weap = WP_THERMAL;
+			}
+
+			if (CG_WeaponSelectable(weap))
+			{
+				num = weap;
+				break;
+			}
+
+			weap++;
+			i++;
+		}
+	}
+
+	if (!CG_WeaponSelectable(num))
+	{
+		return;
+	}
+
 	cg.weaponSelectTime = cg.time;
+
+	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+	{
+		if (num == WP_SABER)
+		{ //don't have saber, try melee on the same slot
+			num = WP_MELEE;
+
+			if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+			{
+				return;
+			}
+		}
+		else
+		{
+			return;		// don't have the weapon
+		}
+	}
+
+	if (cg.weaponSelect != num)
+	{
+		trap_S_MuteSound(cg.snap->ps.clientNum, CHAN_WEAPON);
+	}
+
+	cg.weaponSelect = num;
+#endif
 }
 
 
@@ -1898,7 +1547,6 @@ void CG_Weapon_f( void ) {
 //triger WP_MELEE or WP_STUN_BATON.  Derogatory comments go here.
 void CG_WeaponClean_f( void ) {
 	int		num;
-	qboolean doWeaponNotify = qtrue;
 
 	if ( !cg.snap ) {
 		return;
@@ -1912,43 +1560,148 @@ void CG_WeaponClean_f( void ) {
 		return;
 	}
 
-	// sprint check --eez
+	num = atoi( CG_Argv( 1 ) );
+
+	if ( num < 1 || num > LAST_USEABLE_WEAPON ) {
+		return;
+	}
+
+	if (num == 1 && cg.snap->ps.weapon == WP_SABER)
 	{
-		int current = trap_GetCurrentCmdNumber();
-		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
+		if (cg.snap->ps.weaponTime < 1)
 		{
-			return;
+			trap_SendConsoleCommand("sv_saberswitch\n");
+		}
+		return;
+	}
+
+	if(num == WP_STUN_BATON) {
+		if (cg.snap->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
+		{
+			num = WP_SABER;
+		}
+		else
+		{
+			num = WP_MELEE;
 		}
 	}
 
-	num = atoi( CG_Argv( 1 ) );
+	if (num > LAST_USEABLE_WEAPON+1)
+	{ //other weapons are off limits due to not actually being weapon weapons
+		return;
+	}
 
-	if(!cg.playerInventory[cg.playerACI[num]].id)
+	if (num >= WP_THERMAL && num <= WP_DET_PACK)
+	{
+		int weap, i = 0;
+
+		if (cg.snap->ps.weapon >= WP_THERMAL &&
+			cg.snap->ps.weapon <= WP_DET_PACK)
+		{
+			// already in cycle range so start with next cycle item
+			weap = cg.snap->ps.weapon + 1;
+		}
+		else
+		{
+			// not in cycle range, so start with thermal detonator
+			weap = WP_THERMAL;
+		}
+
+		// prevent an endless loop
+		while ( i <= 4 )
+		{
+			if (weap > WP_DET_PACK)
+			{
+				weap = WP_THERMAL;
+			}
+
+			if (CG_WeaponSelectable(weap))
+			{
+				num = weap;
+				break;
+			}
+
+			weap++;
+			i++;
+		}
+	}
+
+	if (!CG_WeaponSelectable(num))
 	{
 		return;
 	}
 
-	if(num == cg.weaponSelect)
+	cg.weaponSelectTime = cg.time;
+
+	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
 	{
-		if(cg.playerInventory[cg.playerACI[num]].id->varID == BG_GetWeaponIndex(WP_SABER, 0))
-		{
-			trap_SendClientCommand("togglesaber");
+		if (num == WP_SABER)
+		{ //don't have saber, try melee on the same slot
+			num = WP_MELEE;
+
+			if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) )
+			{
+				return;
+			}
 		}
-		cg.holsterState = (cg.holsterState) ? qfalse : qtrue;
-		doWeaponNotify = qfalse;
+		else
+		{
+			return;		// don't have the weapon
+		}
 	}
 
-	if(CG_WeaponSelectable(num))
+	if (cg.weaponSelect != num)
 	{
-		cg.weaponSelect = num;
-		if(doWeaponNotify)
+		trap_S_MuteSound(cg.snap->ps.clientNum, CHAN_WEAPON);
+	}
+
+	cg.weaponSelect = num;
+}
+
+
+
+/*
+===================
+CG_OutOfAmmoChange
+
+The current weapon has just run out of ammo
+===================
+*/
+void CG_OutOfAmmoChange( int oldWeapon )
+{
+	//int		i;
+
+	// Jedi Knight Galaxies
+	return;		// Dont switch weapons automatically, they just dont fire
+/*
+	cg.weaponSelectTime = cg.time;
+
+	for ( i = LAST_USEABLE_WEAPON ; i > 0 ; i-- )	//We don't want the emplaced or turret
+	{
+		if ( CG_WeaponSelectable( i ) )
 		{
-			CG_Notifications_Add(cg.playerInventory[cg.playerACI[num]].id->displayName, qtrue);
+			/*
+			if ( 1 == cg_autoswitch.integer && 
+				( i == WP_TRIP_MINE || i == WP_DET_PACK || i == WP_THERMAL || i == WP_ROCKET_LAUNCHER) ) // safe weapon switch
+			*/
+/*
+			//rww - Don't we want to make sure i != one of these if autoswitch is 1 (safe)?
+			if (cg_autoswitch.integer != 1 || (i != WP_TRIP_MINE && i != WP_DET_PACK && i != WP_THERMAL && i != WP_ROCKET_LAUNCHER))
+			{
+				if (i != oldWeapon)
+				{ //don't even do anything if we're just selecting the weapon we already have/had
+					cg.weaponSelect = i;
+					break;
+				}
+			}
 		}
 	}
+
+	trap_S_MuteSound(cg.snap->ps.clientNum, CHAN_WEAPON);
+*/
 }
+
+
 
 /*
 ===================================================================================================
@@ -1991,7 +1744,6 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	entityState_t *ent;
 	int				c;
 	weaponInfo_t	*weap;
-	
 
 	ent = &cent->currentState;
 	if ( ent->weapon == WP_NONE ) {
@@ -2007,7 +1759,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	if ( cg.predictedPlayerState.clientNum == cent->currentState.number )
 	{
 		weaponData_t *thisWeaponData = GetWeaponData( cg.snap->ps.weapon, cg.snap->ps.weaponVariation );
-		float		  fRecoil		 = thisWeaponData->firemodes[cg.snap->ps.firingMode].recoil;
+		float		  fRecoil		 = thisWeaponData->firemodes[altFire].recoil;
 
 		if ( fRecoil )
 		{
@@ -2610,29 +2362,22 @@ void CG_InitG2Weapons(void)
 // clean out any g2 models we instanciated for copying purposes
 void CG_ShutDownG2Weapons(void)
 {
-	int i, j;
+	int i;
 	weaponInfo_t *weapon;
-	weaponData_t *weaponData;
 	
 	for ( i = 0; i < MAX_WEAPON_TABLE_SIZE; i++ )
 	{
 	    trap_G2API_CleanGhoul2Models (&g2WeaponInstances[i].ghoul2);
 	    
 	    weapon = CG_WeaponInfoUnsafe (g2WeaponInstances[i].weaponNum, g2WeaponInstances[i].weaponVariation);
-		weaponData = GetWeaponData( g2WeaponInstances[i].weaponNum, g2WeaponInstances[i].weaponVariation );
 	    if ( weapon != NULL )
 	    {
 	        trap_G2API_CleanGhoul2Models (&weapon->g2WorldModel);
 	        trap_G2API_CleanGhoul2Models (&weapon->g2ViewModel);
-			for(j = 0; j < weaponData->numFiringModes; j++)
-			{
-				trap_G2API_CleanGhoul2Models (&weapon->drawData[j].explosiveRender.tripmine.g2Model);
-				trap_G2API_CleanGhoul2Models (&weapon->drawData[j].explosiveRender.detpack.g2Model);
-			}
-			//trap_G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.tripmine.g2Model);
-	        //trap_G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.detpack.g2Model);
-	        //trap_G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.tripmine.g2Model);
-	        //trap_G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.detpack.g2Model);
+	        trap_G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.tripmine.g2Model);
+	        trap_G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.detpack.g2Model);
+	        trap_G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.tripmine.g2Model);
+	        trap_G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.detpack.g2Model);
 	    }
 	}
 	
@@ -2916,7 +2661,7 @@ weaponInfo_t *CG_WeaponInfo ( unsigned int weaponNum, unsigned int variation )
         }
     }
     
-    //CG_Printf (S_COLOR_RED "Failed to find weapon info for weapon %d, variation %d.\n", weaponNum, variation);
+    CG_Printf (S_COLOR_RED "Failed to find weapon info for weapon %d, variation %d.\n", weaponNum, variation);
     return CG_WeaponInfo (0, 0);
 }
 
@@ -2965,7 +2710,7 @@ weaponInfo_t *CG_NextFreeWeaponInfo ( void )
 //=========================================================
 #define VIEWANGLES_YAW_ADDRESS (0x97DF8C)
 #define VIEWANGLES_PITCH_ADDRESS (0x97DF88)
-static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode )
+static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponData, qboolean altFire )
 {
     const entityState_t *s = &cent->currentState;
     const weaponData_t *thisWeaponData = GetWeaponData (cg.snap->ps.weapon, cg.snap->ps.weaponVariation);
@@ -2985,8 +2730,7 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
     // Do recoil
     if ( s->number == cg.snap->ps.clientNum )
     {
-		//float pitchRecoil = thisWeaponData->firemodes[altFire].recoil;
-		float pitchRecoil = thisWeaponData->firemodes[cg.snap->ps.firingMode].recoil;
+		float pitchRecoil = thisWeaponData->firemodes[altFire].recoil;
 
 		if ( pitchRecoil )
 		{
@@ -3008,7 +2752,7 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
     {
         int index = Q_irand (0, weaponData->weaponFire.generic.fireSoundCount - 1);
         int channel = CHAN_AUTO;
-		if ( thisWeaponData->firemodes[s->firingMode].chargeTime )
+        if ( thisWeaponData->firemodes[altFire].chargeTime )
         {
             channel = CHAN_WEAPON;
         }
@@ -3047,12 +2791,6 @@ static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDra
              weaponData->projectileRender.generic.lightColor[2]
         );
     }
-#ifdef __EXPERIMENTAL_SHADOWS__
-	else
-	{// UQ1: Seems to me these all glow anyway??? Just some don't have D lighting...
-		CG_RecordLightPosition( cent->lerpOrigin );
-	}
-#endif //__EXPERIMENTAL_SHADOWS__
     
     if ( weaponData->projectileRender.generic.runSound )
     {
@@ -3248,13 +2986,9 @@ static __inline void JKG_RenderChargingEffect ( centity_t *cent, const vec3_t mu
         );
         //trap_FX_PlayEffectID (chargingEffect, muzzlePosition, axis[0], -1, -1);
     }
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-	CG_RecordLightPosition( muzzlePosition );
-#endif //__EXPERIMENTAL_SHADOWS__
 }
 
-void JKG_RenderGenericWeaponWorld ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode, const vec3_t angles )
+void JKG_RenderGenericWeaponWorld ( centity_t *cent, const weaponDrawData_t *weaponData, qboolean altFire, const vec3_t angles )
 {
     const entityState_t *s = &cent->currentState;
     qboolean isLocalPlayer = (qboolean)(s->number == cg.predictedPlayerState.clientNum);
@@ -3281,10 +3015,6 @@ void JKG_RenderGenericWeaponWorld ( centity_t *cent, const weaponDrawData_t *wea
                 qfalse,
                 s->constantLight
             );
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_RecordLightPosition( flashOrigin );
-#endif //__EXPERIMENTAL_SHADOWS__
 	    }
 	}
 	
@@ -3380,7 +3110,7 @@ static __inline qboolean JKG_TripMineHasBeam ( const centity_t *cent )
     return cent->currentState.time == -1;
 }
 
-static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode )
+static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDrawData_t *weaponData, qboolean altFire )
 {
     if ( weaponData->explosiveRender.tripmine.g2Model )
     {
@@ -3393,7 +3123,7 @@ static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDra
             weaponData->explosiveRender.tripmine.g2Radius
         );
         
-        if ( firingMode )
+        if ( altFire )
         {
             if ( !JKG_IsTripMineArmed (cent) )
             {
@@ -3448,7 +3178,7 @@ static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDra
     }
 }
 
-static void JKG_RenderDetpackExplosive ( const centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode )
+static void JKG_RenderDetpackExplosive ( const centity_t *cent, const weaponDrawData_t *weaponData, qboolean altFire )
 {
     if ( weaponData->explosiveRender.detpack.g2Model )
     {
@@ -3480,10 +3210,6 @@ static void JKG_BlowGenericExplosive ( const centity_t *cent, const weaponDrawDa
         }
         
         trap_FX_PlayEffectID (weaponData->explosiveBlow.generic.explodeEffect, s->origin, forward, -1, -1);
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_RecordLightPosition( s->origin );
-#endif //__EXPERIMENTAL_SHADOWS__
     }
 }
 
@@ -3548,7 +3274,6 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
     const playerState_t *ps = &cg.predictedPlayerState;
     centity_t *cent = &cg_entities[ps->clientNum];
     const entityState_t *s = &cent->currentState;
-	const networkState_t *ns = &cg.networkState;
     
     const weaponInfo_t *weapon = NULL;
     
@@ -3598,16 +3323,16 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
     gunPosition[2] = abs (cg_gun_z.value) > FLT_EPSILON ? cg_gun_z.value : weapon->gunPosition[2];
     
     {
-        float phase = JKG_CalculateIronsightsPhase (ns);
+        float phase = JKG_CalculateIronsightsPhase (ps);
         vec3_t s;
         VectorSubtract (weapon->ironsightsPosition, gunPosition, s);
         
         VectorMA (gunPosition, phase, s, gunPosition);
-
-		VectorMA (hand.origin, gunPosition[0], cg.refdef.viewaxis[0], hand.origin);
-		VectorMA (hand.origin, gunPosition[1], cg.refdef.viewaxis[1], hand.origin);
-		VectorMA (hand.origin, gunPosition[2] + (fovOffset * (1 - phase)), cg.refdef.viewaxis[2], hand.origin);
     }
+    
+    VectorMA (hand.origin, gunPosition[0], cg.refdef.viewaxis[0], hand.origin);
+    VectorMA (hand.origin, gunPosition[1], cg.refdef.viewaxis[1], hand.origin);
+    VectorMA (hand.origin, gunPosition[2] + fovOffset, cg.refdef.viewaxis[2], hand.origin);
     
     AnglesToAxis (hand.angles, hand.axis);
     
@@ -3628,21 +3353,16 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
         
         ci = &cgs.clientinfo[s->clientNum];
         
-        {
-			float currentFrame, animSpeed;
-			int startFrame,endFrame,flags; //Filler data to make the trap call not go kaboom
-			trap_G2API_GetBoneAnim(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, 0, 0);
-			hand.frame = CG_MapTorsoToWeaponFrame( ci, ceil(currentFrame), ps->torsoAnim );
-			hand.oldframe = CG_MapTorsoToWeaponFrame( ci, floor(currentFrame), ps->torsoAnim );
-			hand.backlerp = 1.0f - (currentFrame-floor(currentFrame));
-		}
+        hand.frame = CG_MapTorsoToWeaponFrame (ci, cent->pe.torso.frame, s->torsoAnim);
+        hand.oldframe = CG_MapTorsoToWeaponFrame (ci, cent->pe.torso.oldFrame, s->torsoAnim);
+        hand.backlerp = cent->pe.torso.backlerp;
         
         if ( hand.frame == -1 )
         {
             hand.frame = hand.oldframe = 0;
             hand.backlerp = 0.0f;
         }
-        else if ( hand.oldframe == -1 )
+        else if ( hand.oldframe )
         {
             hand.oldframe = hand.frame;
             hand.backlerp = 0.0f;
@@ -3706,10 +3426,6 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
             qtrue,
             qtrue,
             s->constantLight);
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_RecordLightPosition( muzzle.origin );
-#endif //__EXPERIMENTAL_SHADOWS__
     }
     
     // TODO: At some point, I want to put this into a common function which the
@@ -3823,76 +3539,48 @@ static const weaponEventsHandler_t wpEventsTable[] =
         JKG_RenderGenericProjectileHitPlayer,
         NULL
     },
-
-	{
-		"laserproj",
-		JKG_RenderGenericWeaponWorld,
-		JKG_RenderGenericWeaponView,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		JKG_RenderDetpackExplosive,
-		NULL,
-		JKG_ArmGenericExplosive,
-		NULL,
-		JKG_RenderExplosiveProjectileMiss,
-        NULL,
-        JKG_RenderGenericProjectileHitPlayer,
-        NULL
-	},
     
     // End sentinel
     { NULL }
 };
 
-void JKG_SetWeaponEventsHandler ( weaponInfo_t *weaponInfo, const char *eventHandlerName, unsigned char firingMode )
+void JKG_SetWeaponEventsHandler ( weaponInfo_t *weaponInfo, const char *primaryEventHandlerName, const char *altEventHandlerName )
 {
     const weaponEventsHandler_t *wpEventHandler = wpEventsTable;
     int found = 0;
     
-
-	weaponInfo->eventsHandler[firingMode] = NULL;
-    //weaponInfo->primaryEventsHandler = NULL;
-    //weaponInfo->altEventsHandler = NULL;
+    weaponInfo->primaryEventsHandler = NULL;
+    weaponInfo->altEventsHandler = NULL;
     
-	while( !found && wpEventHandler->handlerName != NULL )
-	{
-		if ( !weaponInfo->eventsHandler[firingMode] &&
-            Q_stricmp (eventHandlerName, wpEventHandler->handlerName) == 0 )
+    for ( ; found < 2 && wpEventHandler->handlerName != NULL; wpEventHandler++ )
+    {
+        if ( !weaponInfo->primaryEventsHandler &&
+            Q_stricmp (primaryEventHandlerName, wpEventHandler->handlerName) == 0 )
         {
-			weaponInfo->eventsHandler[firingMode] = wpEventHandler;
+            weaponInfo->primaryEventsHandler = wpEventHandler;
             found++;
         }
-		wpEventHandler++;
-	}
-
-	if( !found )
-	{
-		CG_Printf ("Weapon %d: invalid firing mode %i event handler \"%s\".\n", weaponInfo->weaponNum, firingMode, eventHandlerName);
-	}
-    //for ( ; found < 2 && wpEventHandler->handlerName != NULL; wpEventHandler++ )
-    //{
-    //    if ( !weaponInfo->primaryEventsHandler &&
-    //        Q_stricmp (primaryEventHandlerName, wpEventHandler->handlerName) == 0 )
-    //    {
-    //        weaponInfo->primaryEventsHandler = wpEventHandler;
-    //        found++;
-    //    }
-    //}
-    //
-    //if ( found < 2 )
-    //{
-    //    if ( weaponInfo->primaryEventsHandler == NULL )
-    //    {
-    //        CG_Printf ("Weapon %d: invalid primary event handler \"%s\".\n", weaponInfo->weaponNum, primaryEventHandlerName);
-    //    }
-    //    
-    //    if ( weaponInfo->altEventsHandler == NULL )
-    //    {
-    //        CG_Printf ("Weapon %d: invalid alt event handler \"%s\".\n", weaponInfo->weaponNum, altEventHandlerName);
-    //    }
-    //}
+        
+        if ( !weaponInfo->altEventsHandler &&
+            Q_stricmp (altEventHandlerName, wpEventHandler->handlerName) == 0 )
+        {
+            weaponInfo->altEventsHandler = wpEventHandler;
+            found++;
+        }
+    }
+    
+    if ( found < 2 )
+    {
+        if ( weaponInfo->primaryEventsHandler == NULL )
+        {
+            CG_Printf ("Weapon %d: invalid primary event handler \"%s\".\n", weaponInfo->weaponNum, primaryEventHandlerName);
+        }
+        
+        if ( weaponInfo->altEventsHandler == NULL )
+        {
+            CG_Printf ("Weapon %d: invalid alt event handler \"%s\".\n", weaponInfo->weaponNum, altEventHandlerName);
+        }
+    }
 }
 
 void JKG_RenderWeaponWorldModel ( centity_t *cent, const vec3_t angles )
@@ -3917,7 +3605,7 @@ void JKG_RenderWeaponWorldModel ( centity_t *cent, const vec3_t angles )
 	
 	weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
 	
-	/*if ( s->eFlags & EF_ALT_FIRING )
+	if ( s->eFlags & EF_ALT_FIRING )
 	{
 	    if ( weapon->altEventsHandler && weapon->altEventsHandler->WeaponRenderWorld )
 	    {
@@ -3930,10 +3618,6 @@ void JKG_RenderWeaponWorldModel ( centity_t *cent, const vec3_t angles )
 	    {
 	        weapon->primaryEventsHandler->WeaponRenderWorld (cent, &weapon->primDrawData, qfalse, angles);
 	    }
-	}*/
-	if ( weapon->eventsHandler[cent->currentState.firingMode] && weapon->eventsHandler[cent->currentState.firingMode]->WeaponRenderWorld )
-	{
-		weapon->eventsHandler[cent->currentState.firingMode]->WeaponRenderWorld( cent, &weapon->drawData[cent->currentState.firingMode], cent->currentState.firingMode, angles );
 	}
 }
 
@@ -3958,7 +3642,7 @@ void JKG_RenderWeaponViewModel ( void )
 	
 	weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
 	
-	/*if ( !(s->eFlags & EF_ALT_FIRING) )
+	if ( !(s->eFlags & EF_ALT_FIRING) )
 	{
 	    if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->WeaponRenderView )
 	    {
@@ -3971,11 +3655,6 @@ void JKG_RenderWeaponViewModel ( void )
 	    {
 	        weapon->altEventsHandler->WeaponRenderView (&weapon->altDrawData);
 	    }
-	}*/
-
-	if ( weapon->eventsHandler[ps->firingMode] && weapon->eventsHandler[ps->firingMode]->WeaponRenderView )
-	{
-		weapon->eventsHandler[ps->firingMode]->WeaponRenderView(&weapon->drawData[ps->firingMode]);
 	}
 }
 
@@ -3984,7 +3663,7 @@ void JKG_RenderProjectileHitPlayer ( const centity_t *cent, const vec3_t origin,
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->ProjectileHitPlayer )
         {
@@ -3997,12 +3676,7 @@ void JKG_RenderProjectileHitPlayer ( const centity_t *cent, const vec3_t origin,
         {
             weapon->altEventsHandler->ProjectileHitPlayer (&weapon->altDrawData, origin, direction);
         }
-    }*/
-
-	if( weapon->eventsHandler[s->firingMode] && weapon->eventsHandler[s->firingMode]->ProjectileHitPlayer )
-	{
-		weapon->eventsHandler[s->firingMode]->ProjectileHitPlayer ( &weapon->drawData[s->firingMode], origin, direction );
-	}
+    }
 }
 
 void JKG_RenderProjectileMiss ( const centity_t *cent, const vec3_t origin, const vec3_t direction, qboolean altFire )
@@ -4010,7 +3684,7 @@ void JKG_RenderProjectileMiss ( const centity_t *cent, const vec3_t origin, cons
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->ProjectileMiss )
         {
@@ -4023,20 +3697,15 @@ void JKG_RenderProjectileMiss ( const centity_t *cent, const vec3_t origin, cons
         {
             weapon->altEventsHandler->ProjectileMiss (cent, &weapon->altDrawData, origin, direction);
         }
-    }*/
-
-	if( weapon->eventsHandler[s->firingMode] && weapon->eventsHandler[s->firingMode]->ProjectileMiss)
-	{
-		weapon->eventsHandler[s->firingMode]->ProjectileMiss ( cent, &weapon->drawData[s->firingMode], origin, direction );
-	}
+    }
 }
 
-void JKG_RenderProjectileDeath ( const centity_t *cent, const vec3_t origin, const vec3_t direction, unsigned char firingMode )
+void JKG_RenderProjectileDeath ( const centity_t *cent, const vec3_t origin, const vec3_t direction, qboolean altFire )
 {
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->ProjectileDeath )
         {
@@ -4049,20 +3718,15 @@ void JKG_RenderProjectileDeath ( const centity_t *cent, const vec3_t origin, con
         {
             weapon->altEventsHandler->ProjectileDeath (cent, &weapon->altDrawData, origin, direction);
         }
-    }*/
-
-	if( weapon->eventsHandler[firingMode] && weapon->eventsHandler[firingMode]->ProjectileDeath )
-	{
-		weapon->eventsHandler[firingMode]->ProjectileDeath ( cent, &weapon->drawData[firingMode], origin, direction );
-	}
+    }
 }
 
-void JKG_RenderProjectile ( const centity_t *cent, unsigned char firingMode )
+void JKG_RenderProjectile ( const centity_t *cent, qboolean altFire )
 {
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->ProjectileRender )
         {
@@ -4075,12 +3739,7 @@ void JKG_RenderProjectile ( const centity_t *cent, unsigned char firingMode )
         {
             weapon->altEventsHandler->ProjectileRender (cent, &weapon->altDrawData);
         }
-    }*/
-
-	if( weapon->eventsHandler[firingMode] && weapon->eventsHandler[firingMode]->ProjectileRender )
-	{
-		weapon->eventsHandler[firingMode]->ProjectileRender ( cent, &weapon->drawData[firingMode] );
-	}
+    }
 }
 
 void JKG_RenderTraceline ( const centity_t *cent, const vec3_t start, const vec3_t end, qboolean altFire )
@@ -4088,7 +3747,7 @@ void JKG_RenderTraceline ( const centity_t *cent, const vec3_t start, const vec3
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->TracelineRender )
         {
@@ -4101,20 +3760,15 @@ void JKG_RenderTraceline ( const centity_t *cent, const vec3_t start, const vec3
         {
             weapon->altEventsHandler->TracelineRender (&weapon->altDrawData, start, end);
         }
-    }*/
-
-	if( weapon->eventsHandler[s->firingMode] && weapon->eventsHandler[s->firingMode]->TracelineRender )
-	{
-		weapon->eventsHandler[s->firingMode]->TracelineRender ( &weapon->drawData[s->firingMode], start, end );
-	}
+    }
 }
 
-void JKG_BounceGrenade ( const centity_t *cent, unsigned char firingMode )
+void JKG_BounceGrenade ( const centity_t *cent, qboolean altFire )
 {
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->GrenadeBounce )
         {
@@ -4127,20 +3781,15 @@ void JKG_BounceGrenade ( const centity_t *cent, unsigned char firingMode )
         {
             weapon->altEventsHandler->GrenadeBounce (cent, &weapon->altDrawData);
         }
-    }*/
-
-	if( weapon->eventsHandler[firingMode] && weapon->eventsHandler[firingMode]->GrenadeBounce )
-	{
-		weapon->eventsHandler[firingMode]->GrenadeBounce ( cent, &weapon->drawData[firingMode] );
-	}
+    }
 }
 
-void JKG_RenderExplosive ( const centity_t *cent, unsigned char firingMode )
+void JKG_RenderExplosive ( const centity_t *cent, qboolean altFire )
 {
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->ExplosiveRender )
         {
@@ -4153,20 +3802,15 @@ void JKG_RenderExplosive ( const centity_t *cent, unsigned char firingMode )
         {
             weapon->altEventsHandler->ExplosiveRender (cent, &weapon->altDrawData, qtrue);
         }
-    }*/
-
-	if( weapon->eventsHandler[firingMode] && weapon->eventsHandler[firingMode]->ExplosiveRender )
-	{
-		weapon->eventsHandler[firingMode]->ExplosiveRender ( cent, &weapon->drawData[firingMode], firingMode );
-	}
+    }
 }
 
-void JKG_ArmExplosive ( const centity_t *cent, unsigned char firingMode )
+void JKG_ArmExplosive ( const centity_t *cent, qboolean altFire )
 {
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->ExplosiveArm )
         {
@@ -4179,12 +3823,7 @@ void JKG_ArmExplosive ( const centity_t *cent, unsigned char firingMode )
         {
             weapon->altEventsHandler->ExplosiveArm (cent, &weapon->altDrawData);
         }
-    }*/
-
-	if( weapon->eventsHandler[firingMode] && weapon->eventsHandler[firingMode]->ExplosiveArm )
-	{
-		weapon->eventsHandler[firingMode]->ExplosiveArm ( cent, &weapon->drawData[firingMode] );
-	}
+    }
 }
 
 void JKG_ToggleScope ( const centity_t *cent )
@@ -4248,7 +3887,7 @@ void JKG_ChargeWeapon ( const centity_t *cent, qboolean altFire )
     
     weapon = CG_WeaponInfo (weaponNum, variation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->WeaponCharge )
         {
@@ -4261,11 +3900,7 @@ void JKG_ChargeWeapon ( const centity_t *cent, qboolean altFire )
         {
             weapon->altEventsHandler->WeaponCharge (cent, &weapon->altDrawData);
         }
-    }*/
-	if ( weapon->eventsHandler[cent->currentState.firingMode] && weapon->eventsHandler[cent->currentState.firingMode]->WeaponCharge )
-	{
-		weapon->eventsHandler[cent->currentState.firingMode]->WeaponCharge(cent, &weapon->drawData[cent->currentState.firingMode]);
-	}
+    }
 }
 
 void JKG_BlowExplosive ( const centity_t *cent, qboolean altFire )
@@ -4273,7 +3908,7 @@ void JKG_BlowExplosive ( const centity_t *cent, qboolean altFire )
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->ExplosiveBlow )
         {
@@ -4286,11 +3921,7 @@ void JKG_BlowExplosive ( const centity_t *cent, qboolean altFire )
         {
             weapon->altEventsHandler->ExplosiveBlow (cent, &weapon->altDrawData);
         }
-    }*/
-	if ( weapon->eventsHandler[s->firingMode] && weapon->eventsHandler[s->firingMode] )
-	{
-		weapon->eventsHandler[s->firingMode]->ExplosiveBlow (cent, &weapon->drawData[s->firingMode]);
-	}
+    }
 }
 
 void JKG_FireWeapon ( centity_t *cent, qboolean altFire )
@@ -4305,23 +3936,12 @@ void JKG_FireWeapon ( centity_t *cent, qboolean altFire )
     
     if ( s->weapon >= WP_NUM_WEAPONS )
     {
-		// FIXME: should check this in all weapons --eez
         CG_Error ("JKG_FireWeapon: entityState_t::weapon >= WP_NUM_WEAPONS");
         return;
     }
-
-	if( s->number == cg.clientNum )
-	{
-		// It's our gun. do the vibration stuff.
-		weaponData_t	*weaponData = GetWeaponData( s->weapon, s->weaponVariation );
-		float damageModifier = (weaponData->firemodes[s->firingMode].baseDamage)/100.0f;
-
-		CLAMP(damageModifier, 0.3f, 1.0f);
-		JKG_DoControllerRumble( weaponData->firemodes[s->firingMode].delay / 2, damageModifier * 65535 );
-	}
     
     weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
-    /*if ( !altFire )
+    if ( !altFire )
     {
         if ( weapon->primaryEventsHandler && weapon->primaryEventsHandler->WeaponFire )
         {
@@ -4334,12 +3954,5 @@ void JKG_FireWeapon ( centity_t *cent, qboolean altFire )
         {
             weapon->altEventsHandler->WeaponFire (cent, &weapon->altDrawData, qtrue);
         }
-    }*/
-
-	if ( weapon->eventsHandler[s->firingMode] && weapon->eventsHandler[s->firingMode]->WeaponFire )
-	{
-		weapon->eventsHandler[s->firingMode]->WeaponFire (cent, &weapon->drawData[s->firingMode], s->firingMode);
-	}
-
-
+    }
 }

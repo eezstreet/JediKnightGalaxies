@@ -246,6 +246,58 @@ static void CG_StartOrbit_f( void ) {
 	}
 }
 
+void CG_SiegeBriefingDisplay(int team, int dontshow);
+static void CG_SiegeBriefing_f(void)
+{
+	int team;
+
+	if (cgs.gametype != GT_SIEGE)
+	{ //Cannot be displayed unless in this gametype
+		return;
+	}
+
+	team = cg.predictedPlayerState.persistant[PERS_TEAM];
+
+	if (team != SIEGETEAM_TEAM1 &&
+		team != SIEGETEAM_TEAM2)
+	{ //cannot be displayed if not on a valid team
+		return;
+	}
+
+	CG_SiegeBriefingDisplay(team, 0);
+}
+
+static void CG_SiegeCvarUpdate_f(void)
+{
+	int team;
+
+	if (cgs.gametype != GT_SIEGE)
+	{ //Cannot be displayed unless in this gametype
+		return;
+	}
+
+	team = cg.predictedPlayerState.persistant[PERS_TEAM];
+
+	if (team != SIEGETEAM_TEAM1 &&
+		team != SIEGETEAM_TEAM2)
+	{ //cannot be displayed if not on a valid team
+		return;
+	}
+
+	CG_SiegeBriefingDisplay(team, 1);
+}
+static void CG_SiegeCompleteCvarUpdate_f(void)
+{
+
+	if (cgs.gametype != GT_SIEGE)
+	{ //Cannot be displayed unless in this gametype
+		return;
+	}
+
+	// Set up cvars for both teams
+	CG_SiegeBriefingDisplay(SIEGETEAM_TEAM1, 1);
+	CG_SiegeBriefingDisplay(SIEGETEAM_TEAM2, 1);
+}
 /*
 static void CG_Camera_f( void ) {
 	char name[1024];
@@ -443,11 +495,6 @@ static void JKG_OpenInventoryMenu_f ( void )
     CO_InventoryNotify (0);
 }
 
-void JKG_OpenShopMenu_f ( void )
-{
-	CO_ShopNotify(0);
-}
-
 static void JKG_UseACI_f ( void )
 {
     char buf[3];
@@ -477,7 +524,14 @@ static void JKG_UseACI_f ( void )
         return;
     }
     
-    cg.weaponSelect = slot;
+    if ( cg.playerACI[slot] == cg.weaponSelect )
+    {
+        cg.weaponSelect = 0;
+    }
+    else
+    {
+        cg.weaponSelect = cg.playerACI[slot];
+    }
 }
 
 static void JKG_DumpWeaponList_f ( void )
@@ -501,32 +555,6 @@ static void JKG_DumpWeaponList_f ( void )
         CG_Printf ("Failed to write weapon list to %s.\n", filename);
     }
 }
-
-static void JKG_PrintWeaponList_f ( void )
-{
-	BG_PrintWeaponList();
-}
-
-static void JKG_ToggleCrouch ( void )
-{
-	if((cg.time - cg.crouchToggleTime) <= 400)
-	{
-		// You can now no longer "teabag at maximum velocity" --eez
-		return;
-	}
-	cg.crouchToggled = !cg.crouchToggled;
-	cg.crouchToggleTime = cg.time;
-}
-
-#ifdef __AUTOWAYPOINT__
-extern void AIMod_AutoWaypoint ( void );
-extern void AIMod_AutoWaypoint_Clean ( void );
-extern void AIMod_MarkBadHeight ( void );
-extern void AIMod_AddRemovalPoint ( void );
-extern void AIMod_AWC_MarkBadHeight ( void );
-extern void CG_ShowSurface ( void );
-extern void CG_ShowSlope ( void );
-#endif //__AUTOWAYPOINT__
 
 typedef struct {
 	char	*cmd;
@@ -563,6 +591,9 @@ static consoleCommand_t	commands[] = {
 	{ "invprev", CG_PrevInventory_f },
 	{ "forcenext", CG_NextForcePower_f },
 	{ "forceprev", CG_PrevForcePower_f },
+	{ "briefing", CG_SiegeBriefing_f },
+	{ "siegeCvarUpdate", CG_SiegeCvarUpdate_f },
+	{ "siegeCompleteCvarUpdate", CG_SiegeCompleteCvarUpdate_f },
 	// Jedi Knight Galaxies
 	{ "motionblur", PP_MotionBlurCmd },
 	{ "colormod", PP_ColorModCmd },
@@ -575,30 +606,14 @@ static consoleCommand_t	commands[] = {
 	{ "-camera", CG_Stop360Camera },
 	{ "cameraZoomIn", CG_CameraZoomIn },
 	{ "cameraZoomOut", CG_CameraZoomOut },
-	//{ "party", CG_OpenPartyManagement_f },
+	{ "party", CG_OpenPartyManagement_f },
 	{ "printWeaponMuzzle", CG_PrintWeaponMuzzleOffset_f },
 	{ "useACI", JKG_UseACI_f },
 	{ "inventory", JKG_OpenInventoryMenu_f },
-	{ "shop", JKG_OpenShopMenu_f },
 	{ "dumpWeaponList", JKG_DumpWeaponList_f },
-	{ "printWeaponList", JKG_PrintWeaponList_f },
 	
 	// TEST
 	{ "cg_testmaster", CG_TestMaster },
-
-#ifdef __AUTOWAYPOINT__
-	{ "awp", AIMod_AutoWaypoint },
-	{ "autowaypoint", AIMod_AutoWaypoint },
-	{ "awc", AIMod_AutoWaypoint_Clean },
-	{ "autowaypointclean", AIMod_AutoWaypoint_Clean },
-	{ "showsurface", CG_ShowSurface },
-	{ "showslope", CG_ShowSlope },
-	{ "aw_badheight", AIMod_MarkBadHeight },
-	{ "awc_addremovalspot", AIMod_AddRemovalPoint },
-	{ "awc_addbadheight", AIMod_AWC_MarkBadHeight },
-#endif //__AUTOWAYPOINT__
-
-	{ "togglecrouch", JKG_ToggleCrouch },
 };
 
 

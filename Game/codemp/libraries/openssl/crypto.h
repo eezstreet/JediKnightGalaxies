@@ -348,7 +348,7 @@ DECLARE_STACK_OF(CRYPTO_EX_DATA_FUNCS)
 	CRYPTO_set_mem_debug_functions(\
 		CRYPTO_dbg_malloc,\
 		CRYPTO_dbg_realloc,\
-		CRYPTO_dfree,\
+		CRYPTO_dbg_free,\
 		CRYPTO_dbg_set_options,\
 		CRYPTO_dbg_get_options);\
 	} while(0)
@@ -518,7 +518,7 @@ int CRYPTO_remove_all_info(void);
  */
 void CRYPTO_dbg_malloc(void *addr,int num,const char *file,int line,int before_p);
 void CRYPTO_dbg_realloc(void *addr1,void *addr2,int num,const char *file,int line,int before_p);
-void CRYPTO_dfree(void *addr,int before_p);
+void CRYPTO_dbg_free(void *addr,int before_p);
 /* Tell the debugging code about options.  By default, the following values
  * apply:
  *

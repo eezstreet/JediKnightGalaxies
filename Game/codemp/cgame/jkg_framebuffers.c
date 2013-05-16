@@ -6,7 +6,7 @@
 // for post-processing.
 //
 // Version:
-// $Id: jkg_framebuffers.c 419 2011-10-14 21:56:40Z Xycaleth $
+// $Id: jkg_framebuffers.c 418 2011-10-14 21:11:22Z Xycaleth $
 //=========================================================*/
 
 #include <GL/glew.h>
@@ -140,7 +140,7 @@ qboolean FBO_FramebufferInit ( void )
     memset (textures, 0, sizeof (textures));
     memset (renderbuffers, 0, sizeof (renderbuffers));
     
-    FramebufferSupported = (qboolean)glewIsSupported ("GL_EXT_framebuffer_object GL_EXT_framebuffer_blit");
+    FramebufferSupported = (qboolean)(GLEW_EXT_framebuffer_object && GLEW_EXT_framebuffer_blit);
     
     // NPOT textures were introduced into the OpenGL 2.0 core specification.
     NativeNPOTSupported = (qboolean)GLEW_VERSION_2_0;
@@ -149,7 +149,7 @@ qboolean FBO_FramebufferInit ( void )
         CG_Printf (S_COLOR_YELLOW "...Non-power of two textures not supported\n");
     }
     
-    PBOSupported = (qboolean)glewIsSupported ("GL_ARB_pixel_buffer_object");
+    PBOSupported = (qboolean)GLEW_ARB_pixel_buffer_object;
     
     CheckGLErrors (__FILE__, __LINE__);
     
@@ -186,7 +186,7 @@ void FBO_FramebufferCleanup ( void )
     
     FBO_BindDefaultFramebuffer();
     
-    //CheckGLErrors (__FILE__, __LINE__);	// holy shit shut the fuck up
+    CheckGLErrors (__FILE__, __LINE__);
 }
 
 framebuffer_t* FBO_CreateFramebuffer ( void )
@@ -337,7 +337,7 @@ void FBO_BindDefaultFramebuffer ( void )
         cg.framebufferActive = qfalse;
     }
     
-    //CheckGLErrors (__FILE__, __LINE__);		// shush
+    CheckGLErrors (__FILE__, __LINE__);
 }
 
 void FBO_BindFramebuffer ( const framebuffer_t* framebuffer )

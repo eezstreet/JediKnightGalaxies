@@ -268,33 +268,23 @@ void JKG_WeaponIndicators_Update(centity_t *cent, playerState_t *ps) {
 		}
 		else
 		{
-			ammo = ps->ammo;
+			ammo = ps->ammo[GetWeaponAmmoIndex( cent->currentState.weapon, cent->currentState.weaponVariation )];
 		}
 
 	} else {
 		ammo = 0;
 	}
 
-	if ( ammo )
-	{
-		if ( weaponData->firemodes[ps->firingMode].cost > 0 )
-		{
-			ammo /= weaponData->firemodes[ps->firingMode].cost;
-		}
-	}
+    if ( weaponData->firemodes[0].cost > 0 )
+    {
+        ammo /= weaponData->firemodes[0].cost;
+    }
 
 	if (ps) {	// This is my weapon
         switch ( weaponInfo->indicatorType )
         {
             case IND_NORMAL:
-				if ( weaponData->visuals.visualFireModes[ps->firingMode].overrideIndicatorFrame != -1 )
-				{
-					CG_OverrideShaderFrame (weaponInfo->fireModeIndicator, weaponData->visuals.visualFireModes[ps->firingMode].overrideIndicatorFrame);
-				}
-				else
-				{
-					CG_OverrideShaderFrame (weaponInfo->fireModeIndicator, ps->firingMode);
-				}
+                CG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0);
                 if ( PlayerIsReloading() )
                 {
                     CG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 11);

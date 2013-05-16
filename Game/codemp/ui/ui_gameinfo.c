@@ -164,9 +164,6 @@ void UI_LoadArenas( void ) {
 			if( strstr( type, "ffa" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
 			}
-			if( strstr( type, "warzone" ) ) {
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_WARZONE);
-			}
 			if( strstr( type, "holocron" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_HOLOCRON);
 			}
@@ -180,6 +177,9 @@ void UI_LoadArenas( void ) {
 			if( strstr( type, "powerduel" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_DUEL);
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_POWERDUEL);
+			}
+			if( strstr( type, "siege" ) ) {
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_SIEGE);
 			}
 			if( strstr( type, "ctf" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTF);

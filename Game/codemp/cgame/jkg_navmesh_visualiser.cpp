@@ -1,9 +1,6 @@
-#ifdef __DISABLED__
-
 #include <DebugDraw.h>
 #include <Recast.h>
 #include <RecastDebugDraw.h>
-
 extern "C"
 {
     #include "cg_local.h"
@@ -193,113 +190,102 @@ static navMeshDataHeader_t navMeshHeader;
 static navMeshVisual_t navMeshVisual;
 static jkgNavmeshDebugDraw navMeshDrawer;
 
-#endif //__DISABLED__
-
 extern "C"
 {
-	void JKG_Nav_Init ( const char *mapname )
-	{
-#ifdef __DISABLED__
-		fileHandle_t f;
-		char *buffer;
-		int size = 0;
-		int fileLen = trap_FS_FOpenFile (va ("%s.jnd", mapname), &f, FS_READ);
 
-		if ( fileLen == -1 || !f )
-		{
-			CG_Printf ("^1No navigation mesh cache found for this map.\n");
-			return;
-		}
+void JKG_Nav_Init ( const char *mapname )
+{
+    fileHandle_t f;
+    char *buffer;
+    int size = 0;
+    int fileLen = trap_FS_FOpenFile (va ("%s.jnd", mapname), &f, FS_READ);
+    
+    if ( fileLen == -1 || !f )
+    {
+        CG_Printf ("No navigation mesh cache found for this map.\n");
+        return;
+    }
+    
+    buffer = (char *)malloc (fileLen + 1);
+    trap_FS_Read (buffer, fileLen, f);
+    buffer[fileLen] = '\0';
+    trap_FS_FCloseFile (f);
+    
+    navMeshHeader = *(navMeshDataHeader_t *)buffer;
+    
+    size = sizeof (unsigned short) * 3 * navMeshHeader.numVerts;
+    navMeshVisual.verts = (unsigned short *)malloc (size);
+    memcpy (navMeshVisual.verts, &buffer[navMeshHeader.vertsOffset], size);
+    
+    size = sizeof (unsigned short) * navMeshHeader.numPolys * navMeshHeader.numVertsPerPoly * 2;
+    navMeshVisual.polys = (unsigned short *)malloc (size);
+    memcpy (navMeshVisual.polys, &buffer[navMeshHeader.polysOffset], size);
+    
+    size = navMeshHeader.numPolys * sizeof (unsigned char);
+    navMeshVisual.areas = (unsigned char *)malloc (size);
+    memcpy (navMeshVisual.areas, &buffer[navMeshHeader.areasOffset], size);
+    
+    size = navMeshHeader.numPolys * sizeof (unsigned short);
+    navMeshVisual.flags = (unsigned short *)malloc (size);
+    memcpy (navMeshVisual.flags, &buffer[navMeshHeader.flagsOffset], size);
+    
+    size = navMeshHeader.dNumMeshes * sizeof (unsigned int) * 4;
+    navMeshVisual.meshes = (unsigned int *)malloc (size);
+    memcpy (navMeshVisual.meshes, &buffer[navMeshHeader.dMeshesOffset], size);
+    
+    size = navMeshHeader.dNumVerts * sizeof (float) * 3;
+    navMeshVisual.dVerts = (float *)malloc (size);
+    memcpy (navMeshVisual.dVerts, &buffer[navMeshHeader.dVertsOffset], size);
+    
+    size = navMeshHeader.dNumTris * sizeof (unsigned char) * 3;
+    navMeshVisual.tris = (unsigned char *)malloc (size);
+    memcpy (navMeshVisual.tris, &buffer[navMeshHeader.dTrisOffset], size);
+    
+    navMeshVisual.polyMesh.areas = navMeshVisual.areas;
+    navMeshVisual.polyMesh.bmax[0] = navMeshHeader.maxs[0];
+    navMeshVisual.polyMesh.bmax[1] = navMeshHeader.maxs[1];
+    navMeshVisual.polyMesh.bmax[2] = navMeshHeader.maxs[2];
+    navMeshVisual.polyMesh.bmin[0] = navMeshHeader.mins[0];
+    navMeshVisual.polyMesh.bmin[1] = navMeshHeader.mins[1];
+    navMeshVisual.polyMesh.bmin[2] = navMeshHeader.mins[2];
+    navMeshVisual.polyMesh.ch = navMeshHeader.cellHeight;
+    navMeshVisual.polyMesh.cs = navMeshHeader.cellSize;
+    navMeshVisual.polyMesh.flags = navMeshVisual.flags;
+    navMeshVisual.polyMesh.maxpolys = navMeshVisual.polyMesh.npolys = navMeshHeader.numPolys;
+    navMeshVisual.polyMesh.nverts = navMeshHeader.numVerts;
+    navMeshVisual.polyMesh.nvp = navMeshHeader.numVertsPerPoly;
+    navMeshVisual.polyMesh.polys = navMeshVisual.polys;
+    navMeshVisual.polyMesh.regs = NULL;
+    navMeshVisual.polyMesh.verts = navMeshVisual.verts;
+    
+    free (buffer);
+}
 
-		buffer = (char *)malloc (fileLen + 1);
-		trap_FS_Read (buffer, fileLen, f);
-		buffer[fileLen] = '\0';
-		trap_FS_FCloseFile (f);
+void JKG_Nav_Destroy ( void )
+{
+    free (navMeshVisual.areas);
+    free (navMeshVisual.dVerts);
+    free (navMeshVisual.flags);
+    free (navMeshVisual.meshes);
+    free (navMeshVisual.polys);
+    free (navMeshVisual.tris);
+    free (navMeshVisual.verts);
+}
 
-		navMeshHeader = *(navMeshDataHeader_t *)buffer;
+extern vmCvar_t jkg_debugNavmesh;
+void JKG_Nav_VisualizeMesh ( void )
+{
+    if ( !jkg_debugNavmesh.integer )
+    {
+        return;
+    }
 
-		size = sizeof (unsigned short) * 3 * navMeshHeader.numVerts;
-		navMeshVisual.verts = (unsigned short *)malloc (size);
-		memcpy (navMeshVisual.verts, &buffer[navMeshHeader.vertsOffset], size);
+    if ( !navMeshHeader.version )
+    {
+        return;
+    }
+        
+    duDebugDrawPolyMesh (&navMeshDrawer, navMeshVisual.polyMesh);
+}
 
-		size = sizeof (unsigned short) * navMeshHeader.numPolys * navMeshHeader.numVertsPerPoly * 2;
-		navMeshVisual.polys = (unsigned short *)malloc (size);
-		memcpy (navMeshVisual.polys, &buffer[navMeshHeader.polysOffset], size);
-
-		size = navMeshHeader.numPolys * sizeof (unsigned char);
-		navMeshVisual.areas = (unsigned char *)malloc (size);
-		memcpy (navMeshVisual.areas, &buffer[navMeshHeader.areasOffset], size);
-
-		size = navMeshHeader.numPolys * sizeof (unsigned short);
-		navMeshVisual.flags = (unsigned short *)malloc (size);
-		memcpy (navMeshVisual.flags, &buffer[navMeshHeader.flagsOffset], size);
-
-		size = navMeshHeader.dNumMeshes * sizeof (unsigned int) * 4;
-		navMeshVisual.meshes = (unsigned int *)malloc (size);
-		memcpy (navMeshVisual.meshes, &buffer[navMeshHeader.dMeshesOffset], size);
-
-		size = navMeshHeader.dNumVerts * sizeof (float) * 3;
-		navMeshVisual.dVerts = (float *)malloc (size);
-		memcpy (navMeshVisual.dVerts, &buffer[navMeshHeader.dVertsOffset], size);
-
-		size = navMeshHeader.dNumTris * sizeof (unsigned char) * 3;
-		navMeshVisual.tris = (unsigned char *)malloc (size);
-		memcpy (navMeshVisual.tris, &buffer[navMeshHeader.dTrisOffset], size);
-
-		navMeshVisual.polyMesh.areas = navMeshVisual.areas;
-		navMeshVisual.polyMesh.bmax[0] = navMeshHeader.maxs[0];
-		navMeshVisual.polyMesh.bmax[1] = navMeshHeader.maxs[1];
-		navMeshVisual.polyMesh.bmax[2] = navMeshHeader.maxs[2];
-		navMeshVisual.polyMesh.bmin[0] = navMeshHeader.mins[0];
-		navMeshVisual.polyMesh.bmin[1] = navMeshHeader.mins[1];
-		navMeshVisual.polyMesh.bmin[2] = navMeshHeader.mins[2];
-		navMeshVisual.polyMesh.ch = navMeshHeader.cellHeight;
-		navMeshVisual.polyMesh.cs = navMeshHeader.cellSize;
-		navMeshVisual.polyMesh.flags = navMeshVisual.flags;
-		navMeshVisual.polyMesh.maxpolys = navMeshVisual.polyMesh.npolys = navMeshHeader.numPolys;
-		navMeshVisual.polyMesh.nverts = navMeshHeader.numVerts;
-		navMeshVisual.polyMesh.nvp = navMeshHeader.numVertsPerPoly;
-		navMeshVisual.polyMesh.polys = navMeshVisual.polys;
-		navMeshVisual.polyMesh.regs = NULL;
-		navMeshVisual.polyMesh.verts = navMeshVisual.verts;
-
-		free (buffer);
-
-		CG_Printf ("^2Navigation mesh cache found for this map.\n");
-#endif //__DISABLED__
-	}
-
-	void JKG_Nav_Destroy ( void )
-	{
-#ifdef __DISABLED__
-		free (navMeshVisual.areas);
-		free (navMeshVisual.dVerts);
-		free (navMeshVisual.flags);
-		free (navMeshVisual.meshes);
-		free (navMeshVisual.polys);
-		free (navMeshVisual.tris);
-		free (navMeshVisual.verts);
-#endif //__DISABLED__
-	}
-
-#ifdef __DISABLED__
-	extern vmCvar_t jkg_debugNavmesh;
-#endif //__DISABLED__
-
-	void JKG_Nav_VisualizeMesh ( void )
-	{
-#ifdef __DISABLED__
-		if ( !jkg_debugNavmesh.integer )
-		{
-			return;
-		}
-
-		if ( !navMeshHeader.version )
-		{
-			return;
-		}
-
-		duDebugDrawPolyMesh (&navMeshDrawer, navMeshVisual.polyMesh);
-#endif //__DISABLED__
-	}
 }

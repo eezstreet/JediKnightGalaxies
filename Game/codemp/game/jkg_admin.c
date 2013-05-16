@@ -282,9 +282,7 @@ static void AdmCmd_AmKick(gentity_t *ent, int clientNum, int rank)
 		trap_DropClient(target, va("was kicked: %s", reason));
 	} else {
 		G_LogPrintf("Admin: %s has kicked %s\n", SanitizeName(ent->client->pers.netname), SanitizeName(level.clients[target].pers.netname));
-#ifndef __MMO__ // UQ1: clear up some spam when kicking mass bots. Could add bot check if we really need this to display...
 		trap_DropClient(target, "was kicked");
-#endif //__MMO__
 	}
 }
 
@@ -877,7 +875,7 @@ static void AdmCmd_AmLoot(gentity_t *ent, int clientNum, int rank)
 	item.id = &itemLookupTable[id];
 	item.itemQuality = quality;
 
-	if((ent->client->coreStats.weight - item.id->weight) <= 0)
+	if((ent->client->coreStats.weight - item.id->weight) < 0)
 	{
 		trap_SendServerCommand(clientNum, "print \"You cannot carry any more items.\n\"");
 		return;
@@ -983,50 +981,6 @@ static void RconCmd_AmGrant(void)
 
 	level.clients[target].sess.adminRank = rank;
 	G_Printf("Player %i (%s) now has admin rank %s\n", target, SanitizeName(level.clients[target].pers.netname), adminRanks[rank]);
-}
-
-/******************************************************\
-|* AmSpeak
-|*
-|* Description:
-|* Talks via chat
-|*
-|* 
-|* Syntax: amspeak "message"
-\******************************************************/
-static void RconCmd_AmSpeak(void)
-{
-	char message[1024];
-	
-	if (Cmd_Argc() < 2) {
-		G_Printf("Syntax: amspeak \"message\"\n");
-		return;
-	}
-	
-	strcpy(message, ConcatArgs(1));
-	trap_SendServerCommand(-1, va("chat 100 \"^3[SERVER] %s\"", message));
-}
-
-/******************************************************\
-|* AmCP
-|*
-|* Description:
-|* Centerprint.
-|*
-|* 
-|* Syntax: amcp "message"
-\******************************************************/
-static void RconCmd_AmCP(void)
-{
-	char message[1024];
-	
-	if (Cmd_Argc() < 2) {
-		G_Printf("Syntax: amcp \"message\"\n");
-		return;
-	}
-	
-	strcpy(message, Cmd_Argv(1));
-	trap_SendServerCommand(-1, va("cp \"%s\"", message));
 }
 
 
@@ -1262,8 +1216,6 @@ static admRconCmd_t rconCmds[] = {
 	{"amlistbans",	RconCmd_AmListBans},
 	{"amclearbans", RconCmd_AmClearBans},
 	
-	{"amspeak",		RconCmd_AmSpeak},
-	{"amprint",		RconCmd_AmCP},
 	/* Sentinel to terminate the table */
 	{NULL,			NULL},
 };

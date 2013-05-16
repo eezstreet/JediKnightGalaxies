@@ -8,10 +8,9 @@
 // Include GLua 
 #include "../GLua/glua.h"
 #include "jkg_admin.h"
-#ifdef __UNUSED__
-#include "jkg_navmesh_creator.h"
-#endif //__UNUSED__
+
 #include "jkg_threading.h"
+#include "jkg_libcurl.h"
 #include "json/cJSON.h"
 
 
@@ -19,7 +18,7 @@
 ==============================================================================
 
 PACKET FILTERING
-
+ 
 
 You can add or remove addresses from the filter list with:
 
@@ -63,8 +62,6 @@ typedef struct ipFilter_s
 static ipFilter_t	ipFilters[MAX_IPFILTERS];
 static int			numIPFilters;
 
-extern void AIMod_TimeMapPaths();
-
 /*
 =================
 StringToFilter
@@ -76,13 +73,13 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 	int		i, j;
 	byte	b[4];
 	byte	m[4];
-
+	
 	for (i=0 ; i<4 ; i++)
 	{
 		b[i] = 0;
 		m[i] = 0;
 	}
-
+	
 	for (i=0 ; i<4 ; i++)
 	{
 		if (*s < '0' || *s > '9')
@@ -90,7 +87,7 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 			G_Printf( "Bad filter address: %s\n", s );
 			return qfalse;
 		}
-
+		
 		j = 0;
 		while (*s >= '0' && *s <= '9')
 		{
@@ -105,10 +102,10 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 			break;
 		s++;
 	}
-
+	
 	f->mask = *(unsigned *)m;
 	f->compare = *(unsigned *)b;
-
+	
 	return qtrue;
 }
 
@@ -166,7 +163,7 @@ qboolean G_FilterPacket (char *from)
 			break;
 		i++, p++;
 	}
-
+	
 	in = *(unsigned int *)m;
 
 	for (i=0 ; i<numIPFilters ; i++)
@@ -197,7 +194,7 @@ static void AddIP( char *str )
 		}
 		numIPFilters++;
 	}
-
+	
 	if (!StringToFilter (str, &ipFilters[i]))
 		ipFilters[i].compare = 0xffffffffu;
 
@@ -273,11 +270,11 @@ void Svcmd_RemoveIP_f (void)
 	for (i=0 ; i<numIPFilters ; i++) {
 		if (ipFilters[i].mask == f.mask	&&
 			ipFilters[i].compare == f.compare) {
-				ipFilters[i].compare = 0xffffffffu;
-				G_Printf ("Removed.\n");
+			ipFilters[i].compare = 0xffffffffu;
+			G_Printf ("Removed.\n");
 
-				UpdateIPBans();
-				return;
+			UpdateIPBans();
+			return;
 		}
 	}
 
@@ -453,7 +450,7 @@ void Cmd_DisAsmDirect_f();
 
 int testMasterFinalFunc (struct asyncTask_s *task) {
 	cJSON *data = (cJSON *)task->finalData;
-
+	
 	if (task->errorCode == 0) {
 		G_Printf("Test successful! (bounce: %i - %i)", cJSON_ToInteger(cJSON_GetObjectItem(data, "bounce")), level.time);
 	} else {
@@ -503,6 +500,11 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	if (!Q_stricmp( cmd, "testmaster" )) {
+		JKG_NewNetworkTask(LCMETHOD_TEST, testMasterFinalFunc);
+		return qtrue;
+	}
+
 	if (!Q_stricmp (cmd, "stresslevel")) {
 		JKG_GLS_StressLevelInfo();
 		return qtrue;
@@ -541,11 +543,11 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-	/*	if (Q_stricmp (cmd, "abort_podium") == 0) {
-	Svcmd_AbortPodium_f();
-	return qtrue;
+/*	if (Q_stricmp (cmd, "abort_podium") == 0) {
+		Svcmd_AbortPodium_f();
+		return qtrue;
 	}
-	*/
+*/
 	if (Q_stricmp (cmd, "addip") == 0) {
 		Svcmd_AddIP_f();
 		return qtrue;
@@ -561,28 +563,11 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-#ifdef __UNUSED__
-	if ( Q_stricmp (cmd, "nav_generate") == 0 )
-	{
-		char mapname[MAX_STRING_CHARS] = { 0 };
-		trap_Cvar_VariableStringBuffer ("mapname", mapname, sizeof (mapname));
-		JKG_Nav_CreateNavMesh (va ("maps/%s.bsp", mapname));
-		return qtrue;
-	}
-#endif //__UNUSED__
-
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
 			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
-
-		if ( Q_stricmp (cmd, "timemappaths") == 0 )
-		{
-			AIMod_TimeMapPaths();
-			return qtrue;
-		}
-
 		// everything else will also be printed as a say command
 		//trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(0) ) );
 		G_Printf("Unknown server command '%s'\n", cmd);

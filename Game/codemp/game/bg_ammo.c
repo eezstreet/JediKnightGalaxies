@@ -6,7 +6,8 @@
 #include "../cgame/cg_local.h"
 #endif
 
-ammo_t ammoTable[JKG_MAX_AMMO_INDICES];
+#define MAX_AMMO_TABLE_SIZE (128)
+static ammo_t ammoTable[MAX_AMMO_TABLE_SIZE];
 static unsigned int numAmmoLoaded = 0;
 static ammo_t defaultAmmo;
 
@@ -22,7 +23,7 @@ const ammo_t *BG_GetAmmo ( const char *ammoName )
         return prevAmmo;
     }
     
-    for ( i = 0; i < JKG_MAX_AMMO_INDICES; i++, ammo++ )
+    for ( i = 0; i < MAX_AMMO_TABLE_SIZE; i++, ammo++ )
     {
         if ( Q_stricmp (ammo->name, ammoName) == 0 )
         {
@@ -37,7 +38,6 @@ const ammo_t *BG_GetAmmo ( const char *ammoName )
 
 static void ParseAmmoFile ( const char *fileText )
 {
-	int i = 0;
     cJSON *json = NULL;
     char jsonError[MAX_STRING_CHARS] = { 0 };
 
@@ -53,17 +53,14 @@ static void ParseAmmoFile ( const char *fileText )
         cJSON *field;
         const char *string = NULL;
         
-        for ( jsonNode = cJSON_GetFirstItem (json); jsonNode; jsonNode = cJSON_GetNextItem (jsonNode), ammo++, numAmmoLoaded++, i++ )
+        for ( jsonNode = cJSON_GetFirstItem (json); jsonNode; jsonNode = cJSON_GetNextItem (jsonNode), ammo++, numAmmoLoaded++ )
         {
             field = cJSON_GetObjectItem (jsonNode, "name");
             string = cJSON_ToString (field);
-			if(string && string[0])
-				Q_strncpyz (ammo->name, string, sizeof (ammo->name));
-
-			field = cJSON_GetObjectItem (jsonNode, "ammoMax");
-			ammo->ammoMax = cJSON_ToNumber(field);
-
-			ammo->ammoIndex = i;
+            Q_strncpyz (ammo->name, string, sizeof (ammo->name));
+            
+            field = cJSON_GetObjectItem (jsonNode, "clipsize");
+            ammo->clipSize = cJSON_ToIntegerOpt (field, 100);
             
             #ifdef CGAME
             {
@@ -134,16 +131,16 @@ static qboolean LoadAmmo ( void )
     
     Com_Printf ("------- Ammo Initialization -------\n");
     
-    fileLength = strap_FS_FOpenFile ("ext_data/tables/ammo.json", &f, FS_READ);
+    fileLength = strap_FS_FOpenFile ("ext_data/weapons/ammo.txt", &f, FS_READ);
     if ( fileLength == -1 || !f )
     {
-        Com_Printf (S_COLOR_RED "Error: Failed to read the ammo.json file. File is unreadable or does not exist.\n");
+        Com_Printf (S_COLOR_RED "Error: Failed to read the ammo.txt file. File is unreadable or does not exist.\n");
         return qfalse;
     }
     
     if ( fileLength == 0 )
     {
-        Com_Printf (S_COLOR_RED "Error: ammo.json file is empty.\n");
+        Com_Printf (S_COLOR_RED "Error: ammo.txt file is empty.\n");
         strap_FS_FCloseFile (f);
         return qfalse;
     }
@@ -169,7 +166,7 @@ static qboolean LoadAmmo ( void )
 void BG_InitializeAmmo ( void )
 {
     Q_strncpyz (defaultAmmo.name, "_defaultAmmo", sizeof (defaultAmmo.name));
-    defaultAmmo.ammoMax = 100;
+    defaultAmmo.clipSize = 100;
     
     if ( !LoadAmmo() )
     {

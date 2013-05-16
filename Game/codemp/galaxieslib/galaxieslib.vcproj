@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib psapi.lib winmm.lib ws2_32.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib"
+				AdditionalDependencies="dbghelp.lib psapi.lib winmm.lib libcurld.lib ws2_32.lib libeay32.lib libogg.lib libvorbis.lib libtheora.lib"
 				OutputFile="$(OutDir)\galaxiesx86.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../libraries/libcurl;../libraries/openssl;../libraries/ogg;../libraries/theora;../libraries/vorbis"
@@ -393,6 +393,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\jkg_libcurl.c"
+				>
+			</File>
+			<File
 				RelativePath=".\jkg_threading.c"
 				>
 			</File>
@@ -432,10 +436,6 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
-				>
-			</File>
-			<File
-				RelativePath="..\game\z_global_defines.h"
 				>
 			</File>
 		</Filter>

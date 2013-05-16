@@ -192,68 +192,6 @@ void CG_ParseServerinfo( void ) {
 
 /*
 ==================
-JKG_ShopConfirm
-See comment in g_cmds.c --eez
-==================
-*/
-
-static void JKG_ShopConfirm( void )
-{
-	int creditCount = atoi(CG_Argv(1));
-	int itemID = atoi(CG_Argv(2));
-
-	cg.snap->ps.persistant[PERS_CREDITS] = creditCount;
-	cg.playerInventory[cg.numItemsInInventory-1].id = &CGitemLookupTable[itemID];		// MEGA UNSTABLE HACK HERE USE EXTREME CAUTION
-
-	if(CGitemLookupTable[itemID].itemType == ITEM_WEAPON)
-	{
-		// hm, go for ACI now
-		int i = 0;
-		for(; i < MAX_ACI_SLOTS; i++)
-		{
-			if(cg.playerACI[i] == -1)
-			{
-				cg.playerACI[i] = cg.numItemsInInventory-1;
-				break;
-			}
-			
-		}
-	}
-
-	CO_ShopNotify(1);
-}
-
-/*
-==================
-JKG_AddToACI
-See comment in g_cmds.c --eez
-==================
-*/
-
-static void JKG_AddToACI( void )
-{
-	int itemID = atoi(CG_Argv(1));
-
-	cg.playerInventory[cg.numItemsInInventory-1].id = &CGitemLookupTable[itemID];		// MEGA UNSTABLE HACK HERE USE EXTREME CAUTION
-
-	if(CGitemLookupTable[itemID].itemType == ITEM_WEAPON)
-	{
-		// hm, go for ACI now
-		int i = 0;
-		for(; i < MAX_ACI_SLOTS; i++)
-		{
-			if(cg.playerACI[i] == -1)
-			{
-				cg.playerACI[i] = cg.numItemsInInventory-1;
-				break;
-			}
-			
-		}
-	}
-}
-
-/*
-==================
 CG_ParseWarmup
 ==================
 */
@@ -727,7 +665,13 @@ CG_ConfigStringModified
 
 ================
 */
+extern int cgSiegeRoundState;
+extern int cgSiegeRoundTime;
+void CG_ParseSiegeObjectiveStatus(const char *str);
 void CG_ParseWeatherEffect(const char *str);
+extern void CG_ParseSiegeState(const char *str); //cg_main.c
+extern int cg_beatingSiegeTime;
+extern int cg_siegeWinTeam;
 static void CG_ConfigStringModified( void ) {
 	const char	*str;
 	int		num;
@@ -874,6 +818,29 @@ static void CG_ConfigStringModified( void ) {
 		{
 			cgs.gameEffects[ num-CS_EFFECTS] = trap_FX_RegisterEffect( str );
 		}
+	}
+	else if ( num >= CS_SIEGE_STATE && num < CS_SIEGE_STATE+1 )
+	{
+		if (str[0])
+		{
+			CG_ParseSiegeState(str);
+		}
+	}
+	else if ( num >= CS_SIEGE_WINTEAM && num < CS_SIEGE_WINTEAM+1 )
+	{
+		if (str[0])
+		{
+			cg_siegeWinTeam = atoi(str);
+		}
+	}
+	else if ( num >= CS_SIEGE_OBJECTIVES && num < CS_SIEGE_OBJECTIVES+1 )
+	{
+		CG_ParseSiegeObjectiveStatus(str);
+	}
+	else if (num >= CS_SIEGE_TIMEOVERRIDE && num < CS_SIEGE_TIMEOVERRIDE+1)
+	{
+		cg_beatingSiegeTime = atoi(str);
+		CG_SetSiegeTimerCvar ( cg_beatingSiegeTime );
 	}
 	else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS )
 	{
@@ -1067,7 +1034,7 @@ static void CG_MapRestart( void ) {
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
-	if ( cg.warmup == 0 && cgs.gametype != GT_POWERDUEL/* && cgs.gametype == GT_DUEL */) {
+	if ( cg.warmup == 0 && cgs.gametype != GT_SIEGE && cgs.gametype != GT_POWERDUEL/* && cgs.gametype == GT_DUEL */) {
 		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
 	}
@@ -1080,75 +1047,6 @@ static void CG_MapRestart( void ) {
 	}
 	*/
 	trap_Cvar_Set("cg_thirdPerson", "0");
-	cg.numItemsInInventory = 0;
-	memset(cg.playerInventory, 0, sizeof(cg.playerInventory));
-	memset(cg.playerACI, -1, sizeof(cg.playerACI));
-}
-
-/*
-=================
-JKG_FireModeUpdate
-
-Plays a sound and changes the animation stuffs for the gun
-=================
-*/
-
-int JKG_GetTransitionForFiringModeSet(int previous, int next)
-{
-	switch(previous)
-	{
-		case FMANIM_NONE:
-			switch(next)
-			{
-				case FMANIM_NONE:
-					return FMTRANS_NONE_NONE;
-				case FMANIM_RAISED:
-					return FMTRANS_NONE_RAISED;
-				case FMANIM_TILTED:
-					return FMTRANS_NONE_TILTED;
-			}
-		case FMANIM_RAISED:
-			switch(next)
-			{
-				case FMANIM_NONE:
-					return FMTRANS_RAISED_NONE;
-				case FMANIM_RAISED:
-					return FMTRANS_RAISED_RAISED;
-				case FMANIM_TILTED:
-					return FMTRANS_RAISED_TILTED;
-			}
-			break;
-		case FMANIM_TILTED:
-			switch(next)
-			{
-				case FMANIM_NONE:
-					return FMTRANS_TILTED_NONE;
-				case FMANIM_RAISED:
-					return FMTRANS_TILTED_RAISED;
-				case FMANIM_TILTED:
-					return FMTRANS_TILTED_TILTED;
-			}
-			break;
-	}
-	return 0;
-}
-
-static void JKG_FireModeUpdate(void)
-{
-	weaponData_t *wpData = GetWeaponData( cg.predictedPlayerState.weapon, cg.predictedPlayerState.weaponVariation );
-	char *previousFM = CG_Argv(1);
-	int previousFMInt = atoi(previousFM);
-	if( wpData->visuals.visualFireModes[ cg.predictedPlayerState.firingMode ].switchToSound &&
-		wpData->visuals.visualFireModes[ cg.predictedPlayerState.firingMode ].switchToSound[0] )
-	{
-		trap_S_StartLocalSound( trap_S_RegisterSound( wpData->visuals.visualFireModes[ cg.predictedPlayerState.firingMode ].switchToSound ), CHAN_AUTO );
-	}
-
-	//if( wpData->visuals.visualFireModes[ previousFMInt ].animType != wpData->visuals.visualFireModes[ cg.predictedPlayerState.firingMode ].animType )
-	{
-		cg.fireModeTransition = JKG_GetTransitionForFiringModeSet( wpData->visuals.visualFireModes[ previousFMInt ].animType, wpData->visuals.visualFireModes[ cg.predictedPlayerState.firingMode ].animType );
-	}
-	cg.fireModeChangeTime = cg.time;
 }
 
 /*
@@ -1208,12 +1106,10 @@ void CG_CheckSVStringEdRef(char *buf, const char *str)
 					char stringRef[MAX_STRINGED_SV_STRING];
 					int r = 0;
 
-					/*while (i < strLen && str[i] == '@')
+					while (i < strLen && str[i] == '@')
 					{
 						i++;
-					}*/
-					// Oh c'mon.
-					i += 3;
+					}
 
 					while (i < strLen && str[i] && str[i] != ' ' && str[i] != ':' && str[i] != '.' && str[i] != '\n')
 					{
@@ -1224,17 +1120,7 @@ void CG_CheckSVStringEdRef(char *buf, const char *str)
 					stringRef[r] = 0;
 
 					buf[b] = 0;
-					// Bugfix -> DONT JUMP TO CONCLUSIONS, SILLY RAVEN
-					{
-						char buffer2[1024];
-						strcpy(buffer2, CG_GetStringEdString2(stringRef));
-						if(Q_stricmp(buffer2, stringRef))
-						{
-							Q_strcat(buf, MAX_STRINGED_SV_STRING, buffer2);
-							return;
-						}
-					}
-					Q_strcat(buf, MAX_STRINGED_SV_STRING, CG_GetStringEdString("MP_SVGAME", stringRef));	// Might be a valid point...but WTF seriously
+					Q_strcat(buf, MAX_STRINGED_SV_STRING, CG_GetStringEdString("MP_SVGAME", stringRef));
 					b = strlen(buf);
 				}
 			}
@@ -1419,6 +1305,8 @@ static void CG_SelfSabotage() {
 	JKG_SetSabotageState(atoi(buff));
 }
 
+void CG_SiegeBriefingDisplay(int team, int dontshow);
+void CG_ParseSiegeExtendedData(void);
 extern void CG_ChatBox_AddString(char *chatStr, int fadeLevel); //cg_draw.c
 void Cin_ProcessCinematic_f();
 void Cin_ProcessCinematicBinary_f();
@@ -1426,15 +1314,10 @@ void Cmd_CBB_f(void);
 void CinBuild_Cmd_f();
 void ChatBox_CloseChat();
 const char *Text_ConvertExtToNormal(const char *text);
-extern void JKG_OpenShopMenu_f ( void );
-extern int shopItems[128];
-extern int numShopItems;
-extern cgItemData_t CGitemLookupTable[MAX_ITEM_TABLE_SIZE];
-extern void JKG_CG_SetACISlot(const unsigned short slot);
 
 static void CG_ServerCommand( void ) {
 	const char	*cmd;
-	char		text[MAX_NOTIFICATION_CHARS]; // extra bytes for name
+	char		text[MAX_SAY_TEXT + 50]; // extra bytes for name
 	qboolean	IRCG = qfalse;
 
 	cmd = CG_Argv(0);
@@ -1533,11 +1416,15 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if (!strcmp(cmd, "clearinv"))
-	{
-		cg.numItemsInInventory = 0;
-		memset(cg.playerACI, -1, sizeof(*cg.playerACI));
-		memset(cg.playerInventory, 0, sizeof(*cg.playerInventory));
+	if (!strcmp(cmd, "sxd"))
+	{ //siege extended data, contains extra info certain classes may want to know about other clients
+        CG_ParseSiegeExtendedData();
+		return;
+	}
+
+	if (!strcmp(cmd, "sb"))
+	{ //siege briefing display
+		CG_SiegeBriefingDisplay(atoi(CG_Argv(1)), 0);
 		return;
 	}
 
@@ -1667,12 +1554,6 @@ static void CG_ServerCommand( void ) {
 	}
 
 	//eezstreet add
-	if ( !strcmp (cmd, "aciset") )
-	{
-		JKG_CG_SetACISlot((const unsigned short)atoi(CG_Argv(1)));
-		return;
-	}
-
 	if ( !strcmp (cmd, "ieq") )
 	{
 	    if ( trap_Argc() == 3 )
@@ -1697,23 +1578,10 @@ static void CG_ServerCommand( void ) {
 	    
 	    return;
 	}
-	if ( !strcmp (cmd, "inventory_update") )
-	{
-		cg.predictedPlayerState.persistant[PERS_CREDITS] = atoi(CG_Argv(1));
-		CO_InventoryNotify (1);
-		return;
-	}
 
 	if(!strcmp(cmd, "aequi"))
 	{ //Armor Equip
 		JKG_CG_EquipArmor();
-		return;
-	}
-
-	if(!strcmp(cmd, "frcaci"))
-	{
-		// Force ACI
-		JKG_CG_FillACISlot(atoi(CG_Argv(0)), atoi(CG_Argv(1)));
 		return;
 	}
 
@@ -1806,61 +1674,6 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	//==================================
-	// Jedi Knight Galaxies
-	// Shop Menu Implementation
-	//==================================
-	if ( !strcmp( cmd, "shopopen" ) ) {
-		JKG_OpenShopMenu_f();
-		return;
-	}
-
-	if ( !strcmp( cmd, "shoprefresh" ) ) {
-		//Clear the shop
-		memset(shopItems, 0, sizeof(shopItems));
-		numShopItems = trap_Argc()-1;
-		//Refresh its contents
-		if(numShopItems > 0)
-		{
-			int i;
-			for(i = 0; i < numShopItems; i++)
-			{
-				int itemNumber = atoi(CG_Argv(i+1));
-				if(itemNumber < 0 || itemNumber > MAX_ITEM_TABLE_SIZE)
-				{
-					//obvious troll is obvious
-					return;
-				}
-				else if(!CGitemLookupTable[itemNumber].itemID)
-				{
-					//Item with this ID does not exist. ABORT ABORT!
-					continue;
-				}
-				shopItems[i] = itemNumber;
-			}
-		}
-		return;
-	}
-
-	if( !strcmp(cmd, "shopupdate"))
-	{
-		cg.snap->ps.persistant[PERS_CREDITS] = atoi(CG_Argv(1));
-		CO_ShopNotify(1);
-		return;
-	}
-
-	if( !strcmp(cmd, "shopconfirm") )
-	{
-		JKG_ShopConfirm();
-		return;
-	}
-
-	if( !strcmp(cmd, "AddToACI") )
-	{
-		JKG_AddToACI();
-		return;
-	}
-
 	if ( !strcmp( cmd, "cp" ) ) {
 		char strEd[MAX_STRINGED_SV_STRING];
 		CG_CheckSVStringEdRef(strEd, CG_Argv(1));
@@ -1882,14 +1695,6 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "cs" ) ) {
 		CG_ConfigStringModified();
-		return;
-	}
-
-	// Warzone Tickets...
-	if ( !strcmp( cmd, "tkt" ) ) {
-		//CG_Printf("CG_Argv(0) = %s. CG_Argv(1) = %s. CG_Argv(2) = %s. CG_Argv(3) = %s.\n", CG_Argv(0), CG_Argv(1), CG_Argv(2), CG_Argv(3));
-		cgs.redtickets = atoi(CG_Argv(1));
-		cgs.bluetickets = atoi(CG_Argv(2));
 		return;
 	}
 
@@ -1998,11 +1803,6 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		CG_MapRestart();
-		return;
-	}
-
-	if ( !strcmp( cmd, "fmrefresh" ) ) {
-		JKG_FireModeUpdate();
 		return;
 	}
 
@@ -2133,23 +1933,6 @@ static void CG_ServerCommand( void ) {
 	    char buffer[1024] = { 0 };
 	    Q_strncpyz (buffer, CG_Argv(IPPARSE_MODE), sizeof (buffer));
 		JKG_CG_DeltaFeed(buffer);
-		return;
-	}
-
-	// UQ1: Use an event!!!!
-	// eez: Again, this is only getting sent to one client, so no go
-	if( !strcmp( cmd, "hitmarker") )
-	{
-		// All this does is make a hitmarker display. Nothing too fancy.
-		trap_S_StartSound(NULL, cg.clientNum, CHAN_AUTO, cgs.media.hitmarkerSound);
-		cg.hitmarkerLastTime = cg.time + 1000;
-		return;
-	}
-
-	if( !strcmp( cmd, "notify") )
-	{
-		// add a notification to the display
-		CG_Notifications_Add((char *)CG_Argv(2), qfalse);	// first arg is ignored. it's supposed to specify the type of message but it's unused.
 		return;
 	}
 	//eezstreet end

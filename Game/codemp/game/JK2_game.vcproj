@@ -268,11 +268,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;../;../libraries/libcurl/include;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include"
-				PreprocessorDefinitions="_DEBUG;BUILDING_REF_GL;Debug;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;JK2AWARDS;CURL_STATICLIB;_PHASE1"
+				PreprocessorDefinitions="_DEBUG;BUILDING_REF_GL;Debug;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;JK2AWARDS;CURL_STATICLIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				StructMemberAlignment="0"
 				EnableFunctionLevelLinking="true"
 				OpenMP="false"
 				UsePrecompiledHeader="0"
@@ -301,7 +300,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="winmm.lib ws2_32.lib libeay32.lib dbghelp.lib psapi.lib"
+				AdditionalDependencies="winmm.lib libcurld.lib ws2_32.lib libeay32.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\jampgamex86.dll"
 				LinkIncremental="2"
@@ -350,14 +349,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
 			<File
-				RelativePath=".\ai_dominance.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ai_dominance_evasion.c"
-				>
-			</File>
-			<File
 				RelativePath=".\ai_main.c"
 				>
 			</File>
@@ -370,15 +361,15 @@
 				>
 			</File>
 			<File
+				RelativePath="AnimalNPC.c"
+				>
+			</File>
+			<File
 				RelativePath=".\animtable.c"
 				>
 			</File>
 			<File
 				RelativePath=".\bg_ammo.c"
-				>
-			</File>
-			<File
-				RelativePath=".\bg_constants.c"
 				>
 			</File>
 			<File
@@ -438,6 +429,10 @@
 				>
 			</File>
 			<File
+				RelativePath="bg_saga.c"
+				>
+			</File>
+			<File
 				RelativePath=".\bg_slidemove.c"
 				>
 			</File>
@@ -451,6 +446,10 @@
 			</File>
 			<File
 				RelativePath=".\bg_weapons_load.c"
+				>
+			</File>
+			<File
+				RelativePath="FighterNPC.c"
 				>
 			</File>
 			<File
@@ -530,11 +529,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\g_network.c"
+				RelativePath=".\g_object.c"
 				>
 			</File>
 			<File
-				RelativePath=".\g_object.c"
+				RelativePath=".\g_saga.c"
 				>
 			</File>
 			<File
@@ -598,6 +597,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\jkg_accounts.c"
+				>
+			</File>
+			<File
 				RelativePath=".\jkg_admin.c"
 				>
 			</File>
@@ -634,10 +637,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\jkg_gangwars.c"
-				>
-			</File>
-			<File
 				RelativePath=".\jkg_item_sub.c"
 				>
 			</File>
@@ -651,6 +650,14 @@
 			</File>
 			<File
 				RelativePath=".\jkg_keypairs.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_libcurl.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_navmesh_creator.cpp"
 				>
 			</File>
 			<File
@@ -682,7 +689,131 @@
 				>
 			</File>
 			<File
-				RelativePath=".\networkstate.c"
+				RelativePath=".\NPC.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Atst.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Default.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Droid.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_GalakMech.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Grenadier.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Howler.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_ImperialProbe.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Interrogator.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Jedi.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Mark1.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Mark2.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_MineMonster.c"
+				>
+			</File>
+			<File
+				RelativePath="NPC_AI_Rancor.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Remote.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Seeker.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Sentry.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Sniper.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Stormtrooper.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_AI_Utils.c"
+				>
+			</File>
+			<File
+				RelativePath="NPC_AI_Wampa.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_behavior.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_combat.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_goal.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_misc.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_move.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_reactions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_senses.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_sounds.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_spawn.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_stats.c"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC_utils.c"
 				>
 			</File>
 			<File
@@ -691,6 +822,10 @@
 			</File>
 			<File
 				RelativePath=".\q_shared.c"
+				>
+			</File>
+			<File
+				RelativePath="SpeederNPC.c"
 				>
 			</File>
 			<File
@@ -703,6 +838,10 @@
 			</File>
 			<File
 				RelativePath=".\w_saber.c"
+				>
+			</File>
+			<File
+				RelativePath="WalkerNPC.c"
 				>
 			</File>
 			<Filter
@@ -766,158 +905,6 @@
 				</File>
 				<File
 					RelativePath="..\GLua\LuaCommands.txt"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="NPCs"
-				>
-				<File
-					RelativePath=".\NPC.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Atst.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Default.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Droid.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_GalakMech.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Grenadier.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Howler.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_ImperialProbe.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Interrogator.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Mark1.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Mark2.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_MineMonster.c"
-					>
-				</File>
-				<File
-					RelativePath="NPC_AI_Rancor.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Remote.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Seeker.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Sentry.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Sniper.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Stormtrooper.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_AI_Utils.c"
-					>
-				</File>
-				<File
-					RelativePath="NPC_AI_Wampa.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_behavior.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_combat.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_goal.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_misc.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_move.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_reactions.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_senses.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_sounds.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_spawn.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_stats.c"
-					>
-				</File>
-				<File
-					RelativePath=".\NPC_utils.c"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Network"
-				>
-				<File
-					RelativePath="..\network\jkg_serversidenetwork.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\network\NetworkServices.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerGame.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerNetwork.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\network\stdafx.cpp"
 					>
 				</File>
 			</Filter>
@@ -1007,6 +994,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bg_saga.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bg_strap.h"
 				>
 			</File>
@@ -1063,10 +1054,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\g_network.h"
-				>
-			</File>
-			<File
 				RelativePath=".\g_public.h"
 				>
 			</File>
@@ -1080,6 +1067,10 @@
 			</File>
 			<File
 				RelativePath=".\JK2_game.def"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_accounts.h"
 				>
 			</File>
 			<File
@@ -1116,10 +1107,6 @@
 			</File>
 			<File
 				RelativePath=".\jkg_easy_items.h"
-				>
-			</File>
-			<File
-				RelativePath=".\jkg_gangwars.h"
 				>
 			</File>
 			<File
@@ -1202,10 +1189,6 @@
 				RelativePath=".\w_saber.h"
 				>
 			</File>
-			<File
-				RelativePath=".\z_global_defines.h"
-				>
-			</File>
 			<Filter
 				Name="ICARUS Headers"
 				>
@@ -1227,42 +1210,6 @@
 				>
 				<File
 					RelativePath="..\GLua\glua.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Network"
-				>
-				<File
-					RelativePath="..\network\ByteBuffer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\Common.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\NetworkData.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\NetworkServices.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerGame.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerNetwork.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\stdafx.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\targetver.h"
 					>
 				</File>
 			</Filter>

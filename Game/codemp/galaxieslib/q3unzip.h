@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // JKG - Modified to fit JKA (enough to implement protected pk3's)
 
-#include <zlib/zconf.h>
-
 #if defined(STRICTUNZIP) || defined(STRICTZIPUNZIP)
 /* like the STRICT of WIN32, we define a pointer that cannot be converted
     from (void*) without cast */
@@ -340,11 +338,3 @@ extern int unzGetLocalExtrafield (unzFile file, void* buf, unsigned len);
   the return value is the number of unsigned chars copied in buf, or (if <0) 
 	the error code
 */
-
-extern int inflate(z_streamp z, int f);
-
-// Extra data needed here, since we're hooking the entire file read function
-#define UNZ_BUFSIZE 65536
-#define Z_SYNC_FLUSH 2
-#define Z_STREAM_END 1
-#define Z_OK 0

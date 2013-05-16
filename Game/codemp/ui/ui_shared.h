@@ -1,18 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// ui_shared.h
-// Copyright (C) 2013 Jedi Knight Galaxies
-
 #ifndef __UI_SHARED_H
 #define __UI_SHARED_H
 
@@ -29,7 +14,7 @@
 #define MAX_MENUDEFFILE				4096
 #define MAX_MENUFILE				32768
 #define MAX_MENUS					256		// Jedi Knight Galaxies, raised from 64 to 256
-#define MAX_MENUITEMS				1024
+#define MAX_MENUITEMS				256
 #define MAX_COLOR_RANGES			10
 #define MAX_OPEN_MENUS				16
 #define	MAX_TEXTSCROLL_LINES		256
@@ -64,10 +49,6 @@
 
 //JLF
 #define WINDOW_INTRANSITIONMODEL	0x04000000	// delayed script waiting to run
-
-//eezstreet add
-#define WINDOW_MULTIFOCUS			0x08000000	// onFocus events are looped
-#define WINDOW_FORCESELECTIONZONE	0x10000000	// forces the UI object to constrain to a single selectable zone (EXTREMELY useful :!:)
 
 
 // CGAME cursor type bits
@@ -137,12 +118,12 @@ typedef struct {
   float h;    // height;
 } rectDef_t;
 
-typedef rectDef_t qRectangle;
+typedef rectDef_t Rectangle;
 
 // FIXME: do something to separate text vs window stuff
 typedef struct {
-  qRectangle rect;                 // client coord rectangle
-  qRectangle rectClient;           // screen coord rectangle
+  Rectangle rect;                 // client coord rectangle
+  Rectangle rectClient;           // screen coord rectangle
   const char *name;               //
   const char *group;              // if it belongs to a group
   const char *cinematicName;		  // cinematic name
@@ -153,12 +134,11 @@ typedef struct {
   int ownerDrawFlags;							// show flags for ownerdraw items
   // JKG
   int ownerDrawID;				  // Additional information abotu the ownerdrawn item
-  qRectangle	selectionZone;				// Selection zone. SUPER handy!
 
   float borderSize;               // 
   int flags;                      // visible, focus, mouseover, cursor
-  qRectangle rectEffects;          // for various effects
-  qRectangle rectEffects2;         // for various effects
+  Rectangle rectEffects;          // for various effects
+  Rectangle rectEffects2;         // for various effects
   int offsetTime;                 // time based value for various effects
   int nextTime;                   // time next effect should cycle
   vec4_t foreColor;               // text color
@@ -166,7 +146,6 @@ typedef struct {
   vec4_t borderColor;             // border color
   vec4_t outlineColor;            // border color
   qhandle_t background;           // background asset  
-  qhandle_t foreground;			  // foreground asset (if needed. Only needed on checkboxes, radio, slider, and a few others --eez
 } windowDef_t;
 
 typedef windowDef_t Window;
@@ -209,9 +188,6 @@ typedef struct listBoxDef_s {
 	qboolean notselectable;
 	//JLF MPMOVED
 	qboolean	scrollhidden;
-
-	float	elementSpacingW;
-	float	elementSpacingH;
 } listBoxDef_t;
 
 typedef struct editFieldDef_s {
@@ -298,24 +274,18 @@ typedef struct textDef_s {
 
 typedef struct itemDef_s {
 	Window		window;						// common positional, border, style, layout info
-	qRectangle	textRect;					// rectangle the text ( if any ) consumes     
+	Rectangle	textRect;					// rectangle the text ( if any ) consumes     
 	int			type;						// text, button, radiobutton, checkbox, textfield, listbox, combo
 	int			alignment;					// left center right
 	int			textalignment;				// ( optional ) alignment for text within rect based on text width
-	int			textalignment2;				// ( optional ) alignment for text within rect based on text width
 	float		textalignx;					// ( optional ) text alignment x coord
 	float		textaligny;					// ( optional ) text alignment x coord
 	float		textscale;					// scale percentage from 72pts
 	int			textStyle;					// ( optional ) style, normal and shadowed are it for now
-	char	text[256];						// display text
-	char	text2[256];						// display text, 2nd line
+	const char	*text;						// display text
+	const char	*text2;						// display text, 2nd line
 	float		text2alignx;				// ( optional ) text2 alignment x coord
 	float		text2aligny;				// ( optional ) text2 alignment y coord
-	// Jedi Knight Galaxies add - The following is optional (it will use regular for defaults)
-	int			text2alignment;
-	float		textscale2;
-	int			textStyle2;
-	int			iMenuFont2;
 	void		*parent;					// menu owner
 	qhandle_t	asset;						// handle to asset
 	void		*ghoul2;					// ghoul2 instance if available instead of a model.
@@ -392,10 +362,6 @@ typedef struct {
   const char *gradientStr;
   qhandle_t	qhSmallFont;
   qhandle_t	qhSmall2Font;
-  //Jedi Knight Galaxies
-  qhandle_t qhSmall3Font;
-  qhandle_t qhSmall4Font;
-  //end JKG
   qhandle_t	qhMediumFont;
   qhandle_t	qhBigFont;
   qhandle_t cursor;
@@ -480,7 +446,7 @@ typedef struct {
 	qboolean (*Language_IsAsian)(void);
 	qboolean (*Language_UsesSpaces)(void);
 	unsigned int (*AnyLanguage_ReadCharFromString)( const char *psText, int *piAdvanceCount, qboolean *pbIsTrailingPunctuation/* = NULL*/ );
-  void (*ownerDrawItem) (itemDef_t *item, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int iMenuFont, int ownerDrawID);
+  void (*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int iMenuFont, int ownerDrawID);
 	float (*getValue) (int ownerDraw);
 	qboolean (*ownerDrawVisible) (int flags);
   void (*runScript)(char **p);
@@ -620,8 +586,6 @@ int trap_SP_GetStringTextString(const char *text, char *buffer, int bufferLength
 int trap_SP_GetNumLanguages( void );
 void trap_GetLanguageName( const int languageIndex, char *buffer );
 
-const char *UI_GetStringEdString2(const char *refName);
-
 //these traps must exist both on the cgame and ui
 /*
 Ghoul2 Insert Start
@@ -681,11 +645,6 @@ qboolean	trap_G2API_SetBoneIKState(void *ghoul2, int time, const char *boneName,
 qboolean	trap_G2API_IKMove(void *ghoul2, int time, sharedIKMoveParams_t *params);
 
 void		trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf);
-
-void N_CL_Init();
-void N_CL_Clear();
-void CL_InitMultiMasterServer(void);
-void CL_ShutdownMultiMasterServer(void);
 
 #include "../namespace_end.h"
 

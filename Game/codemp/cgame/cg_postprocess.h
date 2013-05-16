@@ -1,18 +1,4 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// cg_postprocess.h
 // Postprocessing header
-// Copyright (c) 2013 Jedi Knight Galaxies
 
 #ifndef _PP_INCLUDED
 #define _PP_INCLUDED
@@ -44,24 +30,10 @@ typedef struct ppBlurParams_s {
     int numPasses;
 } ppBlurParams_t;
 
-#ifndef BLOOM
 typedef struct ppBloomParams_s {
     float bloomFactor;
     float brightnessThreshold;
 } ppBloomParams_t;
-#endif
-
-#ifdef __GL_ANAGLYPH__
-typedef struct ppAnaglyphParams_s {
-	int unused;
-} ppAnaglyphParams_t;
-#endif //__GL_ANAGLYPH__
-
-#ifdef __GL_EMBOSS__
-typedef struct ppEmbossParams_s {
-	float embossScale;
-} ppEmbossParams_t;
-#endif //__GL_EMBOSS__
 
 int PP_InitPostProcess();
 void PP_TerminatePostProcess();

@@ -5,8 +5,6 @@
 #include <json/cJSON.h>
 #include "../cgame/animtable.h"
 
-static int fmLoadCounter;
-
 static ID_INLINE void BG_ParseWeaponStatsFlags ( weaponData_t *weaponData, const char *flagStr )
 {
     if ( Q_stricmp (flagStr, "cookable") == 0 )
@@ -273,24 +271,16 @@ static void BG_ParseWeaponFireMode ( weaponFireModeStats_t *fireModeStats, cJSON
         fireModeStats->ammo = BG_GetAmmo (str);
     }
 
+    #ifdef QAGAME
     node = cJSON_GetObjectItem (fireModeNode, "damage");
-#ifdef QAGAME
     BG_ParseDamage (fireModeStats, node, qfalse);
     
     node = cJSON_GetObjectItem (fireModeNode, "secondarydamage");
     BG_ParseDamage (fireModeStats, node, qtrue);
-#else
-	fireModeStats->baseDamage = cJSON_ToInteger (node);
-#endif
+    #endif
     
     node = cJSON_GetObjectItem (fireModeNode, "grenade");
     fireModeStats->isGrenade = (qboolean)cJSON_ToBooleanOpt (node, 0);
-
-	node = cJSON_GetObjectItem (fireModeNode, "grenadeBounces");
-    fireModeStats->grenadeBounces = (qboolean)cJSON_ToBooleanOpt (node, 1);
-
-	node = cJSON_GetObjectItem (fireModeNode, "grenadeBounceDMG");
-    fireModeStats->grenadeBounceDMG = (char)cJSON_ToIntegerOpt (node, 10);
     
     node = cJSON_GetObjectItem (fireModeNode, "ballistic");
     fireModeStats->applyGravity = (char)cJSON_ToBooleanOpt (node, 0);
@@ -385,18 +375,9 @@ static void BG_ParseWeaponStats ( weaponData_t *weaponData, cJSON *statsNode )
     node = cJSON_GetObjectItem (statsNode, "reloadtime");
     weaponData->weaponReloadTime = (unsigned short)cJSON_ToIntegerOpt (node, 0);
 
-    node = cJSON_GetObjectItem (statsNode, "ammoIndex");
+    node = cJSON_GetObjectItem (statsNode, "ammo");
     ammo = cJSON_ToStringOpt (node, "AMMO_NONE");
-	weaponData->ammoIndex = BG_GetAmmo(ammo)->ammoIndex;
-
-	node = cJSON_GetObjectItem (statsNode, "ammoOnSpawn");
-	weaponData->ammoOnSpawn = (unsigned int)cJSON_ToIntegerOpt (node, ((weaponData->ammoIndex < AMMO_ROCKETS) ? 400 : ((weaponData->ammoIndex != AMMO_ROCKETS) ? 444 : 10)));	// Gives 300 ammo for non-explosives
-
-	node = cJSON_GetObjectItem (statsNode, "ammoOnPickup");
-	weaponData->ammoOnPickup = (unsigned int)cJSON_ToIntegerOpt (node, ((weaponData->ammoIndex < AMMO_ROCKETS) ? 20 : 1));	// Gives 20 ammo for non-explosives
-
-	node = cJSON_GetObjectItem (statsNode, "clipSize");
-	weaponData->clipSize = (unsigned int)cJSON_ToIntegerOpt (node, 0);
+    weaponData->ammoIndex = GetIDForString (AmmoTable, ammo);
 
     node = cJSON_GetObjectItem (statsNode, "flags");
     if ( node != NULL )
@@ -449,16 +430,10 @@ static void BG_ParseWeaponPlayerAnimations ( weaponData_t *weaponData, cJSON *pl
     cJSON *node;
     
     node = cJSON_GetObjectItem (playerAnimNode, "ready");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.ready.torsoAnim, &weaponData->anims.ready.legsAnim);
-	}
+    BG_ParseAnimationObject (node, &weaponData->torsoReadyAnimation, &weaponData->legsReadyAnimation);
     
     node = cJSON_GetObjectItem (playerAnimNode, "firing");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.firing.torsoAnim, &weaponData->anims.firing.legsAnim);
-	}
+    BG_ParseAnimationObject (node, &weaponData->torsoFiringAnimation, &weaponData->legsFiringAnimation);
     
     /*node = cJSON_GetObjectItem (playerAnimNode, "idle");
     BG_ParseAnimationObject (node, &weaponData->torsoFiringAnimation, &weaponData->legsFiringAnimation);
@@ -468,68 +443,9 @@ static void BG_ParseWeaponPlayerAnimations ( weaponData_t *weaponData, cJSON *pl
     
     node = cJSON_GetObjectItem (playerAnimNode, "raise");
     BG_ParseAnimationObject (node, &weaponData->torsoFiringAnimation, &weaponData->legsFiringAnimation);*/
-
-	
     
     node = cJSON_GetObjectItem (playerAnimNode, "reload");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.reload.torsoAnim, &weaponData->anims.reload.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "backwardWalk");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.backwardWalk.torsoAnim, &weaponData->anims.backwardWalk.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "forwardWalk");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.forwardWalk.torsoAnim, &weaponData->anims.forwardWalk.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "crouchWalk");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.crouchWalk.torsoAnim, &weaponData->anims.crouchWalk.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "crouchWalkBack");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.crouchWalkBack.torsoAnim, &weaponData->anims.crouchWalkBack.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "jump");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.jump.torsoAnim, &weaponData->anims.jump.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "land");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.land.torsoAnim, &weaponData->anims.land.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "run");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.run.torsoAnim, &weaponData->anims.run.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "sprint");
-	if(node)
-	{
-		BG_ParseAnimationObject (node, &weaponData->anims.sprint.torsoAnim, &weaponData->anims.sprint.legsAnim);
-	}
-
-	node = cJSON_GetObjectItem (playerAnimNode, "sprintStyle");
-	if(node)
-	{
-		weaponData->firstPersonSprintStyle = cJSON_ToNumber(node);
-	}
+    BG_ParseAnimationObject (node, &weaponData->torsoReloadAnimation, &weaponData->legsReloadAnimation);
 }
 
 static void ReadString ( cJSON *parent, const char *field, char *dest, size_t destSize )
@@ -551,8 +467,7 @@ static void ReadString ( cJSON *parent, const char *field, char *dest, size_t de
 }
 
 #ifdef CGAME
-
-static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *fireModeNode, int numFireModes )
+static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *fireModeNode )
 {
     cJSON *node = NULL;
     cJSON *child = NULL;
@@ -566,32 +481,6 @@ static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *f
     isBlaster = (qboolean)(Q_stricmp (fireMode->type, "blaster") == 0);
     isTripmine = (qboolean)(Q_stricmp (fireMode->type, "tripmine") == 0);
     isDetpack = (qboolean)(Q_stricmp (fireMode->type, "detpack") == 0);
-
-	ReadString (fireModeNode, "displayName", fireMode->displayName, 128);
-
-	ReadString (fireModeNode, "crosshairShader", fireMode->crosshairShader, MAX_QPATH);
-	ReadString (fireModeNode, "switchToSound", fireMode->switchToSound, MAX_QPATH);
-	if(!fireMode->switchToSound || !fireMode->switchToSound[0])
-	{
-		if(fmLoadCounter == 0)
-		{
-			Com_sprintf(fireMode->switchToSound, MAX_QPATH, "sound/weapons/common/click%i.wav", numFireModes);
-		}
-		else
-		{
-			Com_sprintf(fireMode->switchToSound, MAX_QPATH, "sound/weapons/common/click1.wav");
-		}
-	}
-
-	node = cJSON_GetObjectItem (fireModeNode, "animType");
-    fireMode->animType = cJSON_ToInteger (node);
-
-	fireMode->overrideIndicatorFrame = -1;											// set this as default since 0 is still a valid frame
-	node = cJSON_GetObjectItem (fireModeNode, "overrideIndicatorFrame");
-	if(node)
-	{
-		fireMode->overrideIndicatorFrame = cJSON_ToInteger (node);
-	}
     
     // TODO: Need to tie this to the table in cg_weapons.c somehow...
     // Weapon Render
@@ -698,8 +587,6 @@ static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *f
     
     // Explosive armed event
     ReadString (fireModeNode, "armsound", fireMode->explosiveArm.armSound, sizeof (fireMode->explosiveArm.armSound));
-
-	fmLoadCounter++;
 }
 
 static void BG_ParseVisuals ( weaponData_t *weaponData, cJSON *visualsNode )
@@ -707,7 +594,6 @@ static void BG_ParseVisuals ( weaponData_t *weaponData, cJSON *visualsNode )
     cJSON *node = NULL;
     cJSON *child = NULL;
     weaponVisual_t *weaponVisuals = &weaponData->visuals;
-	int i;
 
     ReadString (visualsNode, "worldmodel", weaponVisuals->world_model, sizeof (weaponVisuals->world_model));
     ReadString (visualsNode, "viewmodel", weaponVisuals->view_model, sizeof (weaponVisuals->view_model));
@@ -763,25 +649,12 @@ static void BG_ParseVisuals ( weaponData_t *weaponData, cJSON *visualsNode )
     
     // Scope render
     ReadString (child, "mask", weaponVisuals->scopeShader, sizeof (weaponVisuals->scopeShader));
-
-	//Crosshair -- eezstreet add
-	node = cJSON_GetObjectItem (visualsNode, "crosshairValue");
-	weaponVisuals->crosshairValue = (int)cJSON_ToNumberOpt(node, (double)1);
     
-    /*node = cJSON_GetObjectItem (visualsNode, "primary");
+    node = cJSON_GetObjectItem (visualsNode, "primary");
     BG_ParseVisualsFireMode (&weaponVisuals->primary, node);
     
     node = cJSON_GetObjectItem (visualsNode, "secondary");
-    BG_ParseVisualsFireMode (&weaponVisuals->secondary, node);*/
-
-	for ( i = 0; i < weaponData->numFiringModes; i++ )
-	{
-		node = cJSON_GetObjectItem (visualsNode, va("firemode%i", i) );
-		if(node)
-		{
-			BG_ParseVisualsFireMode(&weaponVisuals->visualFireModes[i], node, weaponData->numFiringModes);
-		}
-	}
+    BG_ParseVisualsFireMode (&weaponVisuals->secondary, node);
 }
 #endif
 
@@ -795,15 +668,12 @@ static qboolean BG_ParseWeaponFile ( const char *weaponFilePath )
     char error[MAX_STRING_CHARS];
     const char *str = NULL;
     int weapon;
-	int i;
     
     char weaponFileData[MAX_WEAPON_FILE_LENGTH];
     fileHandle_t f;
     int fileLen = strap_FS_FOpenFile (weaponFilePath, &f, FS_READ);
     
     weaponData_t weaponData;
-
-	fmLoadCounter = 0;
     
     if ( !f || fileLen == -1 )
     {
@@ -848,18 +718,7 @@ static qboolean BG_ParseWeaponFile ( const char *weaponFilePath )
     jsonNode = cJSON_GetObjectItem (json, "stats");
     BG_ParseWeaponStats (&weaponData, jsonNode);
     
-	weaponData.numFiringModes = 0;
-	for(i = 0; i < MAX_FIREMODES; i++)
-	{
-		jsonNode = cJSON_GetObjectItem (json, va("firemode%i", i));
-		if(jsonNode != NULL)
-		{
-			BG_ParseWeaponFireMode (&weaponData.firemodes[i], jsonNode);
-			weaponData.numFiringModes++;
-		}
-	}
-	// Old stuff for when we had primary/alt attacks --eez
-    /*jsonNode = cJSON_GetObjectItem (json, "primaryattack");
+    jsonNode = cJSON_GetObjectItem (json, "primaryattack");
     BG_ParseWeaponFireMode (&weaponData.firemodes[0], jsonNode);
     
     jsonNode = cJSON_GetObjectItem (json, "secondaryattack");
@@ -867,7 +726,7 @@ static qboolean BG_ParseWeaponFile ( const char *weaponFilePath )
     {
         weaponData.hasSecondary = 1;
         BG_ParseWeaponFireMode (&weaponData.firemodes[1], jsonNode);
-    }*/
+    }
     
     jsonNode = cJSON_GetObjectItem (json, "playeranims");
     BG_ParseWeaponPlayerAnimations (&weaponData, jsonNode);
@@ -890,13 +749,12 @@ static qboolean BG_ParseWeaponFile ( const char *weaponFilePath )
     BG_ParseVisuals (&weaponData, jsonNode);
 #endif
     
-
-    /*if ( weaponData.zoomType != ZOOM_NONE )
+    if ( weaponData.zoomType != ZOOM_NONE )
     {
         // If we have zoom mode, then copy over the data from the primary to the secondary
         // so it's as if we haven't changed fire modes at all! Ingenious! (And also temporary)
         weaponData.firemodes[1] = weaponData.firemodes[0];
-    }*/
+    }
     
     BG_AddWeaponData (&weaponData);
     

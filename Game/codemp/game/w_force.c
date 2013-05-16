@@ -8,10 +8,10 @@
 
 //NEEDED FOR MIND-TRICK on NPCS=========================================================
 extern void NPC_PlayConfusionSound( gentity_t *self );
-extern void NPC_Humanoid_PlayConfusionSound( gentity_t *self );
+extern void NPC_Jedi_PlayConfusionSound( gentity_t *self );
 extern void NPC_UseResponse( gentity_t *self, gentity_t *user, qboolean useWhenDone );
 //NEEDED FOR MIND-TRICK on NPCS=========================================================
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 
 extern vmCvar_t		g_saberRestrictForce;
 
@@ -259,6 +259,36 @@ void WP_InitForcePowers( gentity_t *ent )
 
 	ent->client->ps.fd.forceSide = 0;
 
+	if (g_gametype.integer == GT_SIEGE &&
+		ent->client->siegeClass != -1)
+	{ //Then use the powers for this class, and skip all this nonsense.
+		i = 0;
+
+		while (i < NUM_FORCE_POWERS)
+		{
+			ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[i];
+
+			if (!ent->client->ps.fd.forcePowerLevel[i])
+			{
+				ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
+			}
+			else
+			{
+				ent->client->ps.fd.forcePowersKnown |= (1 << i);
+			}
+			i++;
+		}
+
+		if (!ent->client->sess.setForce)
+		{
+			//bring up the class selection menu
+			trap_SendServerCommand(ent-g_entities, "scl");
+		}
+		ent->client->sess.setForce = qtrue;
+
+		return;
+	}
+
 	if (ent->s.eType == ET_NPC && ent->s.number >= MAX_CLIENTS)
 	{ //rwwFIXMEFIXME: Temp
 		strcpy(userinfo, "forcepowers\\7-1-333003000313003120");
@@ -330,7 +360,7 @@ void WP_InitForcePowers( gentity_t *ent )
 	i++;
 
 
-	if ( (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] )
+	if ( g_gametype.integer != GT_SIEGE && (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] )
 	{ //hmm..I'm going to cheat here.
 		int oldI = i;
 		i_r = 0;
@@ -454,6 +484,15 @@ void WP_InitForcePowers( gentity_t *ent )
 	if (ent->s.eType == ET_NPC)
 	{
 		ent->client->sess.setForce = qtrue;
+	}
+	else if (g_gametype.integer == GT_SIEGE)
+	{
+		if (!ent->client->sess.setForce)
+		{
+			ent->client->sess.setForce = qtrue;
+			//bring up the class selection menu
+			trap_SendServerCommand(ent-g_entities, "scl");
+		}
 	}
 	else
 	{
@@ -663,6 +702,27 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 
 		i++;
 	}
+
+	if (g_gametype.integer == GT_SIEGE &&
+		ent->client->siegeClass != -1)
+	{ //Then use the powers for this class.
+		i = 0;
+
+		while (i < NUM_FORCE_POWERS)
+		{
+			ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[i];
+
+			if (!ent->client->ps.fd.forcePowerLevel[i])
+			{
+				ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
+			}
+			else
+			{
+				ent->client->ps.fd.forcePowersKnown |= (1 << i);
+			}
+			i++;
+		}
+	}
 }
 
 #include "../namespace_begin.h"
@@ -735,6 +795,12 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 		{
 			return 0;
 		}
+	}
+
+	if (other && other->client && other->s.eType == ET_NPC &&
+		g_gametype.integer == GT_SIEGE)
+	{ //can't use powers at all on npc's normally in siege...
+		return 0;
 	}
 
 	return 1;
@@ -973,7 +1039,7 @@ void WP_ForcePowerRegenerate( gentity_t *self, int overrideAmt )
 	}
 	
 	// Xy: no regenerating while we're sprinting please!
-	if ( BG_IsSprinting (&self->client->ps, &self->client->pers.cmd, &self->client->ns) )
+	if ( BG_IsSprinting (&self->client->ps, &self->client->pers.cmd) )
 	{
 	    return;
 	}
@@ -1871,7 +1937,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 					}
 					if ( traceEnt->client->ps.powerups[PW_CLOAKED] )
 					{//disable cloak temporarily
-						NPC_Humanoid_Decloak( traceEnt );
+						Jedi_Decloak( traceEnt );
 						traceEnt->client->cloakToggleTime = level.time + Q_irand( 3000, 10000 );
 					}
 				}
@@ -2405,9 +2471,9 @@ int WP_GetVelocityForForceJump( gentity_t *self, vec3_t jumpVel, usercmd_t *ucmd
 
 	G_PreDefSound(self->client->ps.origin, PDSOUND_FORCEJUMP);
 
-	if (self->client->ps.fd.forceJumpCharge < /*JUMP_VELOCITY*/bgConstants.baseJumpVelocity+40)
+	if (self->client->ps.fd.forceJumpCharge < JUMP_VELOCITY+40)
 	{ //give him at least a tiny boost from just a tap
-		self->client->ps.fd.forceJumpCharge = /*JUMP_VELOCITY*/bgConstants.baseJumpVelocity+400;
+		self->client->ps.fd.forceJumpCharge = JUMP_VELOCITY+400;
 	}
 
 	if (self->client->ps.velocity[2] < -30)
@@ -2656,7 +2722,7 @@ qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qbool
 			}
 			else
 			{
-				NPC_Humanoid_PlayConfusionSound( traceEnt );
+				NPC_Jedi_PlayConfusionSound( traceEnt );
 			}
 			WP_ForcePowerStart( self, FP_TELEPATHY, override );
 		}
@@ -2912,6 +2978,24 @@ qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 		return 0;
 	}
 
+	if (g_gametype.integer == GT_SIEGE &&
+		pull &&
+		thrower && thrower->client)
+	{ //in siege, pull will affect people if they are not facing you, so they can't run away so much
+		vec3_t d;
+		float a;
+
+        VectorSubtract(thrower->client->ps.origin, self->client->ps.origin, d);
+		vectoangles(d, d);
+
+        a = AngleSubtract(d[YAW], self->client->ps.viewangles[YAW]);
+
+		if (a > 60.0f || a < -60.0f)
+		{ //if facing more than 60 degrees away they cannot defend
+			return 0;
+		}
+	}
+
 	if (pull)
 	{
 		powerUse = FP_PULL;
@@ -3104,7 +3188,14 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE)
 		{
 			self->client->ps.forceHandExtend = HANDEXTEND_FORCEPULL;
-			self->client->ps.forceHandExtendTime = level.time + 400;
+			if ( g_gametype.integer == GT_SIEGE && self->client->ps.weapon == WP_SABER )
+			{//hold less so can attack right after a pull
+				self->client->ps.forceHandExtendTime = level.time + 200;
+			}
+			else
+			{
+				self->client->ps.forceHandExtendTime = level.time + 400;
+			}
 		}
 		self->client->ps.powerups[PW_DISINT_4] = self->client->ps.forceHandExtendTime + 200;
 		self->client->ps.powerups[PW_PULL] = self->client->ps.powerups[PW_DISINT_4];
@@ -3478,7 +3569,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					}
 				}
 
-				if ((otherPushPower && CanCounterThrow(push_list[x], self, pull)) || push_list[x]->flags & FL_NO_KNOCKBACK)
+				if (otherPushPower && CanCounterThrow(push_list[x], self, pull))
 				{
 					if ( pull )
 					{
@@ -3505,7 +3596,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 
 					//Make a counter-throw effect
 
-					if (otherPushPower >= modPowerLevel || push_list[x]->flags & FL_NO_KNOCKBACK)
+					if (otherPushPower >= modPowerLevel)
 					{
 						pushPowerMod = 0;
 						canPullWeapon = qfalse;
@@ -3575,7 +3666,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					VectorSubtract( thispush_org, self->client->ps.origin, pushDir );
 				}
 
-				if ((modPowerLevel > otherPushPower || push_list[x]->client->ps.m_iVehicleNum) && push_list[x]->client && !(push_list[x]->flags & FL_NO_KNOCKBACK))
+				if ((modPowerLevel > otherPushPower || push_list[x]->client->ps.m_iVehicleNum) && push_list[x]->client)
 				{
 					if (modPowerLevel == FORCE_LEVEL_3 &&
 						push_list[x]->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN)
@@ -3642,26 +3733,22 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					//fullbody push effect
 					push_list[x]->client->pushEffectTime = level.time + 600;
 
-					if(!(push_list[x]->flags & FL_NO_KNOCKBACK))
-					{
-						push_list[x]->client->ps.velocity[0] = pushDir[0]*pushPowerMod;
-						push_list[x]->client->ps.velocity[1] = pushDir[1]*pushPowerMod;
+					push_list[x]->client->ps.velocity[0] = pushDir[0]*pushPowerMod;
+					push_list[x]->client->ps.velocity[1] = pushDir[1]*pushPowerMod;
 
-						if ((int)push_list[x]->client->ps.velocity[2] == 0)
-						{ //if not going anywhere vertically, boost them up a bit
-							push_list[x]->client->ps.velocity[2] = pushDir[2]*pushPowerMod;
+					if ((int)push_list[x]->client->ps.velocity[2] == 0)
+					{ //if not going anywhere vertically, boost them up a bit
+						push_list[x]->client->ps.velocity[2] = pushDir[2]*pushPowerMod;
 
-							if (push_list[x]->client->ps.velocity[2] < 128)
-							{
-								push_list[x]->client->ps.velocity[2] = 128;
-							}
-						}
-						else
+						if (push_list[x]->client->ps.velocity[2] < 128)
 						{
-							push_list[x]->client->ps.velocity[2] = pushDir[2]*pushPowerMod;
+							push_list[x]->client->ps.velocity[2] = 128;
 						}
 					}
-
+					else
+					{
+						push_list[x]->client->ps.velocity[2] = pushDir[2]*pushPowerMod;
+					}
 				}
 			}
 			else if ( push_list[x]->s.eType == ET_MISSILE && push_list[x]->s.pos.trType != TR_STATIONARY && (push_list[x]->s.pos.trType != TR_INTERPOLATE||push_list[x]->s.weapon != WP_THERMAL) )//rolling and stationary thermal detonators are dealt with below
@@ -4791,7 +4878,7 @@ void SeekerDroneUpdate(gentity_t *self)
 		FindGenericEnemyIndex(self);
 	}
 
-	if (self->client->ps.genericEnemyIndex != ENTITYNUM_NONE && self->client->ps.genericEnemyIndex != -1 && !OnSameTeam(self, &g_entities[self->client->ps.genericEnemyIndex]))
+	if (self->client->ps.genericEnemyIndex != ENTITYNUM_NONE && self->client->ps.genericEnemyIndex != -1)
 	{
 		en = &g_entities[self->client->ps.genericEnemyIndex];
 
@@ -4805,34 +4892,23 @@ void SeekerDroneUpdate(gentity_t *self)
 		VectorAdd(elevated, dir, org);
 
 		//org is now where the thing should be client-side because it uses the same time-based offset
-		if (self->client->numDroneShotsInBurst >= 8 && self->client->ps.droneFireTime + 3000 < level.time)
-		{
-			self->client->numDroneShotsInBurst = 0;
-		}
-		else if (self->client->ps.droneFireTime < level.time)
+		if (self->client->ps.droneFireTime < level.time)
 		{
 			trap_Trace(&tr, org, NULL, NULL, en->client->ps.origin, -1, MASK_SOLID);
 
 			if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
 			{
-				if(self->client->numDroneShotsInBurst < 8)
-				{
-					VectorCopy( en->client->ps.origin, elevated );
-					elevated[0] += flrand(-28.0, 28.0);
-					elevated[1] += flrand(-28.0, 28.0);
-					elevated[2] += 20 + flrand(-28.0, 28.0);
+				VectorCopy( en->client->ps.origin, elevated );
+				elevated[2] += 40;
 
-					VectorSubtract( elevated, org, endir );
-					VectorNormalize( endir );
+				VectorSubtract( elevated, org, endir );
+				VectorNormalize( endir );
 
-					self->s.weapon = WP_BRYAR_OLD;
-					self->s.weaponVariation = 0;		// Use the bot laser stuff --eez
-					WP_FireGenericMissile( self, qfalse, org, endir );
-					G_SoundAtLoc( org, CHAN_WEAPON, G_SoundIndex( "sound/weapons/bryar/fire.wav" ));
+				self->s.weapon = WP_BLASTER;
+				WP_FireGenericMissile( self, qfalse, org, endir );
+				G_SoundAtLoc( org, CHAN_WEAPON, G_SoundIndex( "sound/weapons/bryar/fire.wav" ));
 
-					self->client->ps.droneFireTime = level.time + Q_irand( 60, 80 );
-					self->client->numDroneShotsInBurst++;
-				}
+				self->client->ps.droneFireTime = level.time + Q_irand( 400, 700 );
 			}
 		}
 	}
@@ -5103,18 +5179,18 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;
 	}
 
-	// Jedi Knight Galaxies: no more of this nonsense
-	/*if (g_gametype.integer != GT_SIEGE)
+	if (g_gametype.integer != GT_SIEGE)
 	{
 		if (!(self->client->ps.fd.forcePowersKnown & (1 << FP_LEVITATION)))
 		{
 			self->client->ps.fd.forcePowersKnown |= (1 << FP_LEVITATION);
 		}
+
 		if (self->client->ps.fd.forcePowerLevel[FP_LEVITATION] < FORCE_LEVEL_1)
 		{
 			self->client->ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_1;
 		}
-	}*/
+	}
 
 	if (self->client->ps.fd.forcePowerSelected < 0)
 	{ //bad
@@ -5587,21 +5663,42 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				WP_ForcePowerRegenerate(self, holoregen);
 			}
 
-			if ( g_gametype.integer == GT_POWERDUEL && self->client->sess.duelTeam == DUELTEAM_LONE )
+			if (g_gametype.integer == GT_SIEGE)
 			{
-				if ( g_duel_fraglimit.integer )
-				{
-					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*
-						(0.6 + (.3 * (float)self->client->sess.wins / (float)g_duel_fraglimit.integer)));
+				if (self->client->holdingObjectiveItem &&
+					g_entities[self->client->holdingObjectiveItem].inuse &&
+					g_entities[self->client->holdingObjectiveItem].genericValue15)
+				{ //1 point per 7 seconds.. super slow
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + 7000;
+				}
+				else if (self->client->siegeClass != -1 &&
+					(bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_FASTFORCEREGEN)))
+				{ //if this is siege and our player class has the fast force regen ability, then recharge with 1/5th the usual delay
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*0.2);
 				}
 				else
 				{
-					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*0.7);
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + g_forceRegenTime.integer;
 				}
 			}
 			else
 			{
-				self->client->ps.fd.forcePowerRegenDebounceTime = level.time + g_forceRegenTime.integer;
+				if ( g_gametype.integer == GT_POWERDUEL && self->client->sess.duelTeam == DUELTEAM_LONE )
+				{
+					if ( g_duel_fraglimit.integer )
+					{
+						self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*
+							(0.6 + (.3 * (float)self->client->sess.wins / (float)g_duel_fraglimit.integer)));
+					}
+					else
+					{
+						self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*0.7);
+					}
+				}
+				else
+				{
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + g_forceRegenTime.integer;
+				}
 			}
 		}
 	}
@@ -5620,7 +5717,7 @@ powersetcheck:
 	}
 }
 
-qboolean NPC_Humanoid_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
+qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
 {
 	int	dodgeAnim = -1;
 

@@ -1646,16 +1646,14 @@ bool Initialize( Vehicle_t *pVeh )
 	}
 	parent->mass = pVeh->m_pVehicleInfo->mass;
 	//initialize the ammo to max
-	/*for ( i = 0; i < MAX_VEHICLE_WEAPONS; i++ )
+	for ( i = 0; i < MAX_VEHICLE_WEAPONS; i++ )
 	{
-		// Oh for christ's sake Raven...STOP USING THIS BLOODY HACK
 		parent->client->ps.ammo[i] = pVeh->weaponStatus[i].ammo = pVeh->m_pVehicleInfo->weapon[i].ammoMax;
-	}*/
-	parent->client->ps.ammo = pVeh->weaponStatus[i].ammo = pVeh->m_pVehicleInfo->weapon[i].ammoMax;
+	}
 	for ( i = 0; i < MAX_VEHICLE_TURRETS; i++ )
 	{
 		pVeh->turretStatus[i].nextMuzzle = (pVeh->m_pVehicleInfo->turret[i].iMuzzle[i]-1);
-		parent->client->ps.ammo = pVeh->turretStatus[i].ammo = pVeh->m_pVehicleInfo->turret[i].iAmmoMax;
+		parent->client->ps.ammo[MAX_VEHICLE_WEAPONS+i] = pVeh->turretStatus[i].ammo = pVeh->m_pVehicleInfo->turret[i].iAmmoMax;
 		if ( pVeh->m_pVehicleInfo->turret[i].bAI )
 		{//they're going to be finding enemies, init this to NONE
 			pVeh->turretStatus[i].enemyEntNum = ENTITYNUM_NONE;
@@ -1805,7 +1803,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			//NOTE: in order to send the vehicle's ammo info to the client, we copy the ammo into the first 2 ammo slots on the vehicle NPC's client->ps.ammo array
 			if ( parent && parent->client )
 			{
-				parent->client->ps.ammo = pVeh->weaponStatus[i].ammo;
+				parent->client->ps.ammo[i] = pVeh->weaponStatus[i].ammo;
 			}
 		}
 	}
@@ -1821,7 +1819,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 			//NOTE: in order to send the vehicle's ammo info to the client, we copy the ammo into the first 2 ammo slots on the vehicle NPC's client->ps.ammo array
 			if ( parent && parent->client )
 			{
-				parent->client->ps.ammo = pVeh->turretStatus[i].ammo;
+				parent->client->ps.ammo[MAX_VEHICLE_WEAPONS+i] = pVeh->turretStatus[i].ammo;
 			}
 		}
 	}
@@ -2528,7 +2526,7 @@ static bool UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUmcd )
 			{
 				// Allow them to force jump off.
 				VectorScale( parent->client->ps.velocity, 0.5f, rider->client->ps.velocity );
-				rider->client->ps.velocity[2] += /*JUMP_VELOCITY*/ bgConstants.baseJumpVelocity;
+				rider->client->ps.velocity[2] += JUMP_VELOCITY;
 #ifdef _JK2MP
 				rider->client->ps.fd.forceJumpZStart = rider->client->ps.origin[2];
 

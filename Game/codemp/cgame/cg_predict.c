@@ -239,12 +239,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 			continue;
 		}
 
-		if ( ent->number > MAX_CLIENTS 
-			&& ent->eType != ET_NPC // UQ1: Do NPCs too!!!
-			&& (ent->genericenemyindex-MAX_GENTITIES==cg.predictedPlayerState.clientNum || ent->genericenemyindex-MAX_GENTITIES==cg.predictedVehicleState.clientNum) )
-//		if ( ent->number > MAX_CLIENTS && 
-//			 (ent->genericenemyindex-MAX_GENTITIES==cg.predictedPlayerState.clientNum || ent->genericenemyindex-MAX_GENTITIES==cg.predictedVehicleState.clientNum) )
-////		if (ent->number > MAX_CLIENTS && cg.snap && ent->genericenemyindex && (ent->genericenemyindex-MAX_GENTITIES) == cg.snap->ps.clientNum)
+		if ( ent->number > MAX_CLIENTS && 
+			 (ent->genericenemyindex-MAX_GENTITIES==cg.predictedPlayerState.clientNum || ent->genericenemyindex-MAX_GENTITIES==cg.predictedVehicleState.clientNum) )
+//		if (ent->number > MAX_CLIENTS && cg.snap && ent->genericenemyindex && (ent->genericenemyindex-MAX_GENTITIES) == cg.snap->ps.clientNum)
 		{ //rww - method of keeping objects from colliding in client-prediction (in case of ownership)
 			continue;
 		}
@@ -713,6 +710,14 @@ static void CG_TouchItem( centity_t *cent ) {
 
 	// don't touch it again this prediction
 	cent->miscTime = cg.time;
+
+	// if its a weapon, give them some predicted ammo so the autoswitch will work
+	if ( item->giType == IT_WEAPON ) {
+		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
+		if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
+			cg.predictedPlayerState.ammo[ item->giTag ] = 1;
+		}
+	}
 }
 
 
@@ -1082,7 +1087,6 @@ void CG_PredictPlayerState( void ) {
 
 	// prepare for pmove
 	cg_pmove.ps = &cg.predictedPlayerState;
-	cg_pmove.ns = &cg.networkState;
 	cg_pmove.trace = CG_Trace;
 	cg_pmove.pointcontents = CG_PointContents;
 
@@ -1362,7 +1366,6 @@ void CG_PredictPlayerState( void ) {
 		cg_pmove.debugMelee = cgs.debugMelee;
 		cg_pmove.stepSlideFix = cgs.stepSlideFix;
 		cg_pmove.noSpecMove = cgs.noSpecMove;
-		cg_pmove.gender = ci->gender;
 
 		cg_pmove.nonHumanoid = (pEnt->localAnimIndex >= NUM_RESERVED_ANIMSETS);
 
@@ -1480,7 +1483,6 @@ void CG_PredictPlayerState( void ) {
 				cg_vehPmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
 				cg_vehPmove.pmove_fixed = pmove_fixed.integer;
 				cg_vehPmove.pmove_msec = pmove_msec.integer;
-				cg_vehPmove.ns = &cg.networkState;
 
 				cg_entities[cg.predictedPlayerState.clientNum].playerState = &cg.predictedPlayerState;
 				veh->playerState = &cg.predictedVehicleState;

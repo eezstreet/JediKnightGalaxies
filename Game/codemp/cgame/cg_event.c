@@ -1273,10 +1273,8 @@ also called by CG_CheckPlayerstateEvents
 extern vmCvar_t jkg_autoreload;
 
 #define	DEBUGNAME(x) if(cg_debugEvents.integer){CG_Printf(x"\n");}
-#define	DEBUGNAME2(x, y) if(cg_debugEvents.integer){CG_Printf(x"\n", y);}
 extern void CG_ChatBox_AddString(char *chatStr, int fadeLevel); //cg_draw.c
 extern cgItemData_t CGitemLookupTable[MAX_ITEM_TABLE_SIZE];
-extern void JKG_CG_SetACISlot(const unsigned short slot);
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	entityState_t	*es;
 	int				event;
@@ -1535,9 +1533,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			}
 			else
 			{
-#ifndef __MUSIC_ENGINE__
 				trap_S_StartBackgroundTrack( "music/mp/duel.mp3", "music/mp/duel.mp3", qfalse );
-#endif //__MUSIC_ENGINE__
 			}
 		}
 		else
@@ -2016,29 +2012,24 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			int weapon;
 			int variation;
 			weaponInfo_t *weaponInfo;
-			weaponData_t *weaponData;
 			qboolean result;
 
 			assert(param >= 0 && param < MAX_WEAPON_TABLE_SIZE);
 			
 			result = BG_GetWeaponByIndex (param, &weapon, &variation);
 			assert (result);
-
-			weaponData = GetWeaponData( weapon, variation );
-
-			assert( weaponData );
 			
 			#ifdef _DEBUG
-			//CG_Printf ("Client-side received change weapon event: weapon %d, variation %d\n", weapon, variation);
+			CG_Printf ("Client-side received change weapon event: weapon %d, variation %d\n", weapon, variation);
 			#endif
 
 			weaponInfo = CG_WeaponInfo (weapon, variation);
 
 			assert(weaponInfo);
 
-			if(weaponData->visuals.selectSound && weaponData->visuals.selectSound[0])
+			if (weaponInfo->selectSound)
 			{
-				trap_S_StartSound( NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(weaponData->visuals.selectSound) );
+				trap_S_StartSound (NULL, es->number, CHAN_AUTO, weaponInfo->selectSound );
 			}
 			else if (weapon != WP_SABER)
 			{ //not sure what SP is doing for this but I don't want a select sound for saber (it has the saber-turn-on)
@@ -2162,6 +2153,17 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
         cent->currentState.origin[1] += 10.0f;
 		JKG_FireWeapon (cent, qtrue);
 		cent->currentState.origin[1] -= 10.0f;
+
+		//if you just exploded your detpacks and you have no ammo left for them, autoswitch
+		if ( cg.snap->ps.clientNum == cent->currentState.number &&
+			cg.snap->ps.weapon == WP_DET_PACK )
+		{
+			if (cg.snap->ps.ammo[GetWeaponAmmoIndex( cg.snap->ps.weapon, cg.snap->ps.weaponVariation )] == 0) 
+			{
+				CG_OutOfAmmoChange(WP_DET_PACK);
+			}
+		}
+
 		break;
 
 	case EV_SABER_ATTACK:
@@ -2497,36 +2499,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		break;
 
-	//Jedi Knight Galaxies add
-#ifdef __MMO__
-	case EV_GOTO_ACI:
-		if (es->number == cg.clientNum)
-			JKG_CG_SetACISlot(es->eventParm);
-		break;
-	case EV_HITMARKER_ASSIST:
-		if (es->number == cg.clientNum)
-		{
-			// All this does is make a hitmarker display. Nothing too fancy.
-			trap_S_StartSound(NULL, cg.clientNum, CHAN_AUTO, cgs.media.hitmarkerSound);
-			cg.hitmarkerLastTime = cg.time + 1000;
-
-			if (es->eventParm > 0)
-				CG_Notifications_Add(va("\"Assist: +%i Credits\"", es->eventParm), qfalse);
-		}
-		break;
-	case EV_HITMARKER_KILL: // UQ1: Sound here too???
-		if (es->number == cg.clientNum)
-		{
-			// All this does is make a hitmarker display. Nothing too fancy.
-			trap_S_StartSound(NULL, cg.clientNum, CHAN_AUTO, cgs.media.hitmarkerSound);
-			cg.hitmarkerLastTime = cg.time + 1000;
-
-			if (es->eventParm > 0)
-				CG_Notifications_Add(va("\"Kill: +%i Credits\"", es->eventParm), qfalse);
-		}
-		break;
-#endif //__MMO__
-
 	case EV_BECOME_JEDIMASTER:
 		DEBUGNAME("EV_SABER_UNHOLSTER");
 		{
@@ -2578,17 +2550,17 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				VectorCopy(cg.lastFPFlashPoint, cent->currentState.origin2);
 			}
 		}
-		JKG_RenderTraceline (cent, cent->currentState.origin2, cent->lerpOrigin, cent->currentState.firingMode);
+		JKG_RenderTraceline (cent, cent->currentState.origin2, cent->lerpOrigin, (qboolean)(cent->currentState.eFlags & EF_ALT_FIRING));
 		
 		ByteToDir (cent->currentState.eventParm, dir);
 		if ( cent->currentState.otherEntityNum < MAX_CLIENTS ||
 		    cg_entities[cent->currentState.otherEntityNum].currentState.eType == ET_NPC )
 		{
-			JKG_RenderProjectileHitPlayer (cent, cent->lerpOrigin, dir, cent->currentState.firingMode);
+		    JKG_RenderProjectileHitPlayer (cent, cent->lerpOrigin, dir, (qboolean)(cent->currentState.eFlags & EF_ALT_FIRING));
 		}
 		else if ( cent->currentState.otherEntityNum != ENTITYNUM_NONE )
 		{
-			JKG_RenderProjectileMiss (cent, cent->lerpOrigin, dir, cent->currentState.firingMode);
+		    JKG_RenderProjectileMiss (cent, cent->lerpOrigin, dir, (qboolean)(cent->currentState.eFlags & EF_ALT_FIRING));
 		}
 		//FX_DisruptorMainShot( cent->currentState.origin2, cent->lerpOrigin ); 
 		break;
@@ -2729,24 +2701,64 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			CG_LocalTimingBar(es->time, es->time2);
 		}
 		break;
-
-// cleaned the below up. this was a huge mess before --eez
 	case EV_USE_ITEM0:
+		DEBUGNAME("EV_USE_ITEM0");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM1:
+		DEBUGNAME("EV_USE_ITEM1");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM2:
+		DEBUGNAME("EV_USE_ITEM2");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM3:
+		DEBUGNAME("EV_USE_ITEM3");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM4:
+		DEBUGNAME("EV_USE_ITEM4");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM5:
+		DEBUGNAME("EV_USE_ITEM5");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM6:
+		DEBUGNAME("EV_USE_ITEM6");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM7:
+		DEBUGNAME("EV_USE_ITEM7");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM8:
+		DEBUGNAME("EV_USE_ITEM8");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM9:
+		DEBUGNAME("EV_USE_ITEM9");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM10:
+		DEBUGNAME("EV_USE_ITEM10");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM11:
+		DEBUGNAME("EV_USE_ITEM11");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM12:
+		DEBUGNAME("EV_USE_ITEM12");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM13:
+		DEBUGNAME("EV_USE_ITEM13");
+		CG_UseItem( cent );
+		break;
 	case EV_USE_ITEM14:
-		DEBUGNAME2("EV_USE_ITEM%i", event-EV_USE_ITEM0);
+		DEBUGNAME("EV_USE_ITEM14");
 		CG_UseItem( cent );
 		break;
 
@@ -2854,7 +2866,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_GRENADE_BOUNCE:
 		DEBUGNAME("EV_GRENADE_BOUNCE");
-		JKG_BounceGrenade (cent, es->firingMode);
+		JKG_BounceGrenade (cent, (qboolean)(es->eFlags & EF_ALT_FIRING));
 		break;
 
 	case EV_SCOREPLUM:
@@ -2886,6 +2898,18 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 
 		cent->bodyFadeTime = cg.time + 60000;
+		break;
+
+	//
+	// siege gameplay events
+	//
+	case EV_SIEGE_ROUNDOVER:
+		DEBUGNAME("EV_SIEGE_ROUNDOVER");
+		CG_SiegeRoundOver(&cg_entities[cent->currentState.weapon], cent->currentState.eventParm);
+		break;
+	case EV_SIEGE_OBJECTIVECOMPLETE:
+		DEBUGNAME("EV_SIEGE_OBJECTIVECOMPLETE");
+		CG_SiegeObjectiveCompleted(&cg_entities[cent->currentState.weapon], cent->currentState.eventParm, cent->currentState.trickedentindex);
 		break;
 
 	case EV_DESTROY_GHOUL2_INSTANCE:
@@ -2972,7 +2996,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}*/
 		else
 		{
-			JKG_RenderProjectileHitPlayer (cent, position, dir, es->firingMode);
+		    JKG_RenderProjectileHitPlayer (cent, position, dir, (qboolean)(es->eFlags & EF_ALT_FIRING));
 		}
 
 		if (cg_ghoul2Marks.integer &&
@@ -3002,7 +3026,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}*/
 		else
 		{
-			JKG_RenderProjectileMiss (cent, position, dir, es->firingMode);
+		    JKG_RenderProjectileMiss (cent, position, dir, (qboolean)(es->eFlags & EF_ALT_FIRING));
 		}
 
 		if (cg_ghoul2Marks.integer &&
@@ -3543,7 +3567,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	    break;
 	    
 	case EV_MISSILE_DIE:
-		JKG_RenderProjectileDeath (cent, cent->currentState.origin, cent->currentState.angles, cent->currentState.firingMode);
+	    JKG_RenderProjectileDeath (cent, cent->currentState.origin, cent->currentState.angles, (qboolean)(cent->currentState.eFlags & EF_ALT_FIRING));
 	    break;
 
 	case EV_ITEM_BREAK:

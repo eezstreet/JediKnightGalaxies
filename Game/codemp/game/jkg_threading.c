@@ -21,6 +21,7 @@
 
 #include "g_local.h"
 #include "jkg_threading.h"
+#include "jkg_libcurl.h"
 #include <openssl/crypto.h>
 #include "json/cJSON.h"
 #include "jkg_threadingsq.h"
@@ -333,18 +334,25 @@ static unsigned long __stdcall JKG_BackgroundWorker ( void *lulz /*Pass somethin
 static void *JKG_BackgroundWorker ( void *lulz /*Pass something useful if you need*/ )
 #endif
 {
+	int errcode = 0;
+
+	errcode = JKG_Libcurl_Init();
+	if ( errcode ) return errcode;
+
 	backgrounderActive = qtrue;
 
 #ifndef FINAL_BUILD
 	Com_Printf( "^2Background Worker started at %i\n", level.time );
 #endif
-	while ( !shuttingDown || (jkg_tasks.taskCount > 0) )
+	while ( !shuttingDown || jkg_tasks.taskCount )
 	{
 		asyncTask_t *workTask = NULL;
 
+		JKG_Libcurl_Poller();
+
 		JKG_Task_ProcessDelayedTasks();
 
-		while ((workTask = JKG_Task_GetQueued()) != NULL && workTask != NULL)
+		while ((workTask = JKG_Task_GetQueued()) != NULL)
 		{
 			JKG_ThreadingDebugPrint( va( "^2Task ID %i is about to be processed!", workTask-jkg_tasks.asyncTasks ) );
 			
@@ -366,6 +374,8 @@ static void *JKG_BackgroundWorker ( void *lulz /*Pass something useful if you ne
 
 		JKG_ThreadSleep( 1 );
 	}
+
+	JKG_Libcurl_Shutdown();
 
 	shuttingDown = qfalse;
 	backgrounderActive = qfalse;
@@ -498,13 +508,4 @@ asyncTask_t *JKG_NewAsyncTask ( int (*threadFunc)(struct asyncTask_s *taskPointe
 	JKG_Task_Queue(newTask);
 
 	return newTask;
-}
-
-qboolean JKG_ThreadingInitialized(void)
-{
-	if(!jkg_tasks.freeTasks.init)
-	{
-		return qfalse;
-	}
-	return qtrue;
 }

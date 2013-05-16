@@ -15,49 +15,20 @@ void CG_DrawJetpackCloak(menuDef_t *menuHUD);
 static __inline void AdjustOpacityLevels(void)
 {
 	//playerState_t *ps = &cg.predictedPlayerState;
-
 	if ( (cg.predictedPlayerState.stats[STAT_HEALTH] < 1 || cg.deathcamTime) ||
 		cg.predictedPlayerState.zoomMode ||
 		cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
 		cg.spectatorTime)
 	{
-		cg.jkg_HUDOpacity -= ((float)cg.frameDelta/200.0f);
+		cg.jkg_HUDOpacity -= ((float)cg.frameDelta/250.0f);
 	} else {
 		cg.jkg_HUDOpacity += ((float)cg.frameDelta/200.0f);	
 	}
 
-	CLAMP( cg.jkg_HUDOpacity, 0.0f, 1.0f );
-
-	if( cg.predictedPlayerState.weaponTime <= 0 )
-	{
-		cg.jkg_WHUDOpacity = 1.0f;
-	}
-	else
-	{
-		if( cg.predictedPlayerState.weaponstate == WEAPON_RAISING )
-		{
-			// pm->ps->weaponTime += 350;
-			int time = cg.predictedPlayerState.weaponTime-200;
-			BUMP( time, 0 );
-
-			cg.jkg_WHUDOpacity = 1.0f-((float)time/150);
-		}
-		else if( cg.predictedPlayerState.weaponstate == WEAPON_DROPPING )
-		{
-			// pm->ps->weaponTime += 300;
-			// Lerp it. Needs to be a 100 ms period where we can't see anything
-			int time = cg.predictedPlayerState.weaponTime-150;
-			BUMP( time, 0 );
-
-			cg.jkg_WHUDOpacity = (float)time/150;
-		}
-		else
-		{
-			// Not switching weapons I guess (must be firing or something). Just set it at 1.0f
-			cg.jkg_WHUDOpacity = 1.0f;
-		}
-	}
-
+	if (cg.jkg_HUDOpacity >= 1.0f)
+		cg.jkg_HUDOpacity = 1.0f;
+	if (cg.jkg_HUDOpacity < 0.0f)
+		cg.jkg_HUDOpacity = 0.0f;
 
 	return;
 }
@@ -128,12 +99,12 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 
 	// Now then, lets render this text ^_^
 
-	width = (float)trap_R_Font_StrLenPixels(text, cgDC.Assets.qhSmall3Font, 1) * 0.6f;
+	width = (float)trap_R_Font_StrLenPixels(text, cgDC.Assets.qhSmallFont, 1) * 0.6f;
 				
 	focusItem = Menu_FindItemByName(menuHUD, "infobar");
 	if (focusItem)
 	{
-		trap_R_Font_DrawString(focusItem->window.rect.x + ((focusItem->window.rect.w/2) - (width/2)), focusItem->window.rect.y, text, colorWhite, cgDC.Assets.qhSmall3Font, -1, 0.6f);
+		trap_R_Font_DrawString(focusItem->window.rect.x + ((focusItem->window.rect.w/2) - (width/2)), focusItem->window.rect.y, text, colorWhite, cgDC.Assets.qhSmallFont, -1, 0.6f);
 	}
 
 	focusItem = Menu_FindItemByName(menuHUD, "weapicon");
@@ -164,15 +135,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 	const char		*text;
 	vec4_t			opacity;
 	const weaponInfo_t *weaponInfo;
-
-	if( cg.jkg_WHUDOpacity  < 1.0f )
-	{
-		MAKERGBA(opacity, 1,1,1, cg.jkg_WHUDOpacity);
-	}
-	else
-	{
-		MAKERGBA(opacity, 1,1,1, cg.jkg_HUDOpacity);
-	}
+	MAKERGBA(opacity, 1,1,1, cg.jkg_HUDOpacity);
 
 	ps = &cg.snap->ps;
 
@@ -186,22 +149,6 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 	{
 		return;
 	}
-
-#ifndef NO_SP_STYLE_AMMO
-	// Figure out whether or not we want to do the thing where we highlight the text whenever we consume ammo or change firing mode (or, change weapon)
-	if (cg.lastAmmo != cg.predictedPlayerState.stats[STAT_AMMO] || cg.lastAmmoGun != cg.predictedPlayerState.weaponId)
-	{
-		cg.lastAmmo = cg.predictedPlayerState.stats[STAT_AMMO];
-		cg.lastAmmoTime = cg.time + 200; // matches SP 1:1
-		cg.lastAmmoGun = cg.predictedPlayerState.weaponId;
-	}
-
-	if(cg.lastAmmoTime > cg.time)
-	{
-		vec4_t colorCopy = { 0.2, 0.72, 0.86, 1 };
-		Q_RGBCopy(&opacity, colorCopy);
-	}
-#endif
 	
 	weaponInfo = CG_WeaponInfo (cent->currentState.weapon, cent->currentState.weaponVariation);
 
@@ -217,14 +164,14 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 		}
 		else
 		{
-			ammo = ps->ammo;
+			ammo = ps->ammo[GetWeaponAmmoIndex( cent->currentState.weapon, cent->currentState.weaponVariation )];
 		}
 
 		if ( GetWeaponAmmoClip( cent->currentState.weapon, cent->currentState.weaponVariation ))
 		{
 			// Display the amount of clips too
 			float temp;
-			temp = ceil(( float ) ps->ammo / ( float ) GetWeaponAmmoClip( cent->currentState.weapon, cent->currentState.weaponVariation ));
+			temp = ceil(( float ) ps->ammo[GetWeaponAmmoIndex( cent->currentState.weapon, cent->currentState.weaponVariation )] / ( float ) GetWeaponAmmoClip( cent->currentState.weapon, cent->currentState.weaponVariation ));
 			text = va( "Ammo: %i (%i)", ammo, ( int ) temp );
 		}
 		else
@@ -240,7 +187,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 	focusItem = Menu_FindItemByName(menuHUD, "infobar");
 	if (focusItem)
 	{
-		trap_R_Font_DrawString(focusItem->window.rect.x + ((focusItem->window.rect.w/2) - (width/2)), focusItem->window.rect.y, text, opacity, cgDC.Assets.qhSmall3Font, -1, 0.5f);
+		trap_R_Font_DrawString(focusItem->window.rect.x + ((focusItem->window.rect.w/2) - (width/2)), focusItem->window.rect.y, text, opacity, cgDC.Assets.qhSmallFont, -1, 0.6f);
 	}
 
 	focusItem = Menu_FindItemByName(menuHUD, "weapicon");
@@ -255,66 +202,6 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 			weaponInfo->hudIcon
 			);			
 	}
-}
-
-/*
-================
-JKG_DrawFiringMode
-================
-*/
-extern int JKG_GetTransitionForFiringModeSet(int previous, int next);
-static void JKG_DrawFiringMode( menuDef_t *menuHUD )
-{
-	// Menu ain't used...yet.
-	float x, y, w;
-	char *text;
-	int textWidth;
-	weaponData_t *wp = BG_GetWeaponDataByIndex(cg.predictedPlayerState.weaponId);
-	unsigned char firingMode = cg.predictedPlayerState.firingMode;
-	vec4_t opacity;
-
-	if( cg.jkg_WHUDOpacity  < 1.0f )
-	{
-		MAKERGBA(opacity, 1,1,1, cg.jkg_WHUDOpacity);
-	}
-	else
-	{
-		MAKERGBA(opacity, 1,1,1, cg.jkg_HUDOpacity);
-	}
-
-	if(!wp)
-	{
-		return;
-	}
-
-	if(wp->numFiringModes <= 1)
-	{
-		return;
-	}
-
-#ifndef NO_SP_STYLE_AMMO
-	if(cg.lastFiringModeTime > cg.time)
-	{
-		vec4_t colorCopy = { 0.2, 0.72, 0.86, 1 };
-		Q_RGBCopy(&opacity, colorCopy);
-	}
-#endif
-
-	// Set us some basic defaults (for now. these will be replaced by the jkg_hud.menu)
-	x = 500.0f;
-	y = 448.0f;
-	w = 120.0f;
-
-	// Right. Now let's get the display string.
-	text = va("Mode: %s", CG_GetStringEdString2(wp->visuals.visualFireModes[firingMode].displayName));
-	if(!text || !text[0])
-	{	// ok maybe this isn't realistic at all but i'm paranoid
-		return;
-	}
-
-	textWidth = trap_R_Font_StrLenPixels(text, cgDC.Assets.qhSmall3Font, 0.4f);
-	//trap_R_Font_DrawString(focusItem->window.rect.x + ((focusItem->window.rect.w/2) - (width/2)), focusItem->window.rect.y, text, opacity, cgDC.Assets.qhSmall3Font, -1, 0.5f);
-	trap_R_Font_DrawString(x + ((w/2) - (textWidth/2)), y, text, opacity, cgDC.Assets.qhSmall3Font, -1, 0.4f);
 }
 
 /*
@@ -381,7 +268,7 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 		MAKERGBA(calcColor, 1, 1, 1, 1*cg.jkg_HUDOpacity);
 	}
 
-	/*focusItem = Menu_FindItemByName(menuHUD, "bar2ico");
+	focusItem = Menu_FindItemByName(menuHUD, "bar2ico");
 	if (focusItem)
 	{
 		calcColor[3] *= cg.jkg_HUDOpacity;
@@ -393,14 +280,14 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 			focusItem->window.rect.h, 
 			trap_R_RegisterShader("gfx/jkghud/ico_stamina.png") // TODO: Precache this
 			);			
-	}*/
+	}
 
 	// Work out the bar now
 
 	percent = (float)cg.snap->ps.fd.forcePower / (float)maxForcePower;
-	//percent *= 0.75f; // Range of the bar is 0 to 0.75f
+	percent *= 0.75f; // Range of the bar is 0 to 0.75f
 
-	focusItem = Menu_FindItemByName(menuHUD, "staminabar");
+	focusItem = Menu_FindItemByName(menuHUD, "bar2");
 	if (focusItem)
 	{
 		trap_R_SetColor( opacity );
@@ -414,48 +301,6 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 							);		
 	}
 }
-
-/*
-===================
-FlagCaptureBar
-===================
-*/
-
-void FlagCaptureBar(void)
-{
-	const int numticks = 50, tickwidth = 1, tickheight = 3;
-	const int tickpadx = 2, tickpady = 2;
-	const int capwidth = 2;
-	const int barwidth = numticks*tickwidth+tickpadx*2+capwidth*2;
-	const int barleft = ((1202-barwidth)/2);
-	const int barheight = tickheight + tickpady*2;
-	const int bartop = 173-barheight;
-	const int capleft = barleft+tickpadx;
-	const int tickleft = capleft+capwidth, ticktop = bartop+tickpady;
-	float percentage = 0.0f;
-
-	if (cg.captureFlagPercent <= 0)
-		return;
-
-	percentage = cg.captureFlagPercent/2;
-
-	trap_R_SetColor( colorWhite );
-	// Draw background
-	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.loadBarLEDSurround);
-
-	// Draw left cap (backwards)
-	CG_DrawPic(tickleft, ticktop, -capwidth, tickheight, cgs.media.loadBarLEDCap);
-
-	// Draw bar
-	CG_DrawPic(tickleft, ticktop, tickwidth*percentage, tickheight, cgs.media.loadBarLED);
-
-	// Draw right cap
-	CG_DrawPic(tickleft+tickwidth*percentage, ticktop, capwidth, tickheight, cgs.media.loadBarLEDCap);
-}
-
-static int color_selector = 0;
-int next_color_update = 0;
-qboolean color_forwards = qtrue;
 
 /*
 ================
@@ -510,11 +355,7 @@ static void CG_DrawHealth( menuDef_t *menuHUD )
 		} else if (percentage < 0) {
 			percentage = 0;
 		}
-		factor = /*0.62109375f **/ percentage /*+ 0.330078125f*/;
-		/*if(factor > 0.95f)
-		{
-			factor = 1.0f; //eezstreet - mega hack
-		}*/
+		factor = 0.62109375f * percentage + 0.330078125f;
 
 		if (fcurrent < factor) {
 			// Raise it
@@ -529,9 +370,6 @@ static void CG_DrawHealth( menuDef_t *menuHUD )
 			if (fcurrent < factor) {
 				fcurrent = factor;
 			}
-		} else
-		{
-			//Stay the same
 		}
 
 		if (fcurrent != 0) {
@@ -646,11 +484,7 @@ static void CG_DrawArmor( menuDef_t *menuHUD )
 		} else if (percentage < 0) {
 			percentage = 0;
 		}
-		factor = /*0.6171875f **/ percentage /*+ 0.34375f*/;
-		/*if(factor > 0.95f)
-		{
-			factor = 1.0f; //eezstreet - mega hack
-		}*/
+		factor = 0.6171875f * percentage + 0.34375f;
 		// Fade our fcurrent to this factor
 		if (fcurrent < factor) {
 			// Raise it
@@ -736,7 +570,7 @@ static void CG_DrawTopLeftHUD ( menuDef_t *menuHUD, vec4_t opacity )
 	}
 
 	// Print background of the bars
-	/*focusItem = Menu_FindItemByName(menuHUD, "barsbackground");
+	focusItem = Menu_FindItemByName(menuHUD, "barsbackground");
 	if (focusItem)
 	{
 		trap_R_SetColor(opacity);	
@@ -747,71 +581,17 @@ static void CG_DrawTopLeftHUD ( menuDef_t *menuHUD, vec4_t opacity )
 			focusItem->window.rect.h, 
 			focusItem->window.background 
 			);			
-	}*/
+	}
 
 
 	if (cg.predictedPlayerState.pm_type != PM_SPECTATOR)
 	{
 		CG_DrawArmor(menuHUD);
 		CG_DrawHealth(menuHUD);
-		CG_DrawForcePower(menuHUD);
-		JKG_DrawFiringMode(menuHUD);
-
-		focusItem = Menu_FindItemByName(menuHUD, "frame");
-		if (focusItem)
-		{
-			trap_R_SetColor(opacity);	
-			CG_DrawPic( 
-				focusItem->window.rect.x, 
-				focusItem->window.rect.y, 
-				focusItem->window.rect.w, 
-				focusItem->window.rect.h, 
-				focusItem->window.background 
-				);			
-		}
-
-		focusItem = Menu_FindItemByName(menuHUD, "hudicon_shield");
-		if (focusItem)
-		{
-			trap_R_SetColor(opacity);	
-			CG_DrawPic( 
-				focusItem->window.rect.x, 
-				focusItem->window.rect.y, 
-				focusItem->window.rect.w, 
-				focusItem->window.rect.h, 
-				focusItem->window.background 
-				);			
-		}
-
-		focusItem = Menu_FindItemByName(menuHUD, "hudicon_health");
-		if (focusItem)
-		{
-			trap_R_SetColor(opacity);	
-			CG_DrawPic( 
-				focusItem->window.rect.x, 
-				focusItem->window.rect.y, 
-				focusItem->window.rect.w, 
-				focusItem->window.rect.h, 
-				focusItem->window.background 
-				);			
-		}
-
-		focusItem = Menu_FindItemByName(menuHUD, "hudicon_stamina");
-		if (focusItem)
-		{
-			trap_R_SetColor(opacity);	
-			CG_DrawPic( 
-				focusItem->window.rect.x, 
-				focusItem->window.rect.y, 
-				focusItem->window.rect.w, 
-				focusItem->window.rect.h, 
-				focusItem->window.background 
-				);			
-		}
 	}
 
 	// Put in the avatar before we put on the frame
-	/*focusItem = Menu_FindItemByName(menuHUD, "avatar");
+	focusItem = Menu_FindItemByName(menuHUD, "avatar");
 	if (focusItem)
 	{
 		trap_R_SetColor(opacity);	
@@ -822,11 +602,23 @@ static void CG_DrawTopLeftHUD ( menuDef_t *menuHUD, vec4_t opacity )
 			focusItem->window.rect.h, 
 			cgs.media.avatar_placeholder
 			);	
-	}	*/	
+	}		
 	// Print frame
+	focusItem = Menu_FindItemByName(menuHUD, "frame");
+	if (focusItem)
+	{
+		trap_R_SetColor(opacity);	
+		CG_DrawPic( 
+			focusItem->window.rect.x, 
+			focusItem->window.rect.y, 
+			focusItem->window.rect.w, 
+			focusItem->window.rect.h, 
+			focusItem->window.background 
+			);			
+	}
 
 	// Print level
-	/*focusItem = Menu_FindItemByName(menuHUD, "leveltext");
+	focusItem = Menu_FindItemByName(menuHUD, "leveltext");
 	if (focusItem)
 	{
 		const char *temp = va("%i", 0);
@@ -840,9 +632,9 @@ static void CG_DrawTopLeftHUD ( menuDef_t *menuHUD, vec4_t opacity )
 			MenuFontToHandle(1),
 			-1,
 			0.6f);
-	}*/
+	}
 
-	/*focusItem = Menu_FindItemByName(menuHUD, "nametext");
+	focusItem = Menu_FindItemByName(menuHUD, "nametext");
 	if (focusItem)
 	{
 		const char *temp = va("%s", Info_ValueForKey(CG_ConfigString(CS_PLAYERS + cg.snap->ps.clientNum), "n"));
@@ -860,70 +652,7 @@ static void CG_DrawTopLeftHUD ( menuDef_t *menuHUD, vec4_t opacity )
 			-1,
 			0.5f);
 		ChatBox_SetPaletteAlpha(1);
-	}*/
-}
-
-/*
-==================
-CG_DrawFPS
-==================
-*/
-#define	FPS_FRAMES	16
-#define STYLE_DROPSHADOW	0x80000000
-extern void HSL2RGB(float h, float s, float l, float *r, float *g, float *b);
-static void CG_DrawFPS( float x, float y, float w, float h, int font, float textScale ) {
-	char		*s;
-	static unsigned short previousTimes[FPS_FRAMES];
-	static unsigned short index;
-	static int	previous, lastupdate;
-	int		t, i, fps, total;
-	unsigned short frameTime;
-#ifdef _XBOX
-	const int		xOffset = -40;
-#else
-	//const int		xOffset = 0;
-#endif
-	vec4_t	fpscolor;
-
-	// don't use serverTime, because that will be drifting to
-	// correct for internet lag changes, timescales, timedemos, etc
-	t = trap_Milliseconds();
-	frameTime = t - previous;
-	previous = t;
-	if (t - lastupdate > 50)	//don't sample faster than this
-	{
-		lastupdate = t;
-		previousTimes[index % FPS_FRAMES] = frameTime;
-		index++;
 	}
-	// average multiple frames together to smooth changes out a bit
-	total = 0;
-	for ( i = 0 ; i < FPS_FRAMES ; i++ ) {
-		total += previousTimes[i];
-	}
-	if ( !total ) {
-		total = 1;
-	}
-	fps = 1000 * FPS_FRAMES / total;
-
-    s = va( "%i fps", fps );
-    if (cg_drawFPS.integer == 2) {
-        Q_strcat (s, 64, va ("\n%.3f mspf", (float)total / (float)FPS_FRAMES));
-    }
-	if (fps < 10) {
-		VectorSet(fpscolor, 1, 0, 0);
-	} else if (fps > 50) {
-		VectorSet(fpscolor, 0, 1, 0);
-	} else {
-		int hue = (fps - 10) * 3; //(0 to 120)
-		HSL2RGB((float)hue/360, 1, 0.5f, &fpscolor[0], &fpscolor[1], &fpscolor[2]);
-	}
-	fpscolor[3] = 1;
-
-	//w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-
-	trap_R_Font_DrawString(x, y, s, fpscolor, font | STYLE_DROPSHADOW, -1, textScale);
-	//CG_DrawBigString( 635 - w + xOffset, y + 2, s, 1.0F);
 }
 
 static void CG_DrawMiniMap ( menuDef_t *menuHUD, vec4_t opacity )
@@ -951,69 +680,6 @@ static void CG_DrawMiniMap ( menuDef_t *menuHUD, vec4_t opacity )
 			focusItem->window.background 
 			);			
 	}
-
-	//Render the credit display
-	focusItem = Menu_FindItemByName(menuHUD, "credits");
-	if (focusItem)
-	{
-		trap_R_SetColor(opacity);
-		trap_R_Font_DrawString(focusItem->window.rect.x, focusItem->window.rect.y, va("Credits: %i", cg.predictedPlayerState.persistant[PERS_CREDITS]), opacity, cgDC.Assets.qhSmall3Font, -1, focusItem->textscale);
-	}
-
-	focusItem = Menu_FindItemByName(menuHUD, "smalltext");
-	if(focusItem)
-	{
-		char buffer[1024];
-		int mins, sec, msec;
-		int numberItems = 0;
-		buffer[0] = '\0';
-		trap_R_SetColor(opacity);
-		if(cg_drawTimer.integer == 1 || cg_drawTimer.integer == 3)
-		{
-			//Draw server time
-			msec = cg.time - cgs.levelStartTime;
-			sec = msec/1000;
-
-			//Convert to mm:ss format
-			mins = floor((float)sec/60);
-			sec -= (mins * 60);
-
-			strcat(buffer, va("Timer: %.2i:%.2i ", mins, sec));
-			numberItems++;
-		}
-		if(cg_drawTimer.integer == 2 || cg_drawTimer.integer == 3)
-		{
-			//Add a slash
-			if(numberItems > 0)
-			{
-				strcat(buffer, "/ ");
-				numberItems++;
-			}
-			if(T_meridiem())
-			{
-				strcat(buffer, va("Clock: %.2i:%.2i PM ", T_hour(qfalse), T_minute()));
-			}
-			else
-			{
-				strcat(buffer, va("Clock: %.2i:%.2i AM ", T_hour(qfalse), T_minute()));
-			}
-		}
-
-		//TODO: Add more shite
-
-		//strcat(buffer, '\0');
-
-		trap_R_Font_DrawString(focusItem->window.rect.x, focusItem->window.rect.y, buffer, opacity, cgDC.Assets.qhSmall3Font, -1, focusItem->textscale);
-	}
-
-	if(cg_drawFPS.integer > 0)
-	{
-		focusItem = Menu_FindItemByName(menuHUD, "fps");
-		if(focusItem)
-		{
-			CG_DrawFPS(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, focusItem->iMenuFont, focusItem->textscale);
-		}
-	}
 }
 
 static void CG_DrawHotkeyBar ( menuDef_t *menuHUD, vec4_t opacity )
@@ -1026,6 +692,41 @@ static void CG_DrawHotkeyBar ( menuDef_t *menuHUD, vec4_t opacity )
 	    return;
 	}
 
+	// Print background of the bars
+	for (i=0; i<11; i++) {
+		focusItem = Menu_FindItemByName(menuHUD, va("slot%i", i));
+		if (focusItem)
+		{
+			vec4_t col = {0.11f, 0.11f, 0.11f, 1.0f};
+			qhandle_t shader = cgs.media.whiteShader;
+			col[3] *= cg.jkg_HUDOpacity;
+			if ( i < MAX_ACI_SLOTS && cg.playerACI[i] > 0 )
+			{
+			    int weapon, variation;
+			    
+			    if ( BG_GetWeaponByIndex (cg.playerACI[i], &weapon, &variation) )
+			    {
+			        const weaponInfo_t *weaponInfo = CG_WeaponInfo (weapon, variation);
+			        shader = weaponInfo->hudIcon;
+			        col[0] = 1.0f;
+			        col[1] = 1.0f;
+			        col[2] = 1.0f;
+			        
+			        trap_R_SetColor (colorTable[CT_MDGREY]);
+			        trap_R_DrawStretchPic(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
+			    }
+			}
+			trap_R_SetColor( col );
+			trap_R_DrawStretchPic(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, 0, 0, 1, 1, shader);
+			//CG_DrawRect(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, 1, colorWhite);
+		}
+
+		focusItem = Menu_FindItemByName(menuHUD, va("slotl%i", i));
+		if (focusItem)
+		{
+			trap_R_Font_DrawString(focusItem->window.rect.x, focusItem->window.rect.y, va("%i", i), opacity, cgDC.Assets.qhSmallFont, -1, 0.4f);
+		}
+	}
 	focusItem = Menu_FindItemByName(menuHUD, "frame");
 	if (focusItem)
 	{
@@ -1037,73 +738,6 @@ static void CG_DrawHotkeyBar ( menuDef_t *menuHUD, vec4_t opacity )
 			focusItem->window.rect.h, 
 			focusItem->window.background 
 			);			
-	}
-
-	// Print background of the bars
-	for (i=0; i<11; i++) {
-		focusItem = Menu_FindItemByName(menuHUD, va("slot%i", i));
-		if (focusItem)
-		{
-			vec4_t col = {0.11f, 0.11f, 0.11f, 1.0f};
-			qhandle_t shader = cgs.media.whiteShader;	//dummy
-			col[3] *= cg.jkg_HUDOpacity;
-			if ( i < MAX_ACI_SLOTS && cg.playerACI[i] >= 0 && cg.playerInventory[cg.playerACI[i]].id && cg.playerInventory[cg.playerACI[i]].id->itemID )
-			{
-			    int weapon, variation;
-				if(cg.playerInventory[cg.playerACI[i]].id->itemType == ITEM_WEAPON)
-				{
-					if ( BG_GetWeaponByIndex (cg.playerInventory[cg.playerACI[i]].id->varID, &weapon, &variation) )
-					{
-						const weaponInfo_t *weaponInfo = CG_WeaponInfo (weapon, variation);
-						shader = weaponInfo->hudIcon;
-						col[0] = 1.0f;
-						col[1] = 1.0f;
-						col[2] = 1.0f;
-				        
-						/*trap_R_SetColor (colorTable[CT_MDGREY]);
-						trap_R_DrawStretchPic(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);*/
-						if(i == cg.weaponSelect)
-						{
-							trap_R_SetColor (opacity);
-							//TODO: precache me!
-							trap_R_DrawStretchPic(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, 0, 0, 1, 1, trap_R_RegisterShaderNoMip("gfx/jkghud/aciselect"));
-						}
-					}
-				}
-				else
-				{
-					col[0] = 1.0f;
-					col[1] = 1.0f;
-					col[2] = 1.0f;
-					shader = trap_R_RegisterShaderNoMip(cg.playerInventory[cg.playerACI[i]].id->itemIcon);
-				}
-			}
-			if(shader != cgs.media.whiteShader)
-			{
-				trap_R_SetColor( col );
-				trap_R_DrawStretchPic(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, 0, 0, 1, 1, shader);
-			}
-			//CG_DrawRect(focusItem->window.rect.x, focusItem->window.rect.y, focusItem->window.rect.w, focusItem->window.rect.h, 1, colorWhite);
-		}
-
-		focusItem = Menu_FindItemByName(menuHUD, va("slotl%i", i));
-		if (focusItem)
-		{
-			trap_R_Font_DrawString(focusItem->window.rect.x, focusItem->window.rect.y, va("%i", i), opacity, cgDC.Assets.qhSmallFont, -1, 0.4f);
-		}
-	}
-
-	focusItem = Menu_FindItemByName(menuHUD, "frame_overlay");
-	if(focusItem)
-	{
-		trap_R_SetColor(opacity);
-		CG_DrawPic( 
-			focusItem->window.rect.x, 
-			focusItem->window.rect.y, 
-			focusItem->window.rect.w, 
-			focusItem->window.rect.h, 
-			focusItem->window.background 
-			);	
 	}
 }
 
@@ -1131,6 +765,7 @@ static void CG_DrawBottomRightHUD ( menuDef_t *menuHUD, centity_t *cent, vec4_t 
 	}
 
 	// Draw the bars (temp)
+	CG_DrawForcePower(menuHUD);
 	
 	CG_DrawJetpackCloak(menuHUD);
 	
@@ -1170,79 +805,7 @@ void CG_DrawHUD(centity_t *cent)
 	AdjustOpacityLevels();
 	MAKERGBA(opacity, 1, 1, 1, cg.jkg_HUDOpacity);
 
-	if (cg.captureFlagPercent > 0 && cg.captureFlagPercent < 100 && cg.capturingFlag)
-	{// For attack/defence/scenario gametype flag captures...
-		int x = 600;
-		int y = 154;
-		vec3_t color;
-
-		if (cg.captureFlagPercent > 100)
-			cg.captureFlagPercent = 100;
-
-		FlagCaptureBar();
-
-		VectorSet(color, 250, 100, 1);
-
-		if (next_color_update < cg.time)
-		{
-			// Cycle writing color...
-			if (color_forwards)
-			{
-				if (color_selector >= 250)
-				{
-					color_forwards = qfalse;
-					color_selector--;
-				}
-				else
-				{
-					color_selector++;
-				}
-			}
-			else
-			{
-				if (color_selector <= 50)
-				{
-					color_forwards = qtrue;
-					color_selector++;
-				}
-				else
-				{
-					color_selector--;
-				}
-			}
-
-			next_color_update = cg.time + 10;
-		}
-
-		color[0] = color_selector;
-		color[1] = color_selector;
-		color[2] = 1;
-
-		if (cg.recaptureingFlag)
-		{
-			x-=15;
-			UI_DrawScaledProportionalString(x, y, va("Consolidating Control Point"), UI_RIGHT|UI_DROPSHADOW, color, 0.4);
-		}
-		else
-			UI_DrawScaledProportionalString(x, y, va("Capturing Control Point"), UI_RIGHT|UI_DROPSHADOW, color, 0.4);
-	}
-	else if (cg.captureFlagPercent >= 100 && cg.capturingFlag)
-	{// For attack/defence/scenario gametype flag captures...
-		int x = 600;
-		int y = 154;
-		vec3_t color;
-
-		if (cg.captureFlagPercent > 100)
-			cg.captureFlagPercent = 100;
-
-		FlagCaptureBar();
-
-		VectorSet(color, 250, 250, 0);
-
-		UI_DrawScaledProportionalString(x, y, va("^3Control Point Captured!"), UI_RIGHT|UI_DROPSHADOW, color, 0.4);
-	}
-
-	if (cgs.gametype >= GT_TEAM)
+	if (cgs.gametype >= GT_TEAM && cgs.gametype != GT_SIEGE)
 	{	// tint the hud items based on team
 		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED )
 			hudTintColor = redhudtint;

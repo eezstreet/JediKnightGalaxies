@@ -82,20 +82,6 @@ stringID_table_t ClassTable[] =
 	ENUM2STRING(CLASS_VEHICLE),
 	ENUM2STRING(CLASS_RANCOR),
 	ENUM2STRING(CLASS_WAMPA),
-	ENUM2STRING(CLASS_CIVILIAN),
-	ENUM2STRING(CLASS_GENERAL_VENDOR),
-	ENUM2STRING(CLASS_WEAPONS_VENDOR),
-	ENUM2STRING(CLASS_ARMOR_VENDOR),
-	ENUM2STRING(CLASS_SUPPLIES_VENDOR),
-	ENUM2STRING(CLASS_FOOD_VENDOR),
-	ENUM2STRING(CLASS_MEDICAL_VENDOR),
-	ENUM2STRING(CLASS_GAMBLER_VENDOR),
-	ENUM2STRING(CLASS_TRADE_VENDOR),
-	ENUM2STRING(CLASS_ODDITIES_VENDOR),
-	ENUM2STRING(CLASS_DRUG_VENDOR),
-	ENUM2STRING(CLASS_TRAVELLING_VENDOR),
-
-	ENUM2STRING(CLASS_BOT_FAKE_NPC),
 	"",	-1
 };
 
@@ -224,19 +210,8 @@ char	*ClassNames[CLASS_NUM_CLASSES] =
 	"vehicle",
 	"rancor",
 	"wampa",
-	"civilian",
-	"vendor_weapons",
-	"vendor_armor",
-	"vendor_supplies",
-	"vendor_food",
-	"vendor_medical",
-	"vendor_gambling",
-	"vendor_trade",
-	"vendor_oddities",
-	"vendor_drug",
-	"vendor_travelling",
-	"bot_fake_npc",
 };
+
 
 /*
 NPC_ReactionTime
@@ -1045,7 +1020,6 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
 	NPC->NPC->allWeaponOrder[7]	= WP_NONE;
 */
-		/*
 		// fill in defaults
 		stats->aggression	= 3;
 		stats->aim			= 3;
@@ -1065,28 +1039,6 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		stats->walkSpeed	= 90;
 		stats->runSpeed		= 300;
 		stats->acceleration	= 15;//Increase/descrease speed this much per frame (20fps)
-		*/
-
-		// fill in defaults - UQ1: Updating this as part of my "smarter NPCs" project...
-		stats->aggression	= 5;
-		stats->aim			= 5;
-		stats->evasion		= 5;
-		stats->intelligence	= 5;
-		stats->move			= 5;
-		stats->reactions	= 5;
-		stats->earshot		= 2048;
-		stats->hfov			= 140;
-		stats->vfov			= 120;
-		stats->vigilance	= 0.1f;
-		stats->visrange		= 2048;
-
-		stats->health		= 100;
-
-		//stats->yawSpeed		= 190;
-		stats->yawSpeed		= 190;
-		stats->walkSpeed	= 110;
-		stats->runSpeed		= 300;
-		stats->acceleration	= 25;//Increase/descrease speed this much per frame (20fps)
 	}
 	else
 	{
@@ -1159,7 +1111,6 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		p = NPCParms;
 		COM_BeginParseSession(NPCFile);
 
-
 		// look for the right NPC
 		while ( p ) 
 		{
@@ -1185,7 +1136,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 		{
 			return qfalse;
 		}
-
+			
 		// parse the NPC info block
 		while ( 1 ) 
 		{
@@ -1891,11 +1842,8 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				{
 					continue;
 				}
-
 				NPC->client->NPC_class = (class_t)GetIDForString( ClassTable, value );
 				NPC->s.NPC_class = NPC->client->NPC_class; //we actually only need this value now, but at the moment I don't feel like changing the 200+ references to client->NPC_class.
-
-				//G_Printf("Parse NPC class %i [%s]\n", NPC->client->NPC_class, ClassTable[NPC->client->NPC_class]);
 
 				// No md3's for vehicles.
 				if ( NPC->client->NPC_class == CLASS_VEHICLE )
@@ -2287,13 +2235,6 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				//FIXME: need to precache the weapon, too?  (in above func)
 				weap = GetIDForString( WPTable, value );
-
-				if ( weap == WP_STUN_BATON )
-				{
-					// UQ1: EEEWWWWW!!!!!
-					weap = WP_BLASTER;
-				}
-
 				if ( weap >= WP_NONE && weap <= WP_NUM_WEAPONS )///*WP_BLASTER_PISTOL*/WP_SABER ) //?!
 				{
 					NPC->client->ps.weapon = weap;
@@ -2302,7 +2243,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 					//	RegisterItem( FindItemForWeapon( (weapon_t)(NPC->client->ps.weapon) ) );	//precache the weapon
 					    NPC->client->ps.stats[STAT_AMMO] = 100;
-						NPC->client->ps.ammo = 100;//FIXME: max ammo!
+						NPC->client->ps.ammo[GetWeaponAmmoIndex( NPC->client->ps.weapon, NPC->client->ps.weaponVariation )] = 100;//FIXME: max ammo!
 					}
 				}
 				continue;
@@ -2410,13 +2351,13 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					continue;
 				}
 
-				saberName = (char *)malloc(4096);//G_NewString( value );
+				saberName = (char *)BG_TempAlloc(4096);//G_NewString( value );
 				strcpy(saberName, value);
 
 				WP_SaberParseParms( saberName, &NPC->client->saber[0] );
 				npcSaber1 = G_ModelIndex(va("@%s", saberName));
 
-				free(saberName);
+				BG_TempFree(4096);
 				continue;
 			}
 			
@@ -2430,7 +2371,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 
 				if ( !(NPC->client->saber[0].saberFlags&SFL_TWO_HANDED) )
 				{//can't use a second saber if first one is a two-handed saber...?
-					char *saberName = (char *)malloc(4096);//G_NewString( value );
+					char *saberName = (char *)BG_TempAlloc(4096);//G_NewString( value );
 					strcpy(saberName, value);
 
 					WP_SaberParseParms( saberName, &NPC->client->saber[1] );
@@ -2443,8 +2384,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 						//NPC->client->ps.dualSabers = qtrue;
 						npcSaber2 = G_ModelIndex(va("@%s", saberName));
 					}
-
-					free(saberName);
+					BG_TempFree(4096);
 				}
 				continue;
 			}
@@ -3290,143 +3230,6 @@ Ghoul2 Insert End
 	}
 	*/
 	//rwwFIXMEFIXME: Do something here I guess to properly precache stuff.
-
-	//
-	// UQ1: Part of the "smarter NPCs" project... Make sure their stats are all reasonable...
-	//
-
-	{
-		if (stats->aggression < 5)
-			stats->aggression	= 5;
-
-		if (stats->aim < 5)
-			stats->aim			= 5;
-
-		if (stats->evasion < 5)
-			stats->evasion		= 5;
-
-		if (stats->intelligence < 5)
-			stats->intelligence	= 5;
-
-		if (stats->move < 5)
-			stats->move			= 5;
-		
-		if (stats->reactions < 5)
-			stats->reactions	= 5;
-
-		if (stats->earshot < 2048)
-			stats->earshot		= 2048;
-
-		if (stats->hfov < 140)
-			stats->hfov			= 140;
-
-		if (stats->vfov < 120)
-			stats->vfov			= 120;
-
-		if (stats->vigilance < 0.1f)
-			stats->vigilance	= 0.1f;
-
-		if (stats->visrange < 2048)
-			stats->visrange		= 2048;
-
-		if (stats->health < 400)
-		{// Up all their HP values somewhat... Values well under 100hp are just stupid...
-			if (stats->health <= 50)
-			{
-				stats->health = 100 + (stats->health*2.5);
-			}
-			else if (stats->health <= 100)
-			{
-				stats->health = 100 + (stats->health*2.3);
-			}
-			else if (stats->health <= 200)
-			{
-				stats->health = 100 + (stats->health*2.1);
-			}
-			else if (stats->health <= 300)
-			{
-				stats->health = 100 + (stats->health*1.8);
-			}
-			else if (stats->health <= 400)
-			{
-				stats->health = 100 + (stats->health*1.6);
-			}
-			else
-			{// This will most likely only ever be vehicle NPCs... They have lots of HP anyway...
-				stats->health = 100 + (stats->health*1.5);
-			}
-		}
-
-		if (stats->yawSpeed < 190)
-			stats->yawSpeed		= 190;
-
-		//if (stats->walkSpeed < 110)
-		//	stats->walkSpeed	= 110;
-
-		if (stats->walkSpeed < 160)
-			stats->walkSpeed	= 160;
-
-		//if (stats->runSpeed < 300)
-		//	stats->runSpeed		= 300;
-			stats->runSpeed		= 220;
-
-		if (stats->acceleration < 160)
-			stats->acceleration	= 160;//Increase/descrease speed this much per frame (20fps)
-
-		if (NPC->client->NPC_class == CLASS_REBORN
-			|| NPC->client->NPC_class == CLASS_DESANN
-			|| NPC->client->NPC_class == CLASS_TAVION
-			|| NPC->client->NPC_class == CLASS_MARK1
-			|| NPC->client->NPC_class == CLASS_MARK2)
-		{// UQ1: All these should have FP_DRAIN >= 1
-			if (!(NPC->client->ps.fd.forcePowersKnown & ( 1 << FP_DRAIN ))
-				|| NPC->client->ps.fd.forcePowerLevel[FP_DRAIN] < 1)
-			{// Base level on their level of HP...
-				if (stats->health >= 1000)
-				{
-					NPC->client->ps.fd.forcePowersKnown |= ( 1 << FP_DRAIN );
-					NPC->client->ps.fd.forcePowerLevel[FP_DRAIN] = 3;
-				}
-				else if (stats->health >= 800)
-				{
-					NPC->client->ps.fd.forcePowersKnown |= ( 1 << FP_DRAIN );
-					NPC->client->ps.fd.forcePowerLevel[FP_DRAIN] = 2;
-				}
-				else
-				{
-					NPC->client->ps.fd.forcePowersKnown |= ( 1 << FP_DRAIN );
-					NPC->client->ps.fd.forcePowerLevel[FP_DRAIN] = 1;
-				}
-			}
-		}
-		else if (NPC->client->NPC_class == CLASS_JAN
-			|| NPC->client->NPC_class == CLASS_JEDI
-			|| NPC->client->NPC_class == CLASS_KYLE
-			|| NPC->client->NPC_class == CLASS_LUKE
-			|| NPC->client->NPC_class == CLASS_MONMOTHA
-			|| NPC->client->NPC_class == CLASS_MORGANKATARN)
-		{// UQ1: All these should have FP_HEAL >= 1
-			if (!(NPC->client->ps.fd.forcePowersKnown & ( 1 << FP_HEAL ))
-				|| NPC->client->ps.fd.forcePowerLevel[FP_HEAL] < 1)
-			{// Base level on their level of HP...
-				if (stats->health >= 1000)
-				{
-					NPC->client->ps.fd.forcePowersKnown |= ( 1 << FP_HEAL );
-					NPC->client->ps.fd.forcePowerLevel[FP_HEAL] = 3;
-				}
-				else if (stats->health >= 800)
-				{
-					NPC->client->ps.fd.forcePowersKnown |= ( 1 << FP_HEAL );
-					NPC->client->ps.fd.forcePowerLevel[FP_HEAL] = 2;
-				}
-				else
-				{
-					NPC->client->ps.fd.forcePowersKnown |= ( 1 << FP_HEAL );
-					NPC->client->ps.fd.forcePowerLevel[FP_HEAL] = 1;
-				}
-			}
-		}
-	}
 
 	return qtrue;
 }

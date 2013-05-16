@@ -168,7 +168,7 @@ CG_DrawChar
 Coordinates and size in 640*480 virtual screen size
 ===============
 */
-void CG_DrawChar( int x, int y, int width, int height, int ch, qhandle_t textShader ) {
+void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 	int row, col;
 	float frow, fcol;
 	float size;
@@ -191,11 +191,11 @@ void CG_DrawChar( int x, int y, int width, int height, int ch, qhandle_t textSha
 
 	frow = row*0.0625;
 	fcol = col*0.0625;
-	size = 0.0625;	// Raven can't even copy-paste code correct it seems ~eezstreet
+	size = 0.03125;
 	size2 = 0.0625;
 
 	trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + size, frow + size2, 
-		textShader );
+		cgs.media.charsetShader );
 
 }
 
@@ -211,7 +211,7 @@ Coordinates are at 640 by 480 virtual resolution
 */
 #include "../../JKGalaxies/ui/menudef.h"	// for "ITEM_TEXTSTYLE_SHADOWED"
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
-		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars, qhandle_t textShader )
+		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars )
 {
 	if (trap_Language_IsAsian())
 	{
@@ -233,7 +233,6 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		vec4_t		color;
 		const char	*s;
 		int			xx;
-		int			yy;
 
 		// draw the drop shadow
 		if (shadow) {
@@ -242,31 +241,12 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 			trap_R_SetColor( color );
 			s = string;
 			xx = x;
-			yy = y;
 			while ( *s ) {
-				if(*s == '^')
-				{
-					//Don't include color codes
-					if(*(s+1) >= '0' && *(s+1) <= '9')
-					{
-						s+=2;
-						continue;
-					}
-					else if(*(s+1) == 'x' && Text_IsExtColorCode((s+1)))
-					{
-						s+=5;
-						continue;
-					}
-				}
-				else if(*s == '\n')
-				{
-					yy += charHeight;
-					xx = x;
-					s++;
+				if ( Q_IsColorString( s ) ) {
+					s += 2;
 					continue;
 				}
-				//trap_R_DrawStretchPic( xx + 2, yy+2, charWidth, charHeight, 8, 16, 
-				CG_DrawChar( xx + 2, yy + 2, charWidth, charHeight, *s, textShader );
+				CG_DrawChar( xx + 2, y + 2, charWidth, charHeight, *s );
 				xx += charWidth;
 				s++;
 			}
@@ -275,63 +255,19 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		// draw the colored text
 		s = string;
 		xx = x;
-		yy = y;
 		trap_R_SetColor( setColor );
 		while ( *s ) {
-			if(*s == '\n')
-			{	//Handle newlines
-				yy += charHeight;
-				xx = x;
-				s++;
+			if ( Q_IsColorString( s ) ) {
+				if ( !forceColor ) {
+					memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+					color[3] = setColor[3];
+					trap_R_SetColor( color );
+				}
+				s += 2;
 				continue;
 			}
-			else if(*s == '^')
-			{	//Handle color codes
-				if(*(s+1) >= '0' && *(s+1) <= '9')
-				{
-					if(!forceColor)
-					{
-						memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
-						color[3] = setColor[3];
-						trap_R_SetColor( color );
-					}
-					s+= 2;
-					continue;
-				}
-				else if(*(s+1) == 'x')
-				{
-					if(strlen(s) > 5)
-					{
-						if(!forceColor)
-						{
-							int i;
-							for(i=0; i<3; i++)
-							{
-								if((s+2+i))
-								{
-									char letter = *(s+2+i);
-									if(*(s+2+i) >= '0' && *(s+2+i) <= '9')
-									{
-										color[i] = (atof(va("%c", letter))/16.0f);
-									}
-									else if((*(s+2+i) >= 'A' && *(s+2+i) <= 'F') || (*(s+2+i) >= 'a' && *(s+2+i) <= 'f'))
-									{
-										char *endPtr = NULL;
-										long value = strtol(va("0x%c", letter), &endPtr, 16);
-										color[i] = (float)value/16.0f;
-									}
-								}
-							}
-							color[3] = setColor[3];
-							trap_R_SetColor( color );
-						}
-						s += 5;
-						continue;
-					}
-				}
-			}
-			CG_DrawChar( xx + 2, yy, charWidth, charHeight, *s, textShader );
-			xx += charWidth-1;
+			CG_DrawChar( xx, y, charWidth, charHeight, *s );
+			xx += charWidth;
 			s++;
 		}
 		trap_R_SetColor( NULL );
@@ -343,11 +279,11 @@ void CG_DrawBigString( int x, int y, const char *s, float alpha ) {
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, cgs.media.charsetShader );
+	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color ) {
-	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0, cgs.media.charsetShader );
+	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawSmallString( int x, int y, const char *s, float alpha ) {
@@ -355,11 +291,11 @@ void CG_DrawSmallString( int x, int y, const char *s, float alpha ) {
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	CG_DrawStringExt( x, y, s, color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, cgs.media.charsetShader );
+	CG_DrawStringExt( x, y, s, color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color ) {
-	CG_DrawStringExt( x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0, cgs.media.charsetShader );
+	CG_DrawStringExt( x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 }
 
 /*
@@ -665,7 +601,7 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 }
 
 #include "../ui/ui_shared.h"	// for some text style junk
-void UI_DrawProportionalString( int x, int y, const char* str, int style, const vec4_t color, int font ) 
+void UI_DrawProportionalString( int x, int y, const char* str, int style, const vec4_t color ) 
 {
 	// having all these different style defines (1 for UI, one for CG, and now one for the re->font stuff) 
 	//	is dumb, but for now...
@@ -751,151 +687,5 @@ void UI_DrawScaledProportionalString( int x, int y, const char* str, int style, 
 }
 
 
-//
-// UQ1: Added useful tools...
-//
 
-/*
-==============
-CG_HorizontalPercentBar
-	Generic routine for pretty much all status indicators that show a fractional
-	value to the palyer by virtue of how full a drawn box is.
-
-flags:
-	left		- 1
-	center		- 2		// direction is 'right' by default and orientation is 'horizontal'
-	vert		- 4
-	nohudalpha	- 8		// don't adjust bar's alpha value by the cg_hudalpha value
-	bg			- 16	// background contrast box (bg set with bgColor of 'NULL' means use default bg color (1,1,1,0.25)
-	spacing		- 32	// some bars use different sorts of spacing when drawing both an inner and outer box
-
-	lerp color	- 256	// use an average of the start and end colors to set the fill color
-==============
-*/
-
-
-// TODO: these flags will be shared, but it was easier to work on stuff if I wasn't changing header files a lot
-#define BAR_LEFT		0x0001
-#define BAR_CENTER		0x0002
-#define BAR_VERT		0x0004
-#define BAR_NOHUDALPHA	0x0008
-#define BAR_BG			0x0010
-// different spacing modes for use w/ BAR_BG
-#define BAR_BGSPACING_X0Y5	0x0020
-#define BAR_BGSPACING_X0Y0	0x0040
-
-#define BAR_LERP_COLOR	0x0100
-
-#define BAR_BORDERSIZE 2
-
-void CG_UQ_FilledBar(float x, float y, float w, float h, float *startColor, float *endColor, const float *bgColor, float frac, int flags) {
-	vec4_t	backgroundcolor = {1, 1, 1, 0.25f}, colorAtPos;	// colorAtPos is the lerped color if necessary
-	int indent = BAR_BORDERSIZE;
-
-	if( frac > 1 ) {
-		frac = 1.f;
-	}
-	if( frac < 0 ) {
-		frac = 0;
-	}
-
-	if((flags&BAR_BG) && bgColor) {	// BAR_BG set, and color specified, use specified bg color
-		Vector4Copy(bgColor, backgroundcolor);
-	}
-
-	if(flags&BAR_LERP_COLOR) {
-		Vector4Average(startColor, endColor, frac, colorAtPos);
-	}
-
-	// background
-	if((flags&BAR_BG)) {
-		// draw background at full size and shrink the remaining box to fit inside with a border.  (alternate border may be specified by a BAR_BGSPACING_xx)
-		CG_FillRect (	x,
-						y,
-						w,
-						h,
-						backgroundcolor );
-
-		if(flags&BAR_BGSPACING_X0Y0) {			// fill the whole box (no border)
-
-		} else if(flags&BAR_BGSPACING_X0Y5) {	// spacing created for weapon heat
-			indent*=3;
-			y+=indent;
-			h-=(2*indent);
-
-		} else {								// default spacing of 2 units on each side
-			x+=indent;
-			y+=indent;
-			w-=(2*indent);
-			h-=(2*indent);
-		}
-	}
-
-
-	// adjust for horiz/vertical and draw the fractional box
-	if(flags&BAR_VERT) {
-		if(flags&BAR_LEFT) {	// TODO: remember to swap colors on the ends here
-			y+=(h*(1-frac));
-		} else if (flags&BAR_CENTER) {
-			y+=(h*(1-frac)/2);
-		}
-
-		if(flags&BAR_LERP_COLOR) {
-			CG_FillRect ( x, y, w, h * frac, colorAtPos );
-		} else {
-//			CG_FillRectGradient ( x, y, w, h * frac, startColor, endColor, 0 );
-			CG_FillRect ( x, y, w, h * frac, startColor );
-		}
-
-	} else {
-
-		if(flags&BAR_LEFT) {	// TODO: remember to swap colors on the ends here
-			x+=(w*(1-frac));
-		} else if (flags&BAR_CENTER) {
-			x+=(w*(1-frac)/2);
-		}
-
-		if(flags&BAR_LERP_COLOR) {
-			CG_FillRect ( x, y, w*frac, h, colorAtPos );
-		} else {
-//			CG_FillRectGradient ( x, y, w * frac, h, startColor, endColor, 0 );
-			CG_FillRect ( x, y, w*frac, h, startColor );
-		}
-	}
-
-}
-
-/*
-=================
-CG_HorizontalPercentBar
-=================
-*/
-void CG_HorizontalPercentBar( float x, float y, float width, float height, float percent ) {
-	vec4_t	bgcolor = {0.5f, 0.5f, 0.5f, 0.3f},
-			color = {1.0f, 1.0f, 1.0f, 0.3f};
-	CG_UQ_FilledBar(x, y, width, height, color, NULL, bgcolor, percent, BAR_BG|BAR_NOHUDALPHA);
-}
-
-
-/*
-=================
-CG_VerticalPercentBar
-=================
-*/
-void CG_VerticalPercentBar( float x, float y, float width, float height, float percent ) {
-	vec4_t	bgcolor = {0.5f, 0.5f, 0.5f, 0.3f},
-			color = {1.0f, 1.0f, 1.0f, 0.3f};
-	CG_UQ_FilledBar(x, y, width, height, color, NULL, bgcolor, percent, BAR_BG|BAR_NOHUDALPHA|BAR_VERT);
-}
-
-/*
-=================
-CG_VerticalPercentBarNoBorder
-=================
-*/
-void CG_VerticalPercentBarNoBorder( float x, float y, float width, float height, float percent ) {
-	vec4_t	color = {0.0f, 0.0f, 1.0f, 1.0f/*1.0f*/};
-	//vec4_t	bgcolor = {1.0f, 1.0f, 1.0f, 0.3f};
-	CG_UQ_FilledBar(x, (y + height) - (height*percent), width, height, color, /*bgcolor*/NULL, NULL, percent, BAR_NOHUDALPHA|BAR_VERT);
-}
 

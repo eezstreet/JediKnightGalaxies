@@ -19,19 +19,12 @@ void JKG_EquipItem(gentity_t *ent, int iNum)
 		
 	if ( iNum < 0 || iNum >= MAX_INVENTORY_ITEMS )
 	{
-		trap_SendServerCommand(ent->client->ps.clientNum, "print \"Invalid inventory slot.\n\"");
 	    return;
 	}
 		
 	if ( !ent->inventory->items[iNum].id )
 	{
 	    return;
-	}
-
-	if( iNum >= ent->inventory->elements )
-	{
-		trap_SendServerCommand(ent->client->ps.clientNum, "print \"You do not have an item in that slot.\n\"");
-		return;
 	}
 
 	if(ent->inventory->items[iNum].equipped)
@@ -45,6 +38,29 @@ void JKG_EquipItem(gentity_t *ent, int iNum)
 	    int i = 0;
 	    int prevEquipped = -1;
 	    
+	    // Unequip all other weapons
+	    /*for ( i = 0; i < MAX_INVENTORY_ITEMS; i++ )
+	    {
+	        if ( !ent->inventory[i].id )
+	        {
+	            break;
+	        }
+	        
+	        if ( i == iNum )
+	        {
+	            continue;
+	        }
+	        
+	        if ( ent->inventory[i].id->itemType == ITEM_WEAPON &&
+	            ent->inventory[i].equipped )
+	        {
+	            ent->inventory[i].equipped = qfalse;
+	            prevEquipped = i;
+	            
+	            // Break now. We should have only had one weapon equipped anyway.
+	            break;
+	        }
+	    }*/
 		while(ent->inventory->items[i].id && i < ent->inventory->elements)
 		{
 			if(i == iNum)
@@ -135,21 +151,11 @@ void JKG_UnequipItem(gentity_t *ent, int iNum)
 		
 	if ( iNum < 0 || iNum >= MAX_INVENTORY_ITEMS )
 	{
-		trap_SendServerCommand(ent->client->ps.clientNum, "print \"Invalid inventory slot.\n\"");
 	    return;
 	}
-
-	if( iNum >= ent->inventory->elements )
-	{
-		trap_SendServerCommand(ent->client->ps.clientNum, "print \"You do not have an item in that slot.\n\"");
-		return;
-	}
 		
-	if ( !ent->inventory->items[iNum].id || ent->inventory->items[iNum].id == (itemData_t *)0xCDCDCDCD ) //fixme: bad hack here
+	if ( !ent->inventory->items[iNum].id )
 	{
-#ifdef DEBUG
-		trap_SendServerCommand(ent->client->ps.clientNum, "print \"^3WARNING: Attempted to access uninitialized heap memory\n\"");
-#endif
 	    return;
 	}
 	

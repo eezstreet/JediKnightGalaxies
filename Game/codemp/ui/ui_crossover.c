@@ -39,10 +39,6 @@ struct {
 	void (* PartyMngtNotify)(int msg);
 	
 	void (* InventoryNotify)(int msg);
-	void (* ShopNotify)(int msg);
-	weaponData_t *(* GetWeaponDatas)(unsigned char weapon, unsigned char variation);
-	extraState_t *(* GetExtraState)(int);
-	extraState_t *(* GetOldExtraState)(int);
 } ui_crossover;
 
 struct {
@@ -52,12 +48,6 @@ struct {
 	void *(* PartyMngtDataRequest)(int data);
 	void *(* InventoryDataRequest)(int data);
 	void *(* InventoryAttachToACI)(int itemNum, int slot, int attach);
-	weaponData_t *(* GetWeaponDatas)(unsigned char weapon, unsigned char variation);
-	int (* GetRedTeam)(void);
-	int (* GetBlueTeam)(void);
-	networkState_t *(* GetNetworkState)(void);
-	extraState_t *(* GetExtraState)(int);
-	extraState_t *(* GetOldExtraState)(int);
 } * cg_crossover;
 
 void CO_SysCall_UI() {
@@ -90,69 +80,6 @@ qboolean CO_HandleServerCommand(const char *command) {
 	return UI_RunSvCommand(command);
 }
 
-int CO_GetRedTeam(void)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			return cg_crossover->GetRedTeam();
-		}
-	}
-	return -1;
-}
-
-int CO_GetBlueTeam(void)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			return cg_crossover->GetBlueTeam();
-		}
-	}
-	return -1;
-}
-
-networkState_t *CO_GetNetworkState(void)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			if(cg_crossover->GetNetworkState)
-			{
-				return cg_crossover->GetNetworkState();
-			}
-		}
-	}
-	return (networkState_t *)NULL;
-}
-
-extraState_t *CO_GetExtraState(int num)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			return cg_crossover->GetExtraState(num);
-		}
-	}
-	return (extraState_t *)NULL;
-}
-
-extraState_t *CO_GetOldExtraState(int num)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			return cg_crossover->GetOldExtraState(num);
-		}
-	}
-	return (extraState_t *)-1;
-}
-
 void CO_SendClientCommand(const char *cmd) {
 	if (gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
@@ -180,16 +107,6 @@ void *CO_InventoryDataRequest(int data) {
 		}
 	}
 	return 0;
-}
-
-weaponData_t *CO_GetWeaponDatas ( unsigned char weapon, unsigned char variation ) {
-	if(gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if (cg_crossover) {
-			return cg_crossover->GetWeaponDatas ( weapon, variation );
-		}
-	}
-	return NULL;
 }
 
 void CO_InventoryAttachToACI(int itemNum, int slot, int attach) {
@@ -248,7 +165,6 @@ docall:
 
 void JKG_PartyMngt_UpdateNotify(int msg);
 void JKG_Inventory_UpdateNotify(int msg);
-void JKG_Shop_UpdateNotify(int msg);
 
 void CO_InitCrossover() {
 	ui_crossover.HandleServerCommand = CO_HandleServerCommand;
@@ -256,10 +172,6 @@ void CO_InitCrossover() {
 	ui_crossover.SetEscapeTrap = CO_EscapeTrap;
 	ui_crossover.PartyMngtNotify = JKG_PartyMngt_UpdateNotify;
 	ui_crossover.InventoryNotify = JKG_Inventory_UpdateNotify;
-	ui_crossover.ShopNotify = JKG_Shop_UpdateNotify;
-	ui_crossover.GetWeaponDatas = CO_GetWeaponDatas;
-	ui_crossover.GetExtraState = CO_GetExtraState;
-	ui_crossover.GetOldExtraState = CO_GetOldExtraState;
 
 	// Transmit this structure to the auxlib so UI can use it
 	if (gl_ui_imports) {	// This should never be NULL, but just in case

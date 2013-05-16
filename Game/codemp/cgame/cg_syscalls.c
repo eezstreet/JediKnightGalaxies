@@ -328,10 +328,6 @@ void trap_R_ClearDecals ( void )
 	syscall ( CG_R_CLEARDECALS );
 }
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-extern void CG_RecordLightPosition( vec3_t org );
-#endif //__EXPERIMENTAL_SHADOWS__
-
 void	trap_R_AddRefEntityToScene( const refEntity_t *re ) {
 	syscall( CG_R_ADDREFENTITYTOSCENE, re );
 }
@@ -355,16 +351,10 @@ int		trap_R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLig
 
 void	trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
 	syscall( CG_R_ADDLIGHTTOSCENE, org, PASSFLOAT(intensity), PASSFLOAT(r), PASSFLOAT(g), PASSFLOAT(b) );
-#ifdef __EXPERIMENTAL_SHADOWS__
-	CG_RecordLightPosition( org );
-#endif //__EXPERIMENTAL_SHADOWS__
 }
 
 void	trap_R_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
 	syscall( CG_R_ADDADDITIVELIGHTTOSCENE, org, PASSFLOAT(intensity), PASSFLOAT(r), PASSFLOAT(g), PASSFLOAT(b) );
-#ifdef __EXPERIMENTAL_SHADOWS__
-	CG_RecordLightPosition( org );
-#endif //__EXPERIMENTAL_SHADOWS__
 }
 
 void	trap_R_RenderScene( const refdef_t *fd ) {

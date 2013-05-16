@@ -182,7 +182,7 @@ typedef struct {
 
 static Cinematic_t cin;
 
-void Cin_SetCamData(int CamMode) {
+static void Cin_SetCamData(int CamMode) {
 	switch (cin.CamMode) {
 		case CAM_DEFAULT:
 			break;
@@ -255,24 +255,24 @@ typedef struct {
 	char buff[1024];
 } parsebuff_t;
 
-void Cin_InitParseBuff(parsebuff_t *pb) {
+static void Cin_InitParseBuff(parsebuff_t *pb) {
 	memset(pb,0,sizeof(parsebuff_t));
 	pb->arg = 1;
 	pb->argc = trap_Argc();
 }
 
-const char *Cin_NextToken(parsebuff_t *pb) {
+static const char *Cin_NextToken(parsebuff_t *pb) {
 	if (pb->arg > pb->argc) return NULL;
 	trap_Argv(pb->arg++,pb->buff, sizeof(pb->buff));
 	return pb->buff;
 }
 
-qboolean Cin_TokensAvailable(parsebuff_t *pb) {
+static qboolean Cin_TokensAvailable(parsebuff_t *pb) {
 	if (pb->arg >= pb->argc) return qfalse;
 	return qtrue;
 }
 
-int Cin_ParseVector(parsebuff_t *pb, vec3_t *vec) {
+static int Cin_ParseVector(parsebuff_t *pb, vec3_t *vec) {
 	const char *token;
 	int i;
 	for (i=0; i<3; i++) {
@@ -286,7 +286,7 @@ int Cin_ParseVector(parsebuff_t *pb, vec3_t *vec) {
 	return 0;
 }
 
-int Cin_ParseVector2(parsebuff_t *pb, vec2_t *vec) {
+static int Cin_ParseVector2(parsebuff_t *pb, vec2_t *vec) {
 	const char *token;
 	int i;
 	for (i=0; i<2; i++) {
@@ -300,7 +300,7 @@ int Cin_ParseVector2(parsebuff_t *pb, vec2_t *vec) {
 	return 0;
 }
 
-int Cin_ParseInt(parsebuff_t *pb, int *num) {
+static int Cin_ParseInt(parsebuff_t *pb, int *num) {
 	const char *token;
 	token = Cin_NextToken(pb);
 	if (!token) {
@@ -312,7 +312,7 @@ int Cin_ParseInt(parsebuff_t *pb, int *num) {
 	return 0;
 }
 
-int Cin_ParseFloat(parsebuff_t *pb, float *num) {
+static int Cin_ParseFloat(parsebuff_t *pb, float *num) {
 	const char *token;
 	token = Cin_NextToken(pb);
 	
@@ -325,9 +325,9 @@ int Cin_ParseFloat(parsebuff_t *pb, float *num) {
 	return 0;
 }
 
-//#define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+#define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
-int Cin_GetBSplinePoint(int index, int count) {
+static int Cin_GetBSplinePoint(int index, int count) {
 	if (index < 0)
 		return 0;
 	if (index > count)
@@ -335,7 +335,7 @@ int Cin_GetBSplinePoint(int index, int count) {
 	return index;
 }
 
-float BSpF[21][5] = { //B-Spline Factors, used for fast subdivision lookup
+static float BSpF[21][5] = { //B-Spline Factors, used for fast subdivision lookup
 	{ 0.166667f, 0.666667f, 0.166667f, 0.000000f, 0.000f }, // 0
 	{ 0.142896f, 0.664229f, 0.192854f, 0.000021f, 0.050f }, // 1
 	{ 0.121500f, 0.657167f, 0.221167f, 0.000167f, 0.100f }, // 2
@@ -359,7 +359,7 @@ float BSpF[21][5] = { //B-Spline Factors, used for fast subdivision lookup
 	{ 0.000000f, 0.166667f, 0.666667f, 0.166667f, 1.000f }, // 20
 };
 
-float CMRF[21][5] = { // Catmull-rom Factors, used for fast subdivision lookup
+static float CMRF[21][5] = { // Catmull-rom Factors, used for fast subdivision lookup
 	{ 0.000000f, 1.000000f, 0.000000f, 0.000000f, 0.000f }, // 0
 	{ -0.022563f, 0.993937f, 0.029812f, -0.001188f, 0.050f }, // 1
 	{ -0.040500f, 0.976500f, 0.068500f, -0.004500f, 0.100f }, // 2
@@ -383,7 +383,7 @@ float CMRF[21][5] = { // Catmull-rom Factors, used for fast subdivision lookup
 	{ 0.000000f, 0.000000f, 1.000000f, 0.000000f, 1.000f }, // 20
 };
 
-float Cin_BSplinePhaseLookup(float x, float p1, float p2, float p3, float p4) {
+static float Cin_BSplinePhaseLookup(float x, float p1, float p2, float p3, float p4) {
 	// Alright, since the distribution of the x values isnt always linear
 	// We'll use this lookup method to find it with quite good precision
 
@@ -436,7 +436,7 @@ float Cin_BSplinePhaseLookup(float x, float p1, float p2, float p3, float p4) {
 	return phase;
 }
 
-float Cin_CatMullPhaseLookup(float x, float p1, float p2, float p3, float p4) {
+static float Cin_CatMullPhaseLookup(float x, float p1, float p2, float p3, float p4) {
 	// Alright, since the distribution of the x values isnt always linear
 	// We'll use this lookup method to find it with quite good precision
 

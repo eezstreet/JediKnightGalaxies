@@ -8,7 +8,7 @@
 #define	MISSILE_PRESTEP_TIME	50
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 
 #include "../namespace_begin.h"
 extern qboolean FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS );
@@ -315,12 +315,10 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
 	missile->parent = owner;
 	missile->r.ownerNum = owner->s.number;
 
-	/*if (altFire)
+	if (altFire)
 	{
 		missile->s.eFlags |= EF_ALT_FIRING;
-	}*/
-
-	missile->s.firingMode = owner->s.firingMode;
+	}
 
 	missile->s.pos.trType = TR_LINEAR;
 	missile->s.pos.trTime = level.time;// - MISSILE_PRESTEP_TIME;	// NOTENOTE This is a Quake 3 addition over JK2
@@ -368,12 +366,10 @@ static void G_GrenadeBounceEvent ( const gentity_t *ent )
     tent->s.weapon = ent->s.weapon;
     tent->s.weaponVariation = ent->s.weaponVariation;
     
-    /*if ( ent->s.eFlags & EF_ALT_FIRING )
+    if ( ent->s.eFlags & EF_ALT_FIRING )
     {
         tent->s.eFlags |= EF_ALT_FIRING;
-    }*/
-
-	tent->s.firingMode = ent->s.firingMode;
+    }
 }
 
 /*
@@ -696,25 +692,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 
-	if( ent->genericValue10 )	// nerf this check in order to make grenade bouncing work --eez
-	{
-		vec3_t fwd;
-
-		if (other->client)
-		{
-			AngleVectors(other->client->ps.viewangles, fwd, NULL, NULL);
-		}
-		else
-		{
-			AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
-		}
-		VectorScale(ent->s.pos.trDelta, 0.2, ent->s.pos.trDelta);
-		G_Damage(other, ent, ent->parent, fwd, ent->s.origin, ent->genericValue9, 0, MOD_THERMAL);
-		G_DeflectMissile(other, ent, fwd);
-		//G_MissileBounceEffect(ent, ent->r.currentOrigin, fwd);
-		return;
-	}
-
 	// check for sticking
 	if ( !other->takedamage && ( ent->s.eFlags & EF_MISSILE_STICK ) ) 
 	{
@@ -727,11 +704,11 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if (other->takedamage && !isKnockedSaber) {
 		// FIXME: wrong damage direction?
 		weaponData_t *weapon = GetWeaponData (ent->s.weapon, ent->s.weaponVariation);
-		weaponFireModeStats_t *fireMode = &weapon->firemodes[ent->s.firingMode];
-		/*if ( ent->s.eFlags & EF_ALT_FIRING )
+		weaponFireModeStats_t *fireMode = &weapon->firemodes[0];
+		if ( ent->s.eFlags & EF_ALT_FIRING )
 		{
 		    fireMode = &weapon->firemodes[1];
-		}*/
+		}
 		
 		if ( ent->damage || fireMode->damageTypeHandle || fireMode->secondaryDmgHandle ) {
 			vec3_t	velocity;
@@ -824,10 +801,8 @@ killProj:
 	// one, rather than changing the missile into the explosion?
 
 	if ( other->takedamage && other->client && !isKnockedSaber ) {
-		{
-			G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
-			ent->s.otherEntityNum = other->s.number;
-		}
+		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
+		ent->s.otherEntityNum = other->s.number;
 	} else if( trace->surfaceFlags & SURF_METALSTEPS ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_METAL, DirToByte( trace->plane.normal ) );
 	} else if (ent->s.weapon != G2_MODEL_PART && !isKnockedSaber) {
@@ -851,11 +826,6 @@ killProj:
 	if (ent->s.weapon == G2_MODEL_PART)
 	{
 		ent->freeAfterEvent = qfalse; //it will free itself
-	}
-
-	if(ent->splashRadius && ent->splashDamage && !ent->genericValue10)
-	{
-		G_RadiusDamage(trace->endpos, &g_entities[ent->r.ownerNum], ent->splashDamage, ent->splashRadius, NULL, ent, ent->methodOfDeath);
 	}
 
 	trap_LinkEntity( ent );

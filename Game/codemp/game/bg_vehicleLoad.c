@@ -193,7 +193,7 @@ static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, char *parmNam
 				if (!*(char **)(b+vehWeaponFields[i].ofs))
 				{ //just use 1024 bytes in case we want to write over the string
 #ifdef _JK2MP
-					*(char **)(b+vehWeaponFields[i].ofs) = (char *)malloc(1024);//(char *)malloc(strlen(value));
+					*(char **)(b+vehWeaponFields[i].ofs) = (char *)BG_Alloc(1024);//(char *)BG_Alloc(strlen(value));
 					strcpy(*(char **)(b+vehWeaponFields[i].ofs), value);
 #else
 					(*(char **)(b+vehWeaponFields[i].ofs)) = G_NewString( value );
@@ -713,7 +713,7 @@ void BG_VehicleSetDefaults( vehicleInfo_t *vehicle )
 #if _JK2MP
 	if (!vehicle->name)
 	{
-		vehicle->name = (char *)malloc(1024);
+		vehicle->name = (char *)BG_Alloc(1024);
 	}
 	strcpy(vehicle->name, "default");
 #else
@@ -762,7 +762,7 @@ void BG_VehicleSetDefaults( vehicleInfo_t *vehicle )
 	//vehicle->model = "models/map_objects/ships/swoop.md3";	//what model to use - if make it an NPC's primary model, don't need this?
 	if (!vehicle->model)
 	{
-		vehicle->model = (char *)malloc(1024);
+		vehicle->model = (char *)BG_Alloc(1024);
 	}
 	strcpy(vehicle->model, "models/map_objects/ships/swoop.md3");
 
@@ -867,7 +867,7 @@ static qboolean BG_ParseVehicleParm( vehicleInfo_t *vehicle, char *parmName, cha
 				if (!*(char **)(b+vehicleFields[i].ofs))
 				{ //just use 128 bytes in case we want to write over the string
 #ifdef _JK2MP
-					*(char **)(b+vehicleFields[i].ofs) = (char *)malloc(128);//(char *)malloc(strlen(value));
+					*(char **)(b+vehicleFields[i].ofs) = (char *)BG_Alloc(128);//(char *)BG_Alloc(strlen(value));
 					strcpy(*(char **)(b+vehicleFields[i].ofs), value);
 #else
 					(*(char **)(b+vehicleFields[i].ofs)) = G_NewString( value );
@@ -1418,13 +1418,13 @@ void BG_VehWeaponLoadParms( void )
 	holdChar = vehWeaponExtensionListBuf;
 
 #ifdef _JK2MP
-	tempReadBuffer = (char *)malloc(MAX_VEH_WEAPON_DATA_SIZE);
+	tempReadBuffer = (char *)BG_TempAlloc(MAX_VEH_WEAPON_DATA_SIZE);
 #else
 	tempReadBuffer = (char *)gi.Malloc( MAX_VEH_WEAPON_DATA_SIZE, TAG_G_ALLOC, qtrue );
 #endif
 	
 	// NOTE: Not use TempAlloc anymore...
-	//Make ABSOLUTELY CERTAIN that malloc/etc. is not used before
+	//Make ABSOLUTELY CERTAIN that BG_Alloc/etc. is not used before
 	//the subsequent BG_TempFree or the pool will be screwed. 
 
 	for ( i = 0; i < fileCnt; i++, holdChar += vehExtFNLen + 1 ) 
@@ -1478,7 +1478,7 @@ void BG_VehWeaponLoadParms( void )
 	}
 
 #ifdef _JK2MP
-	free(tempReadBuffer);
+	BG_TempFree(MAX_VEH_WEAPON_DATA_SIZE);
 #else
 	gi.Free(tempReadBuffer);	tempReadBuffer = NULL;
 #endif
@@ -1510,13 +1510,13 @@ void BG_VehicleLoadParms( void )
 	holdChar = vehExtensionListBuf;
 
 #ifdef _JK2MP
-	tempReadBuffer = (char *)malloc(MAX_VEHICLE_DATA_SIZE);
+	tempReadBuffer = (char *)BG_TempAlloc(MAX_VEHICLE_DATA_SIZE);
 #else
 	tempReadBuffer = (char *)gi.Malloc( MAX_VEHICLE_DATA_SIZE, TAG_G_ALLOC, qtrue );
 #endif
 	
 	// NOTE: Not use TempAlloc anymore...
-	//Make ABSOLUTELY CERTAIN that malloc/etc. is not used before
+	//Make ABSOLUTELY CERTAIN that BG_Alloc/etc. is not used before
 	//the subsequent BG_TempFree or the pool will be screwed. 
 
 	for ( i = 0; i < fileCnt; i++, holdChar += vehExtFNLen + 1 ) 
@@ -1570,7 +1570,7 @@ void BG_VehicleLoadParms( void )
 	}
 
 #ifdef _JK2MP
-	free(tempReadBuffer);
+	BG_TempFree(MAX_VEHICLE_DATA_SIZE);
 #else
 	gi.Free(tempReadBuffer);	tempReadBuffer = NULL;
 #endif

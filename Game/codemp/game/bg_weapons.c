@@ -5,7 +5,6 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
-#include "bg_ammo.h"
 
 weaponAmmo_t xweaponAmmo [] =
 {
@@ -35,15 +34,6 @@ unsigned int BG_NumberOfLoadedWeapons ( void )
 unsigned int BG_NumberOfWeaponVariations ( unsigned char weaponId )
 {
     return numWeapons[weaponId];
-}
-
-weaponData_t *BG_GetWeaponDataByIndex( int index )
-{
-	if(index >= 0 && index < numLoadedWeapons)
-	{
-		return &weaponDataTable[index];
-	}
-	return NULL;
 }
 
 //Xycaleth/eezstreet add
@@ -191,17 +181,17 @@ unsigned char GetWeaponAmmoIndex ( unsigned char baseIndex, unsigned char modInd
 
 short GetWeaponAmmoClip ( unsigned char baseIndex, unsigned char modIndex )
 {
-    return GetWeaponData( baseIndex, modIndex )->clipSize;
+    return xweaponAmmo[GetWeaponData( baseIndex, modIndex )->ammoIndex].ammoClipSize;
 }
 
 short GetWeaponAmmoMax ( unsigned char baseIndex, unsigned char modIndex )
 {
-    return ammoTable[GetWeaponData( baseIndex, modIndex )->ammoIndex].ammoMax;
+    return xweaponAmmo[GetWeaponData( baseIndex, modIndex )->ammoIndex].ammoMax;
 }
 
 short GetAmmoMax ( unsigned char ammoIndex )
 {
-    return ammoTable[ammoIndex].ammoMax;
+    return xweaponAmmo[ammoIndex].ammoMax;
 }
 
 // Just in case we need to initialize the struct any other way,
@@ -210,16 +200,8 @@ void BG_InitializeWeaponData ( weaponData_t *weaponData )
 {
     memset (weaponData, 0, sizeof (*weaponData));
     weaponData->speedModifier = 1.0f;
-	weaponData->anims.ready.torsoAnim = BOTH_STAND1;
-	weaponData->anims.ready.legsAnim = BOTH_STAND1;
-
-	weaponData->anims.forwardWalk.legsAnim = BOTH_WALK1;
-	weaponData->anims.crouchWalkBack.legsAnim = BOTH_CROUCH1WALKBACK;
-	weaponData->anims.crouchWalk.legsAnim = BOTH_CROUCH1WALK;
-	weaponData->anims.jump.legsAnim = weaponData->anims.jump.torsoAnim = BOTH_JUMP1;
-	weaponData->anims.land.legsAnim = weaponData->anims.land.torsoAnim = BOTH_LAND1;
-	weaponData->anims.run.legsAnim = BOTH_RUN1;
-	weaponData->anims.sprint.legsAnim = weaponData->anims.sprint.torsoAnim = BOTH_SPRINT;
+    weaponData->torsoReadyAnimation = BOTH_STAND1;
+    weaponData->legsReadyAnimation = BOTH_STAND1;
 }
 
 void BG_AddWeaponData ( weaponData_t *weaponData )
@@ -314,18 +296,6 @@ qboolean BG_DumpWeaponList ( const char *filename )
     }
     
     return qfalse;
-}
-
-void BG_PrintWeaponList( void )
-{
-	int i = 0;
-	Com_Printf("----------------------------------------------------------------------------------------------------\n");
-	for ( i = 0; i < numLoadedWeapons; i++ )
-    {
-        weaponData_t *w = &weaponDataTable[i];
-		Com_Printf("%-64s | %s\n", w->displayName, w->classname);
-    }
-	Com_Printf("----------------------------------------------------------------------------------------------------\n");
 }
 #endif
 

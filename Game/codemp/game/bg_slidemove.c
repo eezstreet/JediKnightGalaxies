@@ -893,9 +893,8 @@ void PM_StepSlideMove( qboolean gravity ) {
 	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
 	VectorSet(up, 0, 0, 1);
 	// never step up when you still have up velocity
-	if ( pm->ps->velocity[2] > 0 
-		&& (trace.fraction == 1.0 || DotProduct(trace.plane.normal, up) < 0.7)
-		&& !(pm->ps->clientNum >= MAX_CLIENTS && pEnt->s.NPC_class != CLASS_VEHICLE))
+	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 ||
+										DotProduct(trace.plane.normal, up) < 0.7))
 	{
 		return;
 	}
@@ -924,24 +923,13 @@ void PM_StepSlideMove( qboolean gravity ) {
 			isGiant = qtrue;
 		}
 		else
-		{// UQ1: NPCs get off easy - for the sake of lower CPU usage (routing) and looking better in general...
-			up[2] += STEPSIZE*2;
+		{
+			up[2] += STEPSIZE;
 		}
 	}
 	else
 	{
-#ifdef QAGAME
-	if ( g_entities[pm->ps->clientNum].r.svFlags & SVF_BOT )
-	{// UQ1: BOTs get off easy - for the sake of lower CPU usage (routing) and looking better in general...
-		up[2] += STEPSIZE*2;
-	}
-	else
-	{
 		up[2] += STEPSIZE;
-	}
-#else //!QAGAME
-		up[2] += STEPSIZE;
-#endif //QAGAME
 	}
 
 	// test the player position if they were a stepheight higher
@@ -950,8 +938,6 @@ void PM_StepSlideMove( qboolean gravity ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend can't step\n", c_pmove);
 		}
-
-		//Com_Printf("Failed step at 3.\n");
 		return;		// can't step up
 	}
 

@@ -36,7 +36,7 @@ typedef struct
 	unsigned int weight;
 
 	//pSpell data
-	signed int pSpell[MAX_PSPELLS];
+	unsigned int pSpell[MAX_PSPELLS];
 	int affector[MAX_PSPELLS];
 	unsigned int amountBase[MAX_PSPELLS];
 	unsigned int duration[MAX_PSPELLS];
@@ -54,7 +54,6 @@ typedef struct
 	armorTypes_t armorType;
 	unsigned int baseDurabilityMax;
 	unsigned int averageDurability;
-	unsigned int baseCost;
 } itemData_t;
 
 typedef struct
@@ -98,6 +97,24 @@ typedef enum
 
 typedef enum
 {
+    PSPELL_NONE,
+	PSPELL_ADD_PS,
+	PSPELL_SUB_PS,
+	PSPELL_MUL_PS,
+	PSPELL_DIV_PS,
+	PSPELL_EXP_PS,
+	PSPELL_SQT_PS,
+	PSPELL_ADD_CS,
+	PSPELL_SUB_CS,
+	PSPELL_MUL_CS,
+	PSPELL_DIV_CS,
+	PSPELL_EXP_CS,
+	PSPELL_SQT_CS,
+	PSPELL_MAX
+} pSpell_t;
+
+typedef enum
+{
 	ARMSLOT_HEAD,
 	ARMSLOT_NECK,
 	ARMSLOT_TORSO,
@@ -122,28 +139,6 @@ typedef struct
 	size_t size;
 	unsigned int elements;
 } inv_t;
-
-
-#define MAX_ITEMS_IN_STOCK	64
-typedef struct
-{
-	int itemsInStock[MAX_ITEMS_IN_STOCK];
-	int numItemsInStock;
-	qboolean sale;
-	qboolean itemsOnSale[MAX_ITEMS_IN_STOCK];
-	int priceReductions[MAX_ITEMS_IN_STOCK];
-	int ourID;
-} vendorStruct_t;
-
-typedef struct
-{
-	int itemId[256];
-	int rarity[256]; //is not a pony
-	int numItems;
-	int numPickedItems;
-} randomItemStruct_t;
-
-
 
 itemData_t *JKG_GetItemByWeaponIndex ( int weaponIndex );
 

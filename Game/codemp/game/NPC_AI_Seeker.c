@@ -66,8 +66,7 @@ void Seeker_MaintainHeight( void )
 			dif = (NPC->enemy->r.currentOrigin[2] +  flrand( NPC->enemy->r.maxs[2]/2, NPC->enemy->r.maxs[2]+8 )) - NPC->r.currentOrigin[2]; 
 
 			difFactor = 1.0f;
-			if ( NPC->client->NPC_class == CLASS_BOBAFETT
-				|| !Q_stricmp( "rockettrooper", NPC->NPC_type) )
+			if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 			{
 				if ( TIMER_Done( NPC, "flameTime" ) )
 				{
@@ -85,8 +84,7 @@ void Seeker_MaintainHeight( void )
 
 				NPC->client->ps.velocity[2] = (NPC->client->ps.velocity[2]+dif)/2;
 			}
-			if ( NPC->client->NPC_class == CLASS_BOBAFETT 
-				|| Q_stricmp( "rockettrooper", NPC->NPC_type) )
+			if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 			{
 				NPC->client->ps.velocity[2] *= flrand( 0.85f, 3.0f );
 			}
@@ -173,9 +171,7 @@ void Seeker_Strafe( void )
 		{
 			float vel = SEEKER_STRAFE_VEL;
 			float upPush = SEEKER_UPWARD_PUSH;
-
-			if ( NPC->client->NPC_class != CLASS_BOBAFETT 
-				&& Q_stricmp( "rockettrooper", NPC->NPC_type) )
+			if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 			{
 				G_Sound( NPC, CHAN_AUTO, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
 			}
@@ -201,8 +197,7 @@ void Seeker_Strafe( void )
 		// Pick a random side
 		side = ( rand() & 1 ) ? -1 : 1;
 		stDis = SEEKER_STRAFE_DIS;
-		if ( NPC->client->NPC_class == CLASS_BOBAFETT 
-			|| !Q_stricmp( "rockettrooper", NPC->NPC_type))
+		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 		{
 			stDis *= 2.0f;
 		}
@@ -226,9 +221,7 @@ void Seeker_Strafe( void )
 			VectorMA( NPC->client->ps.velocity, dis, dir, NPC->client->ps.velocity );
 
 			upPush = SEEKER_UPWARD_PUSH;
-			
-			if ( NPC->client->NPC_class != CLASS_BOBAFETT
-				&& Q_stricmp( "rockettrooper", NPC->NPC_type) )
+			if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 			{
 				G_Sound( NPC, CHAN_AUTO, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
 			}
@@ -311,8 +304,7 @@ void Seeker_Fire( void )
 	G_PlayEffectID( G_EffectIndex("blaster/muzzle_flash"), NPC->r.currentOrigin, dir );
 
 	missile->classname = "blaster";
-	missile->s.weapon = WP_BRYAR_OLD;
-	missile->s.weaponVariation = 0;
+	missile->s.weapon = WP_BLASTER;
 
 	missile->damage = 5;
 	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
@@ -327,8 +319,7 @@ void Seeker_Fire( void )
 //------------------------------------
 void Seeker_Ranged( qboolean visible, qboolean advance )
 {
-	if ( NPC->client->NPC_class != CLASS_BOBAFETT
-		&& Q_stricmp( "rockettrooper", NPC->NPC_type) )
+	if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 	{
 		if ( NPC->count > 0 )
 		{
@@ -370,8 +361,7 @@ void Seeker_Attack( void )
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	advance		= (qboolean)(distance > MIN_DISTANCE_SQR);
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT
-		|| !Q_stricmp( "rockettrooper", NPC->NPC_type) )
+	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 	{
 		advance = (qboolean)(distance>(200.0f*200.0f));
 	}
@@ -454,8 +444,7 @@ void Seeker_FollowOwner( void )
 
 	Seeker_MaintainHeight();
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT
-		|| !Q_stricmp( "rockettrooper", NPC->NPC_type) )
+	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 	{
 		owner = NPC->enemy;
 	}
@@ -468,8 +457,7 @@ void Seeker_FollowOwner( void )
 	
 	minDistSqr = MIN_DISTANCE_SQR;
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT
-		|| !Q_stricmp( "rockettrooper", NPC->NPC_type) )
+	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 	{
 		if ( TIMER_Done( NPC, "flameTime" ) )
 		{
@@ -480,8 +468,7 @@ void Seeker_FollowOwner( void )
 	if ( dis < minDistSqr )
 	{
 		// generally circle the player closely till we take an enemy..this is our target point
-		if ( NPC->client->NPC_class == CLASS_BOBAFETT
-			|| !Q_stricmp( "rockettrooper", NPC->NPC_type) )
+		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 		{
 			pt[0] = owner->r.currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 250;
 			pt[1] = owner->r.currentOrigin[1] + sin( level.time * 0.001f + NPC->random ) * 250;
@@ -506,8 +493,7 @@ void Seeker_FollowOwner( void )
 	}
 	else
 	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT
-			&& Q_stricmp( "rockettrooper", NPC->NPC_type) )
+		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 		{
 			if ( TIMER_Done( NPC, "seekerhiss" ))
 			{
@@ -539,8 +525,7 @@ void NPC_BSSeeker_Default( void )
 	/*
 	if ( in_camera )
 	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT
-			&& Q_stricmp( "rockettrooper", NPC->NPC_type) )
+		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
 		{
 			// cameras make me commit suicide....
 			G_Damage( NPC, NPC, NPC, NULL, NULL, 999, 0, MOD_UNKNOWN );
@@ -568,9 +553,7 @@ void NPC_BSSeeker_Default( void )
 
 	if ( NPC->enemy && NPC->enemy->health && NPC->enemy->inuse )
 	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT
-			&& Q_stricmp( "rockettrooper", NPC->NPC_type)
-			&& ( (NPC->enemy->s.number >= 0 && NPC->enemy->s.number < MAX_CLIENTS) || ( NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_SEEKER )) )
+		if ( NPC->client->NPC_class != CLASS_BOBAFETT && ( (NPC->enemy->s.number >= 0 && NPC->enemy->s.number < MAX_CLIENTS) || ( NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_SEEKER )) )
 		{
 			//hacked to never take the player as an enemy, even if the player shoots at it
 			NPC->enemy = NULL;
@@ -578,9 +561,7 @@ void NPC_BSSeeker_Default( void )
 		else
 		{
 			Seeker_Attack();
-
-			if ( NPC->client->NPC_class == CLASS_BOBAFETT
-				|| !Q_stricmp( "rockettrooper", NPC->NPC_type) )
+			if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 			{
 				Boba_FireDecide();
 			}

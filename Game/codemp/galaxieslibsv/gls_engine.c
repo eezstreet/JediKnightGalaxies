@@ -39,11 +39,6 @@ typedef enum {
 	PATCH_CALL,
 } PatchType_e;
 
-#define MAX_JKG_CVARS	8
-
-cvar_t cvarIndeces[MAX_JKG_CVARS];
-unsigned int MAX_JKG_CVARS_I = MAX_JKG_CVARS;
-
 // ==================================================
 // UnlockMemory (WIN32 & Linux compatible)
 // --------------------------------------------------
@@ -159,77 +154,6 @@ static PatchData_t *JKG_PlacePatch( int type, unsigned int address, unsigned int
 }
 
 static void JKG_RemovePatch(PatchData_t **patch) {
-	if (!*patch)
-		return;
-	UnlockMemory((*patch)->addr, (*patch)->size);
-	memcpy((void *)(*patch)->addr, (*patch)->origbytes, (*patch)->size);
-	LockMemory((*patch)->addr, (*patch)->size);
-	*patch = 0;
-}
-
-// ==================================================
-// JKG_PatchMemory (WIN32 & Linux compatible)
-// --------------------------------------------------
-// Patches the code at address to make a go towards
-// destination.
-//
-// Before the code is modified, the code page is
-// unlocked.
-//
-// This function returns a malloced PatchData_t.
-// To remove the patch, call JKG_RemoveMemPatch. This
-// will also free the PatchData_t.
-// ==================================================
-
-static PatchData_t *JKG_PatchMemory( unsigned int address, unsigned char *byteSequence, unsigned int numBytes ) {
-	PatchData_t *patch = malloc(sizeof(PatchData_t));
-	//int addr = address;
-
-	ud_t ud;
-
-	if(!byteSequence)
-	{
-		return NULL;
-	}
-
-	ud_init(&ud);
-	ud_set_input_buffer(&ud, (uint8_t *)address, numBytes);
-	ud_set_mode(&ud, 32);
-	ud_set_pc(&ud, address);
-	ud_set_syntax(&ud, NULL);
-
-	/*while (ud_disassemble(&ud))
-	{
-		sz += ud_insn_len(&ud);
-		if (sz >= numBytes) {
-			break;
-		}
-	}*/
-
-	//assert(sz >= numBytes);
-
-	/*if (sz < 5 || sz > 24) {
-		// This really shouldnt ever happen, in the worst case scenario,
-		// the block is 20 bytes (4 + 16), so if we hit 24, something went wrong
-		return NULL;
-	}*/
-
-	patch->addr = address;
-	patch->size = numBytes;
-	memcpy(patch->origbytes, (const void *)address, numBytes);
-	UnlockMemory(address, numBytes); // Make the memory writable
-	
-	// Patch the bytes at the address
-	memcpy((unsigned int *)address, byteSequence, numBytes);
-
-	/**(unsigned char *)address = type == PATCH_JUMP ? 0xE9 : 0xE8;
-	*(unsigned int *)(address+1) = destination - (address + 5);
-	memset((void *)(address+5),0x90,sz-5);	// Nop the rest*/
-	LockMemory(address, numBytes);
-	return patch;
-}
-
-static void JKG_RemoveMemPatch(PatchData_t **patch) {
 	if (!*patch)
 		return;
 	UnlockMemory((*patch)->addr, (*patch)->size);
@@ -634,6 +558,7 @@ BOOL CtrlHandler( DWORD fdwCtrlType ) {
 
 #endif
 
+
 void JKG_PatchEngine() {
 	Com_Printf(" ------- Installing Engine Patches (Auxiliary library) -------- \n");
 
@@ -691,7 +616,6 @@ void JKG_PatchEngine() {
 	//LockMemory(0x419AB0, 610);
 #endif
 
-	// Allow people to use encrypted/protected PK3s
 #ifdef _WIN32
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, 1);
 

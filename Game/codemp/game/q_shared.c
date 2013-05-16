@@ -4,10 +4,6 @@
 #include "q_shared.h"
 
 
-#include "../game/jkg_gangwars.h"
-gangWarsTeam_t bgGangWarsTeams[32];
-int bgnumGangWarTeams;
-
 /**************************************************
 * Q_stratt
 *
@@ -47,39 +43,6 @@ int GetIDForString ( const stringID_table_t *table, const char *string )
 	}
 
 	return -1;
-}
-
-#include <stdio.h>
-#include <ctype.h>
-
-qboolean StringContainsWord(const char *haystack, const char *needle)
-{
-	if ( !*needle )
-	{
-		return qfalse;
-	}
-	for ( ; *haystack; ++haystack )
-	{
-		if ( toupper(*haystack) == toupper(*needle) )
-		{
-			/*
-			* Matched starting char -- loop through remaining chars.
-			*/
-			const char *h, *n;
-			for ( h = haystack, n = needle; *h && *n; ++h, ++n )
-			{
-				if ( toupper(*h) != toupper(*n) )
-				{
-					break;
-				}
-			}
-			if ( !*n ) /* matched all of 'needle' to null termination */
-			{
-				return qtrue; /* return the start of the match */
-			}
-		}
-	}
-	return qfalse;
 }
 
 /*
@@ -408,7 +371,7 @@ const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 
 int COM_Compress( char *data_p ) {
 	char *in, *out;
-	char c;
+	int c;
 	qboolean newline = qfalse, whitespace = qfalse;
 	
 	in = out = data_p;
@@ -476,7 +439,7 @@ int COM_Compress( char *data_p ) {
 
 char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 {
-	char c = 0, len;
+	int c = 0, len;
 	qboolean hasNewLines = qfalse;
 	const char *data;
 
@@ -852,7 +815,7 @@ int Q_isalpha( int c )
 	return ( 0 );
 }
 
-char* Q_strrchr( const char* string, char c )
+char* Q_strrchr( const char* string, int c )
 {
 	char cc = c;
 	char *s;
@@ -898,16 +861,15 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 int Q_stricmpn (const char *s1, const char *s2, int n) {
 	int		c1, c2;
 
-
 	// bk001129 - moved in 1.17 fix not in id codebase
-    if ( s1 == NULL ) {
-       if ( s2 == NULL )
-         return 0;
-       else
-         return -1;
-    }
-    else if ( s2==NULL )
-      return 1;
+        if ( s1 == NULL ) {
+           if ( s2 == NULL )
+             return 0;
+           else
+             return -1;
+        }
+        else if ( s2==NULL )
+          return 1;
 
 
 	
@@ -964,7 +926,7 @@ char *Q_strlwr( char *s1 ) {
 
     s = s1;
 	while ( *s ) {
-		*s = (char)tolower(*s);
+		*s = tolower(*s);
 		s++;
 	}
     return s1;
@@ -975,7 +937,7 @@ char *Q_strupr( char *s1 ) {
 
     s = s1;
 	while ( *s ) {
-		*s = (char)toupper(*s);
+		*s = toupper(*s);
 		s++;
 	}
     return s1;
@@ -1020,28 +982,14 @@ int Q_PrintStrlen( const char *string ) {
 char *Q_CleanStr( char *string ) {
 	char*	d;
 	char*	s;
-	char	c;
+	int		c;
 
 	s = string;
 	d = string;
 	while ((c = *s) != 0 ) {
-		// eezstreet fix: deal with non standard color codes as well..
-		if( s[0] == '^' && s[1] == 'x' &&
-			((s[2] >= '0' && s[2] <= '9') ||
-			(s[2] >= 'a' && s[2] <= 'f') ||
-			(s[2] >= 'A' && s[2] <= 'F')) &&
-			((s[3] >= '0' && s[3] <= '9') ||
-			(s[3] >= 'a' && s[3] <= 'f') ||
-			(s[3] >= 'A' && s[3] <= 'F')) &&
-			((s[4] >= '0' && s[4] <= '9') ||
-			(s[4] >= 'a' && s[4] <= 'f') ||
-			(s[4] >= 'A' && s[4] <= 'F')) )
-		{
-			s+=4;
-		}
-		else if ( Q_IsColorString( s ) ) {
+		if ( Q_IsColorString( s ) ) {
 			s++;
-		}
+		}		
 		else if ( c >= 0x20 && c <= 0x7E ) {
 			*d++ = c;
 		}
@@ -1512,72 +1460,4 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 
 //====================================================================
 
-// JKG Add - Generic Memory Objects
-// Creates a pool of memory which can be transformed and manipulated.
 
-void JKG_NewGenericMemoryObject(GenericMemoryObject *gmo, size_t size)
-{
-	gmo->numElements = 0;
-	
-	gmo->elements = malloc(size);
-	gmo->memAllocated = 1;
-	gmo->elementSize = size;
-}
-
-void JKG_DeleteGenericMemoryObject(GenericMemoryObject *gmo)
-{
-	gmo->numElements = -2;
-	free(gmo->elements);
-}
-
-void JKG_ClearGenericMemoryObject(GenericMemoryObject *gmo)
-{
-	gmo->numElements = 0;
-}
-
-void JKG_GenericMemoryObject_AddElement(GenericMemoryObject *gmo, void *element)
-{
-	if(gmo->memAllocated <= gmo->numElements+1)
-	{
-		gmo->memAllocated *= 2;
-		gmo->elements = realloc(gmo->elements, gmo->memAllocated*gmo->elementSize);
-	}
-	gmo->elements[gmo->numElements++] = element;
-}
-
-void JKG_GenericMemoryObject_DeleteElement(GenericMemoryObject *gmo, unsigned int number)
-{
-	gmo->elements[number] = NULL;
-	memcpy(gmo->elements+number, gmo->elements+number+1, gmo->elementSize*(gmo->numElements-number));
-	gmo->numElements--;
-}
-
-void Q_RGBCopy( vec4_t *output, vec4_t source )
-{
-	(*output)[0] = source[0];
-	(*output)[1] = source[1];
-	(*output)[2] = source[2];
-}
-
-qboolean Text_IsExtColorCode(const char *text) {
-	const char *r, *g, *b;
-	if ( strlen (text) < 4 )
-	{
-	    return 0;
-	}
-	
-	r = text+1;
-	g = text+2;
-	b = text+3;
-	// Get the color levels (if the numbers are invalid, it'll return -1, which we can use to validate)
-	if ((*r < '0' || *r > '9') && (*r < 'a' || *r > 'f') && (*r < 'A' || *r > 'F')) {
-		return 0;
-	}
-	if ((*g < '0' || *g > '9') && (*g < 'a' || *g > 'f') && (*g < 'A' || *g > 'F')) {
-		return 0;
-	}
-	if ((*b < '0' || *b > '9') && (*b < 'a' || *b > 'f') && (*b < 'A' || *b > 'F')) {
-		return 0;
-	}
-	return 1;
-}

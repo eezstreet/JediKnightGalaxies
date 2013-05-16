@@ -31,7 +31,7 @@ void JKG_CG_FillACISlot ( int itemNum, int slot )
 {
     cgItemData_t *item;
     
-    if ( itemNum < 0 || itemNum >= MAX_INVENTORY_ITEMS )
+    if ( itemNum <= 0 || itemNum >= MAX_INVENTORY_ITEMS )
     {
         return;
     }
@@ -41,18 +41,18 @@ void JKG_CG_FillACISlot ( int itemNum, int slot )
         return;
     }
     
-	item = cg.playerInventory[itemNum].id;
-	if(!item)
-	{
-		return;
-	}
+    item = &CGitemLookupTable[itemNum];
     if ( !item->itemID )
     {
         return;
     }
     
+    if ( !JKG_CG_ItemInInventory (item->itemID) )
+    {
+        return;
+    }
     
-    cg.playerACI[slot] = itemNum;
+    cg.playerACI[slot] = item->varID;
 }
 
 void JKG_CG_ClearACISlot ( int slot )
@@ -62,23 +62,7 @@ void JKG_CG_ClearACISlot ( int slot )
         return;
     }
     
-    cg.playerACI[slot] = -1;
-}
-
-void JKG_CG_ACICheckRemoval ( int itemNumber )
-{
-	int i;
-	for(i = 0; i < MAX_ACI_SLOTS; i++)
-	{
-		if(cg.playerACI[i] < 0)
-		{
-			continue;
-		}
-		else if(cg.playerACI[i] > itemNumber)
-		{
-			cg.playerACI[i]--;
-		}
-	}
+    cg.playerACI[slot] = 0;
 }
 
 void JKG_CG_EquipItem ( int newItem, int oldItem )
@@ -138,7 +122,7 @@ void JKG_CG_DeltaFeed ( const char *mode )
 	//load, each item gets sent over on each frame.
 	int id, i;
 
-	id = atoi(CG_Argv(2));
+	id = atoi(CG_Argv(IPPARSE_ITEMNUM));
 
 	if(!Q_stricmp(mode, "add"))
 	{
@@ -174,47 +158,9 @@ void JKG_CG_DeltaFeed ( const char *mode )
 		cg.numItemsInInventory++;
 		return;
 	}
-	else if(!Q_stricmp(mode, "addfrc"))
-	{
-		for(i = IPPARSEX_ID; i < IPPARSEX_MAX; i++)
-		{
-		    int n = atoi (CG_Argv (i));
-			switch(i)
-			{
-				case IPPARSEX_ID:
-					cg.playerInventory[id].id = &CGitemLookupTable[n];
-					break;
-				case IPPARSEX_QUALITY:
-					cg.playerInventory[id].itemQuality = n;
-					break;
-				case IPPARSEX_ACISLOT:
-					JKG_CG_FillACISlot(id, n);
-					break;
-				case IPPARSEX_AMOUNT1:
-				case IPPARSEX_AMOUNT2:
-				case IPPARSEX_AMOUNT3:
-				case IPPARSEX_AMOUNT4:
-				case IPPARSEX_AMOUNT5:
-				case IPPARSEX_AMOUNT6:
-				case IPPARSEX_AMOUNT7:
-				case IPPARSEX_AMOUNT8:
-				case IPPARSEX_AMOUNT9:
-				case IPPARSEX_AMOUNT10:
-					cg.playerInventory[id].amount[i - IPPARSEX_AMOUNT1] = n;
-					break;
-				case IPPARSEX_EQUIPPED:
-					cg.playerInventory[id].equipped = (n > 0);
-					break;
-			}
-		}
-		
-		cg.numItemsInInventory++;
-		return;
-	}
 	else if(!Q_stricmp(mode, "rem"))
 	{
 		//Remove an item
-		JKG_CG_ACICheckRemoval ( id );
 		memset(&cg.playerInventory[id], 0, sizeof(cgItemInstance_t));
 		cg.numItemsInInventory--;
 		assert (cg.numItemsInInventory >= 0);
@@ -261,7 +207,6 @@ void JKG_CG_DeltaFeed ( const char *mode )
 }
 
 
-stringID_table_t WPTable[]; // From bg_saga.c
 static qboolean JKG_CG_ParseItem ( const char *itemFilePath, cgItemData_t *itemData )
 {
 	cJSON *json = NULL;
@@ -300,9 +245,6 @@ static qboolean JKG_CG_ParseItem ( const char *itemFilePath, cgItemData_t *itemD
 		return qfalse;
 	}
 
-	//Initialize some things
-	strcpy(itemData->itemIcon, "gfx/item_icons/default"); //BlasTech will hate me for this..
-
 	//Basic Item Information
 	jsonNode = cJSON_GetObjectItem (json, "name");
 	str = cJSON_ToString (jsonNode);
@@ -332,23 +274,6 @@ static qboolean JKG_CG_ParseItem ( const char *itemFilePath, cgItemData_t *itemD
 	item = cJSON_ToNumber (jsonNode);
 	itemData->weight = item;
 
-	itemData->cost = 100;
-	jsonNode = cJSON_GetObjectItem (json, "cost");
-	item = cJSON_ToNumber (jsonNode);
-	if(item > 0)
-		itemData->cost = item;
-
-	// Item Icon (for inventory)
-	jsonNode = cJSON_GetObjectItem (json, "itemIcon");
-	str = cJSON_ToString(jsonNode);
-	if(str)
-		Q_strncpyz (itemData->itemIcon, str, sizeof (itemData->itemIcon));
-
-	// XML (examine menu)
-	jsonNode = cJSON_GetObjectItem (json, "xml");
-	str = cJSON_ToString(jsonNode);
-	if(str)
-		Q_strncpyz (itemData->xml, str, sizeof (itemData->xml));
 	//pSpell Data
 
 	for(i = 0; i < MAX_PSPELLS; i++){
@@ -399,15 +324,8 @@ static qboolean JKG_CG_ParseItem ( const char *itemFilePath, cgItemData_t *itemD
 	if(itemData->itemType == ITEM_WEAPON) {
 			//This is a weapon. Grab the data.
 			jsonNode = cJSON_GetObjectItem(json, "weapon");
-			str = cJSON_ToString (jsonNode);
-			if(!atoi(str))
-			{
-				itemData->weapon = GetIDForString (WPTable, str);
-			}
-			else
-			{
-				itemData->weapon = atoi(str);
-			}
+			item = cJSON_ToNumber(jsonNode);
+			itemData->weapon = item;
 
 			jsonNode = cJSON_GetObjectItem(json, "variation");
 			item = cJSON_ToNumber(jsonNode);
@@ -495,12 +413,9 @@ void JKG_CG_InitItems( void )
 		memset(&cg.playerInventory[i], 0, sizeof(cgItemInstance_t));
 	}
 
-	//Init the shop stuff ~eez
-	numShopItems = 0;
-	memset(shopItems, 0, sizeof(shopItems));
 }
 
-//.armour files -- These are purely clientside files that determine rendering data
+//.arm files -- These are purely clientside files that determine rendering data
 static qboolean JKG_CG_ParseArmorFile ( const char *armorFilePath, cgArmorData_t *armorData )
 {
 	cJSON *json = NULL;
@@ -603,7 +518,7 @@ static qboolean JKG_CG_LoadArmor(void)
 	int successful = 0, failed = 0;
 
 	CG_Printf("Loading armor data...\n");
-	for( ; i < numFiles; i++)
+	for(i; i < numFiles; i++)
 	{
 	    cgArmorData_t armor;
 		if ( !JKG_CG_ParseArmorFile(va("ext_data/armor/%s", armorFile), &armor) )
@@ -787,7 +702,6 @@ void JKG_CG_ShowOnlySelectedSurfaces ( void *g2, const char *modelPath, const ch
 			break;
 			
 		trap_G2API_SetSurfaceOnOff (g2, surfaceName, 0);
-		i++;
 	}
 }
 
@@ -828,28 +742,5 @@ void JKG_CG_EquipArmor( void )
     // Now disable surfaces on the player model which need to been hidden on the new armor.
     JKG_CG_SetModelSurfacesFlags (cent->ghoul2, armorMasterTable[armor].surfOffLowerString, 0x2);
 
-	// Disable surfaces on the upper model as well
-	JKG_CG_SetModelSurfacesFlags (cent->armorGhoul2, armorMasterTable[armor].surfOffThisString, 0x2);
-
 	cent->previousEquippedArmor[slot] = armor;
-}
-
-void JKG_CG_SetACISlot(const unsigned short slot)
-{
-	if(slot < 0 || slot >= MAX_ACI_SLOTS)
-	{
-		return;
-	}
-
-	if(!cg.playerACI[slot] || cg.playerACI[slot] < 0)
-	{
-		return;
-	}
-
-	if(cg.playerInventory[cg.playerACI[slot]].id->itemType != ITEM_WEAPON)
-	{
-		return;
-	}
-
-	cg.weaponSelect = slot;
 }

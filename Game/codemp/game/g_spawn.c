@@ -2,7 +2,6 @@
 //
 
 #include "g_local.h"
-#include "jkg_gangwars.h"
 
 qboolean	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int		i;
@@ -177,6 +176,8 @@ void SP_info_player_duel( gentity_t *ent );
 void SP_info_player_duel1( gentity_t *ent );
 void SP_info_player_duel2( gentity_t *ent );
 void SP_info_player_deathmatch (gentity_t *ent);
+void SP_info_player_siegeteam1 (gentity_t *ent);
+void SP_info_player_siegeteam2 (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
 void SP_info_player_intermission_red (gentity_t *ent);
 void SP_info_player_intermission_blue (gentity_t *ent);
@@ -187,6 +188,12 @@ void SP_info_firstplace(gentity_t *ent);
 void SP_info_secondplace(gentity_t *ent);
 void SP_info_thirdplace(gentity_t *ent);
 void SP_info_podium(gentity_t *ent);
+
+void SP_info_siege_objective (gentity_t *ent);
+void SP_info_siege_radaricon (gentity_t *ent);
+void SP_info_siege_decomplete (gentity_t *ent);
+void SP_target_siege_end (gentity_t *ent);
+void SP_misc_siege_item (gentity_t *ent);
 
 void SP_func_plat (gentity_t *ent);
 void SP_func_static (gentity_t *ent);
@@ -373,10 +380,6 @@ void SP_team_CTF_bluespawn( gentity_t *ent );
 void SP_misc_turret( gentity_t *ent );
 void SP_misc_turretG2( gentity_t *base );
 
-// Warzone...
-void SP_misc_control_point (gentity_t* ent);
-void SP_ammo_crate_spawn ( gentity_t* ent );
-void SP_health_crate_spawn ( gentity_t* ent );
 
 void SP_item_botroam( gentity_t *ent )
 {
@@ -453,6 +456,8 @@ spawn_t	spawns[] = {
 	{"info_player_duel1", qtrue, SP_info_player_duel1},
 	{"info_player_duel2", qtrue, SP_info_player_duel2},
 	{"info_player_deathmatch", qtrue, SP_info_player_deathmatch},
+	{"info_player_siegeteam1", qtrue, SP_info_player_siegeteam1},
+	{"info_player_siegeteam2", qtrue, SP_info_player_siegeteam2},
 	{"info_player_intermission", qtrue, SP_info_player_intermission},
 	{"info_player_intermission_red", qtrue, SP_info_player_intermission_red},
 	{"info_player_intermission_blue", qtrue, SP_info_player_intermission_blue},
@@ -462,6 +467,12 @@ spawn_t	spawns[] = {
 	{"info_null", qtrue, SP_info_null},
 	{"info_notnull", qtrue, SP_info_notnull},		// use target_position instead
 	{"info_camp", qtrue, SP_info_camp},
+
+	{"info_siege_objective", qtrue, SP_info_siege_objective},
+	{"info_siege_radaricon", qtrue, SP_info_siege_radaricon},
+	{"info_siege_decomplete", qtrue, SP_info_siege_decomplete},
+	{"target_siege_end", qtrue, SP_target_siege_end},
+	{"misc_siege_item", qfalse, SP_misc_siege_item},
 
 	{"func_plat", qfalse, SP_func_plat},
 	{"func_button", qfalse, SP_func_button},
@@ -673,13 +684,6 @@ spawn_t	spawns[] = {
 	{"misc_turret", qfalse, SP_misc_turret},
 	{"misc_turretG2", qfalse, SP_misc_turretG2},
 
-	//JKG Entities
-	{"jkg_target_vendor", qtrue, JKG_SP_target_vendor},
-
-	// Warzone Entities...
-	{"misc_control_point", qfalse, SP_misc_control_point},
-	{"misc_ammo_crate", qfalse, SP_ammo_crate_spawn},
-	{"misc_health_crate", qfalse, SP_health_crate_spawn},
 
 	{0, 0}
 };
@@ -735,21 +739,6 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
-#ifdef __DISABLE_UNUSED_SPAWNS__
-			if ( !Q_strncmp(ent->classname, "weapon_", 7) )
-			{// UQ1: Since we can't pick them up anyway, don't even spawn weapons...
-				G_Printf("%s spawn disabled.\n", ent->classname);
-				G_FreeEntity(ent);
-				return qfalse;
-			}
-			else if ( !Q_strncmp(ent->classname, "ammo_", 5) )
-			{// UQ1: Since we can't pick them up anyway, don't even spawn ammo...
-				G_Printf("%s spawn disabled.\n", ent->classname);
-				G_FreeEntity(ent);
-				return qfalse;
-			}
-#endif //__DISABLE_UNUSED_SPAWNS__
-
 			G_SpawnItem( ent, item );
 			return qtrue;
 		}
@@ -863,7 +852,7 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
 	KeyPairSet_t *spv;
-	static char *gametypeNames[] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty", "warzone"};
+	static char *gametypeNames[] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
 
 	// JKG - Before we begin, determine the type of the entity (logical or normal)
 	// Then spawn the appropriate entity
@@ -1293,61 +1282,6 @@ qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 	return qtrue;
 }
 
-#ifdef __ENTITY_OVERRIDES__
-/*
-====================
-G_ParseSpawnVarsEx
-
-Parses a brace bounded set of key / value pairs out of the
-level's entity strings into level.spawnVars[]
-
-This does not actually spawn an entity.
-====================
-*/
-qboolean G_ParseSpawnVarsEx( int handle ) {
-	pc_token_t	token;
-	char		keyname[MAX_TOKEN_CHARS];
-	
-	level.numSpawnVars = 0;
-	level.numSpawnVarChars = 0;
-
-	// parse the opening brace
-	if (trap_PC_ReadToken(handle, &token) == 0)
-		// end of spawn string
-		return qfalse;
-
-	if (Q_stricmp(token.string, "{") != 0)
-		G_Error( "G_ParseSpawnVarsEx: found %s when expecting {", token.string );
-
-	// go through all the key / value pairs
-	while ( 1 ) {	
-		// parse key
-		if (trap_PC_ReadToken( handle, &token) == 0)
-			G_Error( "G_ParseSpawnVarsEx: EOF without closing brace" );
-
-		if (Q_stricmp(token.string, "}") == 0)
-			break;
-		
-		strcpy(keyname, token.string);
-
-		// parse value	
-		if (trap_PC_ReadToken( handle, &token) == 0)
-			G_Error("G_ParseSpawnVarsEx: EOF without closing brace" );
-
-		if (Q_stricmp(token.string, "}") == 0)
-			G_Error("G_ParseSpawnVarsEx: closing brace without data");
-
-		if (level.numSpawnVars == MAX_SPAWN_VARS)
-			G_Error("G_ParseSpawnVarsEx: MAX_SPAWN_VARS");
-
-		level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken(keyname);
-		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken(token.string);
-		level.numSpawnVars++;
-	}
-
-	return qtrue;
-}
-#endif //__ENTITY_OVERRIDES__
 
 static	char *defaultStyles[32][3] = 
 {
@@ -1594,6 +1528,11 @@ void SP_worldspawn( void )
 		}
 	}
 
+	if (g_gametype.integer == GT_SIEGE)
+	{ //a tad bit of a hack, but..
+		EWebPrecache();
+	}
+
 	// make some data visible to connecting client
 	trap_SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
 
@@ -1618,11 +1557,6 @@ void SP_worldspawn( void )
 	G_SpawnString( "soundSet", "default", &text );
 	trap_SetConfigstring( CS_GLOBAL_AMBIENT_SET, text );
 
-	G_SpawnString( "defaultWeapon", "pistol_DL-18", &text );
-	if(text)
-	{
-		strcpy(level.startingWeapon, text);
-	}
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
 
@@ -1639,37 +1573,6 @@ void SP_worldspawn( void )
 		G_LogPrintf( "Warmup:\n" );
 	}
 	*/
-
-	// Gang Wars
-	if( g_gametype.integer >= GT_TEAM )
-	{
-		char *redString, *blueString;
-		char teamInfo[MAX_INFO_STRING];
-
-		G_SpawnString("gwTeamRed", "red", &redString);
-		G_SpawnString("gwTeamBlue", "blue", &blueString);
-		
-		teamInfo[0] = '\0';
-
-		Info_SetValueForKey(teamInfo, "redTeam", redString);
-		Info_SetValueForKey(teamInfo, "blueTeam", blueString);
-
-		if(!Info_Validate(teamInfo))
-		{
-			Com_Error(ERR_FATAL, "GW: Info_Validate returned qfalse.\n");
-			return;
-		}
-
-		trap_SetConfigstring(CS_TEAMS, teamInfo);
-
-		level.redTeam = JKG_GetTeamByReference( redString );
-		level.blueTeam = JKG_GetTeamByReference( blueString );
-
-		if( level.redTeam < 0 || level.blueTeam < 0 )
-		{
-			Com_Printf("^3WARNING: Improper team for team %s\n", (level.redTeam < 0) ? "Red" : "Blue");
-		}
-	}
 
 	trap_SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+0, defaultStyles[0][0]);
 	trap_SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+1, defaultStyles[0][1]);
@@ -1737,13 +1640,6 @@ Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
 */
 void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
-#ifdef __ENTITY_OVERRIDES__
-	int			handle;
-	vmCvar_t	mapname;
-
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-#endif //__ENTITY_OVERRIDES__
-
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
@@ -1751,36 +1647,6 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 	// the worldspawn is not an actual entity, but it still
 	// has a "spawn" function to perform any global setup
 	// needed by a level (setting configstrings or cvars, etc)
-#ifdef __ENTITY_OVERRIDES__
-	//
-	// UQ1: Allows different entities defintions to be loaded per gametype for a map with a .ovrents file...
-	// This version overrides the bsp's spawns completely.
-	//
-	if (g_gametype.integer == GT_WARZONE /*|| g_gametype.integer == GT_WARZONE_CAMPAIGN*/)
-		handle = trap_PC_LoadSource(va("maps/%s_scenario.ovrents", mapname.string));
-	else
-#ifdef __RPG__
-	if (g_gametype.integer == GT_RPG_CITY)
-		handle = trap_PC_LoadSource(va("maps/%s_city_rpg.ovrents", mapname.string));
-	else if (g_gametype.integer == GT_RPG_WILDERNESS)
-		handle = trap_PC_LoadSource(va("maps/%s_city_rpg.ovrents", mapname.string));
-	else 
-#endif //__RPG__
-	if (g_gametype.integer == GT_SINGLE_PLAYER)
-		handle = trap_PC_LoadSource(va("maps/%s_coop.ovrents", mapname.string));
-	else
-		handle = trap_PC_LoadSource(va("maps/%s.ovrents", mapname.string));
-
-	if (handle)
-	{
-		if ( !G_ParseSpawnVarsEx(handle) )
-		{
-			G_Error( "SpawnEntities: no entities" );
-			trap_PC_FreeSource(handle); // UQ added!
-		}
-	}
-	else
-#endif //__ENTITY_OVERRIDES__
 	if ( !G_ParseSpawnVars(qfalse) ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
@@ -1798,58 +1664,10 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 		}
 	}
 
-#ifdef __ENTITY_OVERRIDES__ // UQ added.. We need to pass all the new entity list, not just worldspawn...
-	if (handle)
-	{// Pass all the new .ovrents file's entities one at a time...
-		while( G_ParseSpawnVarsEx(handle) )
-			G_SpawnGEntityFromSpawnVars(inSubBSP);
-
-		trap_PC_FreeSource(handle); // UQ: Release the handle here instead of above...
-	}
-	else
-#endif //__ENTITY_OVERRIDES__
-	{// Parse ents from the actual map bsp.
-		while( G_ParseSpawnVars(inSubBSP) ) {
-			G_SpawnGEntityFromSpawnVars(inSubBSP);
-		}	
-	}
-
-#ifdef __ENTITY_OVERRIDES__
-	//
-	// UQ1: This version loads only 'extra' entitiyes from a .entities file...
-	//
-	if (!handle) 
-	{
-		// parse possible external entities map files
-		// it's used to add new ents to existing pure ET map
-		if (g_gametype.integer == GT_WARZONE /*|| g_gametype.integer == GT_WARZONE_CAMPAIGN*/)
-			handle = trap_PC_LoadSource(va("maps/%s_scenario.entities", mapname.string));
-		else
-#ifdef __RPG__
-		if (g_gametype.integer == GT_RPG_CITY)
-			handle = trap_PC_LoadSource(va("maps/%s_city_rpg.entities", mapname.string));
-		else if (g_gametype.integer == GT_RPG_WILDERNESS)
-			handle = trap_PC_LoadSource(va("maps/%s_city_rpg.entities", mapname.string));
-		else 
-#endif //__RPG__
-		if (g_gametype.integer == GT_SINGLE_PLAYER)
-			handle = trap_PC_LoadSource(va("maps/%s_coop.entities", mapname.string));
-		else
-			handle = trap_PC_LoadSource(va("maps/%s.entities", mapname.string));
-
-		if (handle)
-		{
-			if (G_ParseSpawnVarsEx(handle) == qfalse)
-				G_Error( "SpawnEntities: no entities" );
-
-			// parse ents
-			while (G_ParseSpawnVarsEx(handle))
-				G_SpawnGEntityFromSpawnVars(inSubBSP);
-
-			trap_PC_FreeSource(handle);
-		}
-	}
-#endif //__ENTITY_OVERRIDES__
+	// parse ents
+	while( G_ParseSpawnVars(inSubBSP) ) {
+		G_SpawnGEntityFromSpawnVars(inSubBSP);
+	}	
 
 	if( g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN] && g_entities[ENTITYNUM_WORLD].behaviorSet[BSET_SPAWN][0] )
 	{//World has a spawn script, but we don't want the world in ICARUS and running scripts,

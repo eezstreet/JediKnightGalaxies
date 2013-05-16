@@ -699,7 +699,7 @@ static int GLua_Player_SetWeapon(lua_State *L) {
 	if (!ply) return 0;
 	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS) return 0;
 	// Check if player has the weapon in question
-	if (!(level.clients[ply->clientNum].ps.stats[STAT_WEAPONS] & (1 << weapon))) return 0;
+	if (!level.clients[ply->clientNum].ps.stats[STAT_WEAPONS] & (1 << weapon)) return 0;
 	level.clients[ply->clientNum].ps.weapon = weapon;
 	level.clients[ply->clientNum].pers.cmd.weapon = BG_GetWeaponIndexFromClass (weapon, 0);
 	trap_SendServerCommand(ply->clientNum, va("chw %i", weapon));
@@ -768,7 +768,7 @@ static int GLua_Player_SetForceLevel(lua_State *L) {
 	if (!ply) return 0;
 	if (force < FP_FIRST || force >= NUM_FORCE_POWERS) return 0;
 	if (newlevel < 0 || newlevel > 3) return 0; // level > 3 is subject to change if we go for lvl 5
-	if (!(level.clients[ply->clientNum].ps.fd.forcePowersKnown & (1 << force))) return 0;
+	if (!level.clients[ply->clientNum].ps.fd.forcePowersKnown & (1 << force)) return 0;
 	level.clients[ply->clientNum].ps.fd.forcePowerLevel[force] = newlevel;
 	level.clients[ply->clientNum].ps.fd.forcePowerBaseLevel[force] = newlevel;
 	return 0;
@@ -779,7 +779,7 @@ static int GLua_Player_GetForceLevel(lua_State *L) {
 	int force = luaL_checkinteger(L,2);
 	if (!ply) return 0;
 	if (force < FP_FIRST || force >= NUM_FORCE_POWERS) return 0;
-	if (!(level.clients[ply->clientNum].ps.fd.forcePowersKnown & (1 << force))) return 0;
+	if (!level.clients[ply->clientNum].ps.fd.forcePowersKnown & (1 << force)) return 0;
 	lua_pushinteger(L,level.clients[ply->clientNum].ps.fd.forcePowerLevel[force]);
 	return 1;
 }
@@ -789,7 +789,7 @@ static int GLua_Player_SetActiveForce(lua_State *L) {
 	int force = luaL_checkinteger(L,2);
 	if (!ply) return 0;
 	if (force < FP_FIRST || force >= NUM_FORCE_POWERS) return 0;
-	if (!(level.clients[ply->clientNum].ps.fd.forcePowersKnown & (1 << force))) return 0;
+	if (!level.clients[ply->clientNum].ps.fd.forcePowersKnown & (1 << force)) return 0;
 	level.clients[ply->clientNum].ps.fd.forcePowerSelected = force;
 	return 0;
 }
@@ -1039,8 +1039,7 @@ static int GLua_Player_SetAmmo(lua_State *L) {
 	if (amt < 0) {
 		amt = 0;
 	}
-	// TODO: use proper ammo array here
-	g_entities[ply->clientNum].client->ammoTable[ammo] = amt;
+	g_entities[ply->clientNum].client->ps.ammo[ammo] = amt;
 	
 	return 0;
 }
@@ -1052,8 +1051,7 @@ static int GLua_Player_GetAmmo(lua_State *L) {
 	if (ammo < 0 || ammo >= AMMO_MAX) {
 		return 0;
 	}
-	// TODO: use proper ammo array here
-	lua_pushinteger(L, g_entities[ply->clientNum].client->ammoTable[ammo]);
+	lua_pushinteger(L, g_entities[ply->clientNum].client->ps.ammo[ammo]);
 	return 1;
 }
 
@@ -1072,7 +1070,7 @@ static int GLua_Player_SetClipAmmo(lua_State *L) {
 		amt = GetWeaponAmmoClip( weapon, var );
 	}
 
-	g_entities[ply->clientNum].client->clipammo[BG_GetWeaponIndex(weapon, var)] = amt;
+	g_entities[ply->clientNum].client->clipammo[weapon] = amt;
 	return 0;
 }
 
@@ -1080,7 +1078,7 @@ static int GLua_Player_StripClipAmmo(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L, 1);
 	int i;
 	if (!ply) return 0;
-	for (i=0; i < 256; i++) {
+	for (i=0; i < MAX_WEAPONS; i++) {
 		level.clients[ply->clientNum].clipammo[i] = 0;
 	}
 	return 0;
@@ -1090,9 +1088,8 @@ static int GLua_Player_StripAmmo(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L, 1);
 	int i;
 	if (!ply) return 0;
-	// TODO: use proper ammo array here
 	for (i=0; i < AMMO_MAX; i++) {
-		level.clients[ply->clientNum].ammoTable[i] = 0;
+		level.clients[ply->clientNum].ps.ammo[i] = 0;
 	}
 	return 0;
 }
@@ -1101,12 +1098,11 @@ static int GLua_Player_StripAmmo(lua_State *L) {
 static int GLua_Player_GetClipAmmo(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
 	int weapon = luaL_checkint(L,2);
-	int variation = luaL_checkint(L,3);
 	if (!ply) return 0;
 	if (weapon < 0 || weapon >= MAX_WEAPONS) {
 		return 0;
 	}
-	lua_pushinteger(L, g_entities[ply->clientNum].client->clipammo[BG_GetWeaponIndex(weapon, variation)]);
+	lua_pushinteger(L, g_entities[ply->clientNum].client->clipammo[weapon]);
 	return 1;
 }
 
@@ -1350,7 +1346,7 @@ static int GLua_Player_GiveHoldable(lua_State *L) {
 }
 
 void Jetpack_Off(gentity_t *ent);
-void NPC_Humanoid_Decloak( gentity_t *self );
+void Jedi_Decloak( gentity_t *self );
 
 static int GLua_Player_TakeHoldable(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
@@ -1367,7 +1363,7 @@ static int GLua_Player_TakeHoldable(lua_State *L) {
 			Jetpack_Off(ent);
 			break;
 		case HI_CLOAK:
-			NPC_Humanoid_Decloak(ent);
+			Jedi_Decloak(ent);
 			break;
 		default:
 			break;

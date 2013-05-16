@@ -1,19 +1,8 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// tags.h
+// Filename:-	tags.h
+
 // do NOT include-protect this file, or add any fields or labels, because it's included within enums and tables
+//
 // these macro args get "TAG_" prepended on them for enum purposes, and appear as literal strings for "meminfo" command
-// Copyright (c) 2001 Raven Software
 
 	TAGDEF(ALL),
 	TAGDEF(BOTLIB),
@@ -75,7 +64,7 @@
 	TAGDEF(NEWDEL),						// new / delete -> Z_Malloc on Xbox
 	TAGDEF(UI_ALLOC),					// UI DLL calls to UI_Alloc
 	TAGDEF(CG_UI_ALLOC),				// Cgame DLL calls to UI_Alloc
-	TAGDEF(malloc),
+	TAGDEF(BG_ALLOC),
 	TAGDEF(BINK),
 	TAGDEF(XBL_FRIENDS),				// friends list
 #endif

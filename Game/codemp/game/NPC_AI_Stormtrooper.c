@@ -15,8 +15,6 @@ extern int GetTime ( int lastTime );
 extern void NPC_AimAdjust( int change );
 extern qboolean FlyingCreature( gentity_t *ent );
 
-extern void NPC_CheckEvasion(void);
-
 extern	vmCvar_t		d_asynchronousGroupAI;
 
 #define	MAX_VIEW_DIST		1024
@@ -123,7 +121,7 @@ enum
 	SPEECH_PUSHED
 };
 
-void ST_Speech( gentity_t *self, int speechType, float failChance )
+static void ST_Speech( gentity_t *self, int speechType, float failChance )
 {
 	if ( random() < failChance )
 	{
@@ -1124,8 +1122,8 @@ void NPC_BSST_Patrol( void )
 	}
 	else// if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 	{
-		//if ( NPC->client->NPC_class != CLASS_IMPERIAL && NPC->client->NPC_class != CLASS_IMPWORKER )
-		{//imperials do not look around -- UQ1: They do now!
+		if ( NPC->client->NPC_class != CLASS_IMPERIAL && NPC->client->NPC_class != CLASS_IMPWORKER )
+		{//imperials do not look around
 			if ( TIMER_Done( NPC, "enemyLastVisible" ) )
 			{//nothing suspicious, look around
 				if ( !Q_irand( 0, 30 ) )
@@ -1167,9 +1165,7 @@ void NPC_BSST_Patrol( void )
 				NPC->client->ps.torsoTimer = NPC->client->ps.legsTimer = 200;
 			}
 		}
-
 		//FIXME: this is a disgusting hack that is supposed to make the Imperials start with their weapon holstered- need a better way
-#ifdef __WTF_RAVEN__ // UQ1: LOL. Need I say more????
 		if ( NPC->client->ps.weapon != WP_NONE )
 		{
 			ChangeWeapon( NPC, WP_NONE );
@@ -1185,7 +1181,6 @@ void NPC_BSST_Patrol( void )
 			*/
 			//rwwFIXMEFIXME: Do this?
 		}
-#endif //__WTF_RAVEN__
 	}
 }
 
@@ -1565,7 +1560,6 @@ int ST_ApproachEnemy( gentity_t *self )
 	TIMER_Set( self, "scoutTime", TIMER_Get( self, "stick" )-level.time+Q_irand(5000, 10000) );
 	//leave my combat point
 	NPC_FreeCombatPoint( self->NPC->combatPoint, qfalse );
-
 	//return the relevant combat point flags
 	return (CP_CLEAR|CP_CLOSEST);
 }
@@ -2428,9 +2422,6 @@ void NPC_BSST_Attack( void )
 		return;
 	}
 
-	// UQ1: Added evasion...
-	NPC_CheckEvasion();
-
 	//NPC_CheckEnemy( qtrue, qfalse );
 	//If we don't have an enemy, just idle
 	if ( NPC_CheckEnemyExt(qfalse) == qfalse )//!NPC->enemy )//
@@ -2444,7 +2435,6 @@ void NPC_BSST_Attack( void )
 		{
 			NPC_BSST_Patrol();//FIXME: or patrol?
 		}
-
 		return;
 	}
 
@@ -2723,7 +2713,7 @@ void NPC_BSST_Attack( void )
 				WeaponThink( qtrue );
 			}
 			//NASTY
-			/*if ( NPC->s.weapon == WP_ROCKET_LAUNCHER 
+			if ( NPC->s.weapon == WP_ROCKET_LAUNCHER 
 				&& (ucmd.buttons&BUTTON_ATTACK) 
 				&& !move
 				&& g_spskill.integer > 1 
@@ -2732,13 +2722,10 @@ void NPC_BSST_Attack( void )
 				ucmd.buttons &= ~BUTTON_ATTACK;
 				ucmd.buttons |= BUTTON_ALT_ATTACK;
 				NPC->client->ps.weaponTime = Q_irand( 1000, 2500 );
-			}*/
+			}
 		}
 	}
 }
-
-#ifdef __DOMINANCE_NPC__
-extern qboolean NPC_CanUseAdvancedFighting();
 
 void NPC_BSST_Default( void )
 {
@@ -2753,43 +2740,7 @@ void NPC_BSST_Default( void )
 	}
 	else //if ( NPC->enemy )
 	{//have an enemy
-		if (NPC_CanUseAdvancedFighting())
-		{
-			NPC_BSJedi_Default();
-		}
-		else
-		{
-			NPC_CheckGetNewWeapon();
-			NPC_BSST_Attack();
-		}
-	}
-}
-
-#else //__DOMINANCE_NPC__
-
-void NPC_BSST_Default( void )
-{
-	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
-	{
-		WeaponThink( qtrue );
-	}
-	
-	if( !NPC->enemy )
-	{//don't have an enemy, look for one
-		if (!NPC_MoveToGoal( qtrue ))
-			NPC_BSST_Patrol();
-	}
-	else if (NPC->enemy 
-		&& NPC->genericValue15 < level.time)
-	{// have enemy but it is not visible right now...
-		if (!NPC_MoveToGoal( qtrue ))
-			NPC_BSST_Patrol();
-	}
-	else
-	{//have a visible enemy
 		NPC_CheckGetNewWeapon();
 		NPC_BSST_Attack();
 	}
 }
-
-#endif //__DOMINANCE_NPC__

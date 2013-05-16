@@ -13,12 +13,10 @@ void __declspec(naked) JKG_AntiDebug() {
 	// We simply jump to 0x01
 	// If we got a debugger here, it goes boom
 	// Otherwise, SEH is executed, and makes it exit properly
-#ifndef _JKGRELEASE
 	__asm {
 		// not now..
 		ret
 	}
-#endif
 	__asm {
 		push offset handler
 		push fs:[0]

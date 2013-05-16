@@ -1,30 +1,11 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// bg_weapons.h
-// This has been modified beyond it's original purpose. In the past, weapons were hardcoded
-// with a weaponData_t struct that barely contained any useful information about the weapon,
-// not enough damages, which were in a define. However, most if not all of the weapon data
-// has been appropriately moved over to weaponData_t, which is filled by the .wpn files.
-// (c) 2013 Jedi Knight Galaxies
-
 #ifndef BG_WEAPONS_H
 #define BG_WEAPONS_H
 
 #include "q_shared.h"
 #include "bg_ammo.h"
 
-#define MAX_WEAPON_TABLE_SIZE (255)
-#define MAX_FIREMODES (16)
+#define MAX_WEAPON_TABLE_SIZE (100)
+#define MAX_FIREMODES (2)
 
 typedef enum 
 {
@@ -94,50 +75,6 @@ typedef enum firingType_e
     FT_BURST
 } firingType_t;
 
-typedef enum
-{
-	SPRINTSTYLE_CUSTOM = -1,
-	SPRINTSTYLE_NONE,
-	SPRINTSTYLE_LOWERED,
-	SPRINTSTYLE_LOWERED_SLIGHT,
-	SPRINTSTYLE_LOWERED_HEAVY,
-	SPRINTSTYLE_SIDE,
-	SPRINTSTYLE_SIDE_SLIGHT,
-	SPRINTSTYLE_SIDE_HEAVY,
-	SPRINTSTYLE_RAISED,
-	SPRINTSTYLE_RAISED_SLIGHT,
-	SPRINTSTYLE_RAISED_HEAVY,
-	SPRINTSTYLE_ANGLED_DOWN,
-	SPRINTSTYLE_ANGLED_DOWN_SLIGHT,			// copy bob from raised
-	SPRINTSTYLE_ANGLED_DOWN_HEAVY,			// copy bob from raised
-	SPRINTSTYLE_SIDE_UP,
-	SPRINTSTYLE_SIDE_UP_SLIGHT,				// copy bob from side
-	SPRINTSTYLE_SIDE_UP_HEAVY,				// copy bob from side
-	SPRINTSTYLE_SIDE_MEDIUM,
-	SPRINTSTYLE_SIDE_MEDIUM_SLIGHT,			// copy bob from side
-	SPRINTSTYLE_SIDE_MEDIUM_HEAVY,			// copy bob from side
-} sprintStyles_t;
-
-typedef enum
-{
-	FMANIM_NONE,							// no change in animation
-	FMANIM_RAISED,							// rasied, used for grenade launcher and flechette gun mines
-	FMANIM_TILTED,							// tilted to the right a little, for the anti armor attachment on clone rifle
-} firingModeAnim_t;
-
-typedef enum
-{
-	FMTRANS_RAISED_NONE,					// had to fix this because this was causing issues --eez
-	FMTRANS_NONE_NONE,
-	FMTRANS_NONE_RAISED,
-	FMTRANS_NONE_TILTED,
-	FMTRANS_RAISED_RAISED,
-	FMTRANS_RAISED_TILTED,
-	FMTRANS_TILTED_NONE,
-	FMTRANS_TILTED_RAISED,
-	FMTRANS_TILTED_TILTED,
-} firingModeTransitions_t;
-
 typedef struct weaponFireModeStats_s
 {
     const ammo_t *ammo;             // Ammo
@@ -167,8 +104,7 @@ typedef struct weaponFireModeStats_s
 	int		    weaponMOD;			// The MOD (Means of Death) for this mode and weapon for direct contact.
 	int			weaponSplashMOD;	// The MOD (Means of Death) for this mode and weapon for splash damage.
 	qboolean    isGrenade;          // Is this firemode a grenade?
-	qboolean	grenadeBounces;		// Does this grenade bounce off of enemies, or does it explode on impact? (true for bounces on people)
-	int			grenadeBounceDMG;	// Determines the amount of damage to do when bouncing off of an enemy.
+	
 } weaponFireModeStats_t;
 
 typedef enum indicatorType_e
@@ -183,11 +119,6 @@ typedef enum indicatorType_e
 typedef struct weaponVisualFireMode_s
 {
     char type[16];
-	char				displayName[128];	// what to display as the name of it ("Burst", "Grenade Launcher", etc)
-	firingModeAnim_t	animType;			// which special anim to use
-	char				switchToSound[MAX_QPATH];
-	char				crosshairShader[MAX_QPATH];	// what to change the crosshair to (if applicable)
-	short				overrideIndicatorFrame;	 // frame to override the firing mode shader with (since these aren't always in order)
 
     union
     {
@@ -343,33 +274,10 @@ typedef struct weaponVisual_s
     char scopeStopSound[MAX_QPATH];
     int scopeSoundLoopTime;
     char scopeLoopSound[MAX_QPATH];
-
-	//eezstreet add: Variable crosshairs
-	int crosshairValue;
-
-	weaponVisualFireMode_t visualFireModes[MAX_FIREMODES];
+	
+	weaponVisualFireMode_t primary;
+	weaponVisualFireMode_t secondary;
 } weaponVisual_t;
-
-typedef struct
-{
-	int torsoAnim;
-	int legsAnim;
-} weaponAnimationSet_t;
-
-typedef struct
-{
-	weaponAnimationSet_t firing;
-	weaponAnimationSet_t ready;
-	weaponAnimationSet_t reload;
-	weaponAnimationSet_t forwardWalk;
-	weaponAnimationSet_t backwardWalk;
-	weaponAnimationSet_t crouchWalk;
-	weaponAnimationSet_t crouchWalkBack;
-	weaponAnimationSet_t jump;
-	weaponAnimationSet_t land;
-	weaponAnimationSet_t run;
-	weaponAnimationSet_t sprint;
-} weaponAnimationReplacements_t;
 
 typedef struct
 {
@@ -381,15 +289,11 @@ typedef struct
 	unsigned char	weaponSlot;				// The slot this weapon uses, i.e. main weapon, secondary weapon or grenade.
 	
 	unsigned char	ammoIndex;				// Ammo index, determines the type of weapon clips used.
-	unsigned int	ammoOnSpawn;			// Ammo given upon spawning with this weapon.
-	unsigned int	ammoOnPickup;			// Ammo given upon picking up a dropped weapon
-	unsigned int	clipSize;				// Number of shots in one clip
-
-	unsigned char	numFiringModes;			// Number of firing modes on the gun.
 
 	unsigned char	hasCookAbility;			// Determines whether or not this weapon can be cooked (grenades only).
 	unsigned char	hasKnockBack;			// The amount of damage determines the knockback of the weapon.
 	unsigned char	hasRollAbility;			// Determines whether or not you can roll with this weapon.
+	unsigned char	hasSecondary;			// Determines whether or not the secondary mode is availabe.
 	
 	unsigned char	zoomType;		    	// Determines whether or not the weapon has the ability to zoom.
 	float           startZoomFov;           // Starting FOV when zooming
@@ -399,26 +303,17 @@ typedef struct
 	float           speedModifier;          // Modifier to apply to player's speed when weapon in use. 1.0f for default speed.
 	float           reloadModifier;         // Modifier to apply to player's speed when reloading. 1.0f for no change.
 	                                        // The modifier is applied to the player's speed after the speed has been modified.
+	                                        
+	int torsoFiringAnimation;
+	int legsFiringAnimation;
+	
+	int torsoReadyAnimation;
+	int legsReadyAnimation;
+	
+	int torsoReloadAnimation;
+	int legsReloadAnimation;
 
-	weaponAnimationReplacements_t anims;
-
-	int firstPersonSprintStyle;				// Handles the way sprinting is done.
-											// -1 = custom animation defined in MD3
-											// 0 = no animation
-											// 1 = lowered weapon
-											// 2 = lowered weapon, slight bob
-											// 3 = lowered weapon, heavy bob
-											// 4 = side weapon
-											// 5 = side weapon, slight bob
-											// 6 = side weapon, heavy bob
-											// 7 = lowered, angled weapon
-											// 8 = lowered, angled weapon, slight bob
-											// 9 = lowered, angled weapon, heavy bob
-											// 10 = raised
-											// 11 = raised, slight bob
-											// 12 = raised, heavy bob
-
-	weaponFireModeStats_t firemodes[MAX_FIREMODES];
+	weaponFireModeStats_t firemodes[2];
     
     char displayName[64];			// The name which is to be displayed on the HUD.
     
@@ -455,7 +350,6 @@ int             BG_GetWeaponIndexFromClass ( int weapon, int variation );
 
 unsigned int BG_NumberOfLoadedWeapons ( void );
 unsigned int BG_NumberOfWeaponVariations ( unsigned char weaponId );
-weaponData_t *BG_GetWeaponDataByIndex( int index );
 
 //void			GetWeaponInitialization( void );
 weaponData_t   *GetWeaponData( unsigned char baseIndex, unsigned char modIndex );
@@ -467,7 +361,6 @@ short           GetAmmoMax ( unsigned char ammoIndex );
 
 #ifdef CGAME
 qboolean BG_DumpWeaponList ( const char *filename );
-void BG_PrintWeaponList( void );
 #endif
 
 /* Original definitions used for weapon switching and such, we won't use it eventually */
@@ -483,18 +376,4 @@ void BG_PrintWeaponList( void );
 
 /* These externals contain all the data we want and need! */
 extern	weaponAmmo_t				xweaponAmmo[];
-
-typedef struct
-{
-	union {
-		char *a;
-		int i;
-		float f;
-		unsigned char uc;
-	} data;
-	//void *data;
-	qboolean isFloat;
-	qboolean isString;
-	int byteCount;
-} weaponDataGrab_t;
 #endif

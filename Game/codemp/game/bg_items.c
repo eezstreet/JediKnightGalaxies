@@ -15,9 +15,6 @@
     #define itemTable CGitemLookupTable
 #endif
 
-int shopItems[128];
-int numShopItems;
-
 static int BG_GetNextFreeItemSlot ( void )
 {
     int i = 1;
@@ -39,14 +36,10 @@ qboolean BG_HasWeaponItem ( int clientNum, int weaponId )
 #ifdef CGAME
     for ( i = 0; i < cg.numItemsInInventory; i++ )
     {
-		int weaponNum;
-		if(!cg.playerInventory[i].id || !cg.playerInventory[i].id->itemID)
-			break;
-		if(cg.playerInventory[i].id->itemType != ITEM_WEAPON)
-			continue;
-		weaponNum = BG_GetWeaponIndex(cg.playerInventory[i].id->weapon, cg.playerInventory[i].id->variation);
-		if( weaponNum == weaponId )
-			return qtrue;
+        if ( cg.playerInventory[i].id->varID == weaponId )
+        {
+            return qtrue;
+        }
     }
 #else
     gentity_t *ent = &g_entities[clientNum];
@@ -54,27 +47,16 @@ qboolean BG_HasWeaponItem ( int clientNum, int weaponId )
 	i = 0;
     while( 1 )
     {
-		int weaponNum;
 		if ( !ent->inventory->items[i].id )
         {
             break;
         }
-		if( i > ent->inventory->elements )
-			break;
-		if(ent->inventory->items[i].equipped < 0)
-			break; //This is a VERY hacky check..proceed with caution.
-		if(!ent->inventory->items[i].id->itemID)
-		{
-			break;
-		}
-		if( ent->inventory->items[i].id->itemType != ITEM_WEAPON)
-		{
-			i++;
-			continue;
-		}
-		weaponNum = BG_GetWeaponIndex(ent->inventory->items[i].id->weapon, ent->inventory->items[i].id->variation);
-		if(weaponNum == weaponId)
-			return qtrue;
+        
+        //if ( ent->inventory[i].id->varID == weaponId )
+		if( ent->inventory->items[i].id->varID == weaponId )
+        {
+            return qtrue;
+        }
 		i++;
     }
 	//end DIMA correction
@@ -139,9 +121,6 @@ void BG_LoadDefaultWeaponItems ( void )
         item.weapon = weapon;
         item.variation = variation;
         item.varID = i;
-#ifdef CGAME
-		strcpy(item.itemIcon, weaponData->visuals.icon);
-#endif
         
         itemTable[itemID] = item;
     }

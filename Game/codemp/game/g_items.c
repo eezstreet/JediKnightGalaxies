@@ -1126,8 +1126,7 @@ void ItemUse_Seeker(gentity_t *ent)
 	else
 	{
 		ent->client->ps.eFlags |= EF_SEEKERDRONE;
-		ent->client->numDroneShotsInBurst = 0;
-		ent->client->ps.droneExistTime = level.time + 60000;
+		ent->client->ps.droneExistTime = level.time + 30000;
 		ent->client->ps.droneFireTime = level.time + 1500;
 	}
 }
@@ -1247,8 +1246,8 @@ void ItemUse_Jetpack( gentity_t *ent )
 }
 
 #define CLOAK_TOGGLE_TIME			1000
-extern void NPC_Humanoid_Cloak( gentity_t *self );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Cloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 void ItemUse_UseCloak( gentity_t *ent )
 {
 	assert(ent && ent->client);
@@ -1274,11 +1273,11 @@ void ItemUse_UseCloak( gentity_t *ent )
 
 	if ( ent->client->ps.powerups[PW_CLOAKED] )
 	{//decloak
-		NPC_Humanoid_Decloak( ent );
+		Jedi_Decloak( ent );
 	}
 	else
 	{//cloak
-		NPC_Humanoid_Cloak( ent );
+		Jedi_Cloak( ent );
 	}
 
 	ent->client->cloakToggleTime = level.time + CLOAK_TOGGLE_TIME;
@@ -2136,14 +2135,13 @@ void Add_Ammo (gentity_t *ent, int weapon, int count)
 	int ammoIndex = weapon;
 	int ammoMax = GetAmmoMax(ammoIndex);
 
-	// TODO: Add proper ammo array here
-	if ( ent->client->ammoTable[ammoIndex] < ammoMax )
+	if ( ent->client->ps.ammo[ammoIndex] < ammoMax )
 	{
-		ent->client->ammoTable[ammoIndex] += count;
+		ent->client->ps.ammo[ammoIndex] += count;
 
-		if ( ent->client->ammoTable[ammoIndex] > ammoMax )
+		if ( ent->client->ps.ammo[ammoIndex] > ammoMax )
 		{
-			ent->client->ammoTable[ammoIndex] = ammoMax;
+			ent->client->ps.ammo[ammoIndex] = ammoMax;
 		}
 	}
 }
@@ -2200,7 +2198,6 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 
 int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	int		quantity;
-	weaponData_t *wep;
 
 	if ( ent->count < 0 ) {
 		quantity = 0; // None for you, sir!
@@ -2208,8 +2205,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		if ( ent->count ) {
 			quantity = ent->count;
 		} else {
-			wep = GetWeaponData(ent->item->giTag, ent->s.weaponVariation);
-			quantity = wep->ammoOnPickup;
+			quantity = ent->item->quantity;
 		}
 
 		// dropped items and teamplay weapons always have full ammo
@@ -2219,10 +2215,8 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			// New method:  If the player has less than half the minimum, give them the minimum, else add 1/2 the min.
 
 			// drop the quantity if the already have over the minimum
-
-			// FIXME: Add proper ammo array
-			if ( other->client->ammoTable[ ent->item->giTag ] < quantity*0.5f ) {
-				quantity = quantity - other->client->ammoTable[ ent->item->giTag ];
+			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity*0.5f ) {
+				quantity = quantity - other->client->ps.ammo[ ent->item->giTag ];
 			} else {
 				quantity = quantity*0.5f;		// only add half the value.
 			}
@@ -2557,6 +2551,28 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		break;
 	case IT_AMMO:
 		respawn = Pickup_Ammo(ent, other);
+		if (ent->item->giTag == AMMO_THERMAL || ent->item->giTag == AMMO_TRIPMINE || ent->item->giTag == AMMO_DETPACK)
+		{
+			int weapForAmmo = 0;
+
+			if (ent->item->giTag == AMMO_THERMAL)
+			{
+				weapForAmmo = WP_THERMAL;
+			}
+			else if (ent->item->giTag == AMMO_TRIPMINE)
+			{
+				weapForAmmo = WP_TRIP_MINE;
+			}
+			else
+			{
+				weapForAmmo = WP_DET_PACK;
+			}
+
+			if (other && other->client && other->client->ps.ammo[xweaponAmmo[weapForAmmo].ammoIndex] > 0 )
+			{
+				other->client->ps.stats[STAT_WEAPONS] |= ( 1 << GetWeaponAmmoIndex( ent->item->giTag, ent->s.weaponVariation ));
+			}
+		}
 //		predict = qfalse;
 		predict = qtrue;
 		break;

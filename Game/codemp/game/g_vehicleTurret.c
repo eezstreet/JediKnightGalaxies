@@ -314,7 +314,7 @@ void VEH_TurretObeyPassengerControl( Vehicle_t *pVeh, gentity_t *parent, int tur
 		VectorCopy( passenger->client->ps.viewangles, aimAngles );
 
 		VEH_TurretAim( pVeh, parent, NULL, turretStats, vehWeapon, turretNum, curMuzzle, aimAngles );
-		if ( (passenger->client->pers.cmd.buttons&(BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/)) )
+		if ( (passenger->client->pers.cmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
 		{//he's pressing an attack button, so fire!
 			VEH_TurretCheckFire( pVeh, parent, turretStats, vehWeapon, turretNum, curMuzzle );
 		}

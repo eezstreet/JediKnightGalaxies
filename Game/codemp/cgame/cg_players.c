@@ -14,6 +14,9 @@ extern void CheckCameraLocation( vec3_t OldeyeOrigin );
 
 extern vmCvar_t	cg_thirdPersonAlpha;
 
+extern int			cgSiegeTeam1PlShader;
+extern int			cgSiegeTeam2PlShader;
+
 extern void CG_AddRadarEnt(centity_t *cent);	//cg_ents.c
 extern void CG_AddBracketedEnt(centity_t *cent);	//cg_ents.c
 extern qboolean CG_InFighter( void );
@@ -178,15 +181,6 @@ qboolean TeamFriendly( int player )
 		}
 	}
 
-	// Team edit for Team FFA
-	if( cgs.gametype >= GT_TEAM )
-	{
-		if( cgs.clientinfo[player].team == cgs.clientinfo[cg.predictedPlayerState.clientNum].team )
-		{
-			return qtrue;
-		}
-	}
-
 	return qfalse;
 }
 
@@ -303,7 +297,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 		{
 			return ci->sounds[i];
 		}
-		else if ( i < numCSiegeSounds && (cgs.gametype >= GT_TEAM || cg_buildScript.integer) && i < numCSiegeSounds && !strcmp( lSoundName, bg_customSiegeSoundNames[i] ) )
+		else if ( (cgs.gametype >= GT_TEAM || cg_buildScript.integer) && i < numCSiegeSounds && !strcmp( lSoundName, bg_customSiegeSoundNames[i] ) )
 		{ //siege only
 			return ci->siegeSounds[i];
 		}
@@ -450,7 +444,7 @@ CG_RegisterClientModelname
 */
 #include "../namespace_begin.h"
 qboolean BG_IsValidCharacterModel(const char *modelName, const char *skinName);
-qboolean BG_ValidateSkinForTeam( char *modelName, char *skinName, int team, float *colors, int redTeam, int blueTeam, int clientNum );
+qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
 #include "../namespace_end.h"
 
 static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName, const char *teamName, int clientNum ) {
@@ -499,14 +493,9 @@ retryModel:
 		skinName = "default";
 	}
 
-	if ( cgs.gametype >= GT_TEAM && !cgs.jediVmerc && cgs.gametype != GT_WARZONE )
+	if ( cgs.gametype >= GT_TEAM && !cgs.jediVmerc && cgs.gametype != GT_SIEGE )
 	{ //We won't force colors for siege.
-		int clientNumFixed = clientNum;
-		if(clientNumFixed < 0)
-		{
-			clientNumFixed = 0;
-		}
-		BG_ValidateSkinForTeam( ci->modelName, ci->skinName, ci->team, ci->colorOverride, cgs.redTeam, cgs.blueTeam, clientNumFixed );
+		BG_ValidateSkinForTeam( ci->modelName, ci->skinName, ci->team, ci->colorOverride );
 		skinName = ci->skinName;
 	}
 	else
@@ -875,7 +864,6 @@ qboolean CG_RegisterClientArmorModelname( centity_t *cent, int armorNum, int cli
 		}
 	}
 
-	//FIXME: BAD! This is using the wrong field!
     JKG_CG_ShowOnlySelectedSurfaces (armorGhoul2, afilename, armorMasterTable[armorNum].surfOnThisString);
 
 	if (badModel)
@@ -883,8 +871,6 @@ qboolean CG_RegisterClientArmorModelname( centity_t *cent, int armorNum, int cli
 		trap_G2API_CleanGhoul2Models(&(cent->armorGhoul2[slot]));
 		return qfalse;
 	}
-
-	CG_ResetPlayerEntity(cent);
 
 	return qtrue;
 }
@@ -992,7 +978,7 @@ int CG_G2EvIndexForModel(void *g2, int animIndex)
 
 #define DEFAULT_FEMALE_SOUNDPATH "chars/mp_generic_female/misc"//"chars/tavion/misc"
 #define DEFAULT_MALE_SOUNDPATH "chars/mp_generic_male/misc"//"chars/kyle/misc"
-void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded, int clientNum)
+void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded)
 {
 	fileHandle_t f;
 	qboolean	isFemale = qfalse;
@@ -1056,18 +1042,10 @@ void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded, int clientNum)
 	if (isFemale)
 	{
 		ci->gender = GENDER_FEMALE;
-		if(clientNum == cg.predictedPlayerState.clientNum || clientNum == -1)
-		{
-			trap_Cvar_Set("sex", "f");
-		}
 	}
 	else
 	{
 		ci->gender = GENDER_MALE;
-		if(clientNum == cg.predictedPlayerState.clientNum || clientNum == -1)
-		{
-			trap_Cvar_Set("sex", "m");
-		}
 	}
 
 	trap_S_ShutUp(qtrue);
@@ -1256,15 +1234,15 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 		strcat( teamname, "/" );
 	}
 	modelloaded = qtrue;
-	/*if (cgs.gametype == GT_SIEGE &&
+	if (cgs.gametype == GT_SIEGE &&
 		(ci->team == TEAM_SPECTATOR || ci->siegeIndex == -1))
 	{ //yeah.. kind of a hack I guess. Don't care until they are actually ingame with a valid class.
 		if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default", teamname, -1 ) )
 		{
 			CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
 		}
-	}*/
-	//else
+	}
+	else
 	{
 		if ( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName, teamname, clientNum ) ) {
 			//CG_Error( "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname );
@@ -1324,34 +1302,14 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 			int i = 0, ijk;
 			for(ijk = 0; ijk < ARMSLOT_MAX; ijk++)
 			{
-				//First loop: surf off lower pieces
 				while ( 1 )
 				{
 					if(armorMasterTable[cg_entities[clientNum].equippedArmor[ijk]].surfOffLowerString)
 					{
-						//Our armor piece in this slot has a lower slot that isn't accounted for!
 						JKG_CG_Armor_GetPartFromSurfString(i, armorMasterTable[cg_entities[clientNum].equippedArmor[ijk]].surfOffLowerString, surfOff);
 						if(!surfOff || !surfOff[0] || surfOff[0] == ',')
-							break; //Piece isn't valid
+							break;
 						trap_G2API_SetSurfaceOnOff( cg_entities[clientNum].ghoul2, surfOff, 0x00000002/*G2SURFACEFLAG_OFF*/ );
-						i++;
-					}
-					else
-					{
-						break;
-					}
-				}
-				i = 0;
-				//Second loop: surf off upper pieces
-				while ( 1 )
-				{
-					if(armorMasterTable[cg_entities[clientNum].equippedArmor[ijk]].surfOffThisString)
-					{
-						//Our armor piece in this slot has a part that we need removed
-						JKG_CG_Armor_GetPartFromSurfString(i, armorMasterTable[cg_entities[clientNum].equippedArmor[ijk]].surfOffThisString, surfOff);
-						if(!surfOff || !surfOff[0] || surfOff[0] == ',')
-							break; //Piece isn't valid
-						trap_G2API_SetSurfaceOnOff( cg_entities[clientNum].armorGhoul2, surfOff, 0x00000002/*G2SURFACEFLAG_OFF*/ );
 						i++;
 					}
 					else
@@ -1380,7 +1338,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 	}
 	else
 	{
-		CG_LoadCISounds(ci, modelloaded, clientNum);
+		CG_LoadCISounds(ci, modelloaded);
 	}
 
 	ci->deferred = qfalse;
@@ -1894,16 +1852,62 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 		}
 	}
 
+	if (cgs.gametype == GT_SIEGE)
+	{ //entries only sent in siege mode
+		//siege desired team
+		v = Info_ValueForKey( configstring, "sdt" );
+		if (v && v[0])
+		{
+            newInfo.siegeDesiredTeam = atoi(v);
+		}
+		else
+		{
+			newInfo.siegeDesiredTeam = 0;
+		}
+
+		//siege classname
+		v = Info_ValueForKey( configstring, "siegeclass" );
+		newInfo.siegeIndex = -1;
+
+		if (v)
+		{
+			siegeClass_t *siegeClass = BG_SiegeFindClassByName(v);
+
+			if (siegeClass)
+			{ //See if this class forces a model, if so, then use it. Same for skin.
+				newInfo.siegeIndex = BG_SiegeFindClassIndexByName(v);
+
+				if (siegeClass->forcedModel[0])
+				{
+					Q_strncpyz( newInfo.modelName, siegeClass->forcedModel, sizeof( newInfo.modelName ) );
+				}
+
+				if (siegeClass->forcedSkin[0])
+				{
+					Q_strncpyz( newInfo.skinName, siegeClass->forcedSkin, sizeof( newInfo.skinName ) );
+				}
+
+				if (siegeClass->hasForcedSaberColor)
+				{
+					newInfo.icolor1 = siegeClass->forcedSaberColor;
+
+					CG_ColorFromInt( newInfo.icolor1, newInfo.color1 );
+				}
+				if (siegeClass->hasForcedSaber2Color)
+				{
+					newInfo.icolor2 = siegeClass->forcedSaber2Color;
+
+					CG_ColorFromInt( newInfo.icolor2, newInfo.color2 );
+				}
+			}
+		}
+	}
+
 	saberUpdate[0] = qfalse;
 	saberUpdate[1] = qfalse;
 
 	//saber being used
 	v = Info_ValueForKey( configstring, "st" );
-
-#ifdef __MMO__
-	if (v)
-		v = va("default");
-#endif //__MMO__
 
 	if (v && Q_stricmp(v, ci->saberName))
 	{
@@ -1919,12 +1923,6 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	}
 
 	v = Info_ValueForKey( configstring, "st2" );
-
-#ifdef __MMO__
-	// UQ1: Need to know how many sabers they have. Guess we could use stance...
-	//if (v)
-	//	v = va("default");
-#endif //__MMO__
 
 	if (v && Q_stricmp(v, ci->saber2Name))
 	{
@@ -2000,9 +1998,9 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	v = Info_ValueForKey( configstring, "forcepowers" );
 	Q_strncpyz( newInfo.forcePowers, v, sizeof( newInfo.forcePowers ) );
 
-	if (cgs.gametype >= GT_TEAM	&& !cgs.jediVmerc && cgs.gametype != GT_SIEGE && cgs.gametype != GT_WARZONE )
+	if (cgs.gametype >= GT_TEAM	&& !cgs.jediVmerc && cgs.gametype != GT_SIEGE )
 	{ //We won't force colors for siege.
-		BG_ValidateSkinForTeam( newInfo.modelName, newInfo.skinName, newInfo.team, newInfo.colorOverride, cgs.redTeam, cgs.blueTeam, clientNum );
+		BG_ValidateSkinForTeam( newInfo.modelName, newInfo.skinName, newInfo.team, newInfo.colorOverride );
 	}
 	else
 	{
@@ -2085,15 +2083,6 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 			//rww - Set the animation again because it just got reset due to the model change
 			trap_G2API_SetBoneAnim(ci->ghoul2Model, 0, "model_root", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
 
-			//eezstreet add
-			for(i = 0; i < ARMSLOT_MAX; i++)
-			{
-				if(cent->armorGhoul2[i] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[i]))
-				{
-					trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "model_root", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
-				}
-			}
-
 			cg_entities[clientNum].currentState.legsAnim = 0;
 		}
 
@@ -2118,15 +2107,6 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 
 			//rww - Set the animation again because it just got reset due to the model change
 			trap_G2API_SetBoneAnim(ci->ghoul2Model, 0, "lower_lumbar", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
-
-			//eezstreet add
-			for(i = 0; i < ARMSLOT_MAX; i++)
-			{
-				if(cent->armorGhoul2[i] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[i]))
-				{
-					trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "lower_lumbar", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
-				}
-			}
 
 			cg_entities[clientNum].currentState.torsoAnim = 0;
 		}
@@ -2183,38 +2163,20 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 		}
 
 		//eezstreet - Armor surf off code
+		//Surf off the lower parts.
 		{
 			char surfOff[1024];
 			int i = 0, ijk;
 			for(ijk = 0; ijk < ARMSLOT_MAX; ijk++)
 			{
-				cgArmorData_t armor = armorMasterTable[cg_entities[clientNum].equippedArmor[ijk]];
-				//First Loop - Surf off the lower parts.
 				while ( 1 )
 				{
-					if(armor.surfOffLowerString)
+					if(armorMasterTable[cg_entities[clientNum].equippedArmor[ijk]].surfOffLowerString)
 					{
-						JKG_CG_Armor_GetPartFromSurfString(i, armor.surfOffLowerString, surfOff);
+						JKG_CG_Armor_GetPartFromSurfString(i, armorMasterTable[cg_entities[clientNum].equippedArmor[ijk]].surfOffLowerString, surfOff);
 						if(!surfOff || !surfOff[0] || surfOff[0] == ',')
 							break;
 						trap_G2API_SetSurfaceOnOff( cg_entities[clientNum].ghoul2, surfOff, 0x00000002/*G2SURFACEFLAG_OFF*/ );
-						i++;
-					}
-					else
-					{
-						break;
-					}
-				}
-				i = 0;
-				//Second loop - Surf off the upper parts
-				while ( 1 )
-				{
-					if(armor.surfOffThisString)
-					{
-						JKG_CG_Armor_GetPartFromSurfString(i, armor.surfOffThisString, surfOff);
-						if(!surfOff || !surfOff[0] || surfOff[0] == ',')
-							break;
-						trap_G2API_SetSurfaceOnOff( cg_entities[clientNum].armorGhoul2, surfOff, 0x00000002/*G2SURFACEFLAG_OFF*/ );
 						i++;
 					}
 					else
@@ -3200,13 +3162,6 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 		BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, cent->currentState.weapon, newAnimation, &animSpeed, cent->currentState.brokenLimbs);
 
-		if ( cent->currentState.weaponstate == WEAPON_RELOADING )
-		{
-			int weaponID = BG_GetWeaponIndexFromClass(cent->currentState.weapon, cent->currentState.weaponVariation);
-			JKG_ReloadAnimation(cent->currentState.firingMode, weaponID, 
-				cent->currentState.torsoAnim, bgAllAnims[cent->localAnimIndex].anims, &animSpeed);
-		}
-
 		if (torsoOnly)
 		{
 			if (lf->animationTorsoSpeed != animSpeedMult && newAnimation == oldAnim &&
@@ -3262,26 +3217,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			{
 				if(cent->armorGhoul2[i] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[i]))
 				{
-					/*if (resumeFrame)
-					{ //we already checked, and this is the same anim, same flip state, but different speed, so we want to resume with the new speed off of the same frame.
-						trap_G2API_GetBoneFrame(cent->armorGhoul2[i], "lower_lumbar", cg.time, &GBAcFrame, NULL, 0);
-						beginFrame = GBAcFrame;
-					}
-
-					//even if resuming, also be sure to check if we are running the same frame on the legs. If so, we want to use their frame no matter what.
-					trap_G2API_GetBoneFrame(cent->armorGhoul2[i], "model_root", cg.time, &GBAcFrame, NULL, 0);
-
-					if ((cent->currentState.torsoAnim) == (cent->currentState.legsAnim) && GBAcFrame >= anim->firstFrame && GBAcFrame <= (anim->firstFrame + anim->numFrames))
-					{ //if the legs are already running this anim, pick up on the exact same frame to avoid the "wobbly spine" problem.
-						beginFrame = GBAcFrame;
-					}
-
-					if (firstFrame > lastFrame || ci->torsoAnim == newAnimation)
-					{ //don't resume on backwards playing animations.. I guess.
-						beginFrame = -1;
-					}*/
-
-					trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "lower_lumbar", firstFrame, lastFrame, flags, animSpeed,cg.time, beginFrame, blendTime);
+					trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "lower_lumbar", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 				}
 			}
 
@@ -3329,32 +3265,6 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			{
 				if(cent->armorGhoul2[i] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[i]))
 				{
-					/*if (resumeFrame)
-					{ //we already checked, and this is the same anim, same flip state, but different speed, so we want to resume with the new speed off of the same frame.
-						float GBAcFrame = 0;
-						trap_G2API_GetBoneFrame(cent->armorGhoul2[i], "model_root", cg.time, &GBAcFrame, NULL, 0);
-						beginFrame = GBAcFrame;
-					}
-
-					if ((beginFrame < firstFrame) || (beginFrame > lastFrame))
-					{ //out of range, don't use it then.
-						beginFrame = -1;
-					}
-
-					if (cent->currentState.torsoAnim == cent->currentState.legsAnim &&
-						(ci->legsAnim != newAnimation || oldSpeed != animSpeed))
-					{ //alright, we are starting an anim on the legs, and that same anim is already playing on the toro, so pick up the frame.
-						float GBAcFrame = 0;
-						int oldBeginFrame = beginFrame;
-
-						trap_G2API_GetBoneFrame(cent->armorGhoul2[i], "lower_lumbar", cg.time, &GBAcFrame, NULL, 0);
-						beginFrame = GBAcFrame;
-						if ((beginFrame < firstFrame) || (beginFrame > lastFrame))
-						{ //out of range, don't use it then.
-							beginFrame = oldBeginFrame;
-						}
-					}*/
-
 					trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "model_root", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 				}
 			}
@@ -3641,23 +3551,9 @@ static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf,
 	        const animation_t *legsAnimData = &bgAllAnims[cent->localAnimIndex].anims[cent->currentState.freezeLegsAnim];
 	        int legsAnimFrame = legsAnimData->firstFrame + legsAnimData->numFrames;
 	        trap_G2API_SetBoneAnim (cent->ghoul2, 0, "model_root", legsAnimFrame, legsAnimFrame, BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND, 1.0f, cg.time, -1, 150);
-			for(i = 0; i < ARMSLOT_MAX; i++)
-			{
-				if(cent->armorGhoul2[i] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[i]))
-				{
-					trap_G2API_SetBoneAnim (cent->armorGhoul2[i], 0, "model_root", legsAnimFrame, legsAnimFrame, BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND, 1.0f, cg.time, -1, 150);
-				}
-			}
 	    }
 	    
 	    trap_G2API_SetBoneAnim (cent->ghoul2, 0, "lower_lumbar", torsoAnimFrame, torsoAnimFrame, BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND, 1.0f, cg.time, -1, 150);
-		for(i = 0; i < ARMSLOT_MAX; i++)
-		{
-			if(cent->armorGhoul2[i] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[i]))
-			{
-				trap_G2API_SetBoneAnim (cent->armorGhoul2[i], 0, "lower_lumbar", torsoAnimFrame, torsoAnimFrame, BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND, 1.0f, cg.time, -1, 150);
-			}
-		}
 	}
 	else
 	{
@@ -3732,7 +3628,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	
 	if ( cent->currentState.eFlags & EF_SPRINTING )
 	{
-	    speedScale *= 1.0f;	// uhm
+	    speedScale *= 1.3f;
 	}
 
 	if (!PM_RunningAnim(cent->currentState.legsAnim) &&
@@ -4138,7 +4034,6 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 			if (trap_G2API_GetBoneAnim(cent->ghoul2, "model_root", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, cgs.gameModels, 0))
 			{ //lock the anim on the current frame.
 				int blendTime = 500;
-				int i;
 				animation_t *curAnim = &bgAllAnims[cent->localAnimIndex].anims[cent->currentState.legsAnim];
 
 				if (currentFrame >= (curAnim->firstFrame + curAnim->numFrames-1))
@@ -4149,15 +4044,6 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 				trap_G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", currentFrame, currentFrame+1, flags, animSpeed,cg.time, currentFrame, blendTime);
 				trap_G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime);
 				trap_G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime);
-				for(i = 0; i < ARMSLOT_MAX; i++)
-				{
-					if(cent->armorGhoul2[i] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[i]))
-					{
-						trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "lower_lumbar", currentFrame, currentFrame+1, flags, animSpeed,cg.time, currentFrame, blendTime);
-						trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "model_root", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime);
-						trap_G2API_SetBoneAnim(cent->armorGhoul2[i], 0, "Motion", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime);
-					}
-				}
 			}
 		}
 #endif
@@ -4390,7 +4276,6 @@ void CG_G2ServerBoneAngles(centity_t *cent)
 
 	while (i < 4)
 	{ //cycle through the 4 bone index values on the entstate
-#ifndef __MMO__
 		if (bone)
 		{ //if it's non-0 then it could have something in it.
 			const char *boneName = CG_ConfigString(CS_G2BONES+bone);
@@ -4407,7 +4292,6 @@ void CG_G2ServerBoneAngles(centity_t *cent)
 				trap_G2API_SetBoneAngles(cent->ghoul2, 0, boneName, boneAngles, flags, up, right, forward, cgs.gameModels, 100, cg.time);
 			}
 		}
-#endif //__MMO__
 
 		switch (i)
 		{
@@ -4708,7 +4592,6 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 	if (cent->localAnimIndex < NUM_RESERVED_ANIMSETS)
 	{ //don't do these things on non-humanoids
 		vec3_t lookAngles;
-		vec3_t lookAnglesBefore;
 		entityState_t *emplaced = NULL;
 
 		if (cent->currentState.hasLookTarget)
@@ -4723,43 +4606,16 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 		}
 		lookAngles[PITCH] = 0;
 
-		VectorCopy(lookAngles, lookAnglesBefore);
-
 		if (cent->currentState.otherEntityNum2)
 		{
 			emplaced = &cg_entities[cent->currentState.otherEntityNum2].currentState;
 		}
-		{
-			int i;
-			if(!cent->armorGhoul2[ARMSLOT_HEAD])
-			{
-				BG_G2PlayerAngles(cent->ghoul2, ci->bolt_motion, &cent->currentState, cg.time,
-					cent->lerpOrigin, cent->lerpAngles, legs, legsAngles, &cent->pe.torso.yawing, &cent->pe.torso.pitching,
-					&cent->pe.legs.yawing, &cent->pe.torso.yawAngle, &cent->pe.torso.pitchAngle, &cent->pe.legs.yawAngle,
-					cg.frametime, cent->turAngles, cent->modelScale, ci->legsAnim, ci->torsoAnim, &ci->corrTime,
-					lookAngles, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime);
-			}
-			for(i = 0; i < ARMSLOT_MAX; i++)
-			{
-				if(cent->armorGhoul2[i])
-				{
-					qhandle_t tempMotionBolt = trap_G2API_AddBolt(cent->armorGhoul2[i], 0, "Motion");
-					BG_G2PlayerAngles(cent->armorGhoul2[i], tempMotionBolt, &cent->currentState, cg.time,
-						cent->lerpOrigin, cent->lerpAngles, legs, legsAngles, &cent->pe.torso.yawing, &cent->pe.torso.pitching,
-						&cent->pe.legs.yawing, &cent->pe.torso.yawAngle, &cent->pe.torso.pitchAngle, &cent->pe.legs.yawAngle,
-						cg.frametime, cent->turAngles, cent->modelScale, ci->legsAnim, ci->torsoAnim, &ci->corrTime,
-						lookAngles, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime);
-				}
-			}
-			if(cent->armorGhoul2[ARMSLOT_HEAD])
-			{
-				BG_G2PlayerAngles(cent->ghoul2, ci->bolt_motion, &cent->currentState, cg.time,
-					cent->lerpOrigin, cent->lerpAngles, legs, legsAngles, &cent->pe.torso.yawing, &cent->pe.torso.pitching,
-					&cent->pe.legs.yawing, &cent->pe.torso.yawAngle, &cent->pe.torso.pitchAngle, &cent->pe.legs.yawAngle,
-					cg.frametime, cent->turAngles, cent->modelScale, ci->legsAnim, ci->torsoAnim, &ci->corrTime,
-					lookAnglesBefore, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime);
-			}
-		}
+
+		BG_G2PlayerAngles(cent->ghoul2, ci->bolt_motion, &cent->currentState, cg.time,
+			cent->lerpOrigin, cent->lerpAngles, legs, legsAngles, &cent->pe.torso.yawing, &cent->pe.torso.pitching,
+			&cent->pe.legs.yawing, &cent->pe.torso.yawAngle, &cent->pe.torso.pitchAngle, &cent->pe.legs.yawAngle,
+			cg.frametime, cent->turAngles, cent->modelScale, ci->legsAnim, ci->torsoAnim, &ci->corrTime,
+			lookAngles, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime, cent->armorGhoul2);
 
 		if (cent->currentState.heldByClient && cent->currentState.heldByClient <= MAX_CLIENTS)
 		{ //then put our arm in this client's hand
@@ -5119,7 +4975,6 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	}
 }
 
-#ifndef __EXPERIMENTAL_SHADOWS__
 /*
 ===============
 CG_PlayerShadow
@@ -5226,266 +5081,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 
 	return qtrue;
 }
-#else // __EXPERIMENTAL_SHADOWS__
 
-vec3_t	PREVIOUS_LIGHT_POSITIONS[MAX_GENTITIES];
-int		PREVIOUS_NUM_LIGHT_POSITIONS = 0;
-vec3_t	LIGHT_POSITIONS[MAX_GENTITIES];
-int		NUM_LIGHT_POSITIONS = 0;
-
-void CG_ClearRecordedLights()
-{
-	memcpy(PREVIOUS_LIGHT_POSITIONS, LIGHT_POSITIONS, sizeof(vec3_t)*MAX_GENTITIES);
-	PREVIOUS_NUM_LIGHT_POSITIONS = NUM_LIGHT_POSITIONS;
-	NUM_LIGHT_POSITIONS = 0;
-}
-
-void CG_RecordLightPosition( vec3_t org )
-{
-	VectorCopy(org, LIGHT_POSITIONS[NUM_LIGHT_POSITIONS]);
-	NUM_LIGHT_POSITIONS++;
-}
-
-int LightOrgVisible ( vec3_t org1, vec3_t org2, int ignore )
-{// For when close enough is good enough...
-	trace_t tr;
-	CG_Trace( &tr, org1, NULL, NULL, org2, ignore, MASK_SOLID | MASK_OPAQUE | MASK_WATER );
-	if ( tr.fraction == 1 )
-	{
-		return ( 1 );
-	}
-
-	if (Distance(tr.endpos, org2) < 24)
-	{// Good enough...
-		return ( 1 );
-	}
-
-	return ( 0 );
-}
-
-void CG_GetFakeLightPostionFor( centity_t *cent, vec3_t org, vec3_t out_org )
-{// We need this because JKA engine is doing wierd shit with these positions...
-	vec3_t direction, good_org;
-	float distance = Distance(cent->lerpOrigin, org);
-
-	VectorSubtract(org, cent->lerpOrigin, direction);
-	direction[2]=0;
-	VectorMA (org, 0-(distance*distance), direction, good_org);
-
-	out_org[0] = good_org[0];
-	out_org[1] = good_org[1];
-	out_org[2] = good_org[2];
-}
-
-void CG_RecordAllShadows( centity_t *cent )
-{
-	int			i = 0;
-	vec3_t		start, end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
-	trace_t		trace;
-	float		SHADOW_DISTANCE = 128.0f;
-
-	cent->shadowPlaneNumber = 0;
-
-	for (i = 0; i < PREVIOUS_NUM_LIGHT_POSITIONS; i++)
-	{
-		vec3_t light_org;
-
-		// send a trace down from the player to the ground
-		VectorCopy( cent->lerpOrigin, start );
-		VectorCopy( PREVIOUS_LIGHT_POSITIONS[i], end );
-
-		// Too far...
-		if (Distance(start, end) > 2048.0f) continue;
-
-		start[2]+=8;
-		
-		//  This light is not visibile to them...
-		if (!LightOrgVisible(start, end, cent->currentState.number)) continue;
-
-		VectorCopy( cent->lerpOrigin, end );
-
-		if (cg_shadows.integer == 2)
-		{ //stencil
-			end[2] -= 4096.0f;
-
-			trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-			if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid )
-			{
-				trace.endpos[2] = cent->lerpOrigin[2]-25.0f;
-			}
-		}
-		else
-		{
-			end[2] -= SHADOW_DISTANCE;
-
-			trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-			// no shadow if too high
-			if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
-				continue;
-			}
-		}
-
-		if (cg_shadows.integer == 2)
-		{ //stencil shadows need plane to be on ground
-			VectorSubtract( cent->lerpOrigin, cg.refdef.vieworg, cent->shadowPlaneDirections[cent->shadowPlaneNumber] );
-			CG_GetFakeLightPostionFor( cent, PREVIOUS_LIGHT_POSITIONS[i], light_org );
-			VectorCopy(light_org, cent->shadowPlaneDirections[cent->shadowPlaneNumber]);
-			cent->shadowPlanes[cent->shadowPlaneNumber] = trace.endpos[2];
-			cent->shadowPlaneNumber++;
-		}
-		else
-		{
-			VectorSubtract( cent->lerpOrigin, cg.refdef.vieworg, cent->shadowPlaneDirections[cent->shadowPlaneNumber] );
-			CG_GetFakeLightPostionFor( cent, PREVIOUS_LIGHT_POSITIONS[i], light_org );
-			VectorCopy(light_org, cent->shadowPlaneDirections[cent->shadowPlaneNumber]);
-			cent->shadowPlanes[cent->shadowPlaneNumber] = trace.endpos[2] + 1;
-			cent->shadowPlaneNumber++;
-		}
-	}
-}
-
-void CG_AddRefEntityToSceneWithShadows( centity_t *cent, refEntity_t legs )
-{
-	int		i = 0;
-	int		original_renderfx = legs.renderfx;
-	float	original_plane = legs.shadowPlane;
-	vec3_t	original_light_org;
-	refEntity_t new_legs[MAX_GENTITIES]; // we need a new refent for each shadow because the render func uses a pointer...
-
-	VectorCopy(legs.lightingOrigin, original_light_org);
-
-	//if (cent->currentState.number == cg.clientNum)
-	//	CG_Printf("There are %i shadow origins and %i lighting origins (%i next frame).\n", cent->shadowPlaneNumber, PREVIOUS_NUM_LIGHT_POSITIONS, NUM_LIGHT_POSITIONS);
-
-	for (i = 0; i < cent->shadowPlaneNumber; i++)
-	{// Render each recorded shadow...
-		memcpy(&new_legs[i], &legs, sizeof(refEntity_t));
-		new_legs[i].renderfx = RF_SHADOW_ONLY;
-		new_legs[i].renderfx |= RF_SHADOW_PLANE;
-		new_legs[i].renderfx |= RF_LIGHTING_ORIGIN;
-		VectorCopy(cent->shadowPlaneDirections[i], new_legs[i].lightingOrigin);
-		new_legs[i].shadowPlane = cent->shadowPlanes[i];
-		trap_R_AddRefEntityToScene( &new_legs[i] );
-	}
-
-	// Now draw the normal model on top...
-	legs.renderfx = original_renderfx;
-	VectorCopy(original_light_org, legs.lightingOrigin);
-	legs.shadowPlane = original_plane;
-	trap_R_AddRefEntityToScene( &legs );
-}
-
-/*
-===============
-CG_PlayerShadow
-
-Returns the Z component of the surface being shadowed
-
-  should it return a full plane instead of a Z?
-===============
-*/
-static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
-	vec3_t		end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
-	trace_t		trace;
-	float		alpha;
-	float		radius = 24.0f;
-	float		SHADOW_DISTANCE = 128.0f;
-
-	*shadowPlane = 0;
-
-	if ( cg_shadows.integer == 0 ) {
-		return qfalse;
-	}
-
-	// no shadows when cloaked
-	if ( cent->currentState.powerups & ( 1 << PW_CLOAKED )) 
-	{
-		return qfalse;
-	}
-
-	if (cent->currentState.eFlags & EF_DEAD)
-	{
-		return qfalse;
-	}
-
-	if (CG_IsMindTricked(cent->currentState.trickedentindex,
-		cent->currentState.trickedentindex2,
-		cent->currentState.trickedentindex3,
-		cent->currentState.trickedentindex4,
-		cg.snap->ps.clientNum))
-	{
-		return qfalse; //this entity is mind-tricking the current client, so don't render it
-	}
-
-	if ( cg_shadows.integer == 1 )
-	{//dropshadow
-		if (cent->currentState.m_iVehicleNum &&
-			cent->currentState.NPC_class != CLASS_VEHICLE )
-		{//riding a vehicle, no dropshadow
-			return qfalse;
-		}
-	}
-	// send a trace down from the player to the ground
-	VectorCopy( cent->lerpOrigin, end );
-	if (cg_shadows.integer == 2)
-	{ //stencil
-		end[2] -= 4096.0f;
-
-		trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-		if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid )
-		{
-			trace.endpos[2] = cent->lerpOrigin[2]-25.0f;
-		}
-	}
-	else
-	{
-		end[2] -= SHADOW_DISTANCE;
-
-		trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-		// no shadow if too high
-		if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
-			cent->shadowPlaneNumber = 0;
-			return qfalse;
-		}
-	}
-
-	if (cg_shadows.integer == 2)
-	{ //stencil shadows need plane to be on ground
-		*shadowPlane = trace.endpos[2];
-	}
-	else
-	{
-		*shadowPlane = trace.endpos[2] + 1;
-	}
-
-	if ( cg_shadows.integer != 1 ) {	// no mark for stencil or projection shadows
-		CG_RecordAllShadows( cent );
-		return qtrue;
-	}
-
-	// fade the shadow out with height
-	alpha = 1.0 - trace.fraction;
-
-	// bk0101022 - hack / FPE - bogus planes?
-	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 
-
-	// add the mark as a temporary, so it goes directly to the renderer
-	// without taking a spot in the cg_marks array
-	if ( cent->currentState.NPC_class == CLASS_REMOTE
-		|| cent->currentState.NPC_class == CLASS_SEEKER )
-	{
-		radius = 8.0f;
-	}
-	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal, 
-		cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, radius, qtrue );
-
-	return qtrue;
-}
-#endif //__EXPERIMENTAL_SHADOWS__
 
 /*
 ===============
@@ -6491,7 +6087,7 @@ void CG_G2SaberEffects(vec3_t start, vec3_t end, centity_t *owner)
 
 		CG_Trace( &trace, startTr, NULL, NULL, endTr, owner->currentState.number, MASK_PLAYERSOLID );
 
-		if (trace.entityNum < MAX_CLIENTS || cg_entities[trace.entityNum].currentState.eType == ET_NPC) // UQ1: NPCs too...
+		if (trace.entityNum < MAX_CLIENTS)
 		{ //hit a client..
 			CG_G2TraceCollide(&trace, NULL, NULL, startTr, endTr);
 
@@ -6869,7 +6465,6 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 
 	if (cgs.gametype >= GT_TEAM &&
 		cgs.gametype != GT_SIEGE &&
-		cgs.gametype != GT_WARZONE &&
 		!cgs.jediVmerc &&
 		cent->currentState.eType != ET_NPC)
 	{
@@ -8238,22 +7833,12 @@ qboolean CG_VehicleAttachDroidUnit( centity_t *droidCent, refEntity_t *legs )
 	return qfalse;
 }
 
-//
-//
-//
-//
-//   NPC STUFF
-//
-//
-//
-//
-//
-
 void CG_G2Animated( centity_t *cent )
 {
 #ifdef SMOOTH_G2ANIM_LERPANGLES
 	float angSmoothFactor = 0.7f;
 #endif
+
 
 	if (!cent->ghoul2)
 	{ //Initialize this g2 anim ent, then return (will start rendering next frame)
@@ -8483,7 +8068,7 @@ void CG_ForceFPLSPlayerModel(centity_t *cent, clientInfo_t *ci)
 void CG_CreateNPCClient(clientInfo_t **ci)
 {
 	//trap_TrueMalloc((void **)ci, sizeof(clientInfo_t));
-	*ci = (clientInfo_t *) malloc(sizeof(clientInfo_t));
+	*ci = (clientInfo_t *) BG_Alloc(sizeof(clientInfo_t));
 }
 
 void CG_DestroyNPCClient(clientInfo_t **ci)
@@ -9532,7 +9117,8 @@ void SmoothTrueView(vec3_t eyeAngles)
 	}
 
 	//Prevent the camera flicker while switching to the saber.
-	if ( cg.predictedPlayerState.torsoAnim ==	BOTH_STAND2TO1 )
+	if ( ( (cg.predictedPlayerState.torsoAnim) ==	BOTH_STAND2TO1 )
+		|| ( (cg.predictedPlayerState.torsoAnim) == BOTH_STAND1TO2 ) )
 	{
 		UseRefDef = qtrue;
 	}
@@ -9732,6 +9318,7 @@ void CG_DrawPlayerBBox ( const centity_t *cent )
     
     trap_R_AddPolysToScene (cgs.media.bboxShader, 4, &verts[0], 6);
 }
+
 
 void CG_Player( centity_t *cent ) {
 	clientInfo_t	*ci;
@@ -10383,13 +9970,41 @@ void CG_Player( centity_t *cent ) {
 		if ((cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap->ps.persistant[PERS_TEAM] == team) &&
 			!(cent->currentState.eFlags & EF_DEAD))
 		{
-			if (team == TEAM_RED)
-			{
-				CG_PlayerFloatSprite( cent, cgs.media.teamRedShader);
+			if (cgs.gametype == GT_SIEGE)
+			{ //check for per-map team shaders
+				if (team == SIEGETEAM_TEAM1)
+				{
+					if (cgSiegeTeam1PlShader)
+					{
+						CG_PlayerFloatSprite( cent, cgSiegeTeam1PlShader);
+					}
+					else
+					{ //if there isn't one fallback to default
+						CG_PlayerFloatSprite( cent, cgs.media.teamRedShader);
+					}
+				}
+				else
+				{
+					if (cgSiegeTeam2PlShader)
+					{
+						CG_PlayerFloatSprite( cent, cgSiegeTeam2PlShader);
+					}
+					else
+					{ //if there isn't one fallback to default
+						CG_PlayerFloatSprite( cent, cgs.media.teamBlueShader);
+					}
+				}
 			}
-			else	// if (team == TEAM_BLUE)
-			{
-				CG_PlayerFloatSprite( cent, cgs.media.teamBlueShader);
+			else
+			{ //generic teamplay
+				if (team == TEAM_RED)
+				{
+					CG_PlayerFloatSprite( cent, cgs.media.teamRedShader);
+				}
+				else	// if (team == TEAM_BLUE)
+				{
+					CG_PlayerFloatSprite( cent, cgs.media.teamBlueShader);
+				}
 			}
 		}
 	}
@@ -11200,11 +10815,7 @@ SkipTrueView:
 			legs.shaderRGBA[3] = ((cent->teamPowerEffectTime - cg.time)/8);
 
 			legs.customShader = trap_R_RegisterShader( "powerups/ysalimarishell" );
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+			trap_R_AddRefEntityToScene(&legs);
 
 			legs.customShader = 0;
 			legs.renderfx = preRFX;
@@ -12105,11 +11716,7 @@ stillDoSaber:
 				legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 				legs.customShader = cgs.media.forceShell;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-				CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
 				trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
 
 				legs.customShader = 0;	//reset to player model
 
@@ -12192,11 +11799,7 @@ stillDoSaber:
 		if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE)) 
 			&& cg.snap->ps.clientNum != cent->currentState.number)
 		{//just draw him
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__		}
+			trap_R_AddRefEntityToScene( &legs );
 		}
 		else
 		{
@@ -12220,11 +11823,7 @@ stillDoSaber:
 				legs.customShader = 0; // use regular skin
 				legs.renderfx &= ~RF_RGB_TINT;
 				legs.renderfx |= RF_FORCE_ENT_ALPHA;
-#ifdef __EXPERIMENTAL_SHADOWS__
-				CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-				trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+				trap_R_AddRefEntityToScene( &legs );
 			}
 		}
 	}
@@ -12233,11 +11832,7 @@ stillDoSaber:
 		if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE)) 
 			&& cg.snap->ps.clientNum != cent->currentState.number)
 		{//just draw him
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+			trap_R_AddRefEntityToScene( &legs );
 		}
 		else
 		{
@@ -12259,11 +11854,7 @@ stillDoSaber:
 
 				ScaleModelAxis(&legs);
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-				CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-				trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+				trap_R_AddRefEntityToScene( &legs );
 				
 				legs.modelScale[0] = 0.98f;
 				legs.modelScale[1] = 0.98f;
@@ -12279,11 +11870,7 @@ stillDoSaber:
 				{
 					trap_R_SetRefractProp(1.0f, 0.0f, qfalse, qfalse); //don't need to do this every frame.. but..
 					legs.customShader = 2; //crazy "refractive" shader
-#ifdef __EXPERIMENTAL_SHADOWS__
-					CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-					trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+					trap_R_AddRefEntityToScene( &legs );
 					legs.customShader = 0;
 				}
 				else
@@ -12291,11 +11878,7 @@ stillDoSaber:
 					legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 					legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
 					legs.customShader = cgs.media.cloakedShader;
-#ifdef __EXPERIMENTAL_SHADOWS__
-					CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-					trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+					trap_R_AddRefEntityToScene( &legs );
 					legs.customShader = 0;
 				}
 			}
@@ -12305,11 +11888,7 @@ stillDoSaber:
 	if (!(cent->currentState.powerups & (1 << PW_CLOAKED)))
 	{ //don't add the normal model if cloaked
 		CG_CheckThirdPersonAlpha( cent, &legs );
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene(&legs);
 	}
 	{ //eezstreet add
 		int ijk;
@@ -12421,11 +12000,7 @@ stillDoSaber:
 
 		legs.customShader = cgs.media.playerShieldDamage;
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 
 	// =======================
@@ -12457,11 +12032,7 @@ stillDoSaber:
 			legs.customShader = cgs.media.electricBody2Shader;
 		}
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene(&legs);
 	}
 
 	if (!cg.snap->ps.duelInProgress && cent->currentState.bolt1 && !(cent->currentState.eFlags & EF_DEAD) && cent->currentState.number != cg.snap->ps.clientNum && (!cg.snap->ps.duelInProgress || cg.snap->ps.duelIndex != cent->currentState.number))
@@ -12474,11 +12045,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.customShader = cgs.media.forceSightBubble;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 
 	if ( CG_VehicleShouldDrawShields( cent ) //vehicle
@@ -12508,11 +12075,7 @@ stillDoSaber:
 			legs.customShader = cgs.media.playerShieldDamage;
 		}
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 	//For now, these two are using the old shield shader. This is just so that you
 	//can tell it apart from the JM/duel shaders, but it's still very obvious.
@@ -12559,11 +12122,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.customShader = cgs.media.playerShieldDamage;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 
 	if (cent->currentState.isJediMaster && cg.snap->ps.clientNum != cent->currentState.number)
@@ -12577,11 +12136,7 @@ stillDoSaber:
 		legs.renderfx |= RF_NODEPTH;
 		legs.customShader = cgs.media.forceShell;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 
 		legs.renderfx &= ~RF_NODEPTH;
 	}
@@ -12656,11 +12211,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.customShader = cgs.media.sightShell;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 	
 	// JKG: Damage types and debuffs..
@@ -12699,11 +12250,7 @@ stillDoSaber:
 				legs.customShader = cgs.media.electricBody2Shader;
 			}
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+			trap_R_AddRefEntityToScene( &legs );
 
 			if ( random() > 0.9f )
 				trap_S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.crackleSound );
@@ -12729,11 +12276,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.customShader = cgs.media.playerShieldDamage;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 #if 0
 endOfCall:
@@ -12749,30 +12292,16 @@ endOfCall:
 #endif
 
     CG_DrawPlayerBBox (cent);
-	
-#ifdef __WEAPON_HOLSTER__
-	JKG_DrawWeaponHolsters(cent, legs, shadowPlane);
-#endif //__WEAPON_HOLSTER__
 
 	//It's time for Fat Man to make his debut -- eezstreet
 	{
 		int ijk;
 		for(ijk = 0; ijk < ARMSLOT_MAX; ijk++)
 		{
-			if( cent && cent->ghoul2 && cent->armorGhoul2[ijk] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[ijk]) && cent->currentState.eType != ET_NPC)
-			{
-				armorG2[ijk].ghoul2 = cent->armorGhoul2[ijk];
-				armorG2[ijk].shadowPlane = shadowPlane;		// Note: these two lines are left out of the below check because they need to be shown in first person in order
-															// for stencil shadows to show up properly in first person --eez
-				//armorG2[ijk].renderfx &= ~RF_FORCE_ENT_ALPHA;
-				//armorG2[ijk].renderfx |= RF_RGB_TINT;
-				armorG2[ijk].shaderRGBA[3] = 0;
-				trap_R_AddRefEntityToScene( &armorG2[ijk] );
-			}
 			if (cent && cent->ghoul2 && cent->armorGhoul2[ijk] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[ijk]) && cent->currentState.eType != ET_NPC && !(!cg.renderingThirdPerson && cent->currentState.number == cg.predictedPlayerState.clientNum))
 			{
+				armorG2[ijk].ghoul2 = cent->armorGhoul2[ijk];
 
-				armorG2[ijk].shaderRGBA[3] = 255;
 				if (cent->uncloaking > cg.time)
 				{//in the middle of cloaking
 					if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE))

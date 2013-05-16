@@ -11,7 +11,6 @@
 
 gl_ui_exports_t gl_ui_exports;
 gl_ui_imports_t *gl_ui_imports;
-
 #undef INFINITE
 
 #include <windows.h>

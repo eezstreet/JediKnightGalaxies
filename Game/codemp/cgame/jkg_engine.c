@@ -8,7 +8,6 @@
 #include <libudis86/udis86.h>
 #include "jkg_patcher.h"
 #include "jkg_glcommon.h"
-#include "jkg_eshader.h"
 
 #define JKG_HOOK void __declspec(naked)
 
@@ -22,11 +21,6 @@ typedef enum {
 	PATCH_JUMP,
 	PATCH_CALL,
 } PatchType_e;
-
-#define MAX_JKG_CVARS	1224
-
-cvar_t cvarIndeces[MAX_JKG_CVARS];
-unsigned int MAX_JKG_CVARS_I = MAX_JKG_CVARS;
 
 // ==================================================
 // UnlockMemory (WIN32 & Linux compatible)
@@ -113,77 +107,6 @@ static PatchData_t *JKG_PlacePatch( int type, unsigned int address, unsigned int
 }
 
 static void JKG_RemovePatch(PatchData_t **patch) {
-	if (!*patch)
-		return;
-	UnlockMemory((*patch)->addr, (*patch)->size);
-	memcpy((void *)(*patch)->addr, (*patch)->origbytes, (*patch)->size);
-	LockMemory((*patch)->addr, (*patch)->size);
-	*patch = 0;
-}
-
-// ==================================================
-// JKG_PatchMemory (WIN32 & Linux compatible)
-// --------------------------------------------------
-// Patches the code at address to make a go towards
-// destination.
-//
-// Before the code is modified, the code page is
-// unlocked.
-//
-// This function returns a malloced PatchData_t.
-// To remove the patch, call JKG_RemoveMemPatch. This
-// will also free the PatchData_t.
-// ==================================================
-
-static PatchData_t *JKG_PatchMemory( unsigned int address, unsigned char *byteSequence, unsigned int numBytes ) {
-	PatchData_t *patch = malloc(sizeof(PatchData_t));
-	//int addr = address;
-
-	ud_t ud;
-
-	if(!byteSequence)
-	{
-		return NULL;
-	}
-
-	ud_init(&ud);
-	ud_set_input_buffer(&ud, (uint8_t *)address, numBytes);
-	ud_set_mode(&ud, 32);
-	ud_set_pc(&ud, address);
-	ud_set_syntax(&ud, NULL);
-
-	/*while (ud_disassemble(&ud))
-	{
-		sz += ud_insn_len(&ud);
-		if (sz >= numBytes) {
-			break;
-		}
-	}*/
-
-	//assert(sz >= numBytes);
-
-	/*if (sz < 5 || sz > 24) {
-		// This really shouldnt ever happen, in the worst case scenario,
-		// the block is 20 bytes (4 + 16), so if we hit 24, something went wrong
-		return NULL;
-	}*/
-
-	patch->addr = address;
-	patch->size = numBytes;
-	memcpy(patch->origbytes, (const void *)address, numBytes);
-	UnlockMemory(address, numBytes); // Make the memory writable
-	
-	// Patch the bytes at the address
-	memcpy((unsigned int *)address, byteSequence, numBytes);
-
-	/**(unsigned char *)address = type == PATCH_JUMP ? 0xE9 : 0xE8;
-	*(unsigned int *)(address+1) = destination - (address + 5);
-	memset((void *)(address+5),0x90,sz-5);	// Nop the rest*/
-	LockMemory(address, numBytes);
-	return patch;
-}
-
-static void JKG_RemoveMemPatch(PatchData_t **patch) {
 	if (!*patch)
 		return;
 	UnlockMemory((*patch)->addr, (*patch)->size);
@@ -489,178 +412,26 @@ static JKG_HOOK _Hook_NormalPointer()
 }
 #endif
 
-/*
- * CVAR limit hack
- * This makes use of a little patch to ensure we get above 1224 cvars
- *
- *
- */
-// Unused/doesn't work atm
-static PatchData_t *cvarLimitHack[4];
-
-
-
-// Controller h4x
-// God. I hate JA's controller stuff. HATE IT TO DEATH
-// This will properly fix the controller stuff, in due time
-static PatchData_t *controllerHook;
-static PatchData_t *movementControl;
-
-// Allow for rendering of SWFs with an "swfMap" keyword in shader files
-// --eez
-static PatchData_t *swf1;
-static PatchData_t *swf2;
-char *swfMapText = "swfMap";
-
-DWORD ebxStore;
-DWORD ediStore;
-
-image_t test;
-
-// Hook ShaderParse to allow for a "swfMap" keyword
-
-extern void	gameswf_startswf(char *filename);
-extern void	gameswf_continueswf();
-qboolean __cdecl ShaderParse_SWFMap()
+void JKG_BSP_LoadIntoVBOs ( void );
+#define R_LOADSURFACES_ADDRESS 0x48FDF0
+static JKG_HOOK _Hook_BSP_VBO ( void )
 {
-	char *token;
-	shaderStage_t *stage = (shaderStage_t *)ediStore;
-	size_t sizeCheck = sizeof(shaderStage_t);
-	token = COM_ParseExt( (const char **)ebxStore, qfalse );
-	if(!token || !token[0])
-	{
-		Com_Printf("^3WARNING: missing parameter for keyword 'swfMap' in shader %s\n", (char *)0x1074198);
-		return qfalse;
-	}
-	gameswf_startswf(token);
-	// eezstreet NOTE:
-	// Before I go any farther on this, I need to assign an actual function which loads all the essential
-	// SWF data on it.
-	// Basically what I need is a SWF render function which renders similar to how CIN_UploadCinematic works.
-	// The SWF would be parsed and all that in _this_ func.
-
-	*(char *)(ediStore+0x1B) = 2;
-	//stage->bundle[0].isVideoMap = 2;		// this will be the method of detection.
-											// In R_BindAnimatedImage, it is hooked at the
-											// beginning to check if bundle->isVideoMap is 2.
-											// If so, render a SWF.
-
-
-
-	*(int *)(ediStore+0x1C) = /*YOUR_SWF_HANDLE_HERE*/ 5;		// this serves as the "index" of the SWF that is referenced
-	// NEEDS AN IMAGE ARRAY:
-	//memcpy(&stage->bundle[0].image[0], (void *)0x00FE3200, sizeof(image_t));				// make the system shut up about stage having no image.
-
-	// just give it a dummy image so that the engine shuts the fuck up
-	strcpy(test.name, token);
-	stage->bundle[0].image = (image_t *)0x00FE324C;
-
-	return qtrue;
+    __asm
+    {
+        mov edx, R_LOADSURFACES_ADDRESS
+        call edx
+        
+        pushad
+        push ebp ; isSubBSP
+        push ebx ; worldData
+        call JKG_BSP_LoadIntoVBOs
+        add esp, 8
+        popad
+        
+        push 0x491166
+        ret
+    }
 }
-
-// TODO: Finish
-void __declspec(naked) _Hook_ParseShaders() {
-	__asm {
-		pushad
-		mov ebxStore, ebx
-		mov ediStore, edi
-		mov ecx, 0x1869F
-		mov eax, swfMapText
-		mov edx, esi
-		mov ebx, 0x004446C0
-		call ebx
-		test eax, eax
-		jz swfMap
-		mov ecx, 0x1869F
-		mov eax, 0x555034						// "videoMap"
-		mov edx, esi
-		mov ebx, 0x004446C0						// Q_stricmp
-		call ebx
-		test eax, eax
-		jnz notVideoMap
-// You're a videoMap, Harry
-		mov ebx, ebxStore
-		popad
-		push 0x004B38AB
-		ret
-notVideoMap:
-		popad
-		push 0x004B38F7
-		ret
-swfMap:
-		pushfd
-		call ShaderParse_SWFMap
-		test cl,cl
-		jz swfMapParseFailure
-		popfd
-		popad
-		mov edi, ediStore
-		mov ebx, ebxStore
-		push 0x004B4443
-		ret
-swfMapParseFailure:
-		popfd
-		popad
-		push 0x004B4480
-		ret
-	}
-}
-
-void GL_Bind ( unsigned int textureId );
-void JKG_BindSWFTexture(int SWFHandle)
-{
-	// Bind your SWF frame here, a la CIN_UploadCinematic and CIN_RunCinematic
-#ifdef __SWF__
-	gameswf_continueswf();
-#endif
-	// qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bitmapData );
-}
-
-DWORD addressThing;
-
-// Hook into R_BindAnimatedImage.
-// If a shader has a isVideoMap of -1, it does the SWF texture bind.
-void __declspec(naked) _Hook_BindAnimatedImage()
-{
-	__asm
-	{
-		pushad
-		mov al, [esi+0x1B]
-		cmp al, 2
-		jne notSWF
-		mov eax, [esi+0x1C]
-		push eax
-		call JKG_BindSWFTexture
-		add esp, 4
-		popad
-		//mov eax, 0x004B9690			// technically calling right into the middle of a func. Best we know what we're up against...
-		//push 0x00416F20
-		push 0x00416FC9
-		ret
-notSWF:
-		popad
-		// right, we need to recheck the ROQ crap since we kinda trashed that back there...
-		push ecx
-		push esi
-		mov esi, eax
-		mov al, [esi+0x1B]
-		test al, al
-		jz notCinematic
-		mov eax, [esi+0x1C]
-		mov addressThing, 0x004163D0
-		call addressThing
-		mov edx, [esi+0x1C]
-		pop esi
-		add esp, 4
-		push 0x00416F20
-		ret
-notCinematic:
-		push 0x004AC3EF
-		ret
-	}
-}
-
-// end
 
 void JKG_PatchEngine() {
 	int i;
@@ -678,17 +449,17 @@ void JKG_PatchEngine() {
 
 	// TODO: Fix this -.-
 	AttachClean( 0x41A170, ( unsigned long ) CL_CreateCmd, ( unsigned long * ) &pCL_CreateCmd );
+	
+	// Testing VBO stuff
+	UnlockMemory (0x491162, 5);
+	*(unsigned int *)0x491161 = 0xE9;
+	*(unsigned int *)0x491162 = (unsigned int)_Hook_BSP_VBO - (0x491161 + 5);
+	LockMemory (0x491162, 5);
 
 	// Disable the notify system, so we wont get messages on top of the screen
 	UnlockMemory(0x4178E4,2);
 	*(short *)0x4178E4 = 0xE990;
 	LockMemory(0x4178E4,2);
-
-	controllerHook = JKG_PlacePatch( PATCH_CALL, 0x451566, ( unsigned int ) JKG_ControllerUpdate );
-	movementControl = JKG_PlacePatch( PATCH_CALL, 0x41A1C2, ( unsigned int ) _Hook_CL_JoystickMovement );
-
-	swf1 = JKG_PlacePatch( PATCH_JUMP, 0x004B3896, ( unsigned int ) _Hook_ParseShaders );
-	swf2 = JKG_PlacePatch( PATCH_JUMP, 0x004AC3D0, ( unsigned int ) _Hook_BindAnimatedImage );
 }
 
 void JKG_UnpatchEngine() {
@@ -705,14 +476,15 @@ void JKG_UnpatchEngine() {
     JKG_RemovePatch (&genericShader);
     JKG_RemovePatch (&normalPointerPatch);
     #endif
-
-	JKG_RemovePatch( &controllerHook );
+	
+	// Restore normal surface loading
+	UnlockMemory (0x491162, 4);
+	*(unsigned int *)0x491161 = 0xE8;
+	*(unsigned int *)0x491162 = (unsigned int)R_LOADSURFACES_ADDRESS - 0x491161 + 5;
+	LockMemory (0x491162, 4);
 
 	// Restore the notify system
 	UnlockMemory(0x4178E4,2);
 	*(short *)0x4178E4 = 0x8F0F;
 	LockMemory(0x4178E4,2);
-
-	JKG_RemovePatch( &swf1 );
-	JKG_RemovePatch( &swf2 );
 }

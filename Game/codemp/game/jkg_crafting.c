@@ -281,7 +281,7 @@ void JKG_Items_CraftRecipe( gentity_t *ent, craftRecipe_t *craftData )
 	for(i=0; i < craftData->input.size; i++)
 	{
 		//Compare internals first. They always take prevalence.
-		int inventoryID = (JKG_Easy_DIMA_CMPInternal(ent->inventory, (char *)inputArray[i]->internalName) > -1) ? JKG_Easy_DIMA_CMPInternal(ent->inventory, (char *)inputArray[i]->internalName) : JKG_Easy_DIMA_CMPItemID(ent->inventory, inputArray[i]->itemID);
+		int inventoryID = (JKG_Easy_DIMA_CMPInternal(ent->inventory, inputArray[i]->internalName) > -1) ? JKG_Easy_DIMA_CMPInternal(ent->inventory, inputArray[i]->internalName) : JKG_Easy_DIMA_CMPItemID(ent->inventory, inputArray[i]->itemID);
 		if(inventoryID == -1)
 		{ // :(
 			free(matsWeHave);

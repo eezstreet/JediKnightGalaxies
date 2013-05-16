@@ -131,6 +131,18 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 			CG_DrawPic ( iconx, y, 32, 32, trap_R_RegisterShaderNoMip ( "gfx/mp/pduel_icon_double" ) );
 		}
 	}
+	else if (cgs.gametype == GT_SIEGE)
+	{ //try to draw the shader for this class on the scoreboard
+		if (ci->siegeIndex != -1)
+		{
+			siegeClass_t *scl = &bgSiegeClasses[ci->siegeIndex];
+
+			if (scl->classShader)
+			{
+				CG_DrawPic (iconx, y, largeFormat?24:12, largeFormat?24:12, scl->classShader);
+			}
+		}
+	}
 	else
 	{
 		// draw the wins / losses
@@ -246,6 +258,37 @@ static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, in
 	}
 
 	return count;
+}
+
+int	CG_GetClassCount(team_t team,int siegeClass )
+{
+	int i = 0;
+	int count = 0;
+	clientInfo_t	*ci;
+	siegeClass_t *scl;
+
+	for ( i = 0 ; i < cgs.maxclients ; i++ )
+	{
+		ci = &cgs.clientinfo[ i ];
+
+		if ((!ci->infoValid) || ( team != ci->team ))
+		{
+			continue;
+		}
+
+		scl = &bgSiegeClasses[ci->siegeIndex];
+
+		// Correct class?
+		if ( siegeClass != scl->classShader )
+		{
+			continue;
+		}
+
+		count++;
+	}
+
+ 	return count;
+
 }
 
 int CG_GetTeamNonScoreCount(team_t team)
@@ -416,7 +459,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 			x = ( SCREEN_WIDTH ) / 2;
 			y = 60;
 			//CG_DrawBigString( x, y, s, fade );
-			UI_DrawProportionalString(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE], FONT_MEDIUM);
+			UI_DrawProportionalString(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE]);
 		}
 	}
 	else if (cgs.gametype != GT_SIEGE)
@@ -424,11 +467,9 @@ qboolean CG_DrawOldScoreboard( void ) {
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
 			s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0] );
 		} else if ( cg.teamScores[0] >= cg.teamScores[1] ) {
-			//s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
-			s = va("%s, %i / %i", CG_GetStringEdString2(bgGangWarsTeams[cgs.redTeam].leadstring), cg.teamScores[0], cg.teamScores[1] );
+			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
 		} else {
-			//s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
-			s = va("%s, %i / %i", CG_GetStringEdString2(bgGangWarsTeams[cgs.blueTeam].leadstring), cg.teamScores[0], cg.teamScores[1] );
+			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
 		}
 
 		x = ( SCREEN_WIDTH ) / 2;

@@ -529,86 +529,6 @@ void ApplyNoCD()
 #endif
 }
 
-static PatchData_t *CGPAKP[3];
-#define PAKPROTECT_LOC1		0x0044A0E4
-#define PAKPROTECT_LOC2		0x00449DEF
-#define PAKPROTECT_LOC3		0x00449F8D
-static JKG_HOOK _Hook_PAKProtect1()
-{
-	__asm
-	{
-
-		mov eax, [edi+58h]
-		test eax, eax
-		je label_success
-		cmp eax, 0x0800
-		je label_success
-		push 0x0044A14D
-		ret
-label_success:
-		push 0x0044A0EB
-		ret
-	}
-}
-static JKG_HOOK _Hook_PAKProtect2()
-{
-	__asm
-	{
-		mov eax, [esi+34h]
-		cmp     ecx, eax
-		jne passFirstCheck
-		test eax, eax
-		je isValid
-		cmp eax, 8
-		je isValid
-		cmp eax, 0x808
-		je isValid
-		cmp eax, 0x800
-		je isValid
-passFirstCheck:
-		mov edi, 0FFFFFF99h
-isValid:
-		push 0x00449E04
-		ret
-	}
-}
-static JKG_HOOK _Hook_PAKProtect3()
-{
-	__asm
-	{
-		cmp edx, ebp
-		mov edx, [ebx+3Ch]
-		mov [edi+48h], edx
-		mov [edi+44h], ebp
-		mov ecx, [ebx+34h]
-		je label_success
-		mov edx, [ebx+34h]
-		cmp edx, 0x800
-		je label_success
-		mov eax, 0
-		jmp label_exit
-label_success:
-		mov eax, 1
-label_exit:
-		mov edx, 0x00449F9E
-		jmp edx
-	}
-}
-
-void JKG_AddPAKPatches()
-{
-	CGPAKP[0] = JKG_PlacePatch(PATCH_JUMP, PAKPROTECT_LOC1, ( unsigned int ) _Hook_PAKProtect1);
-	CGPAKP[1] = JKG_PlacePatch(PATCH_JUMP, PAKPROTECT_LOC2, ( unsigned int ) _Hook_PAKProtect2);
-	CGPAKP[2] = JKG_PlacePatch(PATCH_JUMP, PAKPROTECT_LOC3, ( unsigned int ) _Hook_PAKProtect3);
-}
-
-void JKG_RemovePAKPatches()
-{
-	JKG_RemovePatch(&CGPAKP[0]);
-	JKG_RemovePatch(&CGPAKP[1]);
-	JKG_RemovePatch(&CGPAKP[2]);
-}
-
 void UI_PatchEngine() {
 	// Change the JA window title XD
 	HWND *JAWnd = (HWND *)0xB8F038;
@@ -640,8 +560,6 @@ void UI_PatchEngine() {
 	*(char *)0x436C83 = 0x77; // (replaces JG (0x7F) by JA (0x77))
 	LockMemory(0x436C83, 1);
 
-	JKG_AddPAKPatches();
-
 	pMapTrap = JKG_PlacePatch(PATCH_JUMP, 0x4560B0,(unsigned int)_Hook_MapTrap);
 	//pPrimitivesTrap = JKG_PlacePatch(PATCH_JUMP, 0x4AC360,(unsigned int)_Hook_PrimitivesTrap);
 	pSetuTrap = JKG_PlacePatch(PATCH_JUMP, 0x439D40, (unsigned int)_Hook_SetuTrap);
@@ -671,8 +589,6 @@ void UI_UnpatchEngine() {
     *(unsigned int *)0x44E505 = 1000;
     LockMemory(0x44E505, 1);
 
-	JKG_RemovePAKPatches();
-
 	JKG_RemovePatch(&pMapTrap);
 	//JKG_RemovePatch(&pPrimitivesTrap);
 	JKG_RemovePatch(&pSetuTrap);
@@ -687,5 +603,4 @@ void UI_UnpatchEngine() {
 	JKG_RemovePatch(&pRecordFix);
 
 	JKG_RemovePatch(&pExtColorCodes);
-
 }

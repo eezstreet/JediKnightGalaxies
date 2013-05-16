@@ -232,7 +232,7 @@ int GSH_LoadShader(gshshader_t *shader, const char *filename) {
 // Description:
 // Gets the location of the uniform for the given shader.
 //=========================================================
-int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName )
+static int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName )
 {
     int i;
     int location = -1;
@@ -449,11 +449,11 @@ void GSH_FreeShader(gshshader_t *shader) {
 
 qboolean GSH_Init() {
 #ifdef USE_GLSL
-    GLSLSupported = (qboolean)glewIsSupported ("GL_ARB_vertex_shader GL_ARB_fragment_shader GL_ARB_shading_language_100 GL_ARB_shader_objects");
+    GLSLSupported = (qboolean)(GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader && GLEW_ARB_shading_language_100 && GLEW_ARB_shader_objects);
 #else
     trap_Cvar_Set ("r_force_arb_shaders", "1");
 #endif
-    ARBSupported = (qboolean)glewIsSupported ("GL_ARB_vertex_program GL_ARB_fragment_program");
+    ARBSupported = (qboolean)(GLEW_ARB_vertex_program && GLEW_ARB_fragment_program);
 	
 	if ( !GLSLSupported && ARBSupported )
 	{

@@ -1773,9 +1773,7 @@ int PM_AnimLength( int index, animNumber_t anim )
 	}
 	if ( anim < 0 )
 	{
-		//Com_Error(ERR_DROP,"ERROR: anim %d < 0\n", anim );
-		Com_Printf("ERROR: anim %d < 0 - ignored.\n", anim ); // UQ1: I see no reason to crash the game over this... Report it and return 0...
-		return 0;
+		Com_Error(ERR_DROP,"ERROR: anim %d < 0\n", anim );
 	}
 	return pm->animations[anim].numFrames * fabs((float)(pm->animations[anim].frameLerp));
 }
@@ -1915,7 +1913,7 @@ void BG_ClearAnimsets(void)
 animation_t *BG_AnimsetAlloc(void)
 {
 	assert (bgNumAllAnims < MAX_ANIM_FILES);
-	bgAllAnims[bgNumAllAnims].anims = (animation_t *) malloc(sizeof(animation_t)*MAX_TOTALANIMATIONS);
+	bgAllAnims[bgNumAllAnims].anims = (animation_t *) BG_Alloc(sizeof(animation_t)*MAX_TOTALANIMATIONS);
 
 	return bgAllAnims[bgNumAllAnims].anims;
 }
@@ -2274,7 +2272,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			{//actually are specifying a bolt to use
 				if (!animEvents[curAnimEvent].stringData)
 				{ //eh, whatever. no dynamic stuff, so this will do.
-					animEvents[curAnimEvent].stringData = (char *) malloc(2048);
+					animEvents[curAnimEvent].stringData = (char *) BG_Alloc(2048);
 				}
 				strcpy(animEvents[curAnimEvent].stringData, token);
 			}
@@ -2990,12 +2988,6 @@ void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int 
 	}
 }
 
-void JKG_ReloadAnimation( int firingMode, int weaponID, int anim, animation_t *anims, float *animSpeed )
-{
-	weaponData_t *wp = BG_GetWeaponDataByIndex(weaponID);
-	*animSpeed *= (anims[anim].numFrames-1) * fabs((float)(anims[anim].frameLerp)) / (float)wp->weaponReloadTime;
-}
-
 /*
 -------------------------
 PM_SetAnimFinal
@@ -3015,24 +3007,13 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 		return;
 	}
 
-	//assert(anim > -1);
-	if (!(anim > -1))
-	{
-		Com_Printf("ERROR: (BG_SetAnimFinal) anim %d < 0 - ignored.\n", anim ); // UQ1: I see no reason to crash the game over this... Report it and return 0...
-		return;
-	}
-
+	assert(anim > -1);
 	assert(animations[anim].firstFrame > 0 || animations[anim].numFrames > 0);
 
 	//NOTE: Setting blendTime here breaks actual blending..
 	blendTime = 0;
 
 	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs);
-
-	if(ps->weaponstate == WEAPON_RELOADING)
-	{
-		JKG_ReloadAnimation(ps->firingMode, ps->weaponId, anim, animations, &editAnimSpeed);
-	}
 
 	// Set torso anim
 	if (setAnimParts & SETANIM_TORSO)
@@ -3254,9 +3235,7 @@ void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int
 	{
 		if (anim == BOTH_RUNBACK1 ||
 			anim == BOTH_WALKBACK1 ||
-			anim == BOTH_RUN1 ||
-			anim == BOTH_FEMALEEWALK ||
-			anim == BOTH_FEMALERUN)
+			anim == BOTH_RUN1)
 		{ //hack for droids
 			anim = BOTH_WALK2;
 		}
@@ -3323,11 +3302,6 @@ float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex)
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->torsoAnim, &animSpeedFactor, ps->brokenLimbs);
 
-	if( ps->weaponstate == WEAPON_RELOADING )
-	{
-		JKG_ReloadAnimation(ps->firingMode, ps->weaponId, ps->torsoAnim, bgAllAnims[AnimIndex].anims, &animSpeedFactor);
-	}
-
 	if( animSpeedFactor > 0 )
 	{
 		if(bgAllAnims[AnimIndex].anims[ps->torsoAnim].numFrames < 2)
@@ -3366,11 +3340,6 @@ float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex)
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->legsAnim, &animSpeedFactor, ps->brokenLimbs);
-
-	if( ps->weaponstate == WEAPON_RELOADING )
-	{
-		JKG_ReloadAnimation(ps->firingMode, ps->weaponId, ps->torsoAnim, bgAllAnims[AnimIndex].anims, &animSpeedFactor);
-	}
 
 	if( animSpeedFactor > 0 )
 	{

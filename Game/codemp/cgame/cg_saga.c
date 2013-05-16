@@ -32,7 +32,7 @@ int			true_view_valid;
 
 static char cgParseObjectives[MAX_SIEGE_INFO_SIZE];
 
-extern void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded, int clientNum); //cg_players.c
+extern void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded); //cg_players.c
 
 void CG_DrawSiegeMessage( const char *str, int objectiveScreen );
 void CG_DrawSiegeMessageNonMenu( const char *str );
@@ -139,7 +139,7 @@ void CG_PrecachePlayersForSiegeTeam(int team)
 			}
 
 			//precache the sounds for the model...
-			CG_LoadCISounds(&fake, qtrue, -1);
+			CG_LoadCISounds(&fake, qtrue);
 		}
 
 		i++;

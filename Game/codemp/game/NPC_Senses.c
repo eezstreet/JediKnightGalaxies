@@ -213,7 +213,7 @@ qboolean InVisrange ( gentity_t *ent )
 	vec3_t	eyes;
 	vec3_t	spot;
 	vec3_t	deltaVector;
-	float	visrange = (NPCInfo->stats.visrange*NPCInfo->stats.visrange) * 2; // UQ1: Those ranges sucked!!! *2 added...
+	float	visrange = (NPCInfo->stats.visrange*NPCInfo->stats.visrange);
 
 	CalcEntitySpot( NPC, SPOT_HEAD_LEAN, eyes );
 

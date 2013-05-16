@@ -386,12 +386,8 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
         
     weaponInfo->scopeSoundLoopTime = weaponVisuals->scopeSoundLoopTime;
 
-    //JKG_LoadFireModeAssets (&weaponInfo->primDrawData, &weaponData->firemodes[0], &weaponVisuals->primary);
-    //JKG_LoadFireModeAssets (&weaponInfo->altDrawData, &weaponData->firemodes[1], &weaponVisuals->secondary);
-	for( i = 0; i < weaponData->numFiringModes; i++ )
-	{
-		JKG_LoadFireModeAssets ( &weaponInfo->drawData[i], &weaponData->firemodes[i], &weaponVisuals->visualFireModes[i] );
-	}
+    JKG_LoadFireModeAssets (&weaponInfo->primDrawData, &weaponData->firemodes[0], &weaponVisuals->primary);
+    JKG_LoadFireModeAssets (&weaponInfo->altDrawData, &weaponData->firemodes[1], &weaponVisuals->secondary);
 }
 
 
@@ -428,7 +424,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	}
 	
 	#ifdef _DEBUG
-	//CG_Printf ("Registering weapon %d variation %d\n", weaponNum, variation);
+	CG_Printf ("Registering weapon %d variation %d\n", weaponNum, variation);
 	#endif
 
 	memset( weaponInfo, 0, sizeof( *weaponInfo ) );
@@ -529,11 +525,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 //		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
 //	}
 
-	for(i = 0; i < weaponData->numFiringModes; i++)
-	{
-		// this only deals with them one at a time from now on --eez
-		JKG_SetWeaponEventsHandler (weaponInfo, weaponData->visuals.visualFireModes[i].type, i);
-	}
+    JKG_SetWeaponEventsHandler (weaponInfo, weaponData->visuals.primary.type, weaponData->visuals.secondary.type);
     JKG_LoadWeaponAssets (weaponInfo, weaponData);
 
 	switch ( weaponNum ) {

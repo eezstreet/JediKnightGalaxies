@@ -150,10 +150,7 @@ unsigned int trap_AnyLanguage_ReadCharFromString( const char *psText, int *piAdv
 
 qhandle_t trap_R_RegisterShaderNoMip( const char *name ) {
 	char buf[1024];
-	if(!name)
-	{
-		return (qhandle_t)NULL;
-	}
+	
 	if (name[0] == '*') {
 		trap_Cvar_VariableStringBuffer(name+1, buf, sizeof(buf));
 		if (buf[0]) {
