@@ -275,6 +275,10 @@
     <ClCompile Include="..\game\bg_vehicleLoad.c" />
     <ClCompile Include="..\game\bg_weapons.c" />
     <ClCompile Include="..\game\bg_weapons_load.c" />
+    <ClCompile Include="..\game\NPC_Animal.c" />
+    <ClCompile Include="..\game\NPC_Fighter.c" />
+    <ClCompile Include="..\game\NPC_Speeder.c" />
+    <ClCompile Include="..\game\NPC_Walker.c" />
     <ClCompile Include="cg_cinematics.c" />
     <ClCompile Include="cg_consolecmds.c" />
     <ClCompile Include="cg_crossover.c" />

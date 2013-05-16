@@ -644,6 +644,18 @@
     <ClCompile Include="..\gameswf\base\zlib_adapter.cpp">
       <Filter>Libraries\gameswf\base</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\NPC_Animal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\NPC_Fighter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\NPC_Speeder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\NPC_Walker.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h">

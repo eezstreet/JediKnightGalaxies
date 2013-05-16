@@ -256,6 +256,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ai_dominance.c" />
+    <ClCompile Include="ai_dominance_astar.cpp" />
+    <ClCompile Include="ai_dominance_bot.c" />
     <ClCompile Include="ai_dominance_evasion.c" />
     <ClCompile Include="ai_main.c" />
     <ClCompile Include="ai_util.c" />
@@ -332,11 +334,22 @@
     <ClCompile Include="jkg_playerisolation.c" />
     <ClCompile Include="jkg_primetable.c" />
     <ClCompile Include="jkg_rconbans.c" />
+    <ClCompile Include="jkg_supremacy_flags.c" />
+    <ClCompile Include="jkg_supremacy_flagsys.c" />
+    <ClCompile Include="jkg_supremacy_spawnsys.c" />
     <ClCompile Include="jkg_team.c" />
     <ClCompile Include="jkg_threading.c" />
     <ClCompile Include="jkg_threadingsq.c" />
     <ClCompile Include="jkg_utilityfunc.c" />
     <ClCompile Include="networkstate.c" />
+    <ClCompile Include="NPC_AI_Humanoid.c" />
+    <ClCompile Include="NPC_Animal.c" />
+    <ClCompile Include="NPC_Conversations.c" />
+    <ClCompile Include="NPC_CoverPoints.c" />
+    <ClCompile Include="NPC_Fighter.c" />
+    <ClCompile Include="NPC_Speeder.c" />
+    <ClCompile Include="NPC_Walker.c" />
+    <ClCompile Include="NPC_Waypointing.c" />
     <ClCompile Include="q_math.c" />
     <ClCompile Include="q_shared.c" />
     <ClCompile Include="tri_coll_test.c" />
