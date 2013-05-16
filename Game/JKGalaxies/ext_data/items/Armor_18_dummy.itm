@@ -1,0 +1,11 @@
+{
+	"name":             "Stormtrooper Legguards",
+	"internal":             "Armor",
+	"id":             "18",
+	"itemtype":             "armor",
+	"armorID":		"6",
+	"armorSlot":		"legs",
+	"weight":		"5",
+	"cost":		"0",
+	"itemIcon":		"gfx/item_icons/stormtrooper.tga"
+}

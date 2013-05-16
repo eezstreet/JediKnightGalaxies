@@ -1,0 +1,56 @@
+Dewback
+{
+name			Dewback
+type			VH_ANIMAL
+numHands		2
+lookYaw		45
+lookPitch		45
+length		128
+width			32
+height		32
+centerOfGravity	"-0.222 0 0"
+
+speedMax		200
+speedMin		-100
+turboSpeed		600
+turboDuration	5000
+turboRecharge	8000
+acceleration	10
+decelIdle		20
+
+
+strafePerc		0.0
+bankingSpeed	0.0
+rollLimit		2
+pitchLimit		0
+braking		10
+mouseYaw		0.006
+turningSpeed	5
+turnWhenStopped	1
+traction		100
+friction		100
+maxSlope		0.55
+mass			200
+armor 		300
+toughness 		10.0
+//health		100
+model			dewback
+riderAnim		BOTH_FORCEHEAL_START
+radarIcon		"gfx/menus/radar/tauntaun"
+
+cameraOverride	1
+cameraRange		220
+cameraVertOffset	0
+cameraPitchOffset	0
+cameraFOV		80
+cameraAlpha		0
+
+
+soundOn		"sound/chars/dewback/misc/buck1.wav"
+soundOff		"sound/chars/dewback/misc/buck2.wav"
+soundTurbo		"sound/chars/dewback/misc/anger1.wav"
+soundShift1		"sound/chars/dewback/misc/anger3.wav"
+soundShift2		"sound/chars/dewback/misc/chatter1.wav"
+soundShift3		"sound/chars/dewback/misc/chatter3.wav"
+soundShift4		"sound/chars/dewback/misc/pant1.mp3"
+}

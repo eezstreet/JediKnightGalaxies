@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_array_ACP_ArrayGun",
+	"internal":             "array_ACP",
+	"id":             "21",
+	"itemtype":             "weapon",
+	"weapon":		"WP_FLECHETTE",
+	"variation":		"0",
+	"weight":		"4",
+	"cost":		"1650",
+	"xml":			"xml/items/ACP_Array_Gun.xml",
+	"itemIcon":		"models/weapons/ACP_ArrayGun/icon_default"
+}

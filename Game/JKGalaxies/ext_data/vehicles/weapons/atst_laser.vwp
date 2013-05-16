@@ -1,0 +1,18 @@
+atst_laser
+{
+name		atst_laser
+projectile	1
+muzzleFX	"vehicles/atst_laser"
+shotFX		"blasters/shot_redorange_big"
+impactFX	"weapons/blaster_impact_red_huge"
+g2MarkShader	"gfx/damage/bodyburnmark1"
+g2MarkSize	16
+speed		5000
+damage	75
+splashDamage	20
+splashRadius	50
+ammoPerShot	1
+width		8
+height	8
+lifetime	6000
+}

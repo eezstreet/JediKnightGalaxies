@@ -1,0 +1,16 @@
+// Gang Wars team definition
+// File by eezstreet
+// (c) 2012 Jedi Knight Galaxies
+
+name "^7Black Sun"
+longname "^7Black Sun Syndicate"
+joinstring "^7joined the Black Sun Syndicate."
+toomanystring "^7Too many Black Sun members!"
+leadstring "^7Black Sun leads"
+menustring "BSS"
+reference "bss"
+modelstore "weequay/default,gran/default,chiss/default,boba_fett/default,rodian/default,trandoshan/default,ugnaught/default,reelo/default,human_merc/default,"
+defaultModel "weequay/default,"
+useTeamColors "0"
+icon "sprites/bss"
+teamColor "{60,60,60,255}"

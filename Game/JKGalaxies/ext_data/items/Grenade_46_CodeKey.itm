@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_Grenade_CodeKey",
+	"internal":             "Grenade_CodeKey",
+	"id":             "46",
+	"itemtype":             "weapon",
+	"weapon":		"WP_THERMAL",
+	"variation":		"5",
+	"weight":		"2",
+	"cost":		"1200",
+	"xml":			"",
+	"itemIcon":		"models/weapons/Grenade_CodeKey/icon_default"
+}

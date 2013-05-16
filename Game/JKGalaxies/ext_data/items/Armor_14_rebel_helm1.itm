@@ -1,0 +1,11 @@
+{
+	"name":             "Rebel Helmet",
+	"internal":             "Armor",
+	"id":             "14",
+	"itemtype":             "armor",
+	"armorID":		"3",
+	"armorSlot":		"head",
+	"weight":		"2",
+	"cost":		"0",
+	"itemIcon":		"gfx/item_icons/rebel_helmet.tga"
+}

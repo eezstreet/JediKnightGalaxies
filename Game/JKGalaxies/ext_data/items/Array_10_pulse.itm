@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_array_DoubleBarrel_ArrayGun",
+	"internal":             "array_pulse",
+	"id":             "10",
+	"itemtype":             "weapon",
+	"weapon":		"WP_FLECHETTE",
+	"variation":		"4",
+	"weight":		"8",
+	"cost":		"1900",
+	"xml":			"xml/items/aa35cpulse.xml",
+	"itemIcon":		"models/weapons/DoubleBarrel_ArrayGun/icon_default"
+}

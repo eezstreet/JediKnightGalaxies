@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_rifle_E-11A_Rifle",
+	"internal":             "rifle_E-11A",
+	"id":             "55",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DISRUPTOR",
+	"variation":		"1",
+	"weight":		"5",
+	"cost":		"1350",
+	"xml":			"xml/items/E-11A_Blaster_Hengstler.xml",
+	"itemIcon":		"models/weapons/E-11A_Rifle/icon_default"
+}

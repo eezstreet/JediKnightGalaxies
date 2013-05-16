@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_pistol_DH-17_Pistol",
+	"internal":             "pistol_DH-17",
+	"id":             "77",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BRYAR_PISTOL",
+	"variation":		"7",
+	"weight":		"1",
+	"cost":		"750",
+	"xml":			"xml/items/DH-17.xml",
+	"itemIcon":		"models/weapons/DH-17_Pistol/icon_default"
+}

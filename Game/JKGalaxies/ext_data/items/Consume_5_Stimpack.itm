@@ -1,0 +1,23 @@
+{
+	"name":             "BioTech Bacta Canister",
+	"internal":             "Stimpack",
+	"id":             "5",
+	"cost":		"100",
+	"itemtype":             "none",
+
+	"pSpell":		"16",
+	"affector":		"0",
+	"amount":		"99",
+	
+	"pSpell2":		"1",
+	"affector2":		"0",
+	"amount2":		"25",
+
+	"pSpell3":		"14",
+	"affector3":		"sound/items/use_bacta.wav",
+
+	"pSpell4":		"15",
+
+	"xml":			"xml/items/stimpack.xml",
+	"itemIcon":		"gfx/item_icons/bacta.tga"
+}

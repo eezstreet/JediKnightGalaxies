@@ -1,0 +1,16 @@
+// Gang Wars team definition
+// File by eezstreet
+// (c) 2012 Jedi Knight Galaxies
+
+name "^7Imperials"
+longname "^7Imperial Security Force"
+joinstring "^7joined the Imperials."
+toomanystring "^7Too many Imperials!"
+leadstring "^7Imperials lead"
+menustring "ISF"
+reference "imps"
+modelstore "stormtrooper/default,stormtrooper/officer,imperial/default,"
+defaultModel "stormtrooper/default,"
+useTeamColors "0"
+icon "sprites/imps"
+teamColor "{31,68,210,255}"

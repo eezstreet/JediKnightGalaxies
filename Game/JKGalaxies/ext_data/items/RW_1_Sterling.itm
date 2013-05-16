@@ -1,0 +1,11 @@
+{
+	"name":             "@JKG_ITEMS_RW_Sterling",
+	"internal":             "RW_Sterling",
+	"id":             "1",
+	"itemtype":             "weapon",
+	"weapon":		"WP_CONCUSSION",
+	"variation":		"0",
+	"weight":		"7",
+	"xml":			"",
+	"itemIcon":		"models/weapons/Sterling/icon_default"
+}

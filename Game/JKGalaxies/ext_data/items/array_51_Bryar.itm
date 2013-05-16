@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_array_Bryar_Shotgun",
+	"internal":             "array_bryar",
+	"id":             "51",
+	"itemtype":             "weapon",
+	"weapon":		"WP_FLECHETTE",
+	"variation":		"3",
+	"weight":		"15",
+	"cost":		"2000",
+	"xml":			"",
+	"itemIcon":		"models/weapons/bryar_carbine/icon_default"
+}

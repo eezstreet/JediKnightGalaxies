@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_sniper_DXR6_HeavyCarbine",
+	"internal":             "sniper_DXR6",
+	"id":             "64",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BOWCASTER",
+	"variation":		"4",
+	"weight":		"14",
+	"cost":		"1800",
+	"xml":			"xml/items/DXR6.xml",
+	"itemIcon":		"models/weapons/DXR6_HeavyCarbine/icon_s"
+}

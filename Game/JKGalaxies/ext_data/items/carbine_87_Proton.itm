@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_carbine_ProtonCarbine",
+	"internal":             "carbine_Proton",
+	"id":             "87",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BLASTER",
+	"variation":		"7",
+	"weight":		"6",
+	"cost":		"1500",
+	"xml":			"Proton_Carbine.xml",
+	"itemIcon":		"models/weapons/ProtonCarbine/icon_default"
+}

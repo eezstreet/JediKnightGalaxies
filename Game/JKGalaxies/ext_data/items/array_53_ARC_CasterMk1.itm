@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_array_ARC_CasterMk1",
+	"internal":             "array_ARC_CasterMk1",
+	"id":             "53",
+	"itemtype":             "weapon",
+	"weapon":		"WP_FLECHETTE",
+	"variation":		"2",
+	"weight":		"5",
+	"cost":		"2500",
+	"xml":			"xml/items/Mk1_ARC_Caster.xml",
+	"itemIcon":		"models/weapons/ARC_CasterMk1/icon_default"
+}

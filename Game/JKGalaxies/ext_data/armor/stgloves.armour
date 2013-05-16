@@ -1,0 +1,9 @@
+{
+	"id":		"5",
+	"model":	"stormtrooper",
+	"skin":		"default",
+	"surf":		"1",
+	"slot":		"hands",
+	"surfLower":	"l_arm,r_arm,l_hand,r_hand,l_hand_wrist,r_hand_wrist",
+	"surfOnUpper":	"l_arm,r_arm,l_arm_sleeve,r_arm_sleeve,l_hand,r_hand,l_hand_plate,r_hand_plate"
+}

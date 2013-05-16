@@ -1,0 +1,121 @@
+Blade_ScrrehRa
+{
+	name		"Traditional Scrreh'Ra Vibrosword"
+	saberType	SABER_SINGLE
+	saberModel	"models/weapons/vibroblades/Blade_ScrrehRa/model.glm"
+	soundOn		"sound/weapons/sword/draw1.mp3"
+	soundLoop	none
+	soundOff	"sound/weapons/sword/catch.mp3"
+	saberLength	42
+	saberRadius	3
+	throwable		0
+
+	noDlight		1
+	noBlade		1
+	noIdleEffect	1
+	onInWater	1
+	noWallMarks	1
+	noClashFlare	1
+	trailStyle		2
+	noManualDeactivate	1
+	bounceOnWalls	1
+	knockbackScale	0.1
+
+	hitPersonEffect 	"blood/Blood_DamageBig.efx"
+	g2MarksShader		"gfx/blood/Blood_Slashmark"
+	g2WeaponMarkShader	"gfx/blood/Blood_SplatBig"
+	hitOtherEffect		"sparks/spark.efx"
+	blockEffect		"sparks/spark.efx"
+
+	spinsound	"sound/weapons/sword/swing1.mp3"
+
+	swingSound1	"sound/weapons/sword/swing1.mp3"
+	swingSound2	"sound/weapons/sword/swing2.mp3"
+	swingSound3	"sound/weapons/sword/swing3.mp3"
+
+//	fallSound1	"sound/weapons/sword/fall1.mp3"
+//	fallSound2	"sound/weapons/sword/fall2.mp3"
+//	fallSound3	"sound/weapons/sword/fall3.mp3"
+
+	hitSound1	"sound/weapons/sword/stab1.mp3"
+	hitSound2	"sound/weapons/sword/stab2.mp3"
+	hitSound3	"sound/weapons/sword/stab3.mp3"
+
+	blockSound1	"sound/weapons/sword/fall4.mp3"
+	blockSound2	"sound/weapons/sword/fall5.mp3"
+	blockSound3	"sound/weapons/sword/fall6.mp3"
+
+	bounceSound1	"sound/weapons/sword/fall1.mp3"	
+	bounceSound2	"sound/weapons/sword/fall2.mp3"
+	bounceSound3	"sound/weapons/sword/fall3.mp3"
+
+	tauntAnim	"BOTH_STAFF_TAUNT"//"BOTH_K7_S7_BR"
+}
+
+Blade_ScrrehRa_Ocriel
+{
+	name		"N'nharan Oc'riel's Sword"
+	saberType	SABER_SINGLE
+	saberModel	"models/weapons/vibroblades/Blade_ScrrehRa/model_ocriel.glm"
+	soundOn		"sound/weapons/sword/draw1.mp3"
+	soundLoop	none
+	soundOff	"sound/weapons/sword/catch.mp3"
+	saberLength	42
+	saberRadius	3
+	throwable		0
+
+	noDlight		1
+	noBlade		1
+	noIdleEffect	1
+	onInWater	1
+	noWallMarks	1
+	noClashFlare	1
+	trailStyle		2
+	noManualDeactivate	1
+	bounceOnWalls	1
+	knockbackScale	0.1
+
+	hitPersonEffect 	"blood/Blood_DamageBig.efx"
+	g2MarksShader		"gfx/blood/Blood_Slashmark"
+	g2WeaponMarkShader	"gfx/blood/Blood_SplatBig"
+	hitOtherEffect		"sparks/spark.efx"
+	blockEffect		"sparks/spark.efx"
+
+	spinsound	"sound/weapons/sword/swing1.mp3"
+
+	swingSound1	"sound/weapons/sword/swing1.mp3"
+	swingSound2	"sound/weapons/sword/swing2.mp3"
+	swingSound3	"sound/weapons/sword/swing3.mp3"
+
+	fallSound1	"sound/weapons/sword/fall1.mp3"
+	fallSound2	"sound/weapons/sword/fall2.mp3"
+	fallSound3	"sound/weapons/sword/fall3.mp3"
+
+	hitSound1	"sound/weapons/sword/stab1.mp3"
+	hitSound2	"sound/weapons/sword/stab2.mp3"
+	hitSound3	"sound/weapons/sword/stab3.mp3"
+
+	blockSound1	"sound/weapons/sword/fall4.mp3"
+	blockSound2	"sound/weapons/sword/fall5.mp3"
+	blockSound3	"sound/weapons/sword/fall6.mp3"
+
+	bounceSound1	"sound/weapons/sword/fall1.mp3"	
+	bounceSound2	"sound/weapons/sword/fall2.mp3"
+	bounceSound3	"sound/weapons/sword/fall3.mp3"
+
+	tauntAnim	"BOTH_STAFF_TAUNT"//"BOTH_K7_S7_BR"
+}
+
+//	saberLength2	1
+//	idleInBack	1
+//	moveSpeedScale	0.8
+//	animSpeedScale	0.9
+//	damageScale	1.2
+//	readyAnim	"BOTH_P7_S7_BR"
+//	drawAnim	"BOTH_BF2RETURN"
+//	putawayAnim	"BOTH_LK_DL_ST_T_B_1_L"
+//	kataMove		"LS_A_BL2TR"//"BOTH_CCWCIRCLELOCK"
+//	bladeStyle2Start	1
+//	trailStyle2	0
+//	damageScale2	0.4
+//	hitPersonEffect2 	"saber/ignitionflare_blue.efx"

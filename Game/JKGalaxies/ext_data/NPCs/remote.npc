@@ -1,0 +1,51 @@
+remote
+{
+	playerModel	remote
+	weapon	WP_BOT_LASER
+	reactions	3
+	aim		1
+	move		3
+	aggression	3
+	evasion		3
+	intelligence	5
+	health		50
+	playerTeam	TEAM_ENEMY	// TEAM_FREE
+	enemyTeam	TEAM_PLAYER	// TEAM_FREE
+	class		CLASS_REMOTE	// CLASS_SEEKER
+	yawSpeed	120
+	runSpeed	500
+	walkSpeed	150
+	height		32
+	width		8
+	hFOV		160
+	vfov		45
+	snd			remote
+	moveType	"flyswim"
+}
+
+remote_sp	// Don't try this, still uses .md3 player model which is unsupported by MP
+{
+	headmodel	none
+	torsomodel	none
+	legsmodel	remote_sp
+	weapon		WP_BOT_LASER
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		3
+	intelligence	5
+	playerTeam	TEAM_ENEMY
+	enemyTeam	TEAM_PLAYER
+//	race		bot
+	class		CLASS_REMOTE
+	yawSpeed	120
+	runSpeed	500
+	walkSpeed	150
+	height		32
+	width		8
+	hFOV		160
+	vfov		45
+	snd			remote
+	moveType	"flyswim"
+}

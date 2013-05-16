@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_rifle_A200_ACP_BattleRifle",
+	"internal":             "rifle_ACP_BR",
+	"id":             "76",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DISRUPTOR",
+	"variation":		"4",
+	"weight":		"4",
+	"cost":		"1125",
+	"xml":			"xml/items/ACP_Rifle.xml",
+	"itemIcon":		"models/weapons/A200_ACP_BattleRifle/icon_default"
+}

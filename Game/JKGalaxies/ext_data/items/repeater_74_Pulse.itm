@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_repeater_PulseCannon",
+	"internal":             "repeater_pulse",
+	"id":             "74",
+	"itemtype":             "weapon",
+	"weapon":		"WP_REPEATER",
+	"variation":		"5",
+	"weight":		"20",
+	"cost":		"1650",
+	"xml":			"xml/items/PB10.xml",
+	"itemIcon":		"models/weapons/PulseCannon/icon_default"
+}

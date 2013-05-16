@@ -1,0 +1,10 @@
+{
+	"name":             "@JKG_ITEMS_RW_Lemons",
+	"internal":             "RW_Lemons",
+	"id":             "40",
+	"itemtype":             "weapon",
+	"weapon":		"WP_THERMAL",
+	"variation":		"11",
+	"xml":			"",
+	"itemIcon":		"models/weapons/Grenade_Stun/icon_lemon"
+}

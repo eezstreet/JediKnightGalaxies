@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_sniper_Bryar_Rifle",
+	"internal":             "sniper_Bryar",
+	"id":             "67",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BOWCASTER",
+	"variation":		"7",
+	"weight":		"10",
+	"cost":		"1325",
+	"xml":			"",
+	"itemIcon":		"models/weapons/bryar_rifle/icon_scope"
+}

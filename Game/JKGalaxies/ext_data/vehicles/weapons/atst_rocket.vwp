@@ -1,0 +1,25 @@
+atst_rocket
+{
+name		atst_rocket
+projectile		1
+hasGravity	1
+model		"models/ammo/anti-armor_charge.md3"
+muzzleFX	"vehicles/atst_rocket"
+shotFX	"explosives/shot_rpg"
+impactFX	"explosives/demomedium"
+g2MarkShader	"gfx/damage/bodybigburnmark1"
+g2MarkSize	48
+loopSound	"sound/weapons/slugthrowers/rocketlauncher_loop.wav"
+speed		3100
+homing	0
+lockOnTime	0
+damage	150
+splashDamage	150
+splashRadius	250
+ammoPerShot	1
+health	10
+width		10
+height	10
+lifetime	10000
+explodeOnExpire	1
+}

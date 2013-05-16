@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_Grenade_Plasma",
+	"internal":             "Grenade_Plasma",
+	"id":             "39",
+	"itemtype":             "weapon",
+	"weapon":		"WP_THERMAL",
+	"variation":		"12",
+	"weight":		"1",
+	"cost":		"725",
+	"xml":			"",
+	"itemIcon":		"models/weapons/Grenade_Plasma/icon_default"
+}

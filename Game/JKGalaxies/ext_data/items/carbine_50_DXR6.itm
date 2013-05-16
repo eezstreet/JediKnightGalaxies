@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_carbine_DXR6_HeavyCarbine",
+	"internal":             "carbine_DXR6",
+	"id":             "50",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BLASTER",
+	"variation":		"3",
+	"weight":		"15",
+	"cost":		"1225",
+	"xml":			"",
+	"itemIcon":		"models/weapons/DXR6_HeavyCarbine/icon_default"
+}

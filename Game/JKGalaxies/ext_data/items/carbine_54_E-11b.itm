@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_carbine_E-11b_Carbine",
+	"internal":             "carbine_E-11b",
+	"id":             "54",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BLASTER",
+	"variation":		"2",
+	"weight":		"3",
+	"cost":		"1550",
+	"xml":			"E-11_Stun.xml",
+	"itemIcon":		"models/weapons/E-11b_Carbine/icon_default"
+}

@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_carbine_LT-60_SlugCarbine",
+	"internal":             "carbine_LT-60",
+	"id":             "82",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BLASTER",
+	"variation":		"6",
+	"weight":		"6",
+	"cost":		"650",
+	"xml":			"xml/items/LT-60.xml",
+	"itemIcon":		"models/weapons/lt-60_slugcarbine/icon_default"
+}

@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_pistol_SuppressorPistol",
+	"internal":             "pistol_Suppressor",
+	"id":             "31",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BRYAR_PISTOL",
+	"variation":		"0",
+	"weight":		"2",
+	"cost":		"90",
+	"xml":			"",
+	"itemIcon":		"models/weapons/SuppressorPistol/icon_default"
+}

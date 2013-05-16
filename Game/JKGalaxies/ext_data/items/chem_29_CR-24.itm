@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_chemical_CR-24_FlameCarbine",
+	"internal":             "chem_CR-24",
+	"id":             "29",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DEMP2",
+	"variation":		"0",
+	"weight":		"20",
+	"cost":		"2100",
+	"xml":			"xml/items/CR-24.xml",
+	"itemIcon":		"models/weapons/Cr-24_FlameCarbine/icon_default"
+}

@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_rifle_E-11_Rifle",
+	"internal":             "rifle_E-11",
+	"id":             "4",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DISRUPTOR",
+	"variation":		"0",
+	"weight":		"5",
+	"cost":		"1350",
+	"xml":			"",
+	"itemIcon":		"models/weapons/e-11_rifle/icon_default"
+}

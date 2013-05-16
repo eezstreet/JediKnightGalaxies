@@ -1,0 +1,76 @@
+Landspeeder
+{
+name			Landspeeder
+
+type			VH_SPEEDER
+numHands		2
+lookPitch		20
+lookYaw			45
+length			300
+width			160
+height			40
+centerOfGravity	"-0.222 0 0"
+
+speedMax		1400
+speedMin		-150
+turboSpeed		2200
+turboDuration		2000
+turboRecharge		8000
+acceleration	20
+decelIdle		10
+strafePerc		0.5
+
+bankingSpeed	0.6
+rollLimit		3
+pitchLimit		8
+braking			16
+mouseYaw		0.0038
+turningSpeed	3
+turnWhenStopped	0
+traction		8
+friction		1.5
+maxSlope		0.75
+
+mass			500
+armor 			2000
+toughness 		100.0
+malfunctionArmorLevel	1000
+
+model			veh_landspeeder
+skin			default
+riderAnim		BOTH_VS_IDLE
+radarIcon		"gfx/menus/radar/swoop"
+
+soundOn			"sound/vehicles/landspeeder/enginestart.mp3"
+soundOff		"sound/vehicles/swoop/off.mp3"
+soundLoop		"sound/vehicles/landspeeder/landspeeder_lp.wav"
+soundTakeOff		"sound/vehicles/landspeeder/landspeederby.mp3"
+soundEngineStart	"sound/vehicles/landspeeder/enginestart.mp3"
+soundTurbo		"sound/vehicles/landspeeder/enginestart.mp3"
+soundFlyBy		"sound/vehicles/landspeeder/landspeederby.mp3"
+
+//exhaustFX		"ships/burner"
+impactFX		"ships/scrape_sparks"
+//turboStartFX		"ships/swoop_turbo_start"
+armorLowFX		"volumetric/black_smoke"
+explodeFX		"explosives/fragbig"
+wakeFX			"ships/vehicle_wake"
+
+gravity			800
+hoverHeight		20
+hoverStrength	20
+waterProof		1
+bouyancy		1
+explosionRadius 100
+explosionDamage 250
+maxPassengers		1
+//explosionDelay	2500
+
+cameraOverride		1
+cameraRange			256
+cameraVertOffset	16
+cameraHorzOffset	10
+cameraPitchOffset	0
+cameraFOV			100
+cameraAlpha			0
+}

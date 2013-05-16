@@ -1,0 +1,16 @@
+// Gang Wars team definition
+// File by eezstreet
+// (c) 2012 Jedi Knight Galaxies
+
+name "^7Bespin Cops"
+longname "^7Bespin Cops"
+joinstring "^7joined the Bespin Cops."
+toomanystring "^7Too many cops!"
+leadstring "^7The Bespin Cops are keeping the peace now."
+menustring "Bespin Cops"
+reference "bcops"
+modelstore "bespin_cop/default,"
+defaultModel "bespin_cop/default,"
+useTeamColors "0"
+icon "sprites/bcops"
+teamColor "{51,51,201,255}"

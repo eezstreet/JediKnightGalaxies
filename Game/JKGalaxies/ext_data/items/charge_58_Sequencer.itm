@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_charge_Sequencer",
+	"internal":             "charge_Sequencer",
+	"id":             "58",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DET_PACK",
+	"variation":		"0",
+	"weight":		"1",
+	"cost":		"550",
+	"xml":			"xml/items/Sequencer_Charge.xml",
+	"itemIcon":		"models/weapons/Charge_Sequencer/icon_default"
+}

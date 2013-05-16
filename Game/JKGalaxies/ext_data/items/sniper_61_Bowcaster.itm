@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_sniper_Bowcaster",
+	"internal":             "sniper_Bowcaster",
+	"id":             "61",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BOWCASTER",
+	"variation":		"1",
+	"weight":		"14",
+	"cost":		"1375",
+	"xml":			"",
+	"itemIcon":		"models/weapons/bowcaster/icon_default"
+}

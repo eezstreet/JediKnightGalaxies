@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_chemical_CarboniteRifle",
+	"internal":             "chem_CarbR",
+	"id":             "25",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DEMP2",
+	"variation":		"1",
+	"weight":		"30",
+	"cost":		"3250",
+	"xml":			"xml/items/Carbonite_rifle.xml",
+	"itemIcon":		"models/weapons/CarboniteRifle/icon_default"
+}

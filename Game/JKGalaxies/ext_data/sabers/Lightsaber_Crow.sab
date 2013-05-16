@@ -1,0 +1,11 @@
+Lightsaber_Crow
+{
+	name		"Crow"
+	saberType	SABER_SINGLE
+	saberModel	"models/weapons/lightsabers/Crow/model.glm"
+	soundOn		"sound/weapons/saber/saberon2.wav"
+	soundLoop	"sound/weapons/saber/saberhum4.wav"
+	soundOff		"sound/weapons/saber/saberoff2.wav"
+	saberLength	40
+	saberColor	random
+}

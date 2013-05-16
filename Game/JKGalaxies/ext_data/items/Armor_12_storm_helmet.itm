@@ -1,0 +1,11 @@
+{
+	"name":             "Stormtrooper Helmet",
+	"internal":             "Armor",
+	"id":             "12",
+	"itemtype":             "armor",
+	"armorID":		"1",
+	"armorSlot":		"head",
+	"weight":		"2",
+	"cost":		"0",
+	"itemIcon":		"gfx/item_icons/stormtrooper_helmet.tga"
+}

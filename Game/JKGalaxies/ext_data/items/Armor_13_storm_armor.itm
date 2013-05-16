@@ -1,0 +1,11 @@
+{
+	"name":             "Stormtrooper Body Armor",
+	"internal":             "Armor",
+	"id":             "13",
+	"itemtype":             "armor",
+	"armorID":		"7",
+	"armorSlot":		"torso",
+	"weight":		"20",
+	"cost":		"0",
+	"itemIcon":		"gfx/item_icons/stormtrooper.tga"
+}

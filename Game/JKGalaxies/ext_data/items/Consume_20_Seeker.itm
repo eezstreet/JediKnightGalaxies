@@ -1,0 +1,11 @@
+{
+	"name":             "Marksman-H Combat Remote",
+	"internal":             "Seeker",
+	"id":             "20",
+	"itemtype":             "none",
+	"itemIcon":		"gfx/hud/i_icon_seeker",
+	"pSpell":		"13",
+	"pSpell2":		"15",
+	"cost":		"175",
+	"xml":			"xml/items/seeker.xml"
+}

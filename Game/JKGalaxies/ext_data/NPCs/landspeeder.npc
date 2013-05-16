@@ -1,0 +1,11 @@
+
+//NOTE: for vehicle-class NPCs, the playerModel key is actually their entry in the vehicles.dat
+
+Landspeeder
+{
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_VEHICLE
+	width		200
+	height		64
+}

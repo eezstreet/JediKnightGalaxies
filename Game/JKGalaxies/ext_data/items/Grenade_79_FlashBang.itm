@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_Grenade_FlashBang",
+	"internal":             "Grenade_FlashBang",
+	"id":             "79",
+	"itemtype":             "weapon",
+	"weapon":		"WP_THERMAL",
+	"variation":		"0",
+	"weight":		"1",
+	"cost":		"325",
+	"xml":			"xml/items/Flash-Bang.xml",
+	"itemIcon":		"models/weapons/Grenade_FlashBang/icon_default"
+}

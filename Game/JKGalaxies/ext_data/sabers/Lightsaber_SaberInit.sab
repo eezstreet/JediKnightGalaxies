@@ -1,0 +1,10 @@
+Lightsaber_SaberInit
+{
+	name		"Initiate Lightsaber"
+	saberType	SABER_SINGLE
+	saberModel	"models/weapons/lightsabers/SaberInit/model.glm"
+	soundOn		"sound/weapons/saber/saberon3.wav"
+	soundLoop	"sound/weapons/saber/saberhum4.wav"
+	soundOff	"sound/weapons/saber/saberoff3.wav"
+	saberLength	40
+}

@@ -1,0 +1,23 @@
+concussion_missile
+{
+name		concussion_missile
+projectile	1
+muzzleFX	"ships/reb_torpmuzzleflash"
+shotFX		"ships/reb_torpshot"
+impactFX	"explosives/demohuge_delayed"
+g2MarkShader	"gfx/damage/bodybigburnmark1"
+g2MarkSize	72
+loopSound	"sound/vehicles/weapons/conc_missile/loop.wav"
+speed		5000
+homing		0.75
+lockOnTime	2000
+damage		1400
+splashDamage	1000
+splashRadius	400
+ammoPerShot	1
+health		10
+width		6
+height		6
+lifetime	30000
+explodeOnExpire	1
+}

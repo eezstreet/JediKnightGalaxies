@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_Mine_LaserTrip_Mk2",
+	"internal":             "Mine_LaserTrip2",
+	"id":             "34",
+	"itemtype":             "weapon",
+	"weapon":		"WP_TRIP_MINE",
+	"variation":		"1",
+	"weight":		"1",
+	"cost":		"1050",
+	"xml":			"",
+	"itemIcon":		"models/weapons/Mine_LaserTrip/icon_mk2"
+}

@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_launcher_LJ-70_ConcRifle",
+	"internal":             "launcher_LJ-70",
+	"id":             "38",
+	"itemtype":             "weapon",
+	"weapon":		"WP_ROCKET_LAUNCHER",
+	"variation":		"1",
+	"weight":		"20",
+	"cost":		"2300",
+	"xml":			"",
+	"itemIcon":		"models/weapons/LJ-70_ConcRifle/icon_default"
+}

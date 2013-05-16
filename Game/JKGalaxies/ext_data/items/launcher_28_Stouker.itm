@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_launcher_Stouker",
+	"internal":             "launcher_Stouker",
+	"id":             "28",
+	"itemtype":             "weapon",
+	"weapon":		"WP_ROCKET_LAUNCHER",
+	"variation":		"6",
+	"weight":		"40",
+	"cost":		"2500",
+	"xml":			"xml/items/Conc_rifle.xml",
+	"itemIcon":		"models/weapons/stouker_concussionrifle/icon_default"
+}

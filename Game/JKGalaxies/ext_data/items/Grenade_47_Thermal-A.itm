@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_Grenade_Thermal-A",
+	"internal":             "Grenade_Thermal-A",
+	"id":             "47",
+	"itemtype":             "weapon",
+	"weapon":		"WP_THERMAL",
+	"variation":		"4",
+	"weight":		"1",
+	"cost":		"4000",
+	"xml":			"",
+	"itemIcon":		"models/weapons/grenade_thermal/icon_silver"
+}

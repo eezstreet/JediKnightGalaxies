@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_pistol_A200_ACP_Pistol",
+	"internal":             "pistol_ACP",
+	"id":             "75",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BRYAR_PISTOL",
+	"variation":		"9",
+	"weight":		"3",
+	"cost":		"650",
+	"xml":			"xml/items/A 200.xml",
+	"itemIcon":		"models/weapons/A200_ACP_Pistol/icon_default"
+}

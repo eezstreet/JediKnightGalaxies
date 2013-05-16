@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_Grenade_CryoBan",
+	"internal":             "Grenade_CryoBan",
+	"id":             "44",
+	"itemtype":             "weapon",
+	"weapon":		"WP_THERMAL",
+	"variation":		"7",
+	"weight":		"2",
+	"cost":		"1025",
+	"xml":			"",
+	"itemIcon":		"models/weapons/grenade_cryoban/icon_default"
+}

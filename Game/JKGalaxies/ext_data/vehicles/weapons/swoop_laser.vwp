@@ -1,0 +1,14 @@
+swoop_laser
+{
+name		swoop_laser
+projectile	1
+saberBlockable	1
+muzzleFX	"vehicles/swoop_laser"
+shotFX		"blasters/shot_yellow_big"
+impactFX	"weapons/blaster_impact_yellow_big"
+g2MarkShader	"gfx/damage/bodyburnmark1"
+g2MarkSize	16
+speed		5500
+damage		40
+ammoPerShot	1
+}

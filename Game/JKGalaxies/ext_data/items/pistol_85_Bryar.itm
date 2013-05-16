@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_pistol_Bryar_Pistol",
+	"internal":             "pistol_Bryar",
+	"id":             "85",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BRYAR_PISTOL",
+	"variation":		"1",
+	"weight":		"6",
+	"cost":		"950",
+	"xml":			"xml/items/ModBryar.xml",
+	"itemIcon":		"models/weapons/bryar_pistol/icon_default"
+}

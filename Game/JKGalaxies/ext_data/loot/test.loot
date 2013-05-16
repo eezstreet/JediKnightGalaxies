@@ -1,0 +1,4 @@
+{
+	"lootID":		"1",
+	"lootArray":		[{"id": 2, "chance": 100}, {"id": 3, "chance": 50}, {"id": 4, "chance": 33}]
+}

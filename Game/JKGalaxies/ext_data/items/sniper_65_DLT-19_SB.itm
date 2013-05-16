@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_sniper_DLT-19_HeavyBlaster_Scope",
+	"internal":             "sniper_DLT-19_SB",
+	"id":             "65",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BOWCASTER",
+	"variation":		"5",
+	"weight":		"18",
+	"cost":		"1575",
+	"xml":			"",
+	"itemIcon":		"models/weapons/DLT-19_HeavyBlaster/icon_scopeb"
+}

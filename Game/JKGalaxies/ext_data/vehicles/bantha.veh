@@ -1,0 +1,54 @@
+Bantha
+{
+name			Bantha
+type			VH_ANIMAL
+numHands		4
+lookYaw			45
+lookPitch		45
+length			370
+width			96
+height			176
+centerOfGravity		"-0.222 0 0"
+
+speedMax		400
+speedMin		-500
+turboSpeed		600
+turboDuration		2000
+turboRecharge		7000
+acceleration		9
+decelIdle		20
+
+
+strafePerc		0.0
+bankingSpeed		0.0
+rollLimit		2
+pitchLimit		0
+braking			10
+mouseYaw		0.006
+turningSpeed		5
+turnWhenStopped		0
+traction		100
+friction		100
+maxSlope		0.55
+mass			400
+armor 			500
+toughness 		30.0
+model			Bantha
+riderAnim		BOTH_VS_IDLE
+
+cameraOverride		1
+cameraRange			250
+cameraVertOffset	5
+cameraPitchOffset	0
+cameraFOV			80
+cameraAlpha			0
+
+
+soundOn			"sound/chars/tauntaun/misc/buck1.mp3"
+soundOff		"sound/chars/tauntaun/misc/buck2.mp3"
+soundTurbo		"sound/chars/tauntaun/misc/anger1.mp3"
+soundShift1		"sound/chars/tauntaun/misc/anger3.mp3"
+soundShift2		"sound/chars/tauntaun/misc/chatter1.mp3"
+soundShift3		"sound/chars/tauntaun/misc/chatter3.mp3"
+soundShift4		"sound/chars/tauntaun/misc/pant1.mp3"
+}

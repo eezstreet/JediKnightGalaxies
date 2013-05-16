@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_repeater_DC-15A_Rifle",
+	"internal":             "repeater_DC-15A",
+	"id":             "69",
+	"itemtype":             "weapon",
+	"weapon":		"WP_REPEATER",
+	"variation":		"0",
+	"weight":		"18",
+	"cost":		"1525",
+	"xml":			"xml/items/DC-15A_Blaster.xml",
+	"itemIcon":		"models/weapons/dc-15a_rifle/icon_default"
+}

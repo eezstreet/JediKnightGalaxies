@@ -1,0 +1,17 @@
+rebel_laser
+{
+name		rebel_laser
+projectile	1
+muzzleFX	"vehicles/rebel_laser"
+shotFX		"blasters/shot_red_big"
+impactFX	"weapons/blaster_impact_red_huge"
+g2MarkShader	"gfx/effects/scorch"
+g2MarkSize	52
+//loopSound
+speed		20000
+damage		200
+splashDamage	100
+splashRadius	160
+ammoPerShot	1
+lifetime	2000
+}

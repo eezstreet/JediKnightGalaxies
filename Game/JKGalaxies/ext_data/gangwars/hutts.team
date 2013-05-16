@@ -1,0 +1,16 @@
+// Gang Wars team definition
+// File by eezstreet
+// (c) 2012 Jedi Knight Galaxies
+
+name "^7Hutt Gang"
+longname "^7Hutt Gang"
+joinstring "^7joined the Hutts."
+toomanystring "^7Too many Hutt Gangsters!"
+leadstring "^7The Hutts are leading"
+menustring "Hutts"
+reference "hutts"
+modelstore "weequay/default,gran/default,rodian/default,trandoshan/default,ugnaught/default,reelo/default,human_merc/default,boba_fett/default,"
+defaultModel "weequay/default,"
+useTeamColors "0"
+icon "sprites/hutts"
+teamColor "{204,204,51,255}"

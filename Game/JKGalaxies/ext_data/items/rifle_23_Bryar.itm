@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_rifle_Bryar_Rifle",
+	"internal":             "rifle_Bryar",
+	"id":             "23",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DISRUPTOR",
+	"variation":		"6",
+	"weight":		"10",
+	"cost":		"1250",
+	"xml":			"xml/items/Bryar_rifle.xml",
+	"itemIcon":		"models/weapons/Bryar_rifle/icon_default"
+}

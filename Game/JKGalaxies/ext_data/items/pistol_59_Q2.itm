@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_pistol_Q2_HoldoutPistol",
+	"internal":             "pistol_Q2",
+	"id":             "59",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BRYAR_PISTOL",
+	"variation":		"12",
+	"weight":		"1",
+	"cost":		"300",
+	"xml":			"xml/items/Q2.xml",
+	"itemIcon":		"models/weapons/Q2_HoldoutPistol/icon_default"
+}

@@ -1,0 +1,10 @@
+{
+	"name":             "@JKG_ITEMS_charge_LaserProjector",
+	"internal":             "charge_LaserProjector",
+	"id":             "49",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DET_PACK",
+	"variation":		"1",
+	"xml":			"",
+	"itemIcon":		"models/weapons/LaserProjector/icon_default"
+}

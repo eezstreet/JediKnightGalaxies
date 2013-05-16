@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_launcher_W-90_Scope",
+	"internal":             "launcher_W-90_S",
+	"id":             "37",
+	"itemtype":             "weapon",
+	"weapon":		"WP_ROCKET_LAUNCHER",
+	"variation":		"3",
+	"weight":		"20",
+	"cost":		"3400",
+	"xml":			"",
+	"itemIcon":		"models/weapons/w-90_concussion/icon_upgrade"
+}

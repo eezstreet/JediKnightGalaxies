@@ -1,10 +1,10 @@
 {
-	"id":		"1",
+	"id":		"7",
 	"model":	"stormtrooper",
 	"skin":		"default",
 	"surf":		"1",
-	"slot":		"head",
-	"surfLower":	"head,head_face,head_eyes_mouth,head_helmet",
+	"slot":		"torso",
+	"surfLower":	"torso,torso_collar",
 	"surfUpper":	"hips,torso,torso_pauldron,torso_body,r_arm_shoulder,r_arm,r_arm_sleeve,r_hand,r_hand_plate,l_arm,l_arm_sleeve,l_hand,l_hand_plate,l_arm_shoulder,l_leg,l_leg_knee,r_leg,r_leg_knee,r_arm_shoulder_aug,hips_holster,hips_augment,sand_pouch1,sand_pouch2,sand_pouch3,torso_augment,torso_body_augment,torso_waist,sand_pack1,sand_pack2",
-	"surfOnUpper":	"head,head_face"
+	"surfOnUpper":	"torso,torso_augment,torso_body,torso_body_augment,torso_waist"
 }

@@ -1,0 +1,18 @@
+// Gang Wars team definition
+// File by eezstreet
+// (c) 2012 Jedi Knight Galaxies
+
+name "@MP_INGAME_RED"
+longname "@MP_SVGAME_PRINTREDTEAM"
+joinstring "@MP_SVGAME_JOINEDTHEREDTEAM"
+toomanystring "@MP_SVGAME_TOOMANYRED"
+leadstring "@MP_INGAME_RED_LEADS"
+menujoinstring "@MENUS_JOIN_RED"
+menustring "@MENUS_TEAM_RED"
+
+reference "red"
+modelstore "NULL,"
+useTeamColors "1"
+icon "sprites/team_red"
+
+teamColor "{255,51,51,255}"

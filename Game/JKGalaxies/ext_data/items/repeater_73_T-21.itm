@@ -1,0 +1,11 @@
+{
+	"name":             "@JKG_ITEMS_repeater_T-21_Repeater",
+	"internal":             "repeater_T-21",
+	"id":             "73",
+	"itemtype":             "weapon",
+	"weapon":		"WP_REPEATER",
+	"variation":		"4",
+	"weight":		"22",
+	"xml":			"",
+	"itemIcon":		"models/weapons/t-21_repeater/icon_default"
+}

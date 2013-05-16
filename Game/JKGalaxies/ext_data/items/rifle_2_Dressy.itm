@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_rifle_Drsln_SlugRifle",
+	"internal":             "rifle_Dressy",
+	"id":             "2",
+	"itemtype":             "weapon",
+	"weapon":		"WP_DISRUPTOR",
+	"variation":		"7",
+	"weight":		"7",
+	"cost":		"1225",
+	"xml":			"",
+	"itemIcon":		"models/weapons/Drsln_SlugRifle/icon_default"
+}

@@ -1,0 +1,9 @@
+{
+	"id":		"6",
+	"model":	"stormtrooper",
+	"skin":		"default",
+	"surf":		"1",
+	"slot":		"legs",
+	"surfLower":	"hips,hips_legs,l_leg,r_leg",
+	"surfOnUpper":	"hips,hips_augment,l_leg,r_leg,l_leg_knee,r_leg_knee"
+}

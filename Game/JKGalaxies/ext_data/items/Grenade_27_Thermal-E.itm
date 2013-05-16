@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_Grenade_Thermal-E",
+	"internal":             "Grenade_Thermal-E",
+	"id":             "27",
+	"itemtype":             "weapon",
+	"weapon":		"WP_THERMAL",
+	"variation":		"2",
+	"weight":		"2",
+	"cost":		"1200",
+	"xml":			"xml/items/Class-E_Det.xml",
+	"itemIcon":		"models/weapons/Grenade_thermal/icon_default"
+}

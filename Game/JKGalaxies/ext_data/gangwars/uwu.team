@@ -1,0 +1,16 @@
+// Gang Wars team definition
+// File by eezstreet
+// (c) 2012 Jedi Knight Galaxies
+
+name "^7Ugnaught Worker's Union"
+longname "^7Ugnaught Worker's Union"
+joinstring "^7joined the Ugnaught's Union."
+toomanystring "^7Too many Union members!"
+leadstring "^7The Ugnaughts are leading."
+menustring "Union"
+reference "uwu"
+modelstore "ugnaught/default,ugnaught/blue,ugnaught/red,human_merc/default,"
+defaultModel "ugnaught/default,"
+useTeamColors "0"
+icon "sprites/uwu"
+teamColor "{51,201,51,255}"

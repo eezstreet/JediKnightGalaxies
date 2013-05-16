@@ -1,9 +1,0 @@
-{
-	"name":             "Stormtrooper Pauldrons",
-	"internal":             "Armor",
-	"id":             "13",
-	"itemtype":             "armor",
-	"armorID":		"2",
-	"armorSlot":		"shoulder",
-	"weight":		"2"
-}

@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_repeater_LS-180_ACP_HeavyRepeater",
+	"internal":             "repeater_LS-180",
+	"id":             "71",
+	"itemtype":             "weapon",
+	"weapon":		"WP_REPEATER",
+	"variation":		"2",
+	"weight":		"30",
+	"cost":		"1975",
+	"xml":			"xml/items/LS-180.xml",
+	"itemIcon":		"models/weapons/LS-180_ACP_HeavyRepeater/icon_default"
+}

@@ -1,0 +1,22 @@
+{
+	"name":             "Greater Bacta Canister",
+	"internal":             "Stimpack",
+	"id":             "6",
+	"cost":		"150",
+	"itemtype":             "none",
+
+	"pSpell":		"16",
+	"affector":		"0",
+	"amount":		"99",
+	
+	"pSpell2":		"1",
+	"affector2":		"0",
+	"amount2":		"50",
+
+	"pSpell3":		"14",
+	"affector3":		"sound/items/use_bacta.wav",
+
+	"pSpell4":		"15",
+
+	"itemIcon":		"gfx/item_icons/bacta_big.tga"
+}

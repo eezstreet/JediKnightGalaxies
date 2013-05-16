@@ -1,0 +1,472 @@
+civilian_bartender
+{
+	playerModel	chiss
+	weapon		WP_NONE
+	//customRGBA	random1
+	snd			bartender
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+//	race		human
+	class		CLASS_CIVILIAN
+	walkSpeed	55
+	runSpeed	200
+	yawspeed	90
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbLegs	0
+	dismemberProbHands	0
+	dismemberProbWaist	0
+}
+
+civilian_human_merc
+{
+	playerModel human_merc
+	surfOff		"l_arm_pocket l_arm_key"
+	weapon		WP_NONE
+	//customRGBA	random1
+	health		100
+	headPitchRangeDown 30
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_CIVILIAN
+	height		64
+	crouchheight 48
+	walkSpeed	51
+	runSpeed	200
+	snd			st1
+	sndcombat	st1
+	sndextra	st1
+	yawspeed	70
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	0
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_merchant
+{
+	playerModel	prisoner
+	weapon	WP_NONE
+	customRGBA	random1
+	customSkin	merchant
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	rank			crewman
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_CIVILIAN
+	snd			prisoner2
+	sndcombat		prisoner2
+	sndextra		prisoner2
+	walkSpeed		55
+	runSpeed		200
+	yawspeed		110
+	dismemberProbHead	0
+	dismemberProbArms	5
+	dismemberProbLegs	0
+	dismemberProbHands	10
+	dismemberProbWaist	0
+}
+
+civilian_protocol
+{
+	playerModel	protocol
+	weapon		WP_NONE
+	//customRGBA	random1
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+//	race		bot
+	class		CLASS_CIVILIAN
+	snd			protocol
+	yawSpeed	60
+	runSpeed	150
+	walkSpeed	50
+	height		65
+	width		12
+	hFOV		120
+	vfov		45
+	snd			protocol
+}
+
+civilian_r2d2
+{
+	playermodel		r2d2
+	weapon		WP_NONE
+	//customRGBA	random1
+	headYawRangeLeft	180
+	headYawRangeRight	180
+	headPitchRangeUp	0
+	headPitchRangeDown	0
+	torsoYawRangeLeft	0
+	torsoYawRangeRight	0
+	torsoPitchRangeUp	10
+	torsoPitchRangeDown	10
+	reactions		3
+	aim			1
+	move			3
+	aggression		3
+	evasion			1
+	intelligence		5
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+//	race			bot
+	class			CLASS_CIVILIAN
+	yawSpeed		120
+	runSpeed		150
+	walkSpeed		50
+	height			40
+	width			12
+	hFOV			120
+	vfov			45
+	snd			r2d2
+}
+
+civilian_r5d2
+{
+	playerModel r5d2
+	weapon		WP_NONE
+	//customRGBA	random1
+	headYawRangeLeft		180
+	headYawRangeRight		180
+	headPitchRangeUp		0
+	headPitchRangeDown		0
+	torsoYawRangeLeft		0
+	torsoYawRangeRight		0
+	torsoPitchRangeUp		10
+	torsoPitchRangeDown		10
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+//	race		bot
+	class		CLASS_CIVILIAN
+	yawSpeed	60
+	runSpeed	150
+	walkSpeed	50
+	height		40
+	width		12
+	hFOV		120
+	vfov		45
+	snd			r5d2
+}
+
+civilian_rodian
+{
+	playerModel	rodian
+	customSkin	sp
+	customRGBA	random1
+	weapon		WP_NONE
+	altFire		1
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	health 		25
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+//	race		klingon
+	class		CLASS_CIVILIAN
+	snd			rodian1
+	sndcombat	rodian1
+	sndextra	rodian1
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	visrange	8192
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_rodian2
+{
+	playerModel	rodian
+	customSkin	sp
+	//customRGBA	random1
+	weapon		WP_NONE
+	altFire		1
+	surfOff		"hips_belt torso_vest"
+	surfOn		"torso_augment"
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	health 		20
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+//	race		klingon
+	class		CLASS_CIVILIAN
+	snd			rodian2
+	sndcombat	rodian2
+	sndextra	rodian2
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_trandoshan
+{
+	playerModel	trandoshan
+	customSkin	sp
+	customRGBA	random1
+	weapon		WP_NONE
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	health		40
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+//	race		klingon
+	class		CLASS_CIVILIAN
+	snd			trandoshan1
+	sndcombat	trandoshan1
+	sndextra	trandoshan1
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_ugnaught
+{
+	playerModel	ugnaught
+	weapon		WP_NONE
+	//customRGBA	random1
+	scale 		75
+	health		10
+	snd			ugnaught
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_CIVILIAN
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_ugnaught2
+{
+	playerModel	ugnaught
+	weapon		WP_NONE
+	//customRGBA	random1
+	surfOff		"l_hand_purse"
+	surfOn		"r_hand_tool"
+	scale 		75
+	health		10
+	snd			ugnaught
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_CIVILIAN
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_weequay
+{
+	playerModel	weequay
+	customSkin	sp
+	customRGBA	random1
+	weapon		WP_NONE
+//FIXME: randomize these somehow, also belt...
+	surfOff		"hips_lowerarmor"
+	surfOn		"hips_torso_augment"
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	health		30
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_CIVILIAN
+	snd			weequay
+	sndcombat	weequay
+	sndextra	weequay
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_weequay2
+{
+	playerModel	weequay
+	customSkin	sp
+	customRGBA	random1
+	weapon		WP_NONE
+	surfOff		"head_l_hairback hips_r_strap hips_r_packsmall"
+	surfOn		"head_r_hairshoulder hips_l_packsmall hips_l_strap"
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	health		30
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_CIVILIAN
+	snd			weequay
+	sndcombat	weequay
+	sndextra	weequay
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_weequay3
+{
+	playerModel	weequay
+	customSkin	sp
+	customRGBA	random1
+	weapon		WP_NONE
+	surfOff		"head_l_hairback hips_l_packlarge hips_l_packwide hips_r_strap hips_r_packsmall"
+	surfOn		"head_r_hairback hips_l_packsmall hips_l_strap hips_r_packlarge hips_r_packwide"
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	health		30
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_CIVILIAN
+	snd			weequay
+	sndcombat	weequay
+	sndextra	weequay
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+civilian_weequay4
+{
+	playerModel	weequay
+	customSkin	sp
+	customRGBA	random1
+	weapon		WP_NONE
+	surfOff		"head_l_hairback hips_l_packlarge hips_l_packwide"
+	surfOn		"head_l_hairshoulder hips_r_packlarge hips_r_packwide"
+	reactions	3
+	aim			1
+	move		3
+	aggression	3
+	evasion		1
+	intelligence	5
+	health		30
+	rank		crewman
+	playerTeam	TEAM_NEUTRAL
+	enemyTeam	TEAM_NEUTRAL
+	class		CLASS_CIVILIAN
+	snd			weequay
+	sndcombat	weequay
+	sndextra	weequay
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	10
+	dismemberProbLegs	1
+	dismemberProbHands	20
+	dismemberProbWaist	0
+}
+
+
+
+
+

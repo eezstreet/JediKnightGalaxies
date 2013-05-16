@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_pistol_FWG-5_FlechettePistol",
+	"internal":             "pistol_FWG-5",
+	"id":             "80",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BRYAR_PISTOL",
+	"variation":		"4",
+	"weight":		"6",
+	"cost":		"1200",
+	"xml":			"xml/items/FWG-5.xml",
+	"itemIcon":		"models/weapons/fwg-5_flechettepistol/icon_default"
+}

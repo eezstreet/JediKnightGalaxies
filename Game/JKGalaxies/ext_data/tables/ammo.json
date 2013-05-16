@@ -1,0 +1,246 @@
+{
+	// STANDARD JSON FORMAT FILE
+	// This defines all the ammo types in the game.
+	// Eventually this will expand to include sub-types
+	// of various ammo, such as Armor Piercing, Overcharged,
+	// Heat-Seeking missiles, Incendiary, etc.
+
+	// BaseJKA Ammo Types
+	"none":
+	{
+		"name":		"AMMO_NONE",
+		"ammoMax":	0
+	},
+	"force": {
+		"name":		"AMMO_FORCE",
+		"ammoMax":	1000
+	},
+	"blaster": {
+		"name":		"AMMO_BLASTER",
+		"ammoMax":	3000
+	},
+	"powercell": {
+		"name":		"AMMO_POWERCELL",
+		"ammoMax":	3000
+	},
+	"metallic bolts": {
+		"name":		"AMMO_METAL_BOLTS",
+		"ammoMax":	3000
+	},
+	"concussion": {
+		"name":		"AMMO_CONCUSSION",
+		"ammoMax":	500
+	},
+	"rockets": {
+		"name":		"AMMO_ROCKETS",
+		"ammoMax":	25
+	},
+	"emplaced gun": {
+		"name":		"AMMO_EMPLACED",
+		"ammoMax":	800
+	},
+	"thermal": {
+		"name":		"AMMO_THERMAL",
+		"ammoMax":	10
+	},
+	"trip mines": {
+		"name":		"AMMO_TRIPMINE",
+		"ammoMax":	10
+	},
+	"det packs": {
+		"name":		"AMMO_DETPACK",
+		"ammoMax":	10
+	},
+
+	// Custom defined ammo types
+
+	"ACP Array Shell": {
+		"name":		"acp_cartridge",
+		"ammoMax":	80
+	},
+
+	"Anti-Armor Charge": {
+		"name":		"antiarmor_charge",
+		"ammoMax":	8
+	},
+
+	"Large Blaster Power Pack": {
+		"name":		"blaster_power_pack_l",
+		"ammoMax":	1200
+	},
+
+	"Medium Blaster Power Pack": {
+		"name":		"blaster_power_pack_m",
+		"ammoMax":	600
+	},
+
+	"Small Blaster Power Pack": {
+		"name":		"blaster_power_pack_s",
+		"ammoMax":	320
+	},
+
+	"FWG-5 Flechette Missiles": {
+		"name":		"flechette_missile",
+		"ammoMax":	80
+	},
+
+	"Incendiary Canister": {
+		"name":		"incendcan",
+		"ammoMax":	10
+	},
+
+	"Large Power Cell": {
+		"name":		"powercell_l",
+		"ammoMax":	1200
+	},
+
+	"Medium Power Cell": {
+		"name":		"powercell_m",
+		"ammoMax":	600
+	},
+
+	"Small Power Cell": {
+		"name":		"powercell_s",
+		"ammoMax":	300
+	},
+
+	"Pulse Cannon": {
+		"name":		"pulsecannon",
+		"ammoMax":	750
+	},
+
+	"Quarrel Pack": {
+		"name":		"quarrel",
+		"ammoMax":	200
+	},
+
+	"Rocket 1": {
+		"name":		"rocket1",
+		"ammoMax":	8
+	},
+
+	"7.62 x 51 mm Slugs x 30 Magazine": {
+		"name":		"7.62slugs",
+		"ammoMax":	600
+	},
+
+	"Trando Powercell": {
+		"name":		"trandopowercell",
+		"ammoMax":	500
+	},
+
+	"Power Pak": {
+		"name":		"powerpak",
+		"ammoMax":	500
+	},
+
+	"Proton Carbine G36 Power Pack": {
+		"name":		"g36powerpack",
+		"ammoMax":	400
+	},
+
+	"Disintegrating ACP round belt drum": {
+		"name":		"acp_belt",
+		"ammoMax":	900
+	},
+
+	"7.92 x 57 mm Mauser slugs": {
+		"name":		"7.92slugs",
+		"ammoMax":	120
+	},
+
+	"Gas Fuel Canister": {
+		"name":		"gasfuel",
+		"ammoMax":	198
+	},
+
+	"Carbonite Canister": {
+		"name":		"carbonite",
+		"ammoMax":	198
+	},
+
+	"Concussion Canister": {
+		"name":		"concussion",
+		"ammoMax":	20
+	},
+
+	"Sequencer Charge": {
+		"name":		"charge_sequencer",
+		"ammoMax":	10
+	},
+
+	"Laser Trip Mine Mk 1": {
+		"name":		"mine_lasertrip1",
+		"ammoMax":	10
+	},
+
+	"Laser Trip Mine Mk 2": {
+		"name":		"mine_lasertrip2",
+		"ammoMax":	10
+	},
+
+	"Flash-Bang Grenades": {
+		"name":		"grenade_flashbang",
+		"ammoMax":	10
+	},
+
+	"C-22 Frag Grenades": {
+		"name":		"grenade_c22frag",
+		"ammoMax":	10
+	},
+
+	"Class-E Thermal Detonators": {
+		"name":		"grenade_thermal-e",
+		"ammoMax":	3
+	},
+
+	"Class-C Thermal Detonators": {
+		"name":		"grenade_thermal-c",
+		"ammoMax":	3
+	},
+
+	"Class-A Thermal Detonators": {
+		"name":		"grenade_thermal-a",
+		"ammoMax":	3
+	},
+
+	"Code-key Detonators": {
+		"name":		"grenade_codekey",
+		"ammoMax":	3
+	},
+
+	"Concussion Grenades": {
+		"name":		"grenade_concussion",
+		"ammoMax":	10
+	},
+
+	"CryoBan Grenades": {
+		"name":		"grenade_cryoban",
+		"ammoMax":	10
+	},
+
+	"C-14A Grenades": {
+		"name":		"grenade_c-14a",
+		"ammoMax":	10
+	},
+
+	"Stun Grenades": {
+		"name":		"grenade_stun",
+		"ammoMax":	10
+	},
+
+	"Smoke Grenades": {
+		"name":		"grenade_smoke",
+		"ammoMax":	10
+	},
+
+	"Lemons": {
+		"name":		"grenade_lemons",
+		"ammoMax":	10
+	},
+
+	"Plasma Grenades": {
+		"name":		"grenade_plasma",
+		"ammoMax":	10
+	}
+}

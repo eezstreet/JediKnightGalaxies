@@ -1,0 +1,12 @@
+{
+	"name":             "@JKG_ITEMS_sniper_Drsln_SlugRifle_Scope",
+	"internal":             "sniper_Dressy",
+	"id":             "66",
+	"itemtype":             "weapon",
+	"weapon":		"WP_BOWCASTER",
+	"variation":		"6",
+	"weight":		"12",
+	"cost":		"1850",
+	"xml":			"xml/items/Dessy.xml",
+	"itemIcon":		"models/weapons/Drsln_SlugRifle/icon_s"
+}
