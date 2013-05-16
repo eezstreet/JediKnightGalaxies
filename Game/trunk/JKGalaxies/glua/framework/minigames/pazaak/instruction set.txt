@@ -1,0 +1,31 @@
+Pazaak front-end interface:
+
+Command: 'pzk'
+
+Instructions:
+
+*start							- Reset and initiate pazaak
+*stop							- Shut down pazaak
+
+*gtc							- Go to card selection
+*gtg							- Go to game board
+*sdc <#> <#> ... 				- Set deck card amounts (side deck selection screen) (networks amount of cards for each ID)
+*ssd <#>	<#> ...				- Set side deck cards (networks 10 card ID's)
+*foq <bool>						- Forfeit on quit (card selection)
+*tsdn							- Transmit side deck now (used on the card selection screen when the time runs out)
+
+*sd <id>						- Show dialog <id>
+*db <val>						- Disable buttons (hand cards, end turn and stand), for when the turn switches (0 = disable all, 1 = enable all, 2 = enable all but cards) 
+*cd								- Close dialog (in case timeout was exceeded)
+*sn <name1> <name2>				- Set player names
+*sto <time>						- Set timeout (in seconds from now), 0 to disable
+*spt <player> <points>			- Set point total (player 1 is you, player 2 is the opponent)
+*cf								- Clear field (removes all cards, hand not included)
+*ch								- Clear hand cards
+*sc <slot> <card id> <params>	- Sets card on specified field slot (1-9 are yours, 10-18 are the opponent's)
+*ss <player> <bool>				- Set stand mode on player (overridden by cf)
+*shc <slot> <card id> <params>	- Sets card on specified hand slot (slots 1-4 are yours, 5-8 are the opponent's)
+*shcs <card id> <params> ...	- Sets all hand slots (networks 4 cards ID's and params) and a bitvalue for the opponent's cards
+*st <player>					- Set turn (1 is you, 2 is opponent)
+*ssc <player> <score>			- Set score
+

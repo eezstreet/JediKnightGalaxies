@@ -1,0 +1,91 @@
+{
+    "name":             "@JKG_ITEMS_RW_Sterling",
+    "type":             "WP_CONCUSSION",
+    "variation":        0,
+    "classname":        "RW_Sterling",
+    "description":      "@JKG_ITEMS_RW_Sterling",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/Sterling/viewmodel.md3",
+        "worldmodel":       "models/weapons/Sterling/model.glm",
+        "hudicon":          "models/weapons/Sterling/icon_default",
+        "hudnaicon":        "models/weapons/Sterling/icon_default",
+        "selectsound":      "sound/weapons/select_carbine.wav",
+                
+        "gunposition":      "10.0 -2.0 -7.0",
+        "ironsightsposition": "13.0 0.0 -4.3",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash",
+            "firesound":    [
+                "sound/weapons/slugthrowers/slug_amp1.mp3",
+                "sound/weapons/slugthrowers/slug_amp2.mp3",
+                "sound/weapons/slugthrowers/slug_amp3.mp3",
+                "sound/weapons/slugthrowers/slug_amp4.mp3"
+            ],
+            "projectilemodel": "models/ammo/quarrel_projectile.md3",
+            "projectilefx": "slugthrowers/slug_shot",
+            "miss":         { "impactfx": "slugthrowers/impactsmall" },
+            "hit":          { "impactfx": "weapons/slug_impact_flesh_blood" }
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash",
+            "firesound":    [
+                "sound/weapons/slugthrowers/slug1.mp3",
+                "sound/weapons/slugthrowers/slug2.mp3",
+                "sound/weapons/slugthrowers/slug3.mp3",
+                "sound/weapons/slugthrowers/slug4.mp3"
+            ],
+            "projectilemodel": "models/ammo/quarrel_projectile.md3",
+            "projectilefx": "slugthrowers/slug_shot",
+            "miss":         { "impactfx": "slugthrowers/impactsmall" },
+            "hit":          { "impactfx": "weapons/slug_impact_flesh_blood" }
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   1500,
+        "ammoIndex":         "7.62slugs",
+        "ammoOnSpawn":   300,
+        "ammoOnPickup":   60,
+        "clipSize":              30,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       16,
+        "ballistic":    true,
+        "ammocost":     1,
+        "firedelay":    110,	// 550 RPM
+        "range":        40000.0,
+        "recoil":       1.8,
+        "spread":       0.5,
+        "projectilespeed": 13000.0,	// 9 x 19 mm Parabellum velocity 1300 ft/s
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADR" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":       { "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "17"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

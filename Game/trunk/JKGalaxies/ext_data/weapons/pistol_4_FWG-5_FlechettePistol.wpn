@@ -1,0 +1,104 @@
+{
+    "name":             "@JKG_ITEMS_pistol_FWG-5_FlechettePistol",
+    "type":             "WP_BRYAR_PISTOL",
+    "variation":        4,
+    "classname":        "pistol_FWG-5",
+    "description":      "@JKG_ITEMS_pistol_FWG-5_FlechettePistol",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/fwg-5_flechettepistol/viewmodel.md3",
+        "worldmodel":       "models/weapons/fwg-5_flechettepistol/model.glm",
+        "hudicon":          "models/weapons/fwg-5_flechettepistol/icon_default",
+        "hudnaicon":        "models/weapons/fwg-5_flechettepistol/icon_default",
+        "selectsound":      "sound/weapons/select_pistol.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/fwg-5_flechettepistol/indicator" ],
+            "firemode":     "models/weapons/fwg-5_flechettepistol/firemode"
+        },
+        
+        "gunposition":      "13.0 -3.0 -3.0",
+        "ironsightsposition": "12.0 0.0 -2.8",
+        "ironsightsfov": "75",
+        
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash",
+            "firesound":    [
+                "sound/weapons/slugthrowers/flechette1.wav",
+                "sound/weapons/slugthrowers/flechette1.wav",
+                "sound/weapons/slugthrowers/flechette2.wav"
+            ],
+            "runsound":     "sound/ambience/bespin/bespin_air.wav",
+            "projectilemodel": "models/ammo/flechette_missile.md3",
+            "projectilefx": "blasters/shot_Blue_Ball_small",
+            "miss":         { "impactfx": "explosives/flechettesmall" },
+            "hit":          { "impactfx": "explosives/flechettesmall" }
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash",
+            "firesound":    [
+                "sound/weapons/slugthrowers/flechette1.wav",
+                "sound/weapons/slugthrowers/flechette1.wav",
+                "sound/weapons/slugthrowers/flechette2.wav"
+             ],
+            "runsound":     "sound/ambience/bespin/bespin_air.wav",
+            "projectilemodel": "models/ammo/flechette_missile.md3",
+            "projectilefx": "blasters/shot_Blue_Ball_small",
+            "miss":         { "impactfx": "explosives/flechettesmall" },
+            "hit":          { "impactfx": "explosives/flechettesmall" }
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   2000,
+        "ammoIndex":         "flechette_missile",
+        "ammoOnSpawn":   40,
+        "ammoOnPickup":   16,
+        "clipSize":              8,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.6,
+        "speed": 1
+    },
+    
+    "firemode0": {
+        "damage":       35,//70,
+//        "damage": {
+//                          "damageradius": { "start": 80 },
+//                          "damage":          70,
+//                          "damagetype": [ "explosion" ] },
+//        "ballistic":    true,
+        "collisionsize": 8.0,//32.0,	// To simulate the fact that the shells are supposed to explode right before impact with target in order to disperse the flechettes
+        "ammocost":     1,
+        "firedelay":    1200,
+        "firingtype":   "semi",
+        "splashrange":  80,
+        "range":        40000.0,
+        "recoil":       5.0,
+        "spread":       0.0,
+        "projectilespeed":1600.0,//7000.0,
+        "projectileclass":"flech_proj",
+        "meansofdeath": "MOD_FLECHETTE",
+        "splashmeansofdeath": "MOD_FLECHETTE"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "BOTH_PISTOLRELOAD" },
+        "ready":        { "torso": "TORSO_WEAPONREADY2", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK2" },
+	"sprint":	{ "torso": "BOTH_PISTOLRUN" },
+        "sprintStyle": "7"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

@@ -1,0 +1,1336 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ca9db9cd-58b3-4e8e-afaf-bfd7d6ea90b3}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90</Extensions>
+    </Filter>
+    <Filter Include="Source Files\GLua">
+      <UniqueIdentifier>{486065c7-5acc-425b-a102-1a31319615d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{581ad356-550c-4b1f-9bfa-130d8f312cfb}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\ICARUS Headers">
+      <UniqueIdentifier>{2773950c-f998-4694-bef1-3ca92fa48ac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GLua">
+      <UniqueIdentifier>{1567f7b9-5022-4df6-9f35-63321a32560c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win32">
+      <UniqueIdentifier>{760d79a5-21ae-49e6-8a3f-6668fd529c1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{1dd2afb9-c257-4992-8248-d8da9ef8feea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\LibUDis86">
+      <UniqueIdentifier>{4f43df62-be8f-44d1-8986-8360f8905ffd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\LibUDis86\Source Files">
+      <UniqueIdentifier>{8778dbaa-2235-42a1-9f08-f0d6293309fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\LibUDis86\Header Files">
+      <UniqueIdentifier>{7fb8e2bc-caac-4f10-837c-cbde69924143}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Json">
+      <UniqueIdentifier>{461e6925-5186-4e29-ac73-3a791f42fd19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Json\Source Files">
+      <UniqueIdentifier>{8294ee1e-7fd4-41db-a98f-7fa9b0d36257}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Json\Header Files">
+      <UniqueIdentifier>{0c82b6b2-59a2-447b-ac1d-710b1b49e94e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Lua">
+      <UniqueIdentifier>{ace518dc-a84b-4427-a1d2-1585f36a5144}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Lua\Source Files">
+      <UniqueIdentifier>{8c35b984-66ff-47f0-8fa6-683640647a21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Lua\Header Files">
+      <UniqueIdentifier>{b5584107-b0d8-4b87-a07c-9309421bf415}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Base128">
+      <UniqueIdentifier>{5f86e71a-6a8b-49df-bf1a-6104106a53cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Base128\Source Files">
+      <UniqueIdentifier>{8fb98ccf-c2d3-4493-a1d9-ce908923a94f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Base128\Header Files">
+      <UniqueIdentifier>{a0468294-df97-4861-8f55-4dc44887cc11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Base64">
+      <UniqueIdentifier>{bd6be10d-f82f-4220-b084-351f47a1d887}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Base64\Header Files">
+      <UniqueIdentifier>{db478922-0b78-4c80-85b0-2092e3eebbea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Base64\Source Files">
+      <UniqueIdentifier>{5d0104ad-20ea-412c-97ba-2edf05c7658f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\BitStream">
+      <UniqueIdentifier>{27fc3004-0341-4b3a-a2bc-3093931dca06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\BitStream\Header Files">
+      <UniqueIdentifier>{ed2f3094-a9e5-4b62-93ed-42de2f2ceac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\BitStream\Source Files">
+      <UniqueIdentifier>{a283abfc-d5d2-4b38-bacd-412a4e87da17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\OpenSSL">
+      <UniqueIdentifier>{0d5458c4-6ec4-413d-8c66-7e2a5f2048ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\OpenSSL\Header Files">
+      <UniqueIdentifier>{d9cceb35-c0f0-47fd-a561-617044ca9992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Recast">
+      <UniqueIdentifier>{6f68b7bf-07ca-4e25-87ed-f2755c8d377d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Recast\Header Files">
+      <UniqueIdentifier>{d18bda7e-6fd0-4ac3-8195-249bda0b5cd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Recast\Source Files">
+      <UniqueIdentifier>{a94cd0b0-1d87-4232-84ec-cda1a7bfcab2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Detour %28Pathfinding%29">
+      <UniqueIdentifier>{036f52bc-17ba-4a38-a1a3-e8e219b5bd02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Detour %28Pathfinding%29\Header Files">
+      <UniqueIdentifier>{d61012fb-0af2-4574-bb0e-58164b6d94d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Detour %28Pathfinding%29\Source Files">
+      <UniqueIdentifier>{9334b947-0d50-44c6-8573-7e6be9e03781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{42443a07-b2f7-404d-af43-2c792221f3a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI %28NPC%29">
+      <UniqueIdentifier>{071290e7-a3e4-40a8-9f34-6d15d009437b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AI %28General%29">
+      <UniqueIdentifier>{40c14c16-74ae-4f52-9801-777de3f8f38b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="animtable.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_ammo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_constants.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_g2_utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_items.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_lib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_misc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_panimate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_pmove.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_saber.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_saberLoad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_slidemove.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_vehicleLoad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_weapons.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_weapons_load.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_active.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_arenas.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_client.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_cmds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_combat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_crash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_engine.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_exphysics.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_ICARUScb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_items.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_log.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_mem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_misc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_missile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_mover.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_network.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_object.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_session.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_spawn.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_strap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_svcmds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_syscalls.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_target.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_team.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_timer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_trigger.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_turret.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_turret_G2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_vehicles.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_vehicleTurret.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_weapon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_admin.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_auxlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_bans.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_chatcmds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_crafting.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_custombounds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_damagetypes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_dynarrays.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_equip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_gangwars.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_item_sub.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_items.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_items_easy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_keypairs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_playerisolation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_primetable.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_rconbans.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_team.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_threading.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_threadingsq.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_utilityfunc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="networkstate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="q_math.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="q_shared.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tri_coll_test.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="w_force.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="w_saber.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_bitstream.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_bitwise.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_cryptography.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_cvar.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_encoding.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_engine.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_entity.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_files.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_main.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_npc.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_player.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_prng.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_sys.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_vector.c">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Atst.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Default.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Droid.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_GalakMech.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Grenadier.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Howler.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_ImperialProbe.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Interrogator.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Mark1.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Mark2.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_MineMonster.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Rancor.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Remote.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Seeker.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Sentry.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Sniper.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Stormtrooper.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Utils.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Wampa.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\libudis86\decode.c">
+      <Filter>Libraries\LibUDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\libudis86\input.c">
+      <Filter>Libraries\LibUDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\libudis86\itab.c">
+      <Filter>Libraries\LibUDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\libudis86\syn-att.c">
+      <Filter>Libraries\LibUDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\libudis86\syn-intel.c">
+      <Filter>Libraries\LibUDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\libudis86\syn.c">
+      <Filter>Libraries\LibUDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\libudis86\udis86.c">
+      <Filter>Libraries\LibUDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\json\cJSON.c">
+      <Filter>Libraries\Json\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lapi.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lauxlib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lbaselib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lcode.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\ldblib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\ldebug.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\ldo.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\ldump.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lfunc.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lgc.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\linit.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\liolib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\llex.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lmathlib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lmem.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\loadlib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lobject.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lopcodes.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\loslib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lparser.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lstate.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lstring.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lstrlib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\ltable.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\ltablib.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\ltm.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lundump.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lvm.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\lzio.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Lua\print.c">
+      <Filter>Libraries\Lua\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\encoding\base128.c">
+      <Filter>Libraries\Base128\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\encoding\base64.c">
+      <Filter>Libraries\Base64\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\encoding\bitstream.c">
+      <Filter>Libraries\BitStream\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\Recast.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastAlloc.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastArea.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastContour.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastFilter.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastLayers.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastMesh.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastMeshDetail.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastRasterization.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Recast\Source\RecastRegion.cpp">
+      <Filter>Libraries\Recast\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourAlloc.cpp">
+      <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourCommon.cpp">
+      <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMesh.cpp">
+      <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshBuilder.cpp">
+      <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshQuery.cpp">
+      <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp">
+      <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\jkg_serversidenetwork.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\NetworkServices.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\ServerGame.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\ServerNetwork.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\stdafx.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_supremacy_flags.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_supremacy_flagsys.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_supremacy_spawnsys.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Humanoid.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_dominance.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_wpnav.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_dominance_evasion.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_main.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_util.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="g_bot.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="g_nav.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="g_navnew.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_dominance_bot.c">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_dominance_astar.cpp">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_navmesh_creator.cpp">
+      <Filter>Source Files\AI %28General%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Behavior.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Combat.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Conversations.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_CoverPoints.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Goal.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Misc.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Move.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Reactions.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Senses.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Sounds.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Spawn.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Stats.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Utils.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Waypointing.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Speeder.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Walker.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Animal.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Fighter.c">
+      <Filter>Source Files\AI %28NPC%29</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\GLua\LuaCommands.txt">
+      <Filter>Source Files\GLua</Filter>
+    </None>
+    <None Include="JK2_game.def">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="authdb.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ai.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ai_main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="anims.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cgame\animtable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aux_exports.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="b_local.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="b_public.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_aas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_ai_char.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_ai_chat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_ai_gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_ai_goal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_ai_move.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_ai_weap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="be_ea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_ammo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_lib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_local.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_public.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_strap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_vehicles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_weapons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cgame\cg_local.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cgame\cg_public.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chars.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\qcommon\disablewarnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\ghoul2\G2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_headers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_ICARUScb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_local.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_nav.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_public.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_team.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_admin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_asmdefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_auxlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_bans.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_chatcmds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_crafting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_damagetypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_dynarrays.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_easy_items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_gangwars.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_keypairs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_navmesh_creator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_threading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_threadingsq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jkg_utilityfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="match.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ui\menudef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="npc_headers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="q_shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\win32\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="say.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\server\server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="surfaceflags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="syn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\qcommon\tags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="teams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cgame\tr_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="w_saber.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\icarus\interpreter.h">
+      <Filter>Header Files\ICARUS Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\icarus\Q3_Interface.h">
+      <Filter>Header Files\ICARUS Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\icarus\Q3_Registers.h">
+      <Filter>Header Files\ICARUS Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GLua\glua.h">
+      <Filter>Header Files\GLua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libudis86\decode.h">
+      <Filter>Libraries\LibUDis86\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libudis86\extern.h">
+      <Filter>Libraries\LibUDis86\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libudis86\input.h">
+      <Filter>Libraries\LibUDis86\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libudis86\itab.h">
+      <Filter>Libraries\LibUDis86\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libudis86\syn.h">
+      <Filter>Libraries\LibUDis86\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libudis86\types.h">
+      <Filter>Libraries\LibUDis86\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libudis86\udis86.h">
+      <Filter>Libraries\LibUDis86\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\json\cJSON.h">
+      <Filter>Libraries\Json\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lapi.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lauxlib.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lcode.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\ldebug.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\ldo.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lfunc.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lgc.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\llex.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\llimits.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lmem.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lobject.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lopcodes.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lparser.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lstate.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lstring.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\ltable.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\ltm.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lua.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\luaconf.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lualib.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lundump.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lvm.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Lua\lzio.h">
+      <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\encoding\base128.h">
+      <Filter>Libraries\Base128\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\encoding\base64.h">
+      <Filter>Libraries\Base64\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\encoding\bitstream.h">
+      <Filter>Libraries\BitStream\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\aes.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\asn1.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\asn1_mac.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\asn1t.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\bio.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\blowfish.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\bn.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\buffer.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\camellia.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\cast.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\cms.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\comp.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\conf.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\conf_api.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\crypto.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\des.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\des_old.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\dh.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\dsa.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\dso.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\dtls1.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\e_os2.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ebcdic.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ec.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ecdh.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ecdsa.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\engine.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\err.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\evp.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\hmac.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\idea.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\krb5_asn.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\kssl.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\lhash.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\md4.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\md5.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\mdc2.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\modes.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\obj_mac.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\objects.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ocsp.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\opensslconf.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\opensslv.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ossl_typ.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\pem.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\pem2.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\pkcs12.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\pkcs7.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\pqueue.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\rand.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\rc2.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\rc4.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ripemd.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\rsa.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\safestack.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\seed.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\sha.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ssl.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ssl2.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ssl23.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ssl3.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\stack.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\symhacks.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\tls1.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ts.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\txt_db.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ui.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\ui_compat.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\whrlpool.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\x509.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\x509_vfy.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\openssl\x509v3.h">
+      <Filter>Libraries\OpenSSL\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Recast\Include\Recast.h">
+      <Filter>Libraries\Recast\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Recast\Include\RecastAlloc.h">
+      <Filter>Libraries\Recast\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Recast\Include\RecastAssert.h">
+      <Filter>Libraries\Recast\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourAlloc.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourAssert.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourCommon.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMesh.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshBuilder.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshQuery.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNode.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourStatus.h">
+      <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="z_global_defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\NetworkData.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\NetworkServices.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\ServerGame.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\ServerNetwork.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\stdafx.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\targetver.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\ByteBuffer.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\Common.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\win32\JK2game.rc">
+      <Filter>win32</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

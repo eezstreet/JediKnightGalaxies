@@ -1,0 +1,10 @@
+{
+	"name":             "Greater Bacta Canister",
+	"internal":             "Stimpack",
+	"id":             "6",
+	"itemtype":             "none",
+
+	"pSpell":		"0",
+	"affector":		"0",
+	"amount":		"50"
+}

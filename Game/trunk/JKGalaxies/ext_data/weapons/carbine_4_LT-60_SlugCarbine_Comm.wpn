@@ -1,0 +1,105 @@
+{
+    "name":             "@JKG_ITEMS_carbine_LT-60_SlugCarbine_Comm",
+    "type":             "WP_BLASTER",
+    "variation":        4,
+    "classname":        "carbine_LT-60_C",
+    "description":      "@JKG_ITEMS_carbine_LT-60_SlugCarbine_Comm",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/lt-60_slugcarbine_Comm/viewmodel.md3",
+        "worldmodel":       "models/weapons/lt-60_slugcarbine_Comm/model.glm",
+        "hudicon":          "models/weapons/lt-60_slugcarbine_Comm/icon_default",
+        "hudnaicon":        "models/weapons/lt-60_slugcarbine_Comm/icon_default",
+        "selectsound":      "sound/weapons/select_carbine.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/lt-60_slugcarbine_Comm/numbers3", "models/weapons/lt-60_slugcarbine_Comm/numbers2" ],
+            "firemode":     "models/weapons/lt-60_slugcarbine_Comm/firemode"
+        },
+                
+        "gunposition":      "9.0 -5.0 -6.4",
+        "ironsightsposition": "6.0 0.0 -6.7",
+        "ironsightsfov": "20",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_muffled",
+            "firesound":    [
+                "sound/weapons/slugthrowers/slug1.mp3",
+                "sound/weapons/slugthrowers/slug2.mp3",
+                "sound/weapons/slugthrowers/slug3.mp3",
+                "sound/weapons/slugthrowers/slug4.mp3"
+            ],
+            "chargingfx":   "weapons/laser_red",
+            "projectilemodel": "models/ammo/quarrel_projectile.md3",
+            "projectilefx": "weapons/slug_tracershot",
+            "miss":         { "impactfx": "slugthrowers/impactsmall" },
+            "hit":          { "impactfx": "weapons/slug_impact_flesh_blood" },
+	    "displayName":  "Semi"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_muffled",
+            "firesound":    [
+                "sound/weapons/slugthrowers/slug1.mp3",
+                "sound/weapons/slugthrowers/slug2.mp3",
+                "sound/weapons/slugthrowers/slug3.mp3",
+                "sound/weapons/slugthrowers/slug4.mp3"
+            ],
+            "chargingfx":   "weapons/laser_red",
+            "projectilemodel": "models/ammo/quarrel_projectile.md3",
+            "projectilefx": "weapons/slug_tracershot",
+            "miss":         { "impactfx": "slugthrowers/impactsmall" },
+            "hit":          { "impactfx": "weapons/slug_impact_flesh_blood" }
+        },
+
+        "scope": {
+                "mask":     "models/weapons/lt-60_slugcarbine_Comm/lens_Mask"
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   1500,
+        "ammoIndex":         "7.62slugs",
+        "ammoOnSpawn":   300,
+        "ammoOnPickup":   60,
+        "clipSize":              30,
+        "flags":        [ "roll", "togglezoom" ],
+        "startzoomfov": 30.0,
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       16,
+        "ballistic":    true,
+        "ammocost":     1,
+        "firedelay":    120,
+        "firingtype":   "semi",
+        "range":        40000.0,
+        "recoil":       1.2,
+        "spread":       0.2,
+        "projectilespeed": 28000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADB" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "2"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

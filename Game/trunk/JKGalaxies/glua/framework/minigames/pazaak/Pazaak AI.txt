@@ -1,0 +1,31 @@
+
+Yeah, it doesn't cheat. But most people are convinced that it does. wink.gif
+
+Do you generate the 'draw' deck ahead of time or do you generate a 1 - 10 card randomly on each draw? KotOR generated the deck before , then shuffled it randomly, then had the player and computer draw from the same deck.
+
+The KotOR AI doesn't calculate probabilities, but rather has some safe thresholds that it knows it can hit on or not, depending on what cards it had in its side deck.
+
+After drawing its card, the AI then calculates the LowestPossibleTotal that it can come up with its current cards plus the current sidecard options.
+
+It then calculates how close can it get to 20 with its current cards and its side cards, as CurrentPossibleTotal.
+
+If CurrentPossibleTotal is >= 18, then its time to decide if we should play that side card, based on some other factors.
+{
+If CurrentPossibleTotal == 20, then play the sidecard no matter what.
+
+If CurrentPossibleTotal == 19, then play the side card if our LowestPossibleTotal is 11 or less, unless the player has 20 (waste of a sidecard). Since that means we have a 10% chance of busting on the next turn, but 19 is a good enough score to be worth the risk.
+
+If CurrentPossibleTotal == 18, then play the side card if our LowestPossibleTotal is 13 or less, unless the player has 19. Since that means we have a 20% chance of busting on the next turn, but that's considered acceptable risk.
+}
+
+After it decides what to do with its side deck, it then compares its score against the player's.
+If the player has a higher score, then it won't stand.
+If the player has a lower score, and the AI has a score of 18 or higher, it will stand no matter what.
+
+Also, when busting, it will play the negative card to save itself, unless the player has a score of 18, 19, or 20, in which case the AI decides its a waste of a side card to play it there. /Unless/ the side card played would give it a better score than the player OR it's the deciding game for the player (the player already has 2 wins, and 1 more win will end the game).
+
+That's about all the thought that goes into the NPC AI Pazaak players in KotOR. I didn't write it myself, but just modified it to work with the new cards that were added in KotOR2. Except the Tie Breaker card. The NPC AI just sees that as a +/-1 card, not a Tie Breaker, giving another small advantage to the human player that uses the card carefully.
+
+So really, the only reason the NPC players seem good is because they play a mathmatically safe game, on the whole. The real difficulty just comes down to how good their side deck is. The better their side deck, the harder they are to beat, since they have more control over the risks they take when making decisions each round.
+
+-Akari 

@@ -1,0 +1,113 @@
+{
+    "name":             "@JKG_ITEMS_array_ACP_ArrayGun",
+    "type":             "WP_FLECHETTE",
+    "variation":        0,
+    "classname":        "array_ACP",
+    "description":      "@JKG_ITEMS_array_ACP_ArrayGun",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/ACP_ArrayGun/viewmodel.md3",
+        "worldmodel":       "models/weapons/ACP_ArrayGun/model.glm",
+        "hudicon":          "models/weapons/ACP_ArrayGun/icon_default",
+        "hudnaicon":        "models/weapons/ACP_ArrayGun/icon_default",
+        "selectsound":      "sound/weapons/select_array.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/ACP_ArrayGun/numbers3", "models/weapons/ACP_ArrayGun/numbers2" ]
+        },
+        
+        "gunposition":      "2.0 -3.0 -5.5",
+        "ironsightsposition": "3.3 -1.0 -5.0",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "Slugthrowers/muzzleflash_extrasmoke",
+            "firesound":    [
+                "sound/weapons/blasters/arraygun1.mp3",
+                "sound/weapons/blasters/arraygun2.mp3",
+                "sound/weapons/blasters/arraygun3.mp3",
+                "sound/weapons/blasters/arraygun4.mp3"
+            ],
+            "projectilefx": "Slugthrowers/acp_shot_small",
+            "miss":         { "impactfx": "Slugthrowers/acp_impactsmall" },
+            "hit":          { "impactfx": "Slugthrowers/acp_flesh_impact" },
+            "displayName":  "Semi"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "Slugthrowers/muzzleflash_extrasmoke",
+            "firesound":    [
+                "sound/weapons/blasters/arraygun1.mp3",
+                "sound/weapons/blasters/arraygun2.mp3",
+                "sound/weapons/blasters/arraygun3.mp3",
+                "sound/weapons/blasters/arraygun4.mp3"
+            ],
+            "chargingfx":   "weapons/laser_red",
+            "projectilefx": "Slugthrowers/acp_shot_small",
+            "miss":         { "impactfx": "Slugthrowers/acp_impactsmall" },
+            "hit":          { "impactfx": "Slugthrowers/acp_flesh_impact" },
+	    "displayName":  "Burst"
+        }
+    },
+    
+    "stats": {
+        "slot":         2,
+        "reloadtime":   1250,
+        "ammoIndex":         "acp_cartridge",
+        "ammoOnSpawn":   48,
+        "ammoOnPickup":   32,
+        "clipSize":              8,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       15,
+        "ammocost":     1,
+        "firedelay":    1100,
+        "firingtype":   "semi",
+        "projectiles":     8,
+        "recoil":       1.5,
+        "range":       2200,
+        "spread":       1.7,
+        "projectilespeed": 6000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_REPEATER"
+    },
+    
+    "firemode1": {
+        "damage":       15,
+        "ammocost":     1,
+        "burstshotdelay": 250,
+        "firedelay":    1350,
+        "firingtype":   "burst",
+        "projectiles":     8,
+        "recoil":       2.5,
+        "range":       2200,
+        "shotsperburst": 2,
+        "spread":       1.7,
+        "projectilespeed": 6000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_REPEATER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "TORSO_WEAPONIDLE3", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADL" },
+//        "reload":       { "torso": "BOTH_RIFLERELOADR" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" }, 
+        "firing":       { "torso": "BOTH_ATTACK3" },
+        "sprintStyle": "17"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

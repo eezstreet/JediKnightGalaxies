@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>JKGStudioClass</class>
+ <widget class="QMainWindow" name="JKGStudioClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>751</width>
+    <height>491</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>JKG Studio</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="jkgstudio.qrc">
+    <normaloff>:/icons/jkgicon.png</normaloff>:/icons/jkgicon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QMdiArea" name="mdiArea">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>731</width>
+      <height>431</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="viewMode">
+     <enum>QMdiArea::TabbedView</enum>
+    </property>
+    <property name="documentMode">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>751</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="menuNew">
+     <property name="title">
+      <string>New</string>
+     </property>
+     <addaction name="actionLua_script"/>
+     <addaction name="separator"/>
+     <addaction name="actionDialogue"/>
+     <addaction name="actionQuest"/>
+     <addaction name="separator"/>
+     <addaction name="actionFont"/>
+     <addaction name="actionShader"/>
+    </widget>
+    <addaction name="menuNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionCompile"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout_JKG_Studio"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionDigitally_sign_PK3"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
+   </widget>
+   <widget class="QMenu" name="menuDlgNodes">
+    <property name="title">
+     <string>&amp;Nodes</string>
+    </property>
+    <addaction name="actionAddEntrypoint"/>
+    <addaction name="actionAddSpeechNode"/>
+    <addaction name="actionAddOptionNode"/>
+    <addaction name="actionAddEndNode"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddScriptNode"/>
+    <addaction name="actionAddInterruptNode"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddLinkNode"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddDynOptionNode"/>
+    <addaction name="actionAddTextEntryNode"/>
+    <addaction name="actionAddCinematicNode"/>
+    <addaction name="separator"/>
+    <addaction name="actionRemoveNode"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuDlgNodes"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/saveas.png</normaloff>:/icons/saveas.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+  </action>
+  <action name="actionCompile">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/compile.png</normaloff>:/icons/compile.png</iconset>
+   </property>
+   <property name="text">
+    <string>Compile</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/undo.png</normaloff>:/icons/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/cut.png</normaloff>:/icons/cut.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/copy.png</normaloff>:/icons/copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/paste.png</normaloff>:/icons/paste.png</iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionAbout_JKG_Studio">
+   <property name="text">
+    <string>About JKG Studio</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionLua_script">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/script-new.png</normaloff>:/icons/script-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Lua script</string>
+   </property>
+  </action>
+  <action name="actionDialogue">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dialogue-new.png</normaloff>:/icons/dialogue-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dialogue</string>
+   </property>
+  </action>
+  <action name="actionQuest">
+   <property name="text">
+    <string>Quest</string>
+   </property>
+  </action>
+  <action name="actionFont">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/font-new.png</normaloff>:/icons/font-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Font</string>
+   </property>
+  </action>
+  <action name="actionShader">
+   <property name="text">
+    <string>GPU Shader</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/redo.png</normaloff>:/icons/redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F4</string>
+   </property>
+  </action>
+  <action name="actionDigitally_sign_PK3">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/signpk3.png</normaloff>:/icons/signpk3.png</iconset>
+   </property>
+   <property name="text">
+    <string>Digitally sign PK3</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionAddEntrypoint">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/entrypoint.png</normaloff>:/icons/dlg/new/entrypoint.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Entrypoint</string>
+   </property>
+  </action>
+  <action name="actionAddSpeechNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/text.png</normaloff>:/icons/dlg/new/text.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Speech Node</string>
+   </property>
+  </action>
+  <action name="actionAddOptionNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/option.png</normaloff>:/icons/dlg/new/option.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Option Node</string>
+   </property>
+  </action>
+  <action name="actionAddDynOptionNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/dynoption.png</normaloff>:/icons/dlg/new/dynoption.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Dynamic Options Node</string>
+   </property>
+  </action>
+  <action name="actionAddLinkNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/link.png</normaloff>:/icons/dlg/new/link.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Link Node</string>
+   </property>
+  </action>
+  <action name="actionAddScriptNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/script.png</normaloff>:/icons/dlg/new/script.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Script Node</string>
+   </property>
+  </action>
+  <action name="actionAddInterruptNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/interrupt.png</normaloff>:/icons/dlg/new/interrupt.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Interrupt Node</string>
+   </property>
+  </action>
+  <action name="actionAddEndNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/end.png</normaloff>:/icons/dlg/new/end.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add End Node</string>
+   </property>
+  </action>
+  <action name="actionAddTextEntryNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/textentry.png</normaloff>:/icons/dlg/new/textentry.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Text Entry Node</string>
+   </property>
+  </action>
+  <action name="actionAddCinematicNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/new/cinematic.png</normaloff>:/icons/dlg/new/cinematic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Cinematic Node</string>
+   </property>
+  </action>
+  <action name="actionRemoveNode">
+   <property name="icon">
+    <iconset resource="jkgstudio.qrc">
+     <normaloff>:/icons/dlg/node-delete.png</normaloff>:/icons/dlg/node-delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove Node</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="jkgstudio.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionOpen</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onOpen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onSave()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave_As</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onSaveAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCompile</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onCompile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onQuit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLua_script</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onNewScript()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDialogue</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onNewDialogue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionQuest</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onNewQuest()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionUndo</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onUndo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRedo</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onRedo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCut</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onCut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCopy</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onCopy()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPaste</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onPaste()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onClose()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mdiArea</sender>
+   <signal>subWindowActivated(QMdiSubWindow*)</signal>
+   <receiver>JKGStudioClass</receiver>
+   <slot>onSubWindowActivated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>375</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onOpen()</slot>
+  <slot>onSave()</slot>
+  <slot>onSaveAs()</slot>
+  <slot>onCompile()</slot>
+  <slot>onQuit()</slot>
+  <slot>onNewScript()</slot>
+  <slot>onNewDialogue()</slot>
+  <slot>onNewQuest()</slot>
+  <slot>onUndo()</slot>
+  <slot>onRedo()</slot>
+  <slot>onCut()</slot>
+  <slot>onCopy()</slot>
+  <slot>onPaste()</slot>
+  <slot>onClose()</slot>
+  <slot>onSubWindowActivated()</slot>
+ </slots>
+</ui>

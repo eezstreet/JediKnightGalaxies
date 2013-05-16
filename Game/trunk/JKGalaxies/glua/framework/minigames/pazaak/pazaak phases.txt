@@ -1,0 +1,98 @@
+Pazaak Turn phases
+
+------------------------------------------------------------
+Phase 0: Initialisation
+
+* Create side-decks
+* Initiate pazaak boards on clients
+* Transmit player names and hand cards to clients
+* Randomly select first player to play
+* Shuffle main deck
+
+-> Go to phase 1
+
+------------------------------------------------------------
+Phase 1: Turn start
+
+* Check if we gotta start a new set (from phase 4), and do it if so
+* - Shuffle main deck
+* - Clear board slots
+* - Reset points
+
+* Change turn (or set to initial turn if coming from phase 0)
+* Update turn indicator on client side
+
+-> Go to phase 2 with a delay
+
+------------------------------------------------------------
+Phase 2: Draw Card
+
+* Draw card from top of main deck
+* Put card on board and update points for both players
+* If point total is 20, stand and jump to phase 4
+
+-> Go to phase 3 (or 4 is the point total if 20) with a delay
+
+------------------------------------------------------------
+Phase 3: Hand card & stand
+
+* If it's a player's turn:
+* - Set timeout at 15 seconds (if the opponent is not AI)
+* - Allow player to use cards and stand/end turn buttons
+* - Wait for player to provide feedback (feedback will be 'end turn' if the timeout expires)
+* - If card is chosen:
+* - - Add card to the field, apply any effects
+* - - Calculate new total
+* - - If total is 20, stand
+* - - If card was a tiebreaker, enable tiebreaker flag
+* - If chosen to stand, stand.
+* - Disable use of cards and stand/end turn button
+* If it's the AI's turn:
+* - Run AI code and obtain card to use and whether to stand
+* - Process the feedback just like it would on a player
+
+-> Go to phase 4 with a delay
+
+------------------------------------------------------------
+Phase 4: Turn end
+
+* Check if the point total is over 20, if so..
+* - Update score
+* - Check if someone just won 3 sets, if so, goto phase 5 without delay
+* - Show the win/loss set dialogs to both players
+* - Set 'start new set' flag
+* If both players are standing..
+* - Compare score, handle win/loss/tie scenarios (take tie-breaker into account)
+* - Update score
+* - Check if someone just won 3 sets, if so, goto phase 5 without delay
+* - Show win/loss/tie dialogs
+* - Set 'start new set' flag
+* If a dialog was shown:
+* - Set timeout of 8 seconds
+* - When both players close the dialog, continue (AI instantly closes it)
+* - If, after 8 seconds, a player still has it open, force it to close and proceed
+* Clear tie-breaker flag
+
+-> Goto phase 1 with a delay
+
+------------------------------------------------------------
+Phase 5: Clear up
+
+* Display you won/lost
+* Set timeout of 8 seconds (only if the opponent is not AI)
+* - If both players close the dialog within the set time, continue (AI closes instantly)
+* - After 8 seconds, force the dialogs to close if not closed yet
+* Close the pazaak boards
+* Call callback function presenting the winner
+* Stop further execution
+
+------------------------------------------------------------
+Phase x: Special situations
+
+* At every phase, the presence of both players are evaluated, if one is not there anymore:
+* - Check if the other isnt there either, if so:
+* - - Abort the pazaak game at once.
+* - If the other player is there:
+* - - Declare the other player the winner and go to phase 5 immediately, without timeout
+* If a player forfeits:
+* - Abort the game at once, declare the opponent the winner, proceed to phase 5 immediately

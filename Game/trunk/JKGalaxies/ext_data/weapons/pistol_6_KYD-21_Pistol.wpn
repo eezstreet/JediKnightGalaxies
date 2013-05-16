@@ -1,0 +1,111 @@
+{
+    "name":             "@JKG_ITEMS_pistol_KYD-21_Pistol",
+    "type":             "WP_BRYAR_PISTOL",
+    "variation":        6,
+    "classname":        "pistol_KYD-21",
+    "description":      "@JKG_ITEMS_pistol_KYD-21_Pistol",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/KYD-21_Pistol/viewmodel_targeter.md3",
+        "worldmodel":       "models/weapons/KYD-21_Pistol/model_targeter.glm",
+        "hudicon":          "models/weapons/KYD-21_Pistol/icon_targeter",
+        "hudnaicon":        "models/weapons/KYD-21_Pistol/icon_targeter",
+        "selectsound":      "sound/weapons/select_pistol.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/KYD-21_Pistol/bar3", "models/weapons/KYD-21_Pistol/bar2" ],
+            "firemode":     "models/weapons/KYD-21_Pistol/bar"
+        },
+        
+        "gunposition":      "8.0 -3.0 -4.0",
+        "ironsightsposition": "10.0 0.0 -3.6",
+        "ironsightsfov": "75",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Yellow_small",
+            "firesound":    [
+                "sound/weapons/blasters/tie_cannon1.mp3",
+                "sound/weapons/blasters/tie_cannon2.mp3",
+                "sound/weapons/blasters/tie_cannon3.mp3",
+                "sound/weapons/blasters/tie_cannon4.mp3"
+            ],
+            "projectilefx": "blasters/shot_yellow_small",
+            "miss":         { "impactfx": "weapons/blaster_impact_yellow_medium" },
+            "hit":          { "impactfx": "blasters/yellow_flesh_impact" },
+            "deathfx": "blasters/shot_yellow_vaporize",
+	    "displayName":  "Blaster"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_White_small",
+            "firesound":    [
+                "sound/weapons/blasters/flaregun1.mp3",
+                "sound/weapons/blasters/flaregun2.mp3",
+                "sound/weapons/blasters/flaregun3.mp3",
+                "sound/weapons/blasters/flaregun4.mp3"
+            ],
+            "projectilefx": "blasters/shot_White_Flare_small",
+            "miss":         { "impactfx": "blasters/blue_impacttiny" },
+            "hit":          { "impactfx": "blasters/blue_impacttiny" },
+            "deathfx": "blasters/shot_White_vaporize",
+	    "displayName":  "Flare"
+        }
+    },
+    
+    "stats": {
+        "slot":         2,
+        "reloadtime":   750,
+        "ammoIndex":         "powerpak",
+        "ammoOnSpawn":   160,
+        "ammoOnPickup":   32,
+        "clipSize":              16,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       25,
+        "ammocost":     1,
+        "firedelay":    600,
+        "firingtype":   "semi",
+        "range":	3200.0,
+        "recoil":       1.0,
+        "spread":       0.1,
+        "projectilespeed": 4000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BRYAR_PISTOL"
+    },
+    
+    "firemode1": {
+        "damage":       10,
+        "ammocost":     1,
+        "firedelay":    300,
+        "firingtype":   "semi",
+        "range":	1800.0,
+        "recoil":       0.2,
+        "spread":       0.1,
+        "projectilespeed": 12000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BRYAR_PISTOL"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_PISTOLRELOAD" },
+        "ready":        { "torso": "TORSO_WEAPONREADY2", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK2" },
+	"sprint":	{ "torso": "BOTH_PISTOLRUN" },
+        "sprintStyle": "1"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

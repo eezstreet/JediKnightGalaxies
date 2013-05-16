@@ -1,0 +1,153 @@
+{
+    "name":             "@JKG_ITEMS_RW_Lemons",
+    "type":             "WP_THERMAL",
+    "variation":        11,
+    "classname":        "RW_Lemons",
+    "description":      "@JKG_ITEMS_RW_Lemons",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/Grenade_Stun/viewmodel_lemon.md3",
+        "worldmodel":       "models/weapons/Grenade_Stun/model_lemon.glm",
+        "hudicon":          "models/weapons/Grenade_Stun/icon_lemon",
+        "hudnaicon":        "models/weapons/Grenade_Stun/icon_lemon",
+        "selectsound":      "sound/weapons/select_grenade.wav",
+        
+
+        "gunposition":      "10.0 -2.5 -2.5",
+        "ironsightsposition": "9.0 -4.0 -3.2",
+
+        "firemode0": {
+            "type":         "grenade",
+            
+            "firesound":    [
+                "sound/weapons/melee/swing1.mp3",
+                "sound/weapons/melee/swing2.mp3",
+                "sound/weapons/melee/swing3.mp3",
+                "sound/weapons/melee/swing4.mp3"
+            ],
+            "chargingsound": "sound/effects/thud.mp3",
+            "projectilemodel": "models/weapons/Grenade_Stun/projectile_lemon.md3",
+            "runsound":     "sound/weapons/cavejohnsonlemons.wav",
+            "miss": {
+                "impactfx": "explosives/burnbig"
+            },
+            "hit": {
+                "impactfx": "explosives/burnbig"
+            },
+            "bouncesound":  [ "sound/effects/thud.mp3" ],
+	    "displayName":  "Throw LEMONS!"
+        },
+        
+        "firemode1": {
+            "type":         "grenade",
+            
+            "firesound":    [
+                "sound/weapons/melee/swing1.mp3",
+                "sound/weapons/melee/swing2.mp3",
+                "sound/weapons/melee/swing3.mp3",
+                "sound/weapons/melee/swing4.mp3"
+            ],
+            "chargingsound": "sound/effects/thud.mp3",
+            "projectilemodel": "models/weapons/Grenade_Stun/projectile_lemon.md3",
+            "runsound":     "sound/weapons/cavejohnsonlemons.wav",
+            "miss": {
+                "impactfx": "explosives/burnbig"
+            },
+            "hit": {
+                "impactfx": "explosives/burnbig"
+            },
+            "bouncesound":  [ "sound/effects/thud.mp3" ],
+	    "displayName":  "Roll LEMONS!"
+        }
+    },
+    
+    "stats": {
+        "slot":         3,
+        "reloadtime":   3000,
+        "ammoIndex":         "grenade_lemons",
+        "ammoOnSpawn":   1,
+        "ammoOnPickup":   1,
+        "clipSize":              0,
+        "flags":        [ "roll" ]
+    },
+      
+    "firemode0": {
+//        "damage":       50,//100,
+        "damage": {
+                          "damageradius": { "start": 220,
+                                                     "falloff": "linear" },
+                          "damage": 100,
+                          "damagetype": [ "explosion", "fire" ]
+                        },
+        "secondarydamage": {
+                          "damageradius": { "start": 60,
+                                                     "falloff": "linear" },
+                          "duration": 15000,
+                          "delay": 500,
+                          "damage": 1,
+                          "damagedelay": 150,
+                          "damagetype": [ "fire" ]
+                        },
+        "ballistic":    true,
+        "bounces":     -5,
+        "collisionsize":1.7,
+        "ammocost":     1,
+        "maxchargetime":3000,
+        "chargedelay":  3000,
+        "firedelay":    1000,
+        "firingtype":   "semi",
+        "recoil":       3.0,
+        "spread":       1.0,
+//        "splashrange":  560,//280,
+        "projectilespeed":1200.0,
+        "projectileclass":"repeater_alt_proj",
+        "meansofdeath": "MOD_THERMAL",
+        "splashmeansofdeath": "MOD_THERMAL_SPLASH"
+    },
+    
+    "firemode1": {
+        "damage": {
+                          "damageradius": { "start": 220,
+                                                     "falloff": "linear" },
+                          "damage": 100,
+                          "damagetype": [ "explosion", "fire" ]
+                        },
+        "secondarydamage": {
+                          "damageradius": { "start": 60,
+                                                     "falloff": "linear" },
+                          "duration": 15000,
+                          "delay": 500,
+                          "damage": 1,
+                          "damagedelay": 150,
+                          "damagetype": [ "fire" ]
+                        },
+        "ballistic":    true,
+        "bounces":     -5,
+        "collisionsize":1.7,
+        "ammocost":     1,
+        "maxchargetime":3000,
+        "chargedelay":  3000,
+        "firedelay":    1000,
+        "firingtype":   "semi",
+        "recoil":       3.0,
+        "spread":       1.0,
+        "projectilespeed":900.0,
+        "projectileclass":"repeater_alt_proj",
+        "meansofdeath": "MOD_THERMAL",
+        "splashmeansofdeath": "MOD_THERMAL_SPLASH"
+    },
+
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "TORSO_WEAPONREADY10", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_THERMAL_THROW" },
+        "sprintStyle": "11"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

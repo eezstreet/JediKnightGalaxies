@@ -1,0 +1,100 @@
+{
+    "name":             "@JKG_ITEMS_sniper_Bowcaster_Heavy_Scope",
+    "type":             "WP_BOWCASTER",
+    "variation":        3,
+    "classname":        "sniper_Bowcaster_H_S",
+    "description":      "@JKG_ITEMS_sniper_Bowcaster_Heavy_Scope",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/bowcaster_heavy/viewmodel_scope.md3",
+        "worldmodel":       "models/weapons/bowcaster_heavy/model_scope.glm",
+        "hudicon":          "models/weapons/bowcaster_heavy/icon_scope",
+        "hudnaicon":        "models/weapons/bowcaster_heavy/icon_scope",
+        "selectsound":      "sound/weapons/select_sniper.wav",
+        
+        "gunposition":      "8.0 -3.5 -5.5",
+        "ironsightsposition": "8 0.0 -5.1",
+        "ironsightsfov": "10",
+        
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Green_medium",
+            "firesound":    [
+                "sound/weapons/blasters/crossbow_big1.mp3",
+                "sound/weapons/blasters/crossbow_big2.mp3",
+                "sound/weapons/blasters/crossbow_big3.mp3",
+                "sound/weapons/blasters/crossbow_big4.mp3"
+            ],
+            "projectilefx": "blasters/shot_GreenBlue_Flare_big",
+            "miss":         { "impactfx": "weapons/blaster_impact_green_big" },
+            "hit":          { "impactfx": "blasters/green_flesh_impact" },
+            "deathfx": "blasters/shot_greenblue_vaporize"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Green_medium",
+            "firesound":    [
+                "sound/weapons/blasters/crossbow_big1.mp3",
+                "sound/weapons/blasters/crossbow_big2.mp3",
+                "sound/weapons/blasters/crossbow_big3.mp3",
+                "sound/weapons/blasters/crossbow_big4.mp3"
+            ],
+            "projectilefx": "blasters/shot_GreenBlue_Flare_big",
+            "miss":         { "impactfx": "weapons/blaster_impact_green_big" },
+            "hit":          { "impactfx": "blasters/green_flesh_impact" },
+            "deathfx": "blasters/shot_greenblue_vaporize"
+        },
+
+        "scope": {
+                "mask":     "models/weapons/bowcaster_heavy/scope_mask"
+        }
+    },
+    
+    "stats": {
+        "slot":         0,
+        "reloadtime":   1000,
+        "ammoIndex":         "quarrel",
+        "ammoOnSpawn":   60,
+        "ammoOnPickup":   12,
+        "clipSize":              6,
+        "flags":        [ "togglezoom", "knockback" ],
+        "reloadmodifier": 0.7,
+        "startzoomfov": 20
+    },
+    
+    "firemode0": {
+        "damage":       60,
+        "ballistic":    true,
+        "maxchargetime":1000,
+        "chargedamage": 2.0,
+        "chargedelay":  1000,
+        "ammocost":     1,
+        "collisionsize":2.0,
+        "firedelay":    1300,
+        "firingtype":   "semi",
+        "range":        10000.0,
+        "recoil":       2.4,
+        "spread":       0.0,
+        "projectilespeed": 9000.0,
+        "projectileclass": "bowcaster_proj",
+        "meansofdeath": "MOD_DISRUPTOR_SNIPER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADB" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "18"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

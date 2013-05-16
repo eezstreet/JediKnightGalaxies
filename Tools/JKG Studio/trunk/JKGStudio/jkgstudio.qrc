@@ -1,0 +1,66 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="compile.png">Resources/Graphics/Icons/compile.png</file>
+        <file alias="copy.png">Resources/Graphics/Icons/copy.png</file>
+        <file alias="cut.png">Resources/Graphics/Icons/cut.png</file>
+        <file alias="new.png">Resources/Graphics/Icons/new.png</file>
+        <file alias="open.png">Resources/Graphics/Icons/open.png</file>
+        <file alias="paste.png">Resources/Graphics/Icons/paste.png</file>
+        <file alias="save.png">Resources/Graphics/Icons/save.png</file>
+        <file alias="saveas.png">Resources/Graphics/Icons/saveas.png</file>
+        <file alias="undo.png">Resources/Graphics/Icons/undo.png</file>
+        <file alias="jkgicon.png">Resources/Graphics/Icons/icon96.png</file>
+        <file alias="redo.png">Resources/Graphics/Icons/redo.png</file>
+        <file alias="blocks.png">Resources/Graphics/Icons/block.png</file>
+        <file alias="script.png">Resources/Graphics/Icons/script.png</file>
+        <file alias="script-new.png">Resources/Graphics/Icons/script-new.png</file>
+        <file alias="signpk3.png">Resources/Graphics/Icons/signpk3.png</file>
+        <file alias="dialogue-new.png">Resources/Graphics/Icons/dialogue-new.png</file>
+        <file alias="font-new.png">Resources/Graphics/Icons/font_new.png</file>
+        <file alias="close.png">Resources/Graphics/Icons/close.png</file>
+        <file alias="closeall.png">Resources/Graphics/Icons/closeall.png</file>
+        <file alias="properties.png">Resources/Graphics/Icons/properties.png</file>
+        <file alias="cascade.png">Resources/Graphics/Icons/cascade.png</file>
+        <file alias="next.png">Resources/Graphics/Icons/next.png</file>
+        <file alias="prev.png">Resources/Graphics/Icons/prev.png</file>
+        <file alias="tile.png">Resources/Graphics/Icons/tile.png</file>
+        <file alias="reset.png">Resources/Graphics/Icons/reset.png</file>
+    </qresource>
+    <qresource prefix="/api">
+        <file alias="glua.api">Resources/glua.api</file>
+    </qresource>
+    <qresource prefix="/icons/dlg">
+        <file alias="dialogue.png">Resources/Graphics/Icons/dlg/dialogue.png</file>
+        <file alias="dynoption.png">Resources/Graphics/Icons/dlg/dynoption.png</file>
+        <file alias="end.png">Resources/Graphics/Icons/dlg/end.png</file>
+        <file alias="entrypoint.png">Resources/Graphics/Icons/dlg/entrypoint.png</file>
+        <file alias="error.png">Resources/Graphics/Icons/dlg/error.png</file>
+        <file alias="interrupt.png">Resources/Graphics/Icons/dlg/interrupt.png</file>
+        <file alias="link.png">Resources/Graphics/Icons/dlg/link.png</file>
+        <file alias="notice.png">Resources/Graphics/Icons/dlg/notice.png</file>
+        <file alias="option.png">Resources/Graphics/Icons/dlg/option.png</file>
+        <file alias="script.png">Resources/Graphics/Icons/dlg/script.png</file>
+        <file alias="text.png">Resources/Graphics/Icons/dlg/text.png</file>
+        <file alias="textentry.png">Resources/Graphics/Icons/dlg/textentry.png</file>
+        <file alias="warning.png">Resources/Graphics/Icons/dlg/warning.png</file>
+        <file alias="cinematic.png">Resources/Graphics/Icons/dlg/cinematic.png</file>
+        <file alias="node-delete.png">Resources/Graphics/Icons/dlg/node-delete.png</file>
+        <file alias="critical.png">Resources/Graphics/Icons/dlg/critical.png</file>
+        <file alias="cond-overlay.png">Resources/Graphics/Icons/dlg/cond-overlay.png</file>
+    </qresource>
+    <qresource prefix="/icons/dlg/new">
+        <file alias="dynoption.png">Resources/Graphics/Icons/dlg/dynoption-new.png</file>
+        <file alias="end.png">Resources/Graphics/Icons/dlg/end-new.png</file>
+        <file alias="entrypoint.png">Resources/Graphics/Icons/dlg/entrypoint-new.png</file>
+        <file alias="interrupt.png">Resources/Graphics/Icons/dlg/interrupt-new.png</file>
+        <file alias="link.png">Resources/Graphics/Icons/dlg/link-new.png</file>
+        <file alias="option.png">Resources/Graphics/Icons/dlg/option-new.png</file>
+        <file alias="script.png">Resources/Graphics/Icons/dlg/script-new.png</file>
+        <file alias="textentry.png">Resources/Graphics/Icons/dlg/textentry-new.png</file>
+        <file alias="text.png">Resources/Graphics/Icons/dlg/text-new.png</file>
+        <file alias="cinematic.png">Resources/Graphics/Icons/dlg/cinematic-new.png</file>
+    </qresource>
+    <qresource prefix="/scripts/dlg">
+        <file alias="condition.lua">Resources/Scripts/Dlg/condition.lua</file>
+    </qresource>
+</RCC>

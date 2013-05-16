@@ -1,0 +1,46 @@
+{
+    "name":             "@JKG_ITEMS_weapon_melee",
+    "type":             "WP_MELEE",
+    "variation":        0,
+    "classname":        "melee",
+    "description":      "@JKG_ITEMS_weapon_melee",
+    
+    "visual": {
+        "hudicon":          "gfx/hud/w_icon_melee",
+        "hudnaicon":        "gfx/hud/w_icon_melee_na",
+    
+        "firemode0": {
+            "type":         "blaster"
+        },
+        
+        "firemode1": {
+            "type":         "blaster"
+        }
+    },
+    
+    "stats": {
+        "slot":         0,
+        "flags":        [ "roll" ],
+        "speed":        1.1
+    },
+    
+    "firemode0": {
+        "damage":       10,
+        "firedelay":    400,
+        "range":        8.0,
+        "meansofdeath": "MOD_MELEE"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "BOTH_STAND6", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" }
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

@@ -1,0 +1,173 @@
+{
+    "name":             "@JKG_ITEMS_Grenade_CodeKey",
+    "type":             "WP_THERMAL",
+    "variation":        5,
+    "classname":        "Grenade_CodeKey",
+    "description":      "@JKG_ITEMS_Grenade_CodeKey",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/Grenade_CodeKey/viewmodel.md3",
+        "worldmodel":       "models/weapons/Grenade_CodeKey/model.glm",
+        "hudicon":          "models/weapons/Grenade_CodeKey/icon_default",
+        "hudnaicon":        "models/weapons/Grenade_CodeKey/icon_default",
+        "selectsound":      "sound/weapons/thermal/select.wav",
+        
+        "indicators": {
+            "leds":         [ "models/weapons/grenade_codekey/ind" ],
+            "firemode":     "models/weapons/grenade_codekey/ind_buttons"
+        },
+
+        "gunposition":      "9.0 -2.0 -2.0",
+        "ironsightsposition": "8.0 -6.0 -3.2",
+
+        "firemode0": {
+            "type":         "grenade",
+            
+            "firesound":    [
+                "sound/weapons/melee/swing1.mp3",
+                "sound/weapons/melee/swing2.mp3",
+                "sound/weapons/melee/swing3.mp3",
+                "sound/weapons/melee/swing4.mp3"
+            ],
+            "chargingsound": "sound/weapons/grenade_cook.wav",
+            "projectilemodel": "models/weapons/Grenade_CodeKey/projectile.md3",
+            "runsound":     "sound/weapons/grenade_thermdetloop.wav",
+            "miss": {
+                "impactfx": "explosives/baradium_class-e",
+                "shockwavefx": "explosives/shockwave"
+            },
+            "hit": {
+                "impactfx": "explosives/baradium_class-e",
+                "shockwavefx": "explosives/shockwave"
+            },
+            "bouncesound":  [ "sound/weapons/grenade_bounce1.wav", "sound/weapons/grenade_bounce2.wav" ],
+	    "displayName":  "Throw"
+        },
+        
+        "firemode1": {
+            "type":         "grenade",
+            
+            "firesound":    [
+                "sound/weapons/melee/swing1.mp3",
+                "sound/weapons/melee/swing2.mp3",
+                "sound/weapons/melee/swing3.mp3",
+                "sound/weapons/melee/swing4.mp3"
+            ],
+            "chargingsound": "sound/weapons/grenade_cook.wav",
+            "projectilemodel": "models/weapons/Grenade_CodeKey/projectile.md3",
+            "runsound":     "sound/weapons/grenade_thermdetloop.wav",
+            "miss": {
+                "impactfx": "explosives/baradium_class-e",
+                "shockwavefx": "explosives/shockwave"
+            },
+            "hit": {
+                "impactfx": "explosives/baradium_class-e",
+                "shockwavefx": "explosives/shockwave"
+           },
+            "bouncesound":  [ "sound/weapons/grenade_bounce1.wav", "sound/weapons/grenade_bounce2.wav" ],
+	    "displayName":  "Roll"
+        }
+    },
+    
+    "stats": {
+        "slot":         3,
+        "reloadtime":   3000,
+        "ammoIndex":         "grenade_codekey",
+        "ammoOnSpawn":   1,
+        "ammoOnPickup":   1,
+        "clipSize":              0,
+        "flags":        [ "roll" ]
+    },
+    
+    "firemode0": {
+        "damage": {
+                          "damageradius": { "start": 0,
+                                                     "end": 128,
+                                                     "function": "clamp",
+                                                     "parm": 30,
+                                                     "falloff": "constant" },
+                          "duration": 2000,
+                          "delay": 0,
+                          "damage": 50,
+                          "damagedelay": 50,
+                          "damagetype": [ "disintegrate", "explosion", "fire" ]
+                        },
+        "secondarydamage": {
+                          "damageradius": { "start": 128,
+                                                     "falloff": "linear" },
+                          "duration": 15000,
+                          "delay": 500,
+                          "damage": 1,
+                          "damagedelay": 150,
+                          "damagetype": [ "fire" ]
+                        },
+        "ballistic":    true,
+        "bounces":     -5,
+        "collisionsize":3.0,
+        "ammocost":     1,
+        "disruptor":    true,
+        "maxchargetime":3000,
+        "chargedelay":  3000,
+        "firedelay":    1000,
+        "firingtype":   "semi",
+        "recoil":       3.0,
+        "spread":       1.0,
+        "projectilespeed":1100.0,
+        "projectileclass":"thermal_detonator",
+        "meansofdeath": "MOD_THERMAL",
+        "splashmeansofdeath": "MOD_THERMAL_SPLASH"
+    },
+    
+    "firemode1": {
+        "damage": {
+                          "damageradius": { "start": 0,
+                                                     "end": 128,
+                                                     "function": "clamp",
+                                                     "parm": 30,
+                                                     "falloff": "constant" },
+                          "duration": 2000,
+                          "delay": 0,
+                          "damage": 50,
+                          "damagedelay": 50,
+                          "damagetype": [ "disintegrate", "explosion", "fire" ]
+                        },
+        "secondarydamage": {
+                          "damageradius": { "start": 128,
+                                                     "falloff": "linear" },
+                          "duration": 15000,
+                          "delay": 500,
+                          "damage": 1,
+                          "damagedelay": 150,
+                          "damagetype": [ "fire" ]
+                        },
+        "ballistic":    true,
+        "bounces":     -5,
+        "collisionsize":3.0,
+        "ammocost":     1,
+        "disruptor":    true,
+        "maxchargetime":3000,
+        "chargedelay":  3000,
+        "firedelay":    1000,
+        "firingtype":   "semi",
+        "recoil":       3.0,
+        "spread":       1.0,
+        "projectilespeed":500.0,
+        "projectileclass":"thermal_detonator",
+        "meansofdeath": "MOD_THERMAL",
+        "splashmeansofdeath": "MOD_THERMAL_SPLASH"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "TORSO_WEAPONREADY10", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_THERMAL_THROW" },
+        "sprintStyle": "11"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

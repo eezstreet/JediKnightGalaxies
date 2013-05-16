@@ -1,0 +1,10 @@
+{
+	"name":             "BioTech Bacta Intravenous Solution",
+	"internal":             "Stimpack",
+	"id":             "7",
+	"itemtype":             "none",
+
+	"pSpell":		"2",
+	"affector":		"0",
+	"amount":		"2"
+}

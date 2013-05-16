@@ -1,0 +1,10 @@
+//---------------------------------------------------------
+// jkghud.txt
+// 
+// .menu files to load for the JKA Galaxies HUD
+//
+//---------------------------------------------------------
+{
+	loadMenu { "ui/jkghud/jkg_hud.menu" 		}
+}
+

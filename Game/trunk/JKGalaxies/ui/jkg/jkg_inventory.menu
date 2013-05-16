@@ -1,0 +1,2372 @@
+{
+    menuDef
+    {
+        name                    "jkg_inventory"
+        visible                 0
+        fullscreen              0
+        outOfBoundsClick
+        rect                    0 0 640 480
+        focusColor              1 1 1 1
+        style                   1
+        border                  1
+        disableColor            0.4 0.4 0.5 0.8
+        
+        onClose
+        {
+            jkgscript           inv_close
+        }
+        
+        onOpen
+        {
+            clearfocus
+            jkgscript           inv_open
+            disable             btn_equip 1
+            disable             btn_useitem 1
+            disable             btn_aci 1
+            disable             btn_aci2 1
+            disable             btn_unequip 1
+	    disable		btn_destroy 1
+	    disable		btn_examine 1
+            hide                aci_selection
+        }
+        
+        // Window backdrop ~Xycaleth
+	itemDef
+        {
+            name                background_pic
+            group               none
+            style               WINDOW_STYLE_SHADER
+            rect                24 -126 606 606
+            background          "gfx/ui/inv_bg"
+            forecolor           1 1 1 1
+            visible             1
+            decoration
+        }
+
+	// Title ~Xycaleth
+	itemDef
+        {
+            name                main_title
+            group               main_dialog
+            rect                414 150 164 41
+            style               WINDOW_STYLE_FILLED
+            text                @JKG_INVENTORY_INVENTORY
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          82
+	    textaligny		6
+            font                5
+            textscale           0.7
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+
+	// Weight Display
+	itemDef
+        {
+            name                weight_title
+            group               main_dialog
+            rect                414 175 164 41
+            style               WINDOW_STYLE_FILLED
+            text                @JKG_INVENTORY_WEIGHT
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          82
+	    textaligny		10
+            font                5
+            textscale           0.5
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+
+	itemDef
+        {
+            name                invmain_weight
+            group               main_dialog
+            rect                414 185 164 41
+            style               WINDOW_STYLE_FILLED
+            text                "WEIGHT"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          82
+	    textaligny		12
+            font                5
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+
+	// Credit Display
+	itemDef
+        {
+            name                credit_title
+            group               main_dialog
+            rect                414 205 164 41
+            style               WINDOW_STYLE_FILLED
+            text                @JKG_INVENTORY_CREDITS
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          82
+	    textaligny		10
+            font                5
+            textscale           0.5
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+
+	itemDef
+        {
+            name                invmain_credits
+            group               main_dialog
+            rect                414 215 164 41
+            style               WINDOW_STYLE_FILLED
+            text                "CREDITS"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          82
+	    textaligny		12
+            font                5
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+	
+	// Inventory feeder selections ~eezstreet
+	itemDef
+	{
+		name		feeder_selection0
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		100 93 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection1
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		100 196 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection2
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		100 300 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection3
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		203 93 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection4
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		203 196 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection5
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		203 300 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection6
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		305 93 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection7
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		305 196 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		feeder_selection8
+		group		itemselections
+		style               WINDOW_STYLE_SHADER
+		rect		305 300 138 138
+		background          "gfx/ui/inv_itemselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+
+	// Inventory list ~Xycaleth
+        itemDef
+        {
+		name                inventory_feederstuff
+		group               main_dialog
+		rect                127 122 288 288
+		type                ITEM_TYPE_LISTBOX
+		style               WINDOW_STYLE_FILLED
+		elementwidth        81
+		elementheight       81
+		elementSpacingW	    22		//NEW FIELD ~eezstreet
+		elementSpacingH	    22		//NEW FIELD ~eezstreet
+		elementtype 	LISTBOX_IMAGE
+		horizontalscroll
+		scrollhidden
+		multifocus
+		nofocussound			
+		feeder              FEEDER_INVENTORY
+		forecolor           1 1 1 1
+		onFocus
+		{
+			jkgScript inv_highlight
+		}
+		visible             1
+        }
+
+	// Exit Button
+	itemDef
+        {
+            name                inv_exit_hilight
+            group               main_dialog
+            rect		523 89 32 32
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_quit"
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                inv_exit
+            group               main_dialog
+            rect		523 89 32 32
+            style               WINDOW_STYLE_SHADER
+		background          "gfx/ui/inv_quit"
+            type                ITEM_TYPE_BUTTON
+            forecolor           1 1 1 1
+            visible             1
+
+	    mouseEnter
+	    {
+		show	inv_exit_hilight
+	    }
+            mouseexit
+            {
+		hide	inv_exit_hilight
+                clearfocus
+            }
+            
+            action
+            {
+		uiScript	closeingame
+                jkgscript	inv_close
+            }
+        }
+
+	// Filter button
+	itemDef
+        {
+            name                filtertab_hilight
+            group               main_dialog
+            rect                32 73 288 36
+            style               WINDOW_STYLE_SHADER
+		background          "gfx/ui/inv_filtertab"
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+
+	itemDef
+        {
+            name                filtertab
+            group               main_dialog
+            rect                32 73 288 36
+            style               WINDOW_STYLE_SHADER
+            type                ITEM_TYPE_MULTI
+	    background          "gfx/ui/inv_filtertab"
+	    cvar		"ui_inventoryFilter"
+	    cvarFloatList
+	    {
+		"All"		0
+		"Armor"		1
+		"Weapons"	2
+		"Consumables"	3
+		"Misc"		4
+	    }
+	    text                @JKG_INVENTORY_FILTER
+            textalign           ITEM_ALIGN_LEFT
+            textalignx          80
+	    textaligny		15
+            font                5
+            textscale           0.34
+            forecolor           1 1 1 1
+            visible             1
+
+	    mouseEnter
+	    {
+		show	filtertab_hilight
+	    }
+            mouseexit
+            {
+		hide	filtertab_hilight
+                clearfocus
+            }            
+
+            action
+            {
+                hide 	itemselections
+            }
+        }
+
+	// Arrows for the inventory list ~eezstreet
+	itemDef
+        {
+            name                arrow_left_hilight
+            group               arrows
+            rect                101 310 20 160
+            style               WINDOW_STYLE_SHADER
+		background          "gfx/ui/inv_arrow_lf"
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                arrow_right_hilight
+            group               arrows
+            rect                421 66 20 160
+            style               WINDOW_STYLE_SHADER
+		background          "gfx/ui/inv_arrow_rt"
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                arrow_left
+            group               arrows
+            rect                101 310 20 160
+            style               WINDOW_STYLE_SHADER
+		background          "gfx/ui/inv_arrow_lf"
+            type                ITEM_TYPE_BUTTON
+            forecolor           1 1 1 1
+            visible             1
+
+	    mouseEnter
+	    {
+		show	arrow_left_hilight
+	    }
+            mouseexit
+            {
+		hide	arrow_left_hilight
+                clearfocus
+            }            
+
+            action
+            {
+                jkgscript       inv_arrow 2
+            }
+        }
+	itemDef
+        {
+            name                arrow_right
+            group               arrows
+            rect                421 66 20 160
+            style               WINDOW_STYLE_SHADER
+		background          "gfx/ui/inv_arrow_rt"
+            type                ITEM_TYPE_BUTTON
+            forecolor           1 1 1 1
+            visible             1
+
+	    mouseEnter
+	    {
+		show	arrow_right_hilight
+	    }
+            mouseexit
+            {
+		hide	arrow_right_hilight
+                clearfocus
+            }  
+            
+            action
+            {
+                jkgscript       inv_arrow 1
+            }
+        }
+
+	// Inventory overlay ~eezstreet
+	itemDef
+	{
+		name		feeder_overlay
+		style               WINDOW_STYLE_SHADER
+		rect		24 -126 606 606
+		background          "gfx/ui/inv_overlay"
+		forecolor           1 1 1 1
+		visible             1
+		decoration
+	}
+        
+        // Buttons buttons buttons.. ~Xycaleth
+	// Highlights ~eezstreet ~optimized by BlasTech to decrease text mass
+	itemDef
+	{
+		name		btn_hilight
+		group		btn_hilights
+		style               WINDOW_STYLE_SHADER
+		rect		0 0 0 0
+		background          "gfx/ui/inv_buttonselect"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	// Highlights for when something is not available
+	itemDef
+	{
+		name		btn_na1
+		group		btn_nas
+		style               WINDOW_STYLE_SHADER
+		rect		414 253 164 41
+		background          "gfx/ui/inv_buttonna"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		btn_na2
+		group		btn_nas
+		style               WINDOW_STYLE_SHADER
+		rect		414 288 164 41
+		background          "gfx/ui/inv_buttonna"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		btn_na3
+		group		btn_nas
+		style               WINDOW_STYLE_SHADER
+		rect		414 323 164 41
+		background          "gfx/ui/inv_buttonna"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		btn_na4
+		group		btn_nas
+		style               WINDOW_STYLE_SHADER
+		rect		414 360 164 41
+		background          "gfx/ui/inv_buttonna"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+	itemDef
+	{
+		name		btn_na5
+		group		btn_nas
+		style               WINDOW_STYLE_SHADER
+		rect		414 398 164 41
+		background          "gfx/ui/inv_buttonna"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+
+	// The actual buttons ~eezstreet
+	//Examine
+	itemDef
+	{
+		name		btn_examine
+		group		main_dialog
+		style           WINDOW_STYLE_FILLED
+		rect		442 259 108 29
+		type                ITEM_TYPE_BUTTON
+            	text                @JKG_INVENTORY_EXAMINE
+            	textalign           ITEM_ALIGN_CENTER
+            	textalignx          54
+	    	textaligny		8
+            	font                5
+            	textscale           0.45
+            	forecolor           1 1 1 1
+            	visible             1
+            
+            	action
+            	{
+            	    jkgscript       inv_button 8
+            	}
+		mouseEnter
+		{
+			show	btn_hilight
+			setitemrect	btn_hilight 414 253 164 41
+		}
+           	 mouseexit
+            	{
+			hide	btn_hilight
+               	 	clearfocus
+            	}
+	}
+	//Use
+        itemDef
+        {
+            name                btn_useitem
+            group               main_dialog
+            rect                442 329 108 29
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_USE
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          54
+	    textaligny		8
+            font                5
+            textscale           0.45
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_button 0
+            }
+		mouseEnter
+		{
+			show	btn_hilight
+			setitemrect	btn_hilight 414 323 164 41
+		}
+            mouseexit
+            {
+		hide	btn_hilight
+                clearfocus
+            }
+        }
+        //Equip/Unequip
+        itemDef
+        {
+            name                btn_equip
+            group               main_dialog
+            rect                442 367 108 29
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_EQUIP
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          54
+	    textaligny		8
+            font                5
+            textscale           0.45
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_button 1
+            }
+		mouseEnter
+		{
+			show	btn_hilight
+			setitemrect	btn_hilight 414 360 164 41
+		}
+            mouseexit
+            {
+		hide	btn_hilight
+                clearfocus
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_unequip
+            group               main_dialog
+            rect                442 367 108 29
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_UNEQUIP
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          54
+	    textaligny		8
+            font                5
+            textscale           0.45
+            forecolor           1 1 1 1
+            visible             0
+            
+            action
+            {
+                jkgscript       inv_button 3
+            }
+		
+		mouseEnter
+		{
+			show	btn_hilight
+			setitemrect	btn_hilight 414 360 164 41
+		}
+
+            mouseexit
+            {
+		hide btn_hilight
+                clearfocus
+            }
+        }
+        //ACI
+        itemDef
+        {
+            name                btn_aci
+            group               main_dialog
+            rect                442 294 108 29
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_ASSIGNACI
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          54
+	    textaligny		8
+            font                5
+            textscale           0.45
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_button 2
+		show	btn_hilight2
+            }
+		mouseEnter
+		{
+			show	btn_hilight
+			setitemrect	btn_hilight 414 288 164 41
+		}
+            
+            mouseexit
+            {
+		hide btn_hilight
+                clearfocus
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci2
+            group               main_dialog
+            rect                442 294 108 29
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_UNASSIGNACI
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          54
+	    textaligny		8
+            font                5
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             0
+            
+            action
+            {
+                jkgscript       inv_button 4
+		show btn_hilight2
+            }
+
+		mouseEnter
+		{
+			show	btn_hilight
+			setitemrect	btn_hilight 414 288 164 41
+		}
+            
+            mouseexit
+            {
+		hide btn_hilight
+                clearfocus
+            }
+        }
+	//Destroy
+	itemDef
+        {
+            name                btn_destroy
+            group               main_dialog
+            rect                442 405 108 29
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_DESTROY
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          54
+	    textaligny		8
+            font                5
+            textscale           0.45
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+		jkgscript       inv_button 5
+		hide destroy_yes_hilight
+		hide destroy_no_hilight
+            }
+
+	    mouseEnter
+	    {
+			show	btn_hilight
+			setitemrect	btn_hilight 414 398 164 41
+	    }
+            
+            mouseexit
+            {
+		hide btn_hilight
+                clearfocus
+            }
+        }
+	//=================================================
+	// Examine Menu
+	// This menu makes use of an XML parser to
+	// automatically generate category names from an
+	// item's XML file.
+	//
+	// DO NOT TOUCH the names or properties. Positions,
+	// colors, fonts, etc are ok. The XML parser expects
+	// them like that.
+	//=================================================
+	itemDef
+	{
+	    name                examine1_bg
+            group               examine1Menu
+            style               WINDOW_STYLE_SHADER
+            rect                24 -126 606 606
+            background          "gfx/ui/inv_examinemenu"
+            forecolor           1 1 1 1
+            visible             0
+            decoration
+	}
+	itemDef
+        {
+            name                examine1_title
+            group               examine1Menu
+            rect                128 122 288 30
+            style               WINDOW_STYLE_FILLED
+            text                "ITEM NAME"
+            textalign           ITEM_ALIGN_CENTER
+	    textalignx		144
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat1_title
+            group               examine1Menu
+            rect                130 159 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat1_text1
+            group               examine1Menu
+            rect                130 171 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2alignx		90
+	    text2aligny		2
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat1_text2
+            group               examine1Menu
+            rect                130 177 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2alignx		90
+	    text2aligny		2
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat1_text3
+            group               examine1Menu
+            rect                130 183 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2alignx		90
+	    text2aligny		2
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat1_text4
+            group               examine1Menu
+            rect                130 189 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2alignx		90
+	    text2aligny		2
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat1_text5
+            group               examine1Menu
+            rect                130 195 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2alignx		90
+	    text2aligny		2
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat2_title
+            group               examine1Menu
+            rect                324 169 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_RIGHT
+	    textalignx		90
+            font                5
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat2_text1
+            group               examine1Menu
+            rect                324 181 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		8
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat2_text2
+            group               examine1Menu
+            rect                324 198 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		8
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat2_text3
+            group               examine1Menu
+            rect                324 215 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		8
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat2_text4
+            group               examine1Menu
+            rect                324 232 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		8
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat2_text5
+            group               examine1Menu
+            rect                324 249 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		8
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_title
+            group               examine1Menu
+            rect                130 283 90 18
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.5
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_tableHeaders
+            group               examine1Menu
+            rect                213 305 90 12
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2alignx		105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text1
+            group               examine1Menu
+            rect                130 318 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text2
+            group               examine1Menu
+            rect                130 324 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text3
+            group               examine1Menu
+            rect                130 330 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text4
+            group               examine1Menu
+            rect                130 336 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text5
+            group               examine1Menu
+            rect                130 342 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text6
+            group               examine1Menu
+            rect                130 348 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text7
+            group               examine1Menu
+            rect                130 354 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text8
+            group               examine1Menu
+            rect                130 360 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text9
+            group               examine1Menu
+            rect                130 366 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text10
+            group               examine1Menu
+            rect                130 372 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text11
+            group               examine1Menu
+            rect                130 378 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text12
+            group               examine1Menu
+            rect                130 384 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_LEFT
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text1data
+            group               examine1Menu
+            rect                212 318 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text2data
+            group               examine1Menu
+            rect                212 324 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text3data
+            group               examine1Menu
+            rect                212 330 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text4data
+            group               examine1Menu
+            rect                212 336 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text5data
+            group               examine1Menu
+            rect                212 342 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text6data
+            group               examine1Menu
+            rect                212 348 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text7data
+            group               examine1Menu
+            rect                212 354 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text8data
+            group               examine1Menu
+            rect                212 360 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text9data
+            group               examine1Menu
+            rect                212 366 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text10data
+            group               examine1Menu
+            rect                212 372 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text11data
+            group               examine1Menu
+            rect                212 378 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+        {
+            name                examine1Cat3_text12data
+            group               examine1Menu
+            rect                212 384 90 6
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            text2               ""
+            textalign           ITEM_ALIGN_LEFT
+            text2alignx          105
+            font                5
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    //decoration
+        }
+	itemDef
+	{
+	    name                examine2_bg
+            group               examine2Menu
+            style               WINDOW_STYLE_SHADER
+            rect                24 -126 606 606
+            background          "gfx/ui/inv_examinemenu2"
+            forecolor           1 1 1 1
+            visible             0
+            decoration
+	}
+	itemDef
+        {
+            name                examine2_title
+            group               examine2Menu
+            rect                141 180 275 25
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          138
+	    textaligny		2
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat1_title
+            group               examine2Menu
+            rect                143 209 163 20
+            style               WINDOW_STYLE_FILLED
+            textalign           ITEM_ALIGN_LEFT
+	    textaligny		2
+            font                5
+            textscale           0.5
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat1_text1
+            group               examine2Menu
+            rect                143 221 163 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2aligny		5
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat1_text2
+            group               examine2Menu
+            rect                143 233 163 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2aligny		5
+            font                5
+	    font2		1
+	    textscale2		0.4
+            textscale           0.3
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat1_text3
+            group               examine2Menu
+            rect                143 245 163 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2aligny		5
+            font                5
+	    font2		1
+            textscale           0.3
+	    textscale2		0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat1_text4
+            group               examine2Menu
+            rect                143 257 163 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2aligny		5
+            font                5
+	    font2		1
+            textscale           0.3
+	    textscale2		0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat1_text5
+            group               examine2Menu
+            rect                143 269 163 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2aligny		5
+            font                5
+	    font2		1
+            textscale           0.3
+	    textscale2		0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat2_title
+            group               examine2Menu
+            rect                323 209 90 12
+            style               WINDOW_STYLE_FILLED
+            text                "CAT2"
+            textalign           ITEM_ALIGN_RIGHT
+	    textalignx		90
+	    textaligny		2
+            font                5
+            textscale           0.5
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat2_text1
+            group               examine2Menu
+            rect                323 221 90 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		5
+            font                5
+            font2               1
+            textscale           0.3
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat2_text2
+            group               examine2Menu
+            rect                323 233 90 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		5
+            font                5
+            font2               1
+            textscale           0.3
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat2_text3
+            group               examine2Menu
+            rect                323 245 90 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		5
+            font                5
+            font2               1
+            textscale           0.3
+            textscale2          0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat2_text4
+            group               examine2Menu
+            rect                323 257 90 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		5
+            font                5
+            font2               1
+            textscale           0.3
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine2Cat2_text5
+            group               examine2Menu
+            rect                323 269 90 20
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_RIGHT
+            textalignx          90
+	    text2aligny		5
+            font                5
+            font2               1
+            textscale           0.3
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+	{
+	    name                examine3_bg
+            group               examine3Menu
+            style               WINDOW_STYLE_SHADER
+            rect                24 -126 606 606
+            background          "gfx/ui/inv_examinemenu3"
+            forecolor           1 1 1 1
+            visible             0
+            decoration
+	}
+	itemDef
+        {
+            name                examine3_title
+            group               examine3Menu
+            rect                145 210 277 15
+            style               WINDOW_STYLE_FILLED
+            text                ""
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          139
+	    textaligny		2
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine3Cat1_text1
+            group               examine3Menu
+            rect                145 224 277 15
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2align		ITEM_ALIGN_RIGHT
+            text2alignx         277
+	    textaligny		2
+            font                5
+            textscale           0.45
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	itemDef
+        {
+            name                examine3Cat1_text2
+            group               examine3Menu
+            rect                145 235 277 15
+            style               WINDOW_STYLE_FILLED
+            text                ""
+	    text2		""
+            textalign           ITEM_ALIGN_LEFT
+	    text2align		ITEM_ALIGN_RIGHT
+            text2alignx         277
+	    textaligny		2
+            font                5
+            textscale           0.45
+            forecolor           1 1 1 1
+            visible             0
+	    decoration
+        }
+	
+
+	//=================================================
+	// Destroy menu
+	//=================================================
+	itemDef
+	{
+	    name                destroy_bg
+            group               destroyMenu
+            style               WINDOW_STYLE_SHADER
+            rect                24 -126 606 606
+            background          "gfx/ui/inv_sellmenu"
+            forecolor           1 1 1 1
+            visible             0
+            decoration
+	}
+
+	itemDef
+        {
+            name                destroy_title
+            group               destroyMenu
+            rect                199 232 163 20
+            style               WINDOW_STYLE_FILLED
+            text                @JKG_INVENTORY_DESTROYTHISITEM
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          82
+	    textaligny		0
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+
+	itemDef
+        {
+            name                destroy_text
+            group               destroyMenu
+            rect                199 258 163 20
+            style               WINDOW_STYLE_FILLED
+            text                @JKG_INVENTORY_ITEMINQUESTION
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          82
+	    textaligny		1
+            font                5
+            textscale           0.4
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+
+	itemDef
+	{
+		name		destroy_hilight
+		group		destroyMenu
+		style               WINDOW_STYLE_SHADER
+		rect		0 0 0 0
+		background          "gfx/ui/main_buttonsmall"
+		forecolor           1 1 1 1
+		visible             0
+		decoration
+	}
+
+	itemDef
+	{
+		name		destroy_yes_bg
+		group		destroyMenu
+		style               WINDOW_STYLE_SHADER
+		rect		207 278 61 15
+		background          "gfx/ui/main_buttonsmall"
+		forecolor           1 1 1 1
+		visible             1
+		decoration
+	}
+
+	itemDef
+        {
+            name                destroy_yes
+            group               destroyMenu
+            rect                214 278 48 13
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_YES
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          24
+	    textaligny		0
+            font                5
+            textscale           0.5
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+		jkgscript inv_button 6
+            }
+
+	    mouseEnter
+	    {
+		show destroy_hilight
+		setitemrect destroy_hilight 207 278 61 15
+	    }
+            
+            mouseexit
+            {
+		hide destroy_hilight
+                clearfocus
+            }
+        }
+
+	itemDef
+	{
+		name		destroy_no_bg
+		group		destroyMenu
+		style               WINDOW_STYLE_SHADER
+		rect		292 278 61 15
+		background          "gfx/ui/main_buttonsmall"
+		forecolor           1 1 1 1
+		visible             1
+		decoration
+	}
+
+	itemDef
+        {
+            name                destroy_no
+            group               destroyMenu
+            rect                298 278 48 13
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                @JKG_INVENTORY_NO
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          24
+	    textaligny		0
+            font                5
+            textscale           0.5
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+		jkgscript inv_button 7
+            }
+
+	    mouseEnter
+	    {
+		show destroy_hilight
+		setitemrect destroy_hilight 292 278 61 15
+	    }
+            
+            mouseexit
+            {
+		hide destroy_hilight
+                clearfocus
+            }
+        }
+        
+        //=================================================
+        // ACI selection
+        //=================================================
+        itemDef
+        {
+            name                aci_background
+            group               aci_selection
+            style               WINDOW_STYLE_SHADER
+            rect                24 -126 606 606
+            background          "gfx/ui/inv_acimenu"
+            forecolor           1 1 1 1
+            visible             0
+            decoration
+        }
+        
+	// Selection highlights ~BlasTech
+	itemDef
+        {
+            name                btn_aci_slot_select
+            group               aci_selection_select
+            rect                0 0 0 0
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotselect"
+            forecolor           1 1 1 1
+            visible             0
+        }
+
+	// NA greying out ~eezstreet
+	itemDef
+        {
+            name                btn_aci_slot1_na
+            group               aci_selection_na
+            rect                175 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot2_na
+            group               aci_selection_na
+            rect                194 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot3_na
+            group               aci_selection_na
+            rect                213 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot4_na
+            group               aci_selection_na
+            rect                232 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot5_na
+            group               aci_selection_na
+            rect                251 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot6_na
+            group               aci_selection_na
+            rect                271 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot7_na
+            group               aci_selection_na
+            rect                290 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot8_na
+            group               aci_selection_na
+            rect                309 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot9_na
+            group               aci_selection_na
+            rect                328 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot0_na
+            group               aci_selection_na
+            rect                348 261 33 33
+            style               WINDOW_STYLE_SHADER
+	    background          "gfx/ui/inv_acislotna"
+            forecolor           1 1 1 1
+            visible             0
+        }
+
+	itemDef
+        {
+            name                aci_fulltext
+            group               aci_selection
+            rect                185 235 185 16
+            style               WINDOW_STYLE_FILLED
+            text                @JKG_INVENTORY_ASSIGNACILONG
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          94
+	    textaligny		1
+            font                5
+            textscale           0.35
+            forecolor           1 1 1 1
+            visible             1
+	    decoration
+        }
+
+        itemDef
+        {
+            name                btn_aci_slot1
+            group               aci_selection
+            rect                183 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "1"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          9
+	    textaligny		0
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 1
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 175 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot2
+            group               aci_selection
+            rect                202 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "2"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          10
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 2
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 194 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot3
+            group               aci_selection
+            rect                221 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "3"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          9
+            font                5
+	    textaligny		1
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 3
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 213 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot4
+            group               aci_selection
+            rect                240 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "4"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          10
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 4
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 232 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot5
+            group               aci_selection
+            rect                259 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "5"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          9
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 5
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 251 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot6
+            group               aci_selection
+            rect                279 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "6"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          8
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 6
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 271 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot7
+            group               aci_selection
+            rect                298 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "7"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          8
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 7
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 290 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot8
+            group               aci_selection
+            rect                317 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "8"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          9
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 8
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 309 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot9
+            group               aci_selection
+            rect                336 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "9"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          9
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 9
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 328 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+        
+        itemDef
+        {
+            name                btn_aci_slot0
+            group               aci_selection
+            rect                356 269 18 18
+            style               WINDOW_STYLE_FILLED
+            type                ITEM_TYPE_BUTTON
+            text                "0"
+            textalign           ITEM_ALIGN_CENTER
+            textalignx          10
+	    textaligny		1
+            font                5
+            textscale           0.6
+            forecolor           1 1 1 1
+            visible             1
+            
+            action
+            {
+                jkgscript       inv_acislot 0
+                hide btn_aci_slot_select
+            }
+            
+            mouseEnter
+            {
+                show btn_aci_slot_select
+                setitemrect btn_aci_slot_select 348 261 33 33
+            }            
+            mouseExit
+            {
+                clearfocus
+                hide btn_aci_slot_select
+            }
+        }
+
+	// Tooltip test ~eezstreet
+	itemDef 
+	{
+			name				inventory_tooltest
+			style				WINDOW_STYLE_SHADER
+			background			"gfx/ui/inv_cursorbox"
+			text				""
+			rect				20 5 390 28
+			textalign			ITEM_ALIGN_CENTER		
+			outlinecolor			1 .5 .5 .5
+			backcolor			0 0 0 0
+			font				5
+			textscale			0.4
+			forecolor			.549 .854 1 1
+			border				0
+			bordercolor			0 0 0 0
+			visible				0
+			type				ITEM_TYPE_OWNERDRAW
+			ownerdraw			1042
+			decoration
+	}
+    }
+}

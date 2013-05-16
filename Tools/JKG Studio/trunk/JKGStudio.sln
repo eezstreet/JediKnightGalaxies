@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JKGStudio", "JKGStudio\JKGStudio.vcxproj", "{1784CB74-5C40-45CE-B1B8-F8C442328CC2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1784CB74-5C40-45CE-B1B8-F8C442328CC2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1784CB74-5C40-45CE-B1B8-F8C442328CC2}.Debug|Win32.Build.0 = Debug|Win32
+		{1784CB74-5C40-45CE-B1B8-F8C442328CC2}.Release|Win32.ActiveCfg = Release|Win32
+		{1784CB74-5C40-45CE-B1B8-F8C442328CC2}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		QtVersion = 4.7.3
+	EndGlobalSection
+EndGlobal

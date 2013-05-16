@@ -1,0 +1,125 @@
+{
+    "name":             "@JKG_ITEMS_chemical_CarboniteRifle",
+    "type":             "WP_DEMP2",
+    "variation":        1,
+    "classname":        "chem_CarbR",
+    "description":      "@JKG_ITEMS_chemical_CarboniteRifle",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/CarboniteRifle/viewmodel.md3",
+        "worldmodel":       "models/weapons/CarboniteRifle/model.glm",
+        "hudicon":          "models/weapons/CarboniteRifle/icon_default",
+        "hudnaicon":        "models/weapons/CarboniteRifle/icon_default",
+        "selectsound":      "sound/weapons/select_l_launcher.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/CarboniteRifle/numbers3", "models/weapons/CarboniteRifle/numbers2" ],
+            "firemode":     "models/weapons/CarboniteRifle/firemode"
+        },
+        
+        "gunposition":      "10.0 -5.0 -8.0",
+        "ironsightsposition": "6.0 -3.5 -7.0",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "chemicals/carbonite_muzzle",
+            "firesound":    [
+                "sound/effects/air_burst.mp3"
+            ],
+            "projectilefx": "chemicals/carbonite_bolt",
+            "runsound":     "sound/ambience/bespin/bespin_air.wav",
+            "miss":         { "impactfx": "chemicals/carboniteimpact_medium" },
+            "hit":          { "impactfx": "chemicals/carboniteimpact_medium" },
+	    "displayName":  "Charged"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "chemicals/carbonite_muzzle",
+            "firesound":    [
+                "sound/effects/fireout.mp3"
+            ],
+            "projectilefx": "chemicals/carbonite_bolt",
+            "runsound":     "sound/ambience/bespin/bespin_air.wav",
+            "miss":         { "impactfx": "chemicals/carboniteimpact_medium" },
+            "hit":          { "impactfx": "chemicals/carboniteimpact_medium" },
+	    "displayName":  "Semi"
+        }
+    },
+    
+    "stats": {
+        "slot":         2,
+        "reloadtime":   1750,
+        "ammoIndex":         "carbonite",
+        "ammoOnSpawn":   198,
+        "ammoOnPickup":   99,
+        "clipSize":              99,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.9,
+        "speed":        0.9
+    },
+    
+    "firemode0": {
+        "damage":       20,
+        "damage": {
+                               "damageradius": { "start": 16,
+                                                     "function": [ "constant"] },
+                               "damage":       20//,
+//                               "damagetype": [ "carbonite" ] 
+                        },
+        "ballistic":    true,
+        "maxchargetime":1000,
+        "chargedamage": 1.0,
+        "chargedelay":  250,
+        "ammocost":     1,
+        "collisionsize": 8.0,
+        "burstshotdelay": 70,
+        "firedelay":    900,
+        "firingtype":   "semi",
+        "range":        1800.0,
+        "recoil":       0.5,
+        "shotsperburst": 6,
+        "spread":       0.3,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "firemode1": {
+        "damage":       8,
+        "damage": {
+                               "damageradius": { "start": 8,
+                                                     "function": [ "constant"] },
+                               "damage":       8//,
+//                               "damagetype": [ "carbonite" ]
+                        },
+        "ballistic":    true,
+        "ammocost":     1,
+        "collisionsize": 8.0,
+        "firedelay":    70,
+        "range":        800.0,
+        "recoil":       0.5,
+        "spread":       1.0,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+ //       "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADR" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+        "sprintStyle": "3"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

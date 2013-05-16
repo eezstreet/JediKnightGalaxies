@@ -1,0 +1,107 @@
+{
+    "name":             "@JKG_ITEMS_sniper_Bowcaster",
+    "type":             "WP_BOWCASTER",
+    "variation":        1,
+    "classname":        "sniper_Bowcaster",
+    "description":      "@JKG_ITEMS_sniper_Bowcaster",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/bowcaster/bowcaster.md3",
+        "worldmodel":       "models/weapons/bowcaster/bowcaster_w.glm",
+        "hudicon":          "models/weapons/bowcaster/icon_default",
+        "hudnaicon":        "models/weapons/bowcaster/icon_default",
+        "selectsound":      "sound/weapons/select_sniper.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/bowcaster/numbers3", "models/weapons/bowcaster/numbers2", "models/weapons/bowcaster/numbers1" ],
+            "firemode":     "models/weapons/bowcaster/firemode"
+        },
+        
+        "gunposition":      "9.5 -4.0 -5.0",
+        "ironsightsposition": "9.0 -0.6 -4.6",
+        "ironsightsfov": "20",
+        
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Green_medium",
+            "firesound":    [
+                "sound/weapons/blasters/crossbow_big1.mp3",
+                "sound/weapons/blasters/crossbow_big2.mp3",
+                "sound/weapons/blasters/crossbow_big3.mp3",
+                "sound/weapons/blasters/crossbow_big4.mp3",
+                "sound/weapons/blasters/crossbow_small1.mp3",
+                "sound/weapons/blasters/crossbow_small2.mp3",
+                "sound/weapons/blasters/crossbow_small3.mp3",
+                "sound/weapons/blasters/crossbow_small4.mp3"
+            ],
+            "projectilefx": "blasters/shot_Green_Flare_medium",
+            "miss":         { "impactfx": "weapons/blaster_impact_green_big" },
+            "hit":          { "impactfx": "blasters/green_flesh_impact" },
+            "deathfx": "blasters/shot_green_vaporize"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Green_medium",
+            "firesound":    [
+                "sound/weapons/blasters/crossbow_big1.mp3",
+                "sound/weapons/blasters/crossbow_big2.mp3",
+                "sound/weapons/blasters/crossbow_big3.mp3",
+                "sound/weapons/blasters/crossbow_big4.mp3"
+            ],
+            "projectilefx": "blasters/shot_Green_Flare_medium",
+            "miss":         { "impactfx": "weapons/blaster_impact_green_big" },
+            "hit":          { "impactfx": "blasters/green_flesh_impact" },
+            "deathfx": "blasters/shot_green_vaporize"
+        },
+
+        "scope": {
+                "mask":     "models/weapons/bowcaster/lensMask"
+        }
+    },
+    
+    "stats": {
+        "slot":         0,
+        "reloadtime":   1000,
+        "ammoIndex":         "quarrel",
+        "ammoOnSpawn":   240,
+        "ammoOnPickup":   48,
+        "clipSize":              24,
+        "flags":        [ "togglezoom" ],
+        "reloadmodifier": 0.7,
+        "startzoomfov": 30
+    },
+    
+    "firemode0": {
+        "damage":       42,
+        "ballistic":    true,
+        "ammocost":     1,
+        "burstshotdelay": 100,
+        "firedelay":    1000,
+        "firingtype":   "burst",
+        "range":        9000.0,
+        "recoil":       1.8,
+        "shotsperburst": 4,
+        "spread":       0.5,
+        "projectilespeed": 8000.0,
+        "projectileclass": "bowcaster_proj",
+        "meansofdeath": "MOD_BOWCASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADB" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "18"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

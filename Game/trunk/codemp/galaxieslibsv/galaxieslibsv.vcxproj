@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Final|Win32">
+      <Configuration>Final</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>Server Auxiliary Library (galaxieslibsv)</ProjectName>
+    <ProjectGuid>{49025D66-F014-4493-9A4C-12B9A0D0A99D}</ProjectGuid>
+    <RootNamespace>galaxieslibsv</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/GalaxiesLibSv\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../$(Configuration)/GalaxiesLibSv\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/GalaxiesLibSv\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;../;..\libraries;..\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GALAXIESLIBSV_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <OpenMPSupport>true</OpenMPSupport>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <OmitFramePointers>true</OmitFramePointers>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>dbghelp.lib;psapi.lib;libeay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)galaxiessvx86.dll</OutputFile>
+      <AdditionalLibraryDirectories>../libraries/openssl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>galaxieslibsv.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../$(Configuration)/PDB/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../$(Configuration)/Map/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <BaseAddress>0x30000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <ImportLibrary>.\../Debug/galaxiessvx86.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>.;../;..\libraries;..\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GALAXIESLIBSV_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <AssemblerListingLocation>.\../Final/GalaxiesLibSv/</AssemblerListingLocation>
+      <ObjectFileName>.\../Final/GalaxiesLibSv/</ObjectFileName>
+      <ProgramDataBaseFileName>.\../Final/GalaxiesLibSv/</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <OpenMPSupport>true</OpenMPSupport>
+    </ClCompile>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>dbghelp.lib;psapi.lib;libeay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)galaxiessvx86.dll</OutputFile>
+      <AdditionalLibraryDirectories>../libraries/openssl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>galaxieslibsv.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../$(Configuration)/PDB/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../$(Configuration)/Map/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <SetChecksum>true</SetChecksum>
+      <BaseAddress>0x30000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>.\../Release/galaxiessvx86.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>.;../;..\libraries;..\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GALAXIESLIBSV_EXPORTS;FINAL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <AssemblerListingLocation>.\../Final/GalaxiesLibSv/</AssemblerListingLocation>
+      <ObjectFileName>.\../Final/GalaxiesLibSv/</ObjectFileName>
+      <ProgramDataBaseFileName>.\../Final/GalaxiesLibSv/</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>dbghelp.lib;psapi.lib;libeay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)galaxiessvx86.dll</OutputFile>
+      <AdditionalLibraryDirectories>../libraries/openssl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>galaxieslibsv.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../$(Configuration)/PDB/$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../$(Configuration)/Map/$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <SetChecksum>true</SetChecksum>
+      <BaseAddress>0x30000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <ImportLibrary>.\../Final/galaxiessvx86.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="gls_bspdecrypter.c" />
+    <ClCompile Include="gls_challenge.c" />
+    <ClCompile Include="gls_crashreport.c" />
+    <ClCompile Include="gls_engine.c" />
+    <ClCompile Include="gls_enginefuncs.c" />
+    <ClCompile Include="gls_hrtimer.c" />
+    <ClCompile Include="gls_main.c" />
+    <ClCompile Include="gls_stresslevel.c" />
+    <ClCompile Include="..\libraries\json\cJSON.c" />
+    <ClCompile Include="..\libraries\encoding\base128.c" />
+    <ClCompile Include="..\libraries\encoding\bitstream.c" />
+    <ClCompile Include="..\libraries\libudis86\decode.c" />
+    <ClCompile Include="..\libraries\libudis86\input.c" />
+    <ClCompile Include="..\libraries\libudis86\itab.c" />
+    <ClCompile Include="..\libraries\libudis86\syn-att.c" />
+    <ClCompile Include="..\libraries\libudis86\syn-intel.c" />
+    <ClCompile Include="..\libraries\libudis86\syn.c" />
+    <ClCompile Include="..\libraries\libudis86\udis86.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="asmdefines.h" />
+    <ClInclude Include="exports.h" />
+    <ClInclude Include="gls_enginefuncs.h" />
+    <ClInclude Include="gls_hrtimer.h" />
+    <ClInclude Include="gls_main.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\libraries\json\cJSON.h" />
+    <ClInclude Include="..\libraries\openssl\aes.h" />
+    <ClInclude Include="..\libraries\openssl\asn1.h" />
+    <ClInclude Include="..\libraries\openssl\asn1_mac.h" />
+    <ClInclude Include="..\libraries\openssl\asn1t.h" />
+    <ClInclude Include="..\libraries\openssl\bio.h" />
+    <ClInclude Include="..\libraries\openssl\blowfish.h" />
+    <ClInclude Include="..\libraries\openssl\bn.h" />
+    <ClInclude Include="..\libraries\openssl\buffer.h" />
+    <ClInclude Include="..\libraries\openssl\camellia.h" />
+    <ClInclude Include="..\libraries\openssl\cast.h" />
+    <ClInclude Include="..\libraries\openssl\cms.h" />
+    <ClInclude Include="..\libraries\openssl\comp.h" />
+    <ClInclude Include="..\libraries\openssl\conf.h" />
+    <ClInclude Include="..\libraries\openssl\conf_api.h" />
+    <ClInclude Include="..\libraries\openssl\crypto.h" />
+    <ClInclude Include="..\libraries\openssl\des.h" />
+    <ClInclude Include="..\libraries\openssl\des_old.h" />
+    <ClInclude Include="..\libraries\openssl\dh.h" />
+    <ClInclude Include="..\libraries\openssl\dsa.h" />
+    <ClInclude Include="..\libraries\openssl\dso.h" />
+    <ClInclude Include="..\libraries\openssl\dtls1.h" />
+    <ClInclude Include="..\libraries\openssl\e_os2.h" />
+    <ClInclude Include="..\libraries\openssl\ebcdic.h" />
+    <ClInclude Include="..\libraries\openssl\ec.h" />
+    <ClInclude Include="..\libraries\openssl\ecdh.h" />
+    <ClInclude Include="..\libraries\openssl\ecdsa.h" />
+    <ClInclude Include="..\libraries\openssl\engine.h" />
+    <ClInclude Include="..\libraries\openssl\err.h" />
+    <ClInclude Include="..\libraries\openssl\evp.h" />
+    <ClInclude Include="..\libraries\openssl\hmac.h" />
+    <ClInclude Include="..\libraries\openssl\idea.h" />
+    <ClInclude Include="..\libraries\openssl\krb5_asn.h" />
+    <ClInclude Include="..\libraries\openssl\kssl.h" />
+    <ClInclude Include="..\libraries\openssl\lhash.h" />
+    <ClInclude Include="..\libraries\openssl\md4.h" />
+    <ClInclude Include="..\libraries\openssl\md5.h" />
+    <ClInclude Include="..\libraries\openssl\mdc2.h" />
+    <ClInclude Include="..\libraries\openssl\modes.h" />
+    <ClInclude Include="..\libraries\openssl\obj_mac.h" />
+    <ClInclude Include="..\libraries\openssl\objects.h" />
+    <ClInclude Include="..\libraries\openssl\ocsp.h" />
+    <ClInclude Include="..\libraries\openssl\opensslconf.h" />
+    <ClInclude Include="..\libraries\openssl\opensslv.h" />
+    <ClInclude Include="..\libraries\openssl\ossl_typ.h" />
+    <ClInclude Include="..\libraries\openssl\pem.h" />
+    <ClInclude Include="..\libraries\openssl\pem2.h" />
+    <ClInclude Include="..\libraries\openssl\pkcs12.h" />
+    <ClInclude Include="..\libraries\openssl\pkcs7.h" />
+    <ClInclude Include="..\libraries\openssl\pqueue.h" />
+    <ClInclude Include="..\libraries\openssl\rand.h" />
+    <ClInclude Include="..\libraries\openssl\rc2.h" />
+    <ClInclude Include="..\libraries\openssl\rc4.h" />
+    <ClInclude Include="..\libraries\openssl\ripemd.h" />
+    <ClInclude Include="..\libraries\openssl\rsa.h" />
+    <ClInclude Include="..\libraries\openssl\safestack.h" />
+    <ClInclude Include="..\libraries\openssl\seed.h" />
+    <ClInclude Include="..\libraries\openssl\sha.h" />
+    <ClInclude Include="..\libraries\openssl\ssl.h" />
+    <ClInclude Include="..\libraries\openssl\ssl2.h" />
+    <ClInclude Include="..\libraries\openssl\ssl23.h" />
+    <ClInclude Include="..\libraries\openssl\ssl3.h" />
+    <ClInclude Include="..\libraries\openssl\stack.h" />
+    <ClInclude Include="..\libraries\openssl\symhacks.h" />
+    <ClInclude Include="..\libraries\openssl\tls1.h" />
+    <ClInclude Include="..\libraries\openssl\ts.h" />
+    <ClInclude Include="..\libraries\openssl\txt_db.h" />
+    <ClInclude Include="..\libraries\openssl\ui.h" />
+    <ClInclude Include="..\libraries\openssl\ui_compat.h" />
+    <ClInclude Include="..\libraries\openssl\whrlpool.h" />
+    <ClInclude Include="..\libraries\openssl\x509.h" />
+    <ClInclude Include="..\libraries\openssl\x509_vfy.h" />
+    <ClInclude Include="..\libraries\openssl\x509v3.h" />
+    <ClInclude Include="..\libraries\encoding\base128.h" />
+    <ClInclude Include="..\libraries\encoding\bitstream.h" />
+    <ClInclude Include="..\libraries\libudis86\decode.h" />
+    <ClInclude Include="..\libraries\libudis86\extern.h" />
+    <ClInclude Include="..\libraries\libudis86\input.h" />
+    <ClInclude Include="..\libraries\libudis86\itab.h" />
+    <ClInclude Include="..\libraries\libudis86\syn.h" />
+    <ClInclude Include="..\libraries\libudis86\types.h" />
+    <ClInclude Include="..\libraries\libudis86\udis86.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="galaxieslibsv.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="galaxieslibsv.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

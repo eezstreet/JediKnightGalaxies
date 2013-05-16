@@ -1,0 +1,9 @@
+{
+	"name":             "Bryar Blaster Pistol",
+	"internal":             "Bryar",
+	"id":             "11",
+	"itemtype":             "weapon",
+	"weapon":		"4",
+	"variation":		"0",
+	"weight":		"1"
+}

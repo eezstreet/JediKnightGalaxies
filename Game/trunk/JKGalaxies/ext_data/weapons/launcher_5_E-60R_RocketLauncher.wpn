@@ -1,0 +1,107 @@
+{
+    "name":             "@JKG_ITEMS_launcher_E-60R_RocketLauncher",
+    "type":             "WP_ROCKET_LAUNCHER",
+    "variation":        5,
+    "classname":        "launcher_E-60R",
+    "description":      "@JKG_ITEMS_launcher_E-60R_RocketLauncher",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/E-60R_RocketLauncher/viewmodel.md3",
+        "worldmodel":       "models/weapons/E-60R_RocketLauncher/model.glm",
+        "hudicon":          "models/weapons/E-60R_RocketLauncher/icon_default",
+        "hudnaicon":        "models/weapons/E-60R_RocketLauncher/icon_default",
+        "selectsound":      "sound/weapons/select_h_launcher.wav",
+        
+        "indicators": {
+            "ammo":     [ "models/weapons/E-60R_RocketLauncher/indicator" ]
+        },
+        
+        "gunposition":      "14.0 -6.0 -7.0",
+        "ironsightsposition": "11.0 -4.0 -8.0",
+        "ironsightsfov": "70",
+   
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_big",
+            "firesound":    [
+                "sound/weapons/slugthrowers/rocketlauncher1.wav",
+                "sound/weapons/slugthrowers/rocketlauncher1.wav",
+                "sound/weapons/slugthrowers/rocketlauncher2.wav",
+                "sound/weapons/slugthrowers/rocketlauncher3.wav",
+                "sound/weapons/slugthrowers/rocketlauncher4.wav",
+                "sound/weapons/slugthrowers/rocketlauncher5.wav",
+                "sound/weapons/slugthrowers/rocketlauncher6.wav"
+            ],
+            "projectilemodel": "models/ammo/rocket1_proj.md3",
+            "runsound":     "sound/weapons/slugthrowers/rocketlauncher_loop.wav",
+            "projectilefx": "explosives/shot_rpg",
+            "miss":         { "impactfx": "explosives/demomedium" },
+            "hit":          { "impactfx": "explosives/demomedium" }
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "slugthrowers/muzzleflash_big",
+            "firesound":    [
+                "sound/weapons/slugthrowers/rocketlauncher1.wav",
+                "sound/weapons/slugthrowers/rocketlauncher1.wav",
+                "sound/weapons/slugthrowers/rocketlauncher2.wav",
+                "sound/weapons/slugthrowers/rocketlauncher3.wav",
+                "sound/weapons/slugthrowers/rocketlauncher4.wav",
+                "sound/weapons/slugthrowers/rocketlauncher5.wav",
+                "sound/weapons/slugthrowers/rocketlauncher6.wav"
+            ],
+            "projectilemodel": "models/ammo/rocket1_proj.md3",
+            "runsound":     "sound/weapons/slugthrowers/rocketlauncher_loop.wav",
+            "projectilefx": "explosives/shot_rpg",
+            "miss":         { "impactfx": "explosives/demomedium" },
+            "hit":          { "impactfx": "explosives/demomedium" }
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   2000,
+        "ammoIndex":         "rocket1",
+        "ammoOnSpawn":   8,
+        "ammoOnPickup":   2,
+        "clipSize":              1,
+//        "flags":        [ "knockback" ],
+        "reloadmodifier": 0.5,
+        "speed":        0.8
+    },
+    
+    "firemode0": {
+        "damage":       75,//150,
+        "collisionsize":3.0,
+        "ammocost":     1,
+        "firedelay":    1000,
+        "firingtype":   "semi",
+        "splashrange":  400,//200,
+        "range":        40000.0,
+        "recoil":       7.0,
+        "spread":       0.15,
+        "projectilespeed":2600.0,
+        "projectileclass":"rocket_proj",
+        "meansofdeath": "MOD_ROCKET",
+        "splashmeansofdeath": "MOD_ROCKET_SPLASH"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_ROCKETRELOAD" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_ROCKETRUN" },
+        "sprintStyle": "11"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

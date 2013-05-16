@@ -1,0 +1,116 @@
+{
+    "name":             "@JKG_ITEMS_carbine_ProtonCarbine",
+    "type":             "WP_BLASTER",
+    "variation":        7,
+    "classname":        "carbine_Proton",
+    "description":      "@JKG_ITEMS_carbine_ProtonCarbine",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/ProtonCarbine/viewmodel.md3",
+        "worldmodel":       "models/weapons/ProtonCarbine/model.glm",
+        "hudicon":          "models/weapons/ProtonCarbine/icon_default",
+        "hudnaicon":        "models/weapons/ProtonCarbine/icon_default",
+        "selectsound":      "sound/weapons/select_carbine.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/ProtonCarbine/numbers3", "models/weapons/ProtonCarbine/numbers2" ],
+            "firemode":     "models/weapons/ProtonCarbine/firemode"
+        },
+        
+        "gunposition":      "8.0 -2.0 -6.2",
+        "ironsightsposition": "8.0 0.0 -5.2",
+        "ironsightsfov": "60",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash2_Purple_small",
+            "firesound":    [
+                "sound/weapons/blasters/protoncarbine1.mp3",
+                "sound/weapons/blasters/protoncarbine2.mp3",
+                "sound/weapons/blasters/protoncarbine3.mp3",
+                "sound/weapons/blasters/protoncarbine4.mp3"
+            ],
+            "projectilefx": "blasters/shot_RedPurple_Ball_small",
+            "miss":         { "impactfx": "weapons/blaster_impact_purple_medium_fire" },
+            "hit":          { "impactfx": "blasters/purple_flesh_impact" },
+            "deathfx": "blasters/shot_purple_vaporize",
+	    "displayName":  "Auto"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash2_Purple_medium",
+            "firesound":    [
+                "sound/weapons/blasters/plasmacannon1.mp3",
+                "sound/weapons/blasters/plasmacannon2.mp3",
+                "sound/weapons/blasters/plasmacannon3.mp3",
+                "sound/weapons/blasters/plasmacannon4.mp3"
+            ],
+            "projectilefx": "blasters/shot_RedPurple_Flare_medium",
+            "miss":         { "impactfx": "weapons/blaster_impact_purple_big_fire" },
+            "hit":          { "impactfx": "blasters/purple_flesh_impact" },
+            "deathfx": "blasters/shot_purple_vaporize",
+	    "displayName":  "Bounce"
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   1800,
+        "ammoIndex":         "g36powerpack",
+        "ammoOnSpawn":   400,
+        "ammoOnPickup":   80,
+        "clipSize":              40,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       22,
+        "ammocost":     1,
+        "firedelay":    140,
+        "range":        3500.0,
+        "recoil":       0.7,
+        "spread":       0.5,
+        "projectilespeed": 3000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER",
+        "splashmeansofdeath": "MOD_BLASTER"
+    },
+    
+    "firemode1": {
+        "damage":       22,
+        "maxchargetime":1000,
+        "chargedamage": 0.5,
+        "chargedelay":  250,
+        "ammocost":     1,
+        "bounces":      2,
+        "firedelay":    200,
+        "firingtype":   "semi",
+        "range":        4000.0,
+        "recoil":       1.1,
+        "spread":       0.5,
+        "projectilespeed": 4000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER",
+        "splashmeansofdeath": "MOD_BLASTER"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADB" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "5"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

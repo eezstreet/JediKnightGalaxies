@@ -1,0 +1,124 @@
+{
+    "name":             "@JKG_ITEMS_carbine_DXR6_HeavyCarbine",
+    "type":             "WP_BLASTER",
+    "variation":        3,
+    "classname":        "carbine_DXR6",
+    "description":      "@JKG_ITEMS_carbine_DXR6_HeavyCarbine",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/DXR6_HeavyCarbine/viewmodel.md3",
+        "worldmodel":       "models/weapons/DXR6_HeavyCarbine/model.glm",
+        "hudicon":          "models/weapons/DXR6_HeavyCarbine/icon_default",
+        "hudnaicon":        "models/weapons/DXR6_HeavyCarbine/icon_default",
+        "selectsound":      "sound/weapons/select_carbine.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/DXR6_HeavyCarbine/numbers3", "models/weapons/DXR6_HeavyCarbine/numbers2" ],
+            "firemode":     "models/weapons/DXR6_HeavyCarbine/firemode"
+        },
+        
+        "gunposition":      "8.0 -3.0 -6.6",
+        "ironsightsposition": "9.0 0.0 -5.1",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Red_medium",
+            "firesound":    [
+                "sound/weapons/blasters/disruptor1.mp3",
+                "sound/weapons/blasters/disruptor2.mp3",
+                "sound/weapons/blasters/disruptor3.mp3",
+                "sound/weapons/blasters/disruptor4.mp3"
+            ],
+            "projectilefx": "blasters/shot_red_medium",
+            "miss":         { "impactfx": "weapons/blaster_impact_red_big_fire" },
+            "hit":          { "impactfx": "blasters/red_flesh_impact" },
+            "deathfx": "blasters/shot_red_vaporize",
+	    "displayName":  "Blaster"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Red_medium",
+            "firesound":    [
+                "sound/weapons/blasters/disruptor1.mp3",
+                "sound/weapons/blasters/disruptor2.mp3",
+                "sound/weapons/blasters/disruptor3.mp3",
+                "sound/weapons/blasters/disruptor4.mp3"
+            ],
+            "tracelineshader": "gfx/blasters/BlasterBolt_Beam_Glow_Red",
+            "traceline2shader": "gfx/blasters/BlasterBolt_Beam2_Red",
+            "minsize":      1.0,
+            "maxsize":      18.0,
+            "lifetime":     200,
+            "chargingfx":   "weapons/charge_bryar",
+            "chargingsound": "sound/weapons/disruptor/altcharge.wav",
+            "projectilefx": "blasters/shot_Red_big",
+            "miss":         { "impactfx": "weapons/blaster_impact_red_big_fire" },
+            "hit":          { "impactfx": "blasters/red_flesh_impact" },
+            "deathfx": "blasters/shot_Red_vaporize",
+	    "displayName":  "Disruptor"
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   1500,
+        "ammoIndex":         "powercell_s",
+        "ammoOnSpawn":   160,
+        "ammoOnPickup":   32,
+        "clipSize":              16,
+        "flags":        [ "roll" ],
+        "startzoomfov": 20.0,
+        "reloadmodifier": 0.7
+    },
+        
+    "firemode0": {
+        "damage":       30,
+        "ammocost":     1,
+        "firedelay":    300,
+        "range":        3500.0,
+        "recoil":       0.9,
+        "spread":       0.5,
+        "projectilespeed": 5000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BLASTER",
+        "splashmeansofdeath": "MOD_BLASTER"
+    },
+
+    "firemode1": {
+        "hitscan":      true,
+        "damage":       30,
+        "ammocost":     1,
+        "maxchargetime":750,
+        "chargedamage": 1.1,
+        "chargedelay":  250,
+        "firedelay":    700,
+        "firingtype":   "semi",
+        "range":        4700.0,
+        "recoil":       1.2,
+        "spread":       0.0,
+        "projectilespeed": 6500.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_DISRUPTOR",
+        "splashmeansofdeath": "MOD_DISRUPTOR"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+ //       "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADB" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":	{ "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "6"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

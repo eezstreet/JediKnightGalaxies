@@ -1,0 +1,60 @@
+{
+    "name":             "@JKG_ITEMS_WEAPON_DET_PACK",
+    "type":             "WP_DET_PACK",
+    "variation":        0,
+    "classname":        "weapon_det_pack",
+    "description":      "@MENUS_THE_PRIMARY_WEAPON_OF",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/detpack/det_pack.md3",
+        "worldmodel":       "models/weapons/detpack/det_pack_proj.glm",
+        "hudicon":          "models/weapons/detpack/icon_default_1",
+        "hudnaicon":        "models/weapons/detpack/icon_default_1",
+        "selectsound":      "sound/weapons/detpack/select.wav",
+    
+        "primary": {
+            "type":         "detpack",
+            
+            "g2model":      "models/weapons/detpack/det_pack_proj.glm",
+            "g2radius":     100,
+            "firesound":    "sound/weapons/detpack/fire.wav",
+            "miss":         { "sticksound": "sound/weapons/detpack/stick.wav" }
+        },
+        
+        "secondary": {
+            "type":         "detpack",
+            
+            "explodefx":    "detpack/explosion"
+        }
+    },
+    
+    "stats": {
+        "slot":         3,
+        "ammo":         "AMMO_DETPACK",
+        "flags":        [ "roll" ]
+    },
+    
+    "primaryattack": {
+        "damage":       100,
+        "ammocost":     111,
+        "firedelay":    1000,
+        "splashrange":  110,
+        "projectileclass":"detpack",
+        "splashmeansofdeath": "MOD_DET_PACK_SPLASH"
+    },
+    
+    "secondaryattack": {},
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "TORSO_WEAPONREADY10", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" }
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

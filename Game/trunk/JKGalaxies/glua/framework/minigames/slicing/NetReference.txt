@@ -1,0 +1,32 @@
+JKG Slicing minigame - Networking reference
+
+Server command reference: (Bitstream)
+
+(4-bit commands)
+
+Code	Command		Arguments
+----	-------		---------
+0		EOM
+1		START
+2		STOP
+3		CONFIG		Width(3) Height(3) SecurityLevels(3) WarningThreshold(5) Intrusion(1) [IntrusionTime(8)]
+4		REVEAL		Row(3) Col(3) NodeID(3)
+5		LOCK		Lock(1)
+6		PROGLST		Count(4) < ProgID(str) ProgName(str) ProgDesc(str) Type(2) > (Repeated 'Count' times)
+7		SHOWMSG		Mode(2)	Line1(str) Line2(str) Line3(str)
+8		ENDMSG
+9		SUMMARY		< Value(6) AlarmNodeCount(4) > (Repeated for each row and column, columns first)
+10		SECUPDATE	< State(2) > (Repeated for every security level)
+11		INTRUSION	State(2)
+12		WARNLEVEL	WarningLevel(5)
+13		BLINKNODE	Row(3) Col(3) Safe(1)
+14		INITFIELD
+15		ALARM
+
+
+Client command reference: (text)
+
+~slc actnode <nodeid>
+~slc runprog <progname> [arg]
+~slc dlgresp <resp>
+~slc stop

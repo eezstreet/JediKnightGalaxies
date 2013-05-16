@@ -1,0 +1,114 @@
+{
+    "name":             "@JKG_ITEMS_array_Bryar_Shotgun",
+    "type":             "WP_FLECHETTE",
+    "variation":        3,
+    "classname":        "array_Bryar",
+    "description":      "@JKG_ITEMS_array_Bryar_Shotgun",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/bryar_carbine/viewmodel.md3",
+        "worldmodel":       "models/weapons/bryar_carbine/model.glm",
+        "hudicon":          "models/weapons/bryar_carbine/icon_default",
+        "hudnaicon":        "models/weapons/bryar_carbine/icon_default",
+        "selectsound":      "sound/weapons/select_carbine.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/bryar_carbine/numbers3", "models/weapons/bryar_carbine/numbers2", "models/weapons/bryar_carbine/numbers1" ],
+            "firemode":     "models/weapons/bryar_carbine/firemode"
+        },
+        
+        "gunposition":      "8.4 -3.0 -7.0",
+        "ironsightsposition": "9.0 0.0 -3.7",
+        "ironsightsfov": "70",
+    
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Red_medium",
+            "firesound":    [
+                "sound/weapons/blasters/bryar_rifle1.mp3",
+                "sound/weapons/blasters/bryar_rifle2.mp3",
+                "sound/weapons/blasters/bryar_rifle3.mp3",
+                "sound/weapons/blasters/bryar_rifle4.mp3"
+            ],
+            "projectilefx": "blasters/shot_redorange_medium",
+            "miss":         { "impactfx": "weapons/blaster_impact_red_medium_fire" },
+            "hit":          { "impactfx": "blasters/red_flesh_impact" },
+            "deathfx": "blasters/shot_redorange_vaporize",
+	    "displayName": "Triple"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Red_medium",
+            "firesound":    [
+                "sound/weapons/blasters/bryar_rifle1.mp3",
+                "sound/weapons/blasters/bryar_rifle2.mp3",
+                "sound/weapons/blasters/bryar_rifle3.mp3",
+                "sound/weapons/blasters/bryar_rifle4.mp3"
+            ],
+            "projectilefx": "blasters/shot_redorange_medium",
+            "miss":         { "impactfx": "weapons/blaster_impact_red_big_fire" },
+            "hit":          { "impactfx": "blasters/red_flesh_impact" },
+            "deathfx": "blasters/shot_redorange_vaporize",
+	    "displayName": "Burst"
+        }
+    },
+    
+    "stats": {
+        "slot":         2,
+        "reloadtime":   750,
+        "ammoIndex":         "powercell_l",
+        "ammoOnSpawn":   320,
+        "ammoOnPickup":   64,
+        "clipSize":              32,
+        "flags":        [ "roll" ],
+        "reloadmodifier": 0.7
+    },
+    
+    "firemode0": {
+        "damage":       35,
+        "ammocost":     1,
+        "firedelay":    900,
+        "firingtype":   "semi",
+        "projectiles":     3,
+        "recoil":       1.5,
+        "range":       3700,
+        "spread":       1.6,
+        "projectilespeed": 4000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BRYAR_PISTOL"
+    },
+    
+    "firemode1": {
+        "damage":       60,
+        "ammocost":     1,
+        "burstshotdelay": 250,
+        "firedelay":    900,
+        "firingtype":   "burst",
+        "recoil":       0.8,
+        "range":       3700,
+        "shotsperburst": 3,
+        "spread":       0.0,
+        "projectilespeed": 4000.0,
+        "projectileclass": "blaster_proj",
+        "meansofdeath": "MOD_BRYAR_PISTOL"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+//        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "reload":       { "torso": "BOTH_RIFLERELOADL" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":       { "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "17"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

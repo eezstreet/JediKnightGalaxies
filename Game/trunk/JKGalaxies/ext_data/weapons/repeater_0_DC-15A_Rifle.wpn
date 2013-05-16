@@ -1,0 +1,118 @@
+{
+    "name":             "@JKG_ITEMS_repeater_DC-15A_Rifle",
+    "type":             "WP_REPEATER",
+    "variation":        0,
+    "classname":        "repeater_DC-15A",
+    "description":      "@JKG_ITEMS_repeater_DC-15A_Rifle",
+    
+    "visual": {
+        "viewmodel":        "models/weapons/dc-15a_rifle/viewmodel.md3",
+        "worldmodel":       "models/weapons/dc-15a_rifle/model.glm",
+        "hudicon":          "models/weapons/dc-15a_rifle/icon_default",
+        "hudnaicon":        "models/weapons/dc-15a_rifle/icon_default",
+        "selectsound":      "sound/weapons/select_repeater.wav",
+        
+        "indicators": {
+            "ammo":         [ "models/weapons/dc-15a_rifle/numbers3", "models/weapons/dc-15a_rifle/numbers2", "models/weapons/dc-15a_rifle/numbers1" ],
+            "firemode":     "models/weapons/dc-15a_rifle/firemode"
+        },
+        
+        "gunposition":      "4.0 -3.0 -6.6",
+        "ironsightsposition": "4.0 0.0 -5.3",
+        "ironsightsfov": "70",
+        
+        "firemode0": {
+            "type":         "blaster",
+            
+            "muzzlefx":     "blasters/muzzleflash_Blue_medium",
+            "firesound":    [
+                "sound/weapons/blasters/generic1.mp3",
+                "sound/weapons/blasters/generic2.mp3",
+                "sound/weapons/blasters/generic3.mp3",
+                "sound/weapons/blasters/generic4.mp3",
+                "sound/weapons/blasters/generic5.mp3",
+                "sound/weapons/blasters/generic6.mp3"
+            ],
+            "projectilefx": "blasters/shot_blue_small",
+            "miss":         { "impactfx": "weapons/blaster_impact_blue_medium_fire" },
+            "hit":          { "impactfx": "blasters/blue_flesh_impact" },
+            "deathfx": "blasters/shot_blue_vaporize",
+	    "displayName":  "Repeater"
+        },
+        
+        "firemode1": {
+            "type":         "blaster",
+            
+            "firesound":    [
+                "sound/weapons/blasters/droideka1.mp3",
+                "sound/weapons/blasters/droideka2.mp3",
+                "sound/weapons/blasters/droideka3.mp3",
+                "sound/weapons/blasters/droideka4.mp3"
+            ],
+            "chargingfx":   "weapons/charge_samus",
+            "muzzlefx":     "blasters/muzzleflash_blue_big",
+            "projectilefx": "blasters/shot_Blue_Flare_big",
+            "miss":         { "impactfx": "weapons/blaster_impact_blue_huge_fire" },
+            "hit":          { "impactfx": "weapons/blaster_impact_blue_huge" },
+            "deathfx": "blasters/shot_bluegreen_vaporize",
+	    "displayName":  "Launcher"
+        }
+    },
+    
+    "stats": {
+        "slot":         1,
+        "reloadtime":   1500,
+        "ammoIndex":         "blaster_power_pack_l",
+        "ammoOnSpawn":   600,
+        "ammoOnPickup":   200,
+        "clipSize":              100,
+        "reloadmodifier": 0.7,
+        "speed":        0.9
+    },
+    
+    "firemode0": {
+        "damage":       12,
+        "ammocost":     1,
+        "firedelay":    75,
+        "firingtype":   "auto",
+        "range":        5800.0,
+        "recoil":       0.5,
+        "spread":       0.5,
+        "projectilespeed": 4000.0,
+        "projectileclass":"blaster_proj",
+        "meansofdeath": "MOD_REPEATER"
+    },
+    
+    "firemode1": {
+        "damage":       25,//50,
+        "maxchargetime":1500,
+        "chargedamage": 2.0,
+        "chargedelay":  1500,
+        "ammocost":     50,
+        "firedelay":    900,
+        "firingtype":   "semi",
+        "splashrange":  100,//50,
+        "range":        7000.0,
+        "recoil":       3.0,
+        "spread":       0.75,
+        "projectilespeed": 6000.0,
+        "projectileclass": "repeater_alt_proj",
+        "meansofdeath": "MOD_DISRUPTOR_SNIPER",
+        "splashmeansofdeath": "MOD_REPEATER_ALT_SPLASH"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "BOTH_RELOADRIFLER" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" },
+	"sprint":       { "torso": "BOTH_RIFLERUN" },
+        "sprintStyle": "14"
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

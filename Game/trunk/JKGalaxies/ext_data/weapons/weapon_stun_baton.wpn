@@ -1,0 +1,48 @@
+{
+    "name":             "@JKG_ITEMS_weapon_stun_baton",
+    "type":             "WP_STUN_BATON",
+    "variation":        0,
+    "classname":        "stun_baton",
+    "description":      "@JKG_ITEMS_weapon_stun_baton",
+    
+    "visual": {
+        "viewmodel":        "models/weapons2/stun_baton/baton.md3",
+        "worldmodel":       "models/weapons2/stun_baton/baton_w.glm",
+        "hudicon":          "gfx/hud/w_icon_stunbaton",
+        "hudnaicon":        "gfx/hud/w_icon_stunbaton_na",
+    
+        "firemode0": {
+            "type":         "blaster"
+        },
+        
+        "firemode1": {
+            "type":         "blaster"
+        }
+    },
+    
+    "stats": {
+        "slot":         0,
+        "flags":        [ "roll" ],
+        "speed":        1.1
+    },
+    
+    "firemode0": {
+        "damage":       20,
+        "firedelay":    400,
+        "range":        8.0,
+        "meansofdeath": "MOD_STUN_BATON"
+    },
+    
+    "playeranims": {
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
+        "reload":       { "torso": "TORSO_DROPWEAP1" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
+        "firing":       { "torso": "BOTH_ATTACK3" }
+    },
+    
+    "weaponanims": {
+        "ready":        "READY",   
+        "reload":       "RELOAD",
+        "firing":       "FIRING"
+    }
+}

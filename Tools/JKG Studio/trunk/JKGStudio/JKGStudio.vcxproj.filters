@@ -1,0 +1,437 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;cxx;c;def</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{689f1fd5-066b-40db-a98b-020d2124e577}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{be9a7d3f-d9a8-4de9-9ad2-edcd764f87ae}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Resource Files\Graphics">
+      <UniqueIdentifier>{51cd3ff8-c30e-4b99-8a1a-c7febeccd318}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Graphics\Icons">
+      <UniqueIdentifier>{bf06ef4d-5ebe-4cd6-9864-be735ffeb5a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Icons">
+      <UniqueIdentifier>{3053ec27-0687-4907-93f7-9bde3e76d7a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\API">
+      <UniqueIdentifier>{0f82774a-2dfc-4f06-8cb4-0b1f59c7568b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Graphics\Icons\Dialogue">
+      <UniqueIdentifier>{7711efc3-8069-4cff-92fb-d4ca3635d6d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Dialogs">
+      <UniqueIdentifier>{0e166fc4-57f1-4080-af22-39ad667728b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Dialogs">
+      <UniqueIdentifier>{f749cf7d-9b17-45b2-a48b-7a3ec23a16b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Controls">
+      <UniqueIdentifier>{f1fadf7f-8a86-42ea-ac33-e3580cbfc94f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controls">
+      <UniqueIdentifier>{9a9f5393-f358-4503-b8ad-39943be2bbad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{44dda2a7-51df-499a-8673-a140276188a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{f68b6ef4-2abd-424b-85df-4f79adfc76d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Dialogue">
+      <UniqueIdentifier>{63ca0741-7798-48a8-b0f6-9baf12a8c38b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Dialogue">
+      <UniqueIdentifier>{4c47bf93-2039-48db-b14b-396d9c05872c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Scripts">
+      <UniqueIdentifier>{b3f3b06a-39a4-4fd1-ace3-6938ecbb42c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Scripts\Dlg">
+      <UniqueIdentifier>{f26e3e14-af72-44eb-8b59-fbdd3f8b3224}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party Libraries">
+      <UniqueIdentifier>{fa2465a2-e3df-410d-b70a-0ff108f985f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party Libraries\QtWindowListMenu">
+      <UniqueIdentifier>{053dd0ac-d1e9-4a08-82bb-f87458da327e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Wizards">
+      <UniqueIdentifier>{455a1184-28db-4c01-af1d-1984d965be5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Wizards">
+      <UniqueIdentifier>{f637e972-0dd8-41be-8435-03dce2254292}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_jkgstudio.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_jkgstudio.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_jkgstudio.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_luaeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_luaeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_glualexer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_glualexer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_mdibase.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_mdibase.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qgluaeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qgluaeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qgluaeditor.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="luaeditor.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="jkgstudio.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="glualexer.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_dlgeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_dlgeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dlgeditor.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="dlgmodel.cpp">
+      <Filter>Source Files\Components\Dialogue</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_dlgmodel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_dlgmodel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dlgnode.cpp">
+      <Filter>Source Files\Components\Dialogue</Filter>
+    </ClCompile>
+    <ClCompile Include="propertymanager.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_propertymanager.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_propertymanager.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="dlgundo.cpp">
+      <Filter>Source Files\Components\Dialogue</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\QtWindowListMenu\qtwindowlistmenu.cpp">
+      <Filter>Third Party Libraries\QtWindowListMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qtwindowlistmenu.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qtwindowlistmenu.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="fontwizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_fontwizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_fontwizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_scriptproperty.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_scriptproperty.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="scriptproperty.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_scripteditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_scripteditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="scripteditor.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="jkgstudio.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="jkgstudio.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="glualexer.h">
+      <Filter>Header Files\Components</Filter>
+    </CustomBuild>
+    <CustomBuild Include="jkgstudio.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="luaeditor.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="mdibase.h">
+      <Filter>Header Files\Controls</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qgluaeditor.h">
+      <Filter>Header Files\Controls</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dlgeditor.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dlgmodel.h">
+      <Filter>Header Files\Components\Dialogue</Filter>
+    </CustomBuild>
+    <CustomBuild Include="propertymanager.h">
+      <Filter>Header Files\Components</Filter>
+    </CustomBuild>
+    <CustomBuild Include="3rdparty\QtWindowListMenu\qtwindowlistmenu.h">
+      <Filter>Third Party Libraries\QtWindowListMenu</Filter>
+    </CustomBuild>
+    <CustomBuild Include="fontwizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scriptproperty.h">
+      <Filter>Header Files\Controls</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripteditor.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GeneratedFiles\ui_jkgstudio.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dlgnode.h">
+      <Filter>Header Files\Components\Dialogue</Filter>
+    </ClInclude>
+    <ClInclude Include="dlgundo.h">
+      <Filter>Header Files\Components\Dialogue</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Graphics\Icons\compile.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\copy.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\cut.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\icon96.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\new.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\open.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\paste.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\save.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\saveas.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\undo.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\jkgicon.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </None>
+    <None Include="Resources\glua.api">
+      <Filter>Resource Files\API</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\redo.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\block.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dialogue-new.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\script.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\script-new.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\signpk3.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\dialogue.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\dynoption.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\dynoption-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\end.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\end-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\entrypoint.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\entrypoint-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\error.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\interrupt.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\interrupt-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\link.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\link-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\notice.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\option.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\option-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\script.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\script-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\text.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\textentry.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\textentry-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\text-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\warning.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\cinematic.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\cinematic-new.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\link-unlinked.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\cascade.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\close.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\closeall.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\font_new.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\next.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\prev.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\properties.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\tile.png">
+      <Filter>Resource Files\Graphics\Icons</Filter>
+    </None>
+    <None Include="Resources\Graphics\Icons\dlg\node-delete.png">
+      <Filter>Resource Files\Graphics\Icons\Dialogue</Filter>
+    </None>
+    <None Include="Resources\Scripts\Dlg\condition.lua">
+      <Filter>Resource Files\Scripts\Dlg</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="JKGStudio.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
