@@ -54,6 +54,8 @@ gentity_t		*g_logicalents = &g_entities[MAX_GENTITIES]; // Quicker access xD
 KeyPairSet_t	g_spawnvars[MAX_ENTITIESTOTAL];
 gclient_t		g_clients[MAX_CLIENTS];
 
+flag_list_t flag_list[1024];
+
 
 // Warzone gametype tickets...
 int redtickets = 0;
@@ -74,6 +76,7 @@ vmCvar_t	g_blueTicketRatio;
 
 extern int number_of_flags; // Current number of warzone flags.
 
+extern int GetNumberOfWarzoneFlags ( void );
 extern void Warzone_Create_Flags( void );
 extern void Warzone_Flag_Think( gentity_t *ent );
 
@@ -480,6 +483,12 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
+
+		//Stoiss add
+	//turn on Super Duper Interpolation by default
+	//{ &d_saberInterpolate, "d_saberInterpolate", "2", 0, 0, qtrue },
+	{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },
+	//Stoiss end
 
 	{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },
 
@@ -1328,6 +1337,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	
 	/* Initialize the weapon data table */
 	BG_InitializeWeapons();
+
+	/* Here be crystals */
+	JKG_InitializeSaberCrystalData();
+
+	// and here is some stance data too
+	JKG_InitializeStanceData();
 	
 	// setup master item table
 	JKG_InitItems();
@@ -4308,6 +4323,26 @@ void G_RunFrame( int levelTime ) {
 				{
 					ent->client->ps.jetpackFuel++;
 					ent->client->jetPackDebRecharge = level.time + JETPACK_REFUEL_RATE;
+				}
+			}
+
+			#define JKG_BLOCK_POINT_REGENERATION_RATE	200
+			if( ent->client->ns.blockPoints < 100 )
+			{
+				if(ent->client->ps.weapon == WP_SABER)
+				{
+					if(ent->client->saberBPDebRecharge < level.time)
+					{
+						ent->client->ns.blockPoints++;
+						if( ent->client->ps.saberActionFlags & (1 << SAF_BLOCKING) )
+						{
+							ent->client->saberBPDebRecharge = level.time + 175;
+						}
+						else
+						{
+							ent->client->saberBPDebRecharge = level.time + 325;
+						}
+					}
 				}
 			}
 

@@ -142,6 +142,118 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 
 /*
 ================
+JKG_SaberDeflectMissile
+
+Also handles stuff like force costs, etc
+Only gets called when in projectile block mode
+
+================
+*/
+
+void JKG_SaberDeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward ) 
+{
+	vec3_t	bounce_dir;
+	int		i;
+	float	speed;
+	gentity_t	*owner = ent;
+	int		isowner = 0;
+
+	if ( !(ent->client->ps.saberActionFlags & SAF_PROJBLOCKING) )
+	{
+		return;
+	}
+
+	if ( ent->r.ownerNum )
+	{
+		owner = &g_entities[ent->r.ownerNum];
+	}
+
+	if (missile->r.ownerNum == ent->s.number)
+	{ //the original owner is bouncing the missile, so don't try to bounce it back at him
+		isowner = 1;
+	}
+
+	//save the original speed
+	speed = VectorNormalize( missile->s.pos.trDelta );
+
+	//if ( ent && owner && owner->NPC && owner->enemy && Q_stricmp( "Tavion", owner->NPC_type ) == 0 && Q_irand( 0, 3 ) )
+	if ( &g_entities[missile->r.ownerNum] && missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART && !isowner )
+	{//bounce back at them if you can
+		VectorSubtract( g_entities[missile->r.ownerNum].r.currentOrigin, missile->r.currentOrigin, bounce_dir );
+		VectorNormalize( bounce_dir );
+	}
+	else if (isowner)
+	{ //in this case, actually push the missile away from me, and since we're giving boost to our own missile by pushing it, up the velocity
+		vec3_t missile_dir;
+
+		speed *= 1.5;
+
+		VectorSubtract( missile->r.currentOrigin, ent->r.currentOrigin, missile_dir );
+		VectorCopy( missile->s.pos.trDelta, bounce_dir );
+		VectorScale( bounce_dir, DotProduct( forward, missile_dir ), bounce_dir );
+		VectorNormalize( bounce_dir );
+	}
+	else
+	{
+		vec3_t missile_dir;
+
+		VectorSubtract( ent->r.currentOrigin, missile->r.currentOrigin, missile_dir );
+		VectorCopy( missile->s.pos.trDelta, bounce_dir );
+		VectorScale( bounce_dir, DotProduct( forward, missile_dir ), bounce_dir );
+		VectorNormalize( bounce_dir );
+	}
+	for ( i = 0; i < 3; i++ )
+	{
+		float randomFloat = (level.time-ent->client->saberProjBlockTime)/2000.0f;
+		float minimum;// = randomFloat/4;
+		float result;
+		int randomYesNo = Q_irand(0,1);
+
+		if(randomFloat <= 0.05f)
+		{
+			randomFloat = 0;
+		}
+		else if(randomFloat > 0.8f)
+		{
+			randomFloat = 0.8f;
+		}
+		else if(randomFloat > 0.05)
+		{
+			randomFloat -= 0.05f;	// perfect blocks were WAY too hard to get before..this will help to make blocking easier
+		}
+
+		minimum = randomFloat / 4;
+
+		// establish an effective minimum
+		result = RandFloat(minimum, randomFloat);
+		
+		if(randomYesNo == 0)
+		{
+			bounce_dir[i] += result;
+		}
+		else
+		{
+			bounce_dir[i] -= result;
+		}
+	}
+
+	VectorNormalize( bounce_dir );
+	VectorScale( bounce_dir, speed, missile->s.pos.trDelta );
+	missile->s.pos.trTime = level.time;		// move a bit on the very first frame
+	VectorCopy( missile->r.currentOrigin, missile->s.pos.trBase );
+	if ( missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART )
+	{//you are mine, now!
+		missile->r.ownerNum = ent->s.number;
+	}
+	if ( missile->s.weapon == WP_ROCKET_LAUNCHER )
+	{//stop homing
+		missile->think = 0;
+		missile->nextthink = 0;
+	}
+}
+
+/*
+================
 G_BounceMissile
 
 ================
@@ -381,7 +493,7 @@ static void G_GrenadeBounceEvent ( const gentity_t *ent )
 G_MissileImpact
 ================
 */
-void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, qboolean missileBlock );
+qboolean WP_SaberBlockNonRandom( gentity_t *self, gentity_t *other, vec3_t hitloc, qboolean missileBlock );
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	gentity_t		*other;
 	qboolean		hitClient = qfalse;
@@ -532,7 +644,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->methodOfDeath != MOD_CONC &&
 		ent->methodOfDeath != MOD_CONC_ALT &&
 		!(ent->dflags&DAMAGE_HEAVY_WEAP_CLASS) )
-	{
+	{// entity is shielded
 		vec3_t fwd;
 
 		if (other->client)
@@ -548,7 +660,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		G_MissileBounceEffect(ent, ent->r.currentOrigin, fwd);
 		return;
 	}
-		
+
+	// SABERFIXME: make this based on .wpn file? some conc rifles should be able to be deflected...
 	if (other->takedamage && other->client &&
 		ent->s.weapon != WP_ROCKET_LAUNCHER &&
 		ent->s.weapon != WP_THERMAL &&
@@ -559,7 +672,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->methodOfDeath != MOD_FLECHETTE_ALT_SPLASH &&
 		ent->methodOfDeath != MOD_CONC &&
 		ent->methodOfDeath != MOD_CONC_ALT &&
-		other->client->ps.saberBlockTime < level.time &&
+		other->client->saberBlockDebounce < level.time &&
 		!isKnockedSaber &&
 		WP_SaberCanBlock(other, ent->r.currentOrigin, 0, 0, qtrue, 0))
 	{ //only block one projectile per 200ms (to prevent giant swarms of projectiles being blocked)
@@ -589,8 +702,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 
 		AngleVectors(other->client->ps.viewangles, fwd, NULL, NULL);
-		if (otherDefLevel == FORCE_LEVEL_1)
-		{
+		// SABERFIXME: Don't make this force based. This code is ugly as fuck anyway
+		/*if (otherDefLevel == FORCE_LEVEL_1 || 
+			(other->s.eType == ET_PLAYER && (!other->client->ns.saberIsProjectileBlocking || (level.time-other->client->saberProjBlockTime) >= 2000)))
+		{	// shot just dies if we aren't projectile blocking properly --eez
 			//if def is only level 1, instead of deflecting the shot it should just die here
 		}
 		else if (otherDefLevel == FORCE_LEVEL_2)
@@ -600,20 +715,29 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		else
 		{
 			G_ReflectMissile(other, ent, fwd);
-		}
-		other->client->ps.saberBlockTime = level.time + (350 - (otherDefLevel*100)); //200;
+		}*/
+		other->client->saberBlockDebounce = level.time + (350 - (otherDefLevel*100)); //200;
 
 		//For jedi AI
 		other->client->ps.saberEventFlags |= SEF_DEFLECTED;
 
-		if (otherDefLevel == FORCE_LEVEL_3)
-		{
-			other->client->ps.saberBlockTime = 0; //^_^
-		}
-
-		if (otherDefLevel == FORCE_LEVEL_1)
+		/*if (otherDefLevel == FORCE_LEVEL_3)
+ 		{
+			other->client->saberBlockDebounce = 0; //^_^
+ 		}
+ 
+ 		if (otherDefLevel == FORCE_LEVEL_1)
+ 		{
+ 			goto killProj;
+		}*/
+		if ( other->client->ps.saberActionFlags & (1 << SAF_BLOCKING) && !(other->client->ps.saberActionFlags & ( 1 << SAF_PROJBLOCKING) ) )
 		{
 			goto killProj;
+ 		}
+		else if ( other->client->ps.saberActionFlags & SAF_PROJBLOCKING )
+		{
+			JKG_SaberDeflectMissile(other, ent, fwd);
+			other->client->saberProjBlockTime += 500; // give them a little bit of leeway --eez
 		}
 		return;
 	}
@@ -641,7 +765,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			//WP_SaberCanBlock(otherOwner, ent->r.currentOrigin, 0, 0, qtrue, 0);
 			if (otherOwner->client && otherOwner->client->ps.weaponTime <= 0)
 			{
-				WP_SaberBlockNonRandom(otherOwner, ent->r.currentOrigin, qtrue);
+				WP_SaberBlockNonRandom(otherOwner, NULL, ent->r.currentOrigin, qtrue);		// <-- ??? --eez
 			}
 
 			te = G_TempEntity( ent->r.currentOrigin, EV_SABER_BLOCK );
@@ -666,7 +790,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 			AngleVectors(otherOwner->client->ps.viewangles, fwd, NULL, NULL);
 
-			if (otherDefLevel == FORCE_LEVEL_1)
+			/*if (otherDefLevel == FORCE_LEVEL_1)
 			{
 				//if def is only level 1, instead of deflecting the shot it should just die here
 			}
@@ -677,21 +801,36 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			else
 			{
 				G_ReflectMissile(otherOwner, ent, fwd);
-			}
-			otherOwner->client->ps.saberBlockTime = level.time + (350 - (otherDefLevel*100));//200;
+			}*/
+			otherOwner->client->saberBlockDebounce = level.time + (350 - (otherDefLevel*100));//200;
 
 			//For jedi AI
 			otherOwner->client->ps.saberEventFlags |= SEF_DEFLECTED;
 
+			/*
 			if (otherDefLevel == FORCE_LEVEL_3)
 			{
-				otherOwner->client->ps.saberBlockTime = 0; //^_^
+				otherOwner->client->saberBlockDebounce = 0; //^_^
 			}
 
 			if (otherDefLevel == FORCE_LEVEL_1)
 			{
 				goto killProj;
 			}
+			*/
+
+			// um...this code is a lil messed up, so i'll replace it with my own --eez
+			if ( otherOwner->client->ps.saberActionFlags & (1 << SAF_BLOCKING) && !(otherOwner->client->ps.saberActionFlags & ( 1 << SAF_PROJBLOCKING )) )
+			{
+				goto killProj;
+ 			}
+			else if ( otherOwner->client->ps.saberActionFlags & ( 1 << SAF_PROJBLOCKING ) )
+			{
+				// SABERFIXME: Write new function for this
+				JKG_SaberDeflectMissile(otherOwner, ent, fwd);
+				otherOwner->client->saberProjBlockTime += 500; // give them a little bit of leeway --eez
+			}
+
 			return;
 		}
 	}

@@ -1618,7 +1618,7 @@ void SP_worldspawn( void )
 	G_SpawnString( "soundSet", "default", &text );
 	trap_SetConfigstring( CS_GLOBAL_AMBIENT_SET, text );
 
-	G_SpawnString( "defaultWeapon", "pistol_DL-18", &text );
+	G_SpawnString( "defaultWeapon", "saber", &text );//pistol_DL-18
 	if(text)
 	{
 		strcpy(level.startingWeapon, text);

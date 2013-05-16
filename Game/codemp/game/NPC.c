@@ -553,7 +553,7 @@ static void DeadThink ( void )
 	}
 	else
 	*/
-	{
+	{//FIXME: need to get npcs who is burn out with bones effect to be loot able in force lightning level 3 
 		//eezstreet edit: no disappearing allowed!
 		if( NPC->currentLooter != NULL )
 		{
@@ -942,450 +942,6 @@ void NPC_KeepCurrentFacing(void)
 		ucmd.angles[PITCH] = ANGLE2SHORT( client->ps.viewangles[PITCH] ) - client->ps.delta_angles[PITCH];
 	}
 }
-
-#ifndef __DOMINANCE_NPC__
-
-/*
--------------------------
-NPC_BehaviorSet_Charmed
--------------------------
-*/
-
-void NPC_BehaviorSet_Charmed( int bState )
-{
-	switch( bState )
-	{
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-		NPC_BSFollowLeader();
-		break;
-	case BS_REMOVE:
-		NPC_BSRemove();
-		break;
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-		NPC_BSSearch();
-		break;
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-		NPC_BSWander();
-		break;
-	case BS_FLEE:
-		NPC_BSFlee();
-		break;
-	default:
-	case BS_DEFAULT://whatever
-		NPC_BSDefault();
-		break;
-	}
-}
-/*
--------------------------
-NPC_BehaviorSet_Default
--------------------------
-*/
-
-void NPC_BehaviorSet_Default( int bState )
-{
-	switch( bState )
-	{
-	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-		NPC_BSAdvanceFight ();
-		break;
-	case BS_SLEEP://Follow a path, looking for enemies
-		NPC_BSSleep ();
-		break;
-	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-		NPC_BSFollowLeader();
-		break;
-	case BS_JUMP:			//41: Face navgoal and jump to it.
-		NPC_BSJump();
-		break;
-	case BS_REMOVE:
-		NPC_BSRemove();
-		break;
-	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-		NPC_BSSearch();
-		break;
-	case BS_NOCLIP:
-		NPC_BSNoClip();
-		break;
-	case BS_WANDER:			//# 46: Wander down random waypoint paths
-		NPC_BSWander();
-		break;
-	case BS_FLEE:
-		NPC_BSFlee();
-		break;
-	case BS_WAIT:
-		NPC_BSWait();
-		break;
-	case BS_CINEMATIC:
-		NPC_BSCinematic();
-		break;
-	default:
-	case BS_DEFAULT://whatever
-		NPC_BSDefault();
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Interrogator
--------------------------
-*/
-void NPC_BehaviorSet_Interrogator( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSInterrogator_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-void NPC_BSImperialProbe_Attack( void );
-void NPC_BSImperialProbe_Patrol( void );
-void NPC_BSImperialProbe_Wait(void);
-
-/*
--------------------------
-NPC_BehaviorSet_ImperialProbe
--------------------------
-*/
-void NPC_BehaviorSet_ImperialProbe( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSImperialProbe_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-
-void NPC_BSSeeker_Default( void );
-
-/*
--------------------------
-NPC_BehaviorSet_Seeker
--------------------------
-*/
-void NPC_BehaviorSet_Seeker( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSSeeker_Default();
-		break; 
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-void NPC_BSRemote_Default( void );
-
-/*
--------------------------
-NPC_BehaviorSet_Remote
--------------------------
-*/
-void NPC_BehaviorSet_Remote( int bState )
-{
-	NPC_BSRemote_Default();
-}
-
-void NPC_BSSentry_Default( void );
-
-/*
--------------------------
-NPC_BehaviorSet_Sentry
--------------------------
-*/
-void NPC_BehaviorSet_Sentry( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSSentry_Default();
-		break; 
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Grenadier
--------------------------
-*/
-void NPC_BehaviorSet_Grenadier( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSGrenadier_Default();
-		break;
-
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-/*
--------------------------
-NPC_BehaviorSet_Sniper
--------------------------
-*/
-void NPC_BehaviorSet_Sniper( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSSniper_Default();
-		break;
-
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-/*
--------------------------
-NPC_BehaviorSet_Stormtrooper
--------------------------
-*/
-
-void NPC_BehaviorSet_Stormtrooper( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSST_Default();
-		break;
-
-	case BS_INVESTIGATE:
-		NPC_BSST_Investigate();
-		break;
-
-	case BS_SLEEP:
-		NPC_BSST_Sleep();
-		break;
-
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Jedi
--------------------------
-*/
-
-void NPC_BehaviorSet_Jedi( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-	case BS_STAND_AND_SHOOT:
-		NPC_BSJedi_Default();
-		break;
-	case BS_FOLLOW_LEADER:
-		NPC_BSJedi_FollowLeader();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Droid
--------------------------
-*/
-void NPC_BehaviorSet_Droid( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-		NPC_BSDroid_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Mark1
--------------------------
-*/
-void NPC_BehaviorSet_Mark1( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-		NPC_BSMark1_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Mark2
--------------------------
-*/
-void NPC_BehaviorSet_Mark2( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-		NPC_BSMark2_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_ATST
--------------------------
-*/
-void NPC_BehaviorSet_ATST( int bState )
-{
-	switch( bState )
-	{
-	case BS_DEFAULT:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-		NPC_BSATST_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_MineMonster
--------------------------
-*/
-void NPC_BehaviorSet_MineMonster( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSMineMonster_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Howler
--------------------------
-*/
-void NPC_BehaviorSet_Howler( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSHowler_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-/*
--------------------------
-NPC_BehaviorSet_Rancor
--------------------------
-*/
-void NPC_BehaviorSet_Rancor( int bState )
-{
-	switch( bState )
-	{
-	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_STAND_AND_SHOOT:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		NPC_BSRancor_Default();
-		break;
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	}
-}
-
-#else //__DOMINANCE_NPC__
 
 extern qboolean NPC_FollowRoutes( void );
 extern qboolean NPC_PatrolArea( void );
@@ -1936,24 +1492,29 @@ void NPC_BehaviorSet_Stormtrooper( int bState )
 	case BS_PATROL:
 	case BS_HUNT_AND_KILL:
 	case BS_DEFAULT:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Default();
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Default();
 		break;
 	case BS_STAND_AND_SHOOT:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Default();
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Default();
 		break;
 	case BS_INVESTIGATE:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Investigate();
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Investigate();
 		break;
 	case BS_SLEEP:
-		if (!NPC_PatrolArea())
-			NPC_BSST_Sleep();
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Sleep();
 		break;
 	default:
-		if (!NPC_PatrolArea())
-			NPC_BehaviorSet_Default( bState );
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BehaviorSet_Default( bState );
 		break;
 	}
 }
@@ -2158,7 +1719,6 @@ void NPC_BehaviorSet_Rancor( int bState )
 	}
 }
 
-#endif //__DOMINANCE_NPC__
 
 /*
 -------------------------

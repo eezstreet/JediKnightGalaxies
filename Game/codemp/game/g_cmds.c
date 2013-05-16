@@ -32,6 +32,9 @@ extern void WARZONE_RemoveAllWarzoneEnts ( void );
 extern void WARZONE_RemoveAmmoCrate ( void );
 extern void WARZONE_RemoveHealthCrate ( void );
 
+// Below...
+extern qboolean	CheatsOk( gentity_t *ent );
+
 // Include GLua stuff
 #include "../GLua/glua.h"
 #include "jkg_admin.h"
@@ -353,6 +356,57 @@ void JKG_BuyItem_f(gentity_t *ent)
 
 	trap_SendServerCommand(ent->s.number, "print \"You need to be at a vendor to purchase items.\n\"");
 }
+
+/*
+==================
+JKG_Crystal_f
+
+Sets the saber crystal
+==================
+*/
+extern unsigned int numLoadedCrystals;
+void JKG_Crystal_f ( gentity_t *ent, int saberNum )
+{
+	char *args = ConcatArgs(1);
+	int argNum = atoi(args);
+
+	if(!CheatsOk(ent))
+	{
+		return;
+	}
+
+	if(argNum)
+	{
+		if(argNum < 0)
+		{
+			return;
+		}
+		else if(argNum >= numLoadedCrystals)
+		{
+			return;
+		}
+		else
+		{
+			ent->x.saberCrystal[saberNum] = argNum;
+			ent->client->ns.saberCrystal[saberNum] = argNum;
+		}
+	}
+	else
+	{
+		const saberCrystalData_t *saber = JKG_GetSaberCrystal(args);
+		if(!saber)
+		{
+			return;
+		}
+		else
+		{
+			ent->x.saberCrystal[saberNum] = saber->crystalID;
+			ent->client->ns.saberCrystal[saberNum] = saber->crystalID;
+		}
+	}
+}
+
+
 /*
 ==================
 Cmd_Score_f
@@ -688,6 +742,9 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 	        //while ( i < MAX_INVENTORY_ITEMS && cmdent->inventory[i].id )
 			JKG_A_GiveEntItem(itemID, IQUAL_NORMAL, ent->inventory, ent->client);
 			trap_SendServerCommand (ent->s.number, va ("print \"'%s' was added to your inventory.\n\"", itemLookupTable[itemID].displayName));
+			
+			// UQ1: Added - update their ACI...
+			trap_SendServerCommand(ent->s.number, va("AddToACI %i", itemID));
 	    }
 	    else
 	    {
@@ -3437,13 +3494,13 @@ void Cmd_Reload_f( gentity_t *ent ) {
 	}
 	
 	/* No more ammo left to place in the clip */
-	if ( ent->client->ps.ammo <= 0 )
+	if ( ent->client->ps.ammo <= 0 && ent->client->ps.weapon != WP_SABER)
 	{
 		return;
 	}
 	
 	// Can't reload while sprinting
-	if ( BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, &ent->client->ns) )
+	if ( BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, &ent->client->ns, qfalse) )
 	{
 	    return;
 	}
@@ -3451,6 +3508,13 @@ void Cmd_Reload_f( gentity_t *ent ) {
     // Can't reload while charging the weapon
 	if ( ent->client->ps.weaponstate == WEAPON_CHARGING || ent->client->ps.weaponstate == WEAPON_CHARGING_ALT )
 	{
+		return;
+	}
+
+	if ( weapon == WP_SABER)
+	{
+		// Do a kick instead, regardless if we're moving
+		ent->client->ps.saberActionFlags |= ( 1 << SAF_KICK );
 		return;
 	}
 
@@ -3686,6 +3750,8 @@ void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other
 
 void Cmd_ToggleSaber_f(gentity_t *ent)
 {
+	int previousSaberHolstered;
+
 	if (ent->client->ps.fd.forceGripCripple)
 	{ //if they are being gripped, don't let them unholster their saber
 		if (ent->client->ps.saberHolstered)
@@ -3730,22 +3796,69 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 
 	if (ent->client && ent->client->ps.weaponTime < 1)
 	{
-		if (ent->client->ps.saberHolstered == 2)
-		{
-			ent->client->ps.saberHolstered = 0;
+		previousSaberHolstered = ent->client->ps.saberHolstered;
 
-			if (ent->client->saber[0].soundOn)
+		if (ent->client->ps.saberHolstered == 2 ||
+			((SaberStances[ent->client->ps.fd.saberAnimLevel].isDualsOnly ||
+				SaberStances[ent->client->ps.fd.saberAnimLevel].isStaffOnly) &&
+				ent->client->ps.saberHolstered == 1))
+ 		{
+			if((SaberStances[ent->client->ps.fd.saberAnimLevel].isDualsOnly || SaberStances[ent->client->ps.fd.saberAnimLevel].isStaffOnly) &&
+				ent->client->ps.saberHolstered == 2)
 			{
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
+				ent->client->ps.saberHolstered = 1;
 			}
-			if (ent->client->saber[1].soundOn)
+			else if(SaberStances[ent->client->ps.fd.saberAnimLevel].isDualsOnly || SaberStances[ent->client->ps.fd.saberAnimLevel].isStaffOnly)
 			{
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
+				ent->client->ps.saberHolstered = 0;
+			}
+			else if(!SaberStances[ent->client->ps.fd.saberAnimLevel].isDualsOnly &&
+				!SaberStances[ent->client->ps.fd.saberAnimLevel].isStaffOnly)
+			{
+				ent->client->ps.saberHolstered = 1;
+			}
+			else
+			{
+				ent->client->ps.saberHolstered = 0;
+			}
+			ent->client->ps.saberActionFlags &= ~(1 << SAF_BLOCKING);
+			ent->client->ps.saberActionFlags &= ~( 1 << SAF_PROJBLOCKING );
+			ent->client->blockingLightningAccumulation = 0;
+ 
+			/*if (ent->client->saber[0].soundOn)
+ 			{
+ 				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
+ 			}
+ 			if (ent->client->saber[1].soundOn)
+ 			{
+ 				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
+			}*/
+
+			if(previousSaberHolstered == 0)
+			{
+				G_SetAnim(ent, NULL, SETANIM_BOTH, BOTH_STAND1TO2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS, 0);
+			}
+
+			{
+				int random = Q_irand(1, 3);
+
+				if(random == 1)
+				{
+					G_Sound (ent, CHAN_AUTO, G_SoundIndex("sound/weapons/saber/saberon.wav"));
+				}
+				else
+				{
+					G_Sound (ent, CHAN_AUTO, G_SoundIndex(va("sound/weapons/saber/saberon%i.wav", random)));
+				}
 			}
 		}
 		else
 		{
 			ent->client->ps.saberHolstered = 2;
+			ent->client->ps.saberActionFlags &= ~(1 << SAF_BLOCKING);
+			ent->client->ps.saberActionFlags &= ~( 1 << SAF_PROJBLOCKING );
+			ent->client->blockingLightningAccumulation = 0;
+
 			if (ent->client->saber[0].soundOff)
 			{
 				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
@@ -3757,6 +3870,20 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 			}
 			//prevent anything from being done for 400ms after holster
 			ent->client->ps.weaponTime = 400;
+
+			G_SetAnim(ent, NULL, SETANIM_BOTH, BOTH_STAND2TO1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS, 0);
+
+			{
+				int random = Q_irand(1, 3);
+				if(random == 1)
+				{
+					G_Sound (ent, CHAN_AUTO, G_SoundIndex("sound/weapons/saber/saberoff.wav"));
+				}
+				else
+				{
+					G_Sound (ent, CHAN_AUTO, G_SoundIndex(va("sound/weapons/saber/saberoff%i.wav", random)));
+				}
+			}
 		}
 	}
 }
@@ -3767,6 +3894,8 @@ extern qboolean WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber );
 void Cmd_SaberAttackCycle_f(gentity_t *ent)
 {
 	int selectLevel = 0;
+	int i, j;
+
 	qboolean usingSiegeStyle = qfalse;
 	
 	if ( !ent || !ent->client )
@@ -3819,48 +3948,104 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 
 		ent->client->saberStanceDebounce = level.time + 1000;
 
+		if ( BG_SaberInAttack(ent->client->ps.saberMove) )
+		{// Jedi Knight Galaxies: cannot change saber style in mid-attack (todo: fancy chaining shizz)
+			return;
+		}
+
 		if (ent->client->saber[0].model[0] && ent->client->saber[1].model[0])
 		{ //no cycling for akimbo
 			if ( WP_SaberCanTurnOffSomeBlades( &ent->client->saber[1] ) )
 			{//can turn second saber off 
+				/*
 				if ( ent->client->ps.saberHolstered == 1 )
 				{//have one holstered
-					//unholster it
-					G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
-					ent->client->ps.saberHolstered = 0;
-					//g_active should take care of this, but...
-					ent->client->ps.fd.saberAnimLevel = SS_DUAL;
+				//unholster it
+				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
+				ent->client->ps.saberHolstered = 0;
+				//g_active should take care of this, but...
+				ent->client->ps.fd.saberAnimLevel = SS_DUAL;
 				}
 				else if ( ent->client->ps.saberHolstered == 0 )
 				{//have none holstered
-					if ( (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
-					{//can't turn it off manually
-					}
-					else if ( ent->client->saber[1].bladeStyle2Start > 0
-						&& (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
-					{//can't turn it off manually
-					}
-					else
-					{
-						//turn it off
-						G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
-						ent->client->ps.saberHolstered = 1;
-						//g_active should take care of this, but...
-						ent->client->ps.fd.saberAnimLevel = SS_FAST;
-					}
+				if ( (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
+				{//can't turn it off manually
+				}
+				else if ( ent->client->saber[1].bladeStyle2Start > 0
+				&& (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
+				{//can't turn it off manually
+				}
+				else
+				{
+				//turn it off
+				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
+				ent->client->ps.saberHolstered = 1;
+				//g_active should take care of this, but...
+				ent->client->ps.fd.saberAnimLevel = SS_MAKASHI;
+				}
 				}
 
 				if (d_saberStanceDebug.integer)
 				{
-					trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle dual saber blade.\n\"") );
+				trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle dual saber blade.\n\"") );
 				}
+				return;
+				*/
+
+				int i = 0;
+				int j = 0;
+
+				for(i = ent->client->ps.fd.saberAnimLevel+1, j = 0; j < MAX_STANCES; j++)
+				{
+					if(i >= MAX_STANCES)
+					{
+						i = 0;
+					}
+					if(SaberStances[i].isDualsFriendly)
+					{
+						if ( ent->client->ps.saberHolstered == 1 )
+						{
+							// Have one saber holstered, just switch to the style and pretend that nothing happened
+							ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+							break;
+						}
+						else if( ent->client->ps.saberHolstered == 0 )
+						{
+							// Both sabers are in use, so turn the left one off
+							G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
+							ent->client->ps.saberHolstered = 1;
+							//g_active should take care of this, but...
+							ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+							break;
+						}
+					}
+					else if(SaberStances[i].isDualsOnly)
+					{
+						if ( ent->client->ps.saberHolstered == 1 )
+						{
+							// Have one saber holstered, bring out your second one like a badass
+							G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
+							ent->client->ps.saberHolstered = 0;
+							//g_active should take care of this, but...
+							ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+							break;
+						}
+						else if( ent->client->ps.saberHolstered == 0 )
+						{
+							// just switch to this
+							ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+							break;
+						}
+					}
+				}
+
 				return;
 			}
 		}
 		else if (ent->client->saber[0].numBlades > 1
 			&& WP_SaberCanTurnOffSomeBlades( &ent->client->saber[0] ) )
 		{ //use staff stance then.
-			if ( ent->client->ps.saberHolstered == 1 )
+			/*if ( ent->client->ps.saberHolstered == 1 )
 			{//second blade off
 				if ( ent->client->ps.saberInFlight )
 				{//can't turn second blade back on if it's in the air, you naughty boy!
@@ -3918,6 +4103,72 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 			if (d_saberStanceDebug.integer)
 			{
 				trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle staff blade.\n\"") );
+			}
+			return;
+			*/
+
+			for(i = ent->client->ps.fd.saberAnimLevel+1, j = 0; j < MAX_STANCES+1; j++)
+			{
+				if(i >= MAX_STANCES)
+				{
+					i = 0;
+				}
+				if(SaberStances[i].isStaffFriendly)
+				{
+					if ( ent->client->ps.saberHolstered == 1 )
+					{
+						// Have one blade holstered, just switch to the style and pretend that nothing happened
+						ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+						break;
+					}
+					else if( ent->client->ps.saberHolstered == 0 )
+					{
+						// Both sabers are in use, so turn the left one off
+						G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
+						ent->client->ps.saberHolstered = 1;
+						//g_active should take care of this, but...
+						ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+						break;
+					}
+				}
+				else if(SaberStances[i].isStaffOnly)
+				{
+					if ( ent->client->ps.saberHolstered == 1 )
+					{
+						// Have one blade holstered, bring out your second one like a badass
+						G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
+						ent->client->ps.saberHolstered = 0;
+						//g_active should take care of this, but...
+						ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+						break;
+					}
+					else if( ent->client->ps.saberHolstered == 0 )
+					{
+						// just switch to this
+						ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+						break;
+					}
+				}
+				i++;
+				return;
+			}
+		}
+		else
+		{
+			for(i = ent->client->ps.fd.saberAnimLevel+1, j = 0; j < MAX_STANCES+1; j++)
+			{
+				if(i >= MAX_STANCES)
+				{
+					i = 0;
+				}
+				if(SaberStances[i].saberName_simple &&
+					!SaberStances[i].isDualsOnly &&
+					!SaberStances[i].isStaffOnly)
+				{
+					ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberAnimLevelBase = i;
+					break;
+				}
+				i++;
 			}
 			return;
 		}
@@ -4170,7 +4421,7 @@ void Cmd_DebugSetSaberMove_f(gentity_t *self)
 		self->client->ps.saberMove = LS_MOVE_MAX-1;
 	}
 
-	Com_Printf("Anim for move: %s\n", animTable[saberMoveData[self->client->ps.saberMove].animToUse].name);
+	Com_Printf("Anim for move: %s\n", animTable[SaberStances[self->client->ps.fd.saberAnimLevel].moves[self->client->ps.saberMove].anim].name);
 }
 
 void Cmd_DebugSetBodyAnim_f(gentity_t *self, int flags)
@@ -4479,6 +4730,18 @@ void ClientCommand( int clientNum ) {
 		return;
 	}
 
+	if (!Q_stricmp (cmd, "crystal1"))
+	{
+		JKG_Crystal_f(ent, 0);
+		return;
+	}
+
+	if(!Q_stricmp (cmd, "crystal2"))
+	{
+		JKG_Crystal_f(ent, 1);
+		return;
+	}
+
 	if (Q_stricmp(cmd, "voice_cmd") == 0)
 	{
 		Cmd_VoiceCommand_f(ent);
@@ -4720,6 +4983,7 @@ void ClientCommand( int clientNum ) {
 		AIMod_CheckObjectivePaths( ent );
 	}
 	else if (Q_stricmp (cmd, "closeentities") == 0 && !Q_strncmp(ent->client->sess.IP, "127.0.0.1:",10))	{
+
 		int i = 0;
 
 		G_Printf("----------------------------------------------\n");

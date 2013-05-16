@@ -6571,8 +6571,8 @@ static void NPC_Humanoid_Attack( void )
 					{//get our saber back NOW!
 						NPC_Humanoid_Move( NPCInfo->goalEntity, qfalse );
 						NPC_UpdateAngles( qtrue, qtrue );
-						if ( NPC->enemy->s.weapon == WP_SABER )
-						{//be sure to continue evasion
+						if ( NPC->enemy->s.weapon == WP_SABER )// happen to have a break here when the npc drops its saber // trigger the crash/break and then send me a PM and I'll have a look at it
+						{//be sure to continue evasion k
 							vec3_t	enemy_dir, enemy_movedir, enemy_dest;
 							float	enemy_dist, enemy_movespeed;
 							NPC_Humanoid_SetEnemyInfo( enemy_dest, enemy_dir, &enemy_dist, enemy_movedir, &enemy_movespeed, 300 );

@@ -32,6 +32,7 @@
 #include "teams.h" //npc team stuff
 #include <time.h>
 
+// vvvv lol --eez
 #ifdef __SECONDARY_NETWORK__
 // ================================================================================================================================
 //
@@ -736,16 +737,32 @@ typedef struct
 } bladeInfo_t;
 #define MAX_BLADES 8
 
+#define MAX_STANCES	16
+
 typedef enum
 {
 	SS_NONE = 0,
-	SS_FAST,
-	SS_MEDIUM,
-	SS_STRONG,
-	SS_DESANN,
-	SS_TAVION,
-	SS_DUAL,
-	SS_STAFF,
+	SS_MAKASHI,							// Blue
+	SS_SHII_CHO,						// Cyan
+	SS_SORESU,							// Yellow
+	SS_JUYO,							// Orange
+	SS_ATARU,							// Red
+	SS_DUAL,							// Dark Green / Light Green
+	SS_STAFF,							// Dark Purple / Light Purple
+#ifdef __BACKHANDSABERS
+	SS_BACKHAND,						// White
+	SS_BACKHAND_DUALS,					// Black
+#endif
+#ifdef __DJEM_SO_SABERS
+	SS_DJEM_SO,							// White
+	SS_DJEM_SO_DUALS,					// Black
+#endif
+#ifdef __POLEARMS
+	SS_POLEARM,							// Vibroblade-only --eez
+#endif
+#ifdef __SPEARS
+	SS_SPEAR,							// Vibroblade-only --eez
+#endif
 	SS_NUM_SABER_STYLES
 } saber_styles_t;
 
@@ -2577,7 +2594,7 @@ typedef struct playerState_s {
 	unsigned char   shotsRemaining;
 	unsigned char	sprintMustWait;
 	
-	int				unused1;			// Unused
+	int				saberActionFlags;			// Unused1
 	unsigned int    unused2;			// Unused; this used to be the iron sights stuff.
 	unsigned int	unused3;			// Unused; this used to be the sprint stuff. got migrated to second playerstate.
 
@@ -2627,7 +2644,7 @@ typedef struct siegePers_s
 										// won't generate footsteps
 #define	BUTTON_USE				32			// the ol' use key returns!
 #define BUTTON_FORCEGRIP		64			// 
-//#define BUTTON_ALT_ATTACK		128
+#define BUTTON_ALT_ATTACK		128
 
 #define	BUTTON_ANY				256			// any key whatsoever
 
@@ -3014,7 +3031,7 @@ typedef struct entityState_s {
 	int 			freezeTorsoAnim;
 	int 			freezeLegsAnim;
 
-	unsigned int			userInt1;
+	unsigned int	saberActionFlags;
 	unsigned int	userInt2;
 	unsigned int    userInt3;
 	unsigned int	userInt4;
@@ -3441,6 +3458,15 @@ typedef struct {
 	int		bits;		// 0 = float
 } netField_t;
 
+// Be sure to change networkStateFields in networkstate.c
+typedef enum {
+	SAF_BLOCKING,
+	SAF_PROJBLOCKING,
+	SAF_FEINT,
+	SAF_KICK,
+	SAF_ENDBLOCK,
+} saberActionFlag_e;
+
 #pragma pack(4)
 // align 4 for these two structs and for the structs below them, regardless of whether this is a debug build or not
 
@@ -3454,12 +3480,23 @@ typedef struct networkState_s
 	unsigned int	sprintTime;		// The MSB is used to determine whether we're starting or ending sprinting
 	int sprintDebounceTime;
 
+	signed short	forcePower;
+	float			saberSwingSpeed;
+	float			saberMoveSwingSpeed;
+
+	int saberPommel[2];
+	int saberShaft[2];
+	int saberEmitter[2];
+	int saberCrystal[2];
+
 	unsigned int ironsightsDebounceStart;	// Just the next time we can bring ironsights back up.
 											// brought this up because people were going into ironsights
 											// at really tacky/awkward times (such as while reloading)
 
 	qboolean		isSprinting;			// Only used for spectators.
 	qboolean		isInSights;				// Only used for spectators.
+
+	signed short	blockPoints;
 
 	// This code always exists on at least one gametype --eez
 	// Put this in the second playerstate (networkstate) so that clients can see their lives display
@@ -3480,6 +3517,15 @@ typedef struct extraState_s
 	int		number;
 	int		testInt;
 	float	testFloat;
+
+	signed short forcePower;
+	float saberSwingSpeed;
+	float saberMoveSwingSpeed;
+
+	int saberPommel[2];
+	int saberShaft[2];
+	int saberEmitter[2];
+	int saberCrystal[2];
 }extraState_t;
 
 #pragma pack()
@@ -3532,14 +3578,52 @@ extern netField_t	networkStateFields[8];		// increment count whenever you change
 #elif defined __JKG_ROUNDBASED__
 extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
 #else
-extern netField_t	networkStateFields[7];		// increment count whenever you change the number of fields.
+extern netField_t	networkStateFields[19];		// increment count whenever you change the number of fields.
 #endif
-extern netField_t	extraStateFields[3];		// increment count whenever you change the number of fields.
+extern netField_t	extraStateFields[14];		// increment count whenever you change the number of fields.
 extern int numNetworkStateFields;
 extern int numExtraStateFields;
 
 #define ESF(x) #x,(int)&((extraState_t*)0)->x
 
+// Here is the best way to explain how this works.
+// First, a little referenc portion:
+// float = 0 bytes (for our sake) / 0
+// char/byte = 1 byte / 8
+// short = 2 bytes / 16
+// int = 4 bytes / 32
+
+// With this in mind, let's take an overview of what the playerState does for the client.
+// Basically, the game networks data to the client in the form of the playerState. You might
+// have seen this already in various instances, such as ent->client->ps."whatever" << this accesses the
+// player state.
+
+// Each player has exactly 1 player state (and a second one while in vehicles). This player state gets
+// replaced by the person you're spectating when you're in spectator mode. Clients cannot see each others
+// playerState, only their own.
+
+// So what's an entityState then? Simple. It's for every single entity, and it can be seen by all the clients.
+// You might store stuff which is more generic for all kinds of entities, and not just players. You might also
+// want to store stuff there that needs to be seen be all clients, which is why I did that for saberPommel, etc.
+// You might have seen this with ent->s."whatever"
+
+// Right. So, the main problem that we as coders have been having for quite some time is that it's impossible
+// to edit these structs at all. And that really freaking blows. So, what Scooper came up with was pretty nifty.
+// Basically, it's a second playerState/entityState for everything that needs it, and it fills the exact same
+// niche.
+
+// second playerState = networkState
+// second entityState = extraState
+
+// These can be accessed on the serverside with ent->client->ns and ent->x, respectively.
+// They can be accessed on the client with cg.networkState, cg.extraState (for yourself) or cent->extraState (for a cent)
+// Remember, you can only access your own networkState, and the networkState is sometimes invalid (such as when in a vehicle)
+// There's another drawback too. As it turns out, there's no form of snapshotting for this (so stuff isn't smoothened out properly)
+// This makes it not ideal at all to network things which need extreme precision through this method.
+
+// ---Editing it---
+
+// In networkstate.c, you should see something sorta similar to these:
 //netField_t extraStateFields[] =
 //{
 //	{ ESF(number), GENTITYNUM_BITS },
@@ -3547,13 +3631,46 @@ extern int numExtraStateFields;
 //	{ ESF(testFloat), 0 }
 //};
 
-
-
 //netField_t	networkStateFields[] = 
 //{
 //{ NSF(testInt), 32 },				
 //{ NSF(testFloat), 0 }
 //};
+
+// Basically, this is pretty simple. You'll add your new field to the end of, say networkState_t.
+
+//	int someStupidField;
+
+// Since this is an int, and it's at the end, we'll add it to the end of the networkStateFields thusly:
+//netField_t	networkStateFields[] = 
+//{
+//{ NSF(testInt), 32 },				
+//{ NSF(testFloat), 0 },
+//{ NSF(someStupidField), 32 },
+//};
+// THE ORDER MATTERS HERE. IT MUST MATCH THE NETWORKSTATE/EXTRASTATE! otherwise, you will encounter many issues
+
+// One more step. You need to edit the declaration of networkStateFields in q_shared.h, above where I'm typing this.
+// So before this, it would read:
+// netField_t networkStateFields[2];
+// Since before, there were only two fields. Now since there's 3, we need to change it to a 3. Otherwise, you'll get the
+// "too many initializers" error that I've got in the error log right now.
+
+// Now you're pretty much good. I think there's one more step to make sure that stuff gets PERFECTLY sent across. Lemme check.
+// Ya, okay.
+// In bg_misc.c, there's a function called BG_NetworkStateToExtraState. If you have a field in both extraState and networkState,
+// you need to make sure to add on to that function there appropriately.
+
+// That's pretty much it. This shouldn't be used as a first step at all, it should be considered only when it's necessary to do
+// something like this (don't let U1Q1 tell ya differently...trap_SendServerCommand has its uses ;) )
+
+// any questions? you know this is realy a cool way to cut it out eez, i did see you count the stuff in the netwotkstate bit wise so i could see you would need to 
+// somthing wiht it in the end mhm. i forgot to mention one big thing real quick
+// Shall we see if this baby here works :D ? sure, i'll be doing some work on my SP SDK in the meantime
+// how is that going btw `? :P
+// i have to actually map out the playerState, quite ironically. otherwise, it's going pretty well
+// awesome :D looking forward to see this :) anyhow, yeah, you test it and then PM me on IRC how it goes
+
 
 typedef struct
 {

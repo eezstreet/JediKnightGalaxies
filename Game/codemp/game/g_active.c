@@ -16,6 +16,7 @@ qboolean PM_SaberInReturn( int move );
 qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
 #include "../namespace_end.h"
 qboolean saberCheckKnockdown_DuelLoss(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
+qboolean BG_SabersOff( playerState_t *ps );
 
 extern vmCvar_t g_saberLockRandomNess;
 
@@ -1558,8 +1559,8 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			ent->client->ps.torsoAnim = TORSO_RAISEWEAP1;
 		}
 	}
-	else if ( level.time - ent->client->idleTime > 5000 )
-	{//been idle for 5 seconds
+	else if ( level.time - ent->client->idleTime > 10000 && !(ent->client->ps.saberActionFlags & ( 1 << SAF_PROJBLOCKING ) ) )
+	{//been idle for 10 seconds --eez
 		int	idleAnim = -1;
 		switch ( ent->client->ps.legsAnim )
 		{
@@ -1567,7 +1568,9 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			idleAnim = BOTH_STAND1IDLE1;
 			break;
 		case BOTH_STAND2:
-			idleAnim = BOTH_STAND2IDLE1;//Q_irand(BOTH_STAND2IDLE1,BOTH_STAND2IDLE2);
+		case BOTH_SABERFAST_STANCE:			// fixed this to properly work --eez
+		case BOTH_SABERSLOW_STANCE:
+			idleAnim = /*BOTH_STAND2IDLE1;*/Q_irand(BOTH_STAND2IDLE1,BOTH_STAND2IDLE2);		// ..why was this ever commented out --eez
 			break;
 		case BOTH_STAND3:
 			idleAnim = BOTH_STAND3IDLE1;
@@ -1577,10 +1580,11 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			break;
 		}
 
-		if (idleAnim == BOTH_STAND2IDLE1 && Q_irand(1, 10) <= 5)
-		{
-			idleAnim = BOTH_STAND2IDLE2;
-		}
+		// wtf raven --eez
+		/*if (idleAnim == BOTH_STAND2IDLE1 && Q_irand(1, 10) <= 5)
+ 		{
+ 			idleAnim = BOTH_STAND2IDLE2;
+		}*/
 
 		if ( idleAnim != -1 && /*PM_HasAnimation( ent, idleAnim )*/idleAnim > 0 && idleAnim < MAX_ANIMATIONS )
 		{
@@ -1588,7 +1592,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 
 			//don't idle again after this anim for a while
 			//ent->client->idleTime = level.time + PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_t)idleAnim ) + Q_irand( 0, 2000 );
-			ent->client->idleTime = level.time + ent->client->ps.legsTimer + Q_irand( 0, 2000 );
+			ent->client->idleTime = level.time + ent->client->ps.legsTimer + Q_irand( 0, 5000 );		// changed to 5000 because it seemed like they did this too often --eez
 		}
 	}
 }
@@ -1873,8 +1877,8 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			{
 				switch ( ent->client->ps.fd.saberAnimLevel )
 				{
-				case SS_FAST:
-				case SS_TAVION:
+				case SS_MAKASHI:
+				case SS_JUYO:
 					if ( ent->client->ps.saberHolstered == 1 
 						&& ent->client->saber[1].model 
 						&& ent->client->saber[1].model[0] )
@@ -1888,9 +1892,9 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					ent->client->ps.saberHolstered = 2;
 					anim = BOTH_GESTURE1;
 					break;
-				case SS_MEDIUM:
-				case SS_STRONG:
-				case SS_DESANN:
+				case SS_SHII_CHO:
+				case SS_SORESU:
+				case SS_ATARU:
 					anim = BOTH_ENGAGETAUNT;
 					break;
 				case SS_DUAL:
@@ -2003,15 +2007,15 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 				{
 					switch ( ent->client->ps.fd.saberAnimLevel )
 					{
-					case SS_FAST:
-					case SS_TAVION:
+					case SS_MAKASHI:
+					case SS_JUYO:
 						anim = BOTH_SHOWOFF_FAST;
 						break;
-					case SS_MEDIUM:
+					case SS_SHII_CHO:
 						anim = BOTH_SHOWOFF_MEDIUM;
 						break;
-					case SS_STRONG:
-					case SS_DESANN:
+					case SS_SORESU:
+					case SS_ATARU:
 						anim = BOTH_SHOWOFF_STRONG;
 						break;
 					case SS_DUAL:
@@ -2039,15 +2043,15 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			{
 				switch ( ent->client->ps.fd.saberAnimLevel )
 				{
-				case SS_FAST:
-				case SS_TAVION:
+				case SS_MAKASHI:
+				case SS_JUYO:
 					anim = BOTH_VICTORY_FAST;
 					break;
-				case SS_MEDIUM:
+				case SS_SHII_CHO:
 					anim = BOTH_VICTORY_MEDIUM;
 					break;
-				case SS_STRONG:
-				case SS_DESANN:
+				case SS_SORESU:
+				case SS_ATARU:
 					if ( ent->client->ps.saberHolstered )
 					{//turn on first
 						G_Sound( ent, CHAN_WEAPON, ent->client->saber[0].soundOn );
@@ -2146,6 +2150,23 @@ void G_PM_SwitchWeaponFiringMode(playerState_t *ps, int newweapon, int newvariat
 	ent->client->ps.firingMode = ent->client->firingModes[ BG_GetWeaponIndexFromClass(newweapon, newvariation) ];
 }
 
+// JKG_GroundDistance
+// Determines distance to ground
+// Used in a number of places, including sprint and saber blocking
+float JKG_GroundDistance(playerState_t *ps, vec3_t mins, vec3_t maxs, int contentMask)
+{
+	trace_t tr;
+	vec3_t down;
+
+	VectorCopy(ps->origin, down);
+	down[2] -= 4096;
+
+	trap_Trace(&tr, ps->origin, mins, maxs, down, ps->clientNum, contentMask);
+
+	VectorSubtract(ps->origin, tr.endpos, down);
+	return VectorLength(down);
+}
+
 extern vmCvar_t jkg_deathTimer;
 gentity_t *WP_FireGenericGrenade( gentity_t *ent, qboolean altFire, vec3_t origin, vec3_t dir );
 void ClientThink_real( gentity_t *ent ) {
@@ -2157,6 +2178,7 @@ void ClientThink_real( gentity_t *ent ) {
 	qboolean	isNPC = qfalse;
 	qboolean	controlledByPlayer = qfalse;
 	qboolean	killJetFlags = qtrue;
+	int i;
 
 	client = ent->client;
 	// Store the current entity for G_PM_SwitchWeaponClip
@@ -2198,6 +2220,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	if (!(client->ps.pm_flags & PMF_FOLLOW))
 	{
+		/*
 		if (client->saber[0].model[0] && client->saber[1].model[0])
 		{ //with two sabs always use akimbo style
 			if ( client->ps.saberHolstered == 1 )
@@ -2236,6 +2259,45 @@ void ClientThink_real( gentity_t *ent ) {
 				}
 			}
 		}
+		*/
+
+		// Raven must have been doing acid or something when they wrote this code. Time to do it the right way!
+		int j = 0;
+
+		if(!SaberStances[client->ps.fd.saberAnimLevel].moves[LS_READY].anim)
+		{
+			// fake and gay
+			for(i = client->ps.fd.saberAnimLevel+1; j < MAX_STANCES; j++)
+			{
+				i++;
+				if(i >= MAX_STANCES)
+				{
+					i = 0;
+				}
+				if(SaberStances[i].moves[LS_READY].anim)
+				{
+					client->ps.fd.saberAnimLevel = i;
+					break;
+				}
+			}
+		}
+		// TODO: finish this code
+		if (client->saber[0].model[0] && client->saber[1].model[0])
+		{
+			// Use a duals friendly stance whenever we're using duals, derp.
+			if(!SaberStances[client->ps.fd.saberAnimLevel].isDualsFriendly)
+			{
+				for(i=0; i < MAX_STANCES; i++)
+				{
+					if(SaberStances[i].isDualsFriendly)
+					{
+						client->ps.fd.saberAnimLevel = i;
+					}
+				}
+			}
+		}
+
+		//client->ns.saberMoveSwingSpeed = SaberStances[client->ps.fd.saberAnimLevel].moves[client->ps.saberMove].animspeedscale;
 	}
 
 	// mark the time, so the connection sprite can be removed
@@ -2595,23 +2657,23 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 			*/
 
-			if (ucmd->forwardmove > 64)
-			{
-				ucmd->forwardmove = 64;	
-			}
-			else if (ucmd->forwardmove < -64)
-			{
-				ucmd->forwardmove = -64;
-			}
-			
-			if (ucmd->rightmove > 64)
-			{
-				ucmd->rightmove = 64;
-			}
-			else if ( ucmd->rightmove < -64)
-			{
-				ucmd->rightmove = -64;
-			}
+			if (ucmd->forwardmove > bgConstants.walkingSpeed)
+ 			{
+				ucmd->forwardmove = bgConstants.walkingSpeed;	
+ 			}
+			else if (ucmd->forwardmove < -bgConstants.walkingSpeed)
+ 			{
+				ucmd->forwardmove = -bgConstants.walkingSpeed;
+ 			}
+ 			
+			if (ucmd->rightmove > bgConstants.walkingSpeed)
+ 			{
+				ucmd->rightmove = bgConstants.walkingSpeed;
+ 			}
+			else if ( ucmd->rightmove < -bgConstants.walkingSpeed)
+ 			{
+				ucmd->rightmove = -bgConstants.walkingSpeed;
+ 			}
 
 			//ent->client->ps.speed = ent->client->ps.basespeed = NPC_GetRunSpeed( ent );
 		}
@@ -2795,6 +2857,53 @@ void ClientThink_real( gentity_t *ent ) {
 
 				trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "PLDUELSTOP")) );
 			}
+		}
+	}
+
+	// K, do some saber code stuff here regarding blocks --eez
+	if ( ent->client->ps.weapon == WP_SABER &&
+		!ent->NPC && !BG_SabersOff(&ent->client->ps))								// NPCs don't use this method, they do it on their own terms --eez
+	{
+		if( ent->client->pers.cmd.buttons & BUTTON_IRONSIGHTS &&			// holding sights button
+			(ent->client->ps.groundEntityNum != ENTITYNUM_NONE || JKG_GroundDistance(&ent->client->ps, ent->r.mins, ent->r.maxs, MASK_SOLID) > 4.0f)&&		// not in air
+			//ent->client->ps.forceAllowDeactivateTime > level.time &&	// not using a force power
+			(  ent->client->ps.torsoTimer <= 0 || ent->client->saberBlockDebounce >= level.time || // NOT ATTACKING (swingblocks not permitted, period)
+			(ent->client->ps.saberMove >= LS_R_TL2BR && ent->client->ps.saberMove <= LS_R_T2B &&
+			ent->client->ps.torsoTimer < 400) ))														// OR, we're returning from an attack (slight delay)
+		{
+			if( !(ent->client->ps.saberActionFlags & (1 << SAF_BLOCKING)) )
+			{
+				ent->client->ps.saberActionFlags |= (1 << SAF_BLOCKING);				// Marks the client for being in manual block mode.
+				ent->client->saberBlockTime = level.time;				// Manual blocking at appropriate times will reduce the force drop from blaster bolts.
+			}
+
+			if( ent->client->pers.cmd.buttons & BUTTON_ATTACK )
+			{
+				if( !(ent->client->ps.saberActionFlags & ( 1 << SAF_PROJBLOCKING ) ) )
+				{
+					ent->client->ps.saberActionFlags |= ( 1 << SAF_PROJBLOCKING );
+					ent->client->saberProjBlockTime = level.time;
+					
+				}
+				//ent->client->ps.saberMove = LS_REFLECT_UP;
+				ent->client->pers.cmd.buttons &= ~BUTTON_ATTACK;
+			}
+			else
+			{
+				ent->client->ps.saberActionFlags &= ~( 1 << SAF_PROJBLOCKING );
+			}
+		}
+		else if ( ent->client->ps.weaponTime >= 0 && ent->client->ps.saberActionFlags & (1 << SAF_BLOCKING) && 
+			ent->client->pers.cmd.buttons & BUTTON_IRONSIGHTS &&
+			ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
+		{
+			// FIXME
+		}
+		else
+		{
+			ent->client->ps.saberActionFlags &= ~(1 << SAF_BLOCKING);
+			ent->client->ps.saberActionFlags &= ~( 1 << SAF_PROJBLOCKING );
+			ent->client->blockingLightningAccumulation = 0;
 		}
 	}
 
@@ -3245,6 +3354,7 @@ void ClientThink_real( gentity_t *ent ) {
 					}
 					else
 					{//normal attack
+						/*
 						switch ( ent->client->ps.fd.saberAnimLevel )
 						{
 						case SS_FAST:
@@ -3261,6 +3371,8 @@ void ClientThink_real( gentity_t *ent ) {
 							lockHits = 3;
 							break;
 						}
+						*/
+						lockHits = 1;
 					}
 					if ( ent->client->ps.fd.forceRageRecoveryTime > level.time 
 						&& Q_irand( 0, 1 ) )
@@ -3405,7 +3517,7 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->grenadeCookTime = 0;
 	}
 	
-	if ( BG_IsSprinting (&ent->client->ps, &pm.cmd, &ent->client->ns) )
+	if ( BG_IsSprinting (&ent->client->ps, &pm.cmd, &ent->client->ns, qfalse) )
 	{
 	    ent->client->ps.eFlags |= EF_SPRINTING;
     }
@@ -3696,10 +3808,12 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qfalse );
+		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x ); // UQ1: Shouldn't this be here too????
 		//rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 	}
 	else {
 		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qfalse );
+		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x );
 	}
 
 	if (isNPC)
@@ -3787,7 +3901,10 @@ void ClientThink_real( gentity_t *ent ) {
 
 				VectorScale( oppDir, -1, oppDir );
 
-				G_Damage( faceKicked, ent, ent, oppDir, client->ps.origin, strength, DAMAGE_NO_ARMOR, MOD_MELEE );
+				if( !(faceKicked->client->ps.saberActionFlags & ( 1 << SAF_BLOCKING ) ) )
+				{// Don't damage them, that way they don't spam
+					G_Damage( faceKicked, ent, ent, oppDir, client->ps.origin, strength, DAMAGE_NO_ARMOR, MOD_MELEE );
+				}
 
 				if ( faceKicked->client->ps.weapon != WP_SABER ||
 					 faceKicked->client->ps.fd.saberAnimLevel != FORCE_LEVEL_3 ||
@@ -3797,7 +3914,8 @@ void ClientThink_real( gentity_t *ent ) {
 						faceKicked->client->ps.stats[STAT_HEALTH] > 0 &&
 						faceKicked->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN)
 					{
-						if (BG_KnockDownable(&faceKicked->client->ps) && Q_irand(1, 10) <= 3)
+						if (BG_KnockDownable(&faceKicked->client->ps) && Q_irand(1, 10) <= 3 &&
+							!(faceKicked->client->ps.saberActionFlags & ( 1 << SAF_BLOCKING )))
 						{ //only actually knock over sometimes, but always do velocity hit
 							faceKicked->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
 							faceKicked->client->ps.forceHandExtendTime = level.time + 1100;
@@ -4199,10 +4317,12 @@ void ClientEndFrame( gentity_t *ent ) {
 	// set the latest infor
 	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qfalse );
+		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x ); // UQ1: Shouldn't this be here too???
 		//rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 	}
 	else {
 		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qfalse );
+		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x );
 	}
 
 	if (isNPC)

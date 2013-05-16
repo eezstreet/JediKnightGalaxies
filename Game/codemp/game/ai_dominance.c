@@ -4438,19 +4438,49 @@ void DOM_BotBehave_AttackBasic(bot_state_t *bs, gentity_t* target)
 		return;
 	}
 
-	/*
-	if ( bs->cur_ps.weapon == WP_SABER )
-	{//magical saber stuff
-		//RACC - cheap ass stance change code
-		if(g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_STAFF
-			&& g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_DUAL
-			&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > 1
-			&& g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_MEDIUM)
-		{//switch to the medium stance if you're not at it.
-			Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
-		}
-	}
-	*/
+	//Stoiss add, Stance swift for npcs with a saber, --- eez's saber style change code.
+	if (bs->saberPowerTime < level.time)
+			{ //Don't just use strong attacks constantly, switch around a bit
+				if (Q_irand(1, 10) <= 5)
+				{
+					bs->saberPower = qtrue;
+				}
+				else
+				{
+					bs->saberPower = qfalse;
+				}
+
+				bs->saberPowerTime = level.time + Q_irand(3000, 15000);
+			}
+
+			if ( g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_STAFF
+				&& g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_DUAL )
+			{
+				if (bs->currentEnemy->health > 75 
+					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > 2)
+				{
+					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_SORESU 
+						&& bs->saberPower)
+					{ //if we are up against someone with a lot of health and we have a strong attack available, then h4q them
+						Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
+					}
+				}
+				else if (bs->currentEnemy->health > 40 
+					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > 1)
+				{
+					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_SHII_CHO)
+					{ //they're down on health a little, use level 2 if we can
+						Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
+					}
+				}
+				else
+				{
+					if (g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_MAKASHI)
+					{ //they've gone below 40 health, go at them with quick attacks
+						Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
+					}
+				}
+			}
 
 #ifndef __MMO__
 	if (bs->virtualWeapon == WP_SABER)

@@ -9,8 +9,6 @@
 // $Id: jkg_navmesh_creator.cpp 389 2011-07-21 01:03:36Z Didz $
 //=========================================================*/
 
-#ifdef __UNUSED__
-
 #include <math.h>
 #include <DetourNavMeshBuilder.h>
 #include <Recast.h>
@@ -894,4 +892,3 @@ static void JKG_Nav_Visualize ( void )
     }
 }
 #endif
-#endif //__UNUSED__

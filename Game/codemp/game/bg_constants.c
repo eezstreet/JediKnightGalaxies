@@ -13,6 +13,19 @@ static void DefineBaselineConstants(void)
 	bgConstants.baseJumpTapHeight = 32;
 	bgConstants.baseJumpVelocity = 225;
 	bgConstants.baseJumpTapVelocity = 225;
+	//Stoiss add, missing code from saber merge 
+	bgConstants.walkingSpeed = 64.0f;
+	bgConstants.ironsightsMoveSpeed = 64.0f;
+	bgConstants.blockingModeMoveSpeed = 64.0f;
+
+	bgConstants.backwardsSpeedModifier = -0.45f;
+	bgConstants.strafeSpeedModifier = -0.25f;
+	bgConstants.backwardsDiagonalSpeedModifier = 0.21;
+	bgConstants.baseSpeedModifier = -0.1f;
+	bgConstants.walkSpeedModifier = -0.2f;
+	bgConstants.minimumSpeedModifier = 0.5f;
+	bgConstants.sprintSpeedModifier = 1.3f;
+	//Stoiss end
 }
 
 static void ParseConstantsFile ( const char *fileText )
@@ -28,6 +41,8 @@ static void ParseConstantsFile ( const char *fileText )
     {
         Com_Printf (S_COLOR_RED "Error: %s\n", jsonError);
     }
+	// Well, that's strange. It all loaded fine. Let's break all for a minute, and then check the values again.
+	// Hm. All seems fine now. Let's go ingame. I need to unpause the game first.
     else
     {
 		jsonNode = cJSON_GetObjectItem (json, "baseJumpHeight");
@@ -44,6 +59,38 @@ static void ParseConstantsFile ( const char *fileText )
 
 		jsonNode = cJSON_GetObjectItem (json, "baseJumpTapVelocity");
 		bgConstants.baseJumpTapVelocity = cJSON_ToNumber(jsonNode);
+		//Stoiss add missing merge code from saber code
+		jsonNode = cJSON_GetObjectItem (json, "walkingSpeed");
+		bgConstants.walkingSpeed = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "ironsightsMoveSpeed");
+		bgConstants.ironsightsMoveSpeed = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "blockingModeMoveSpeed");
+		bgConstants.blockingModeMoveSpeed = cJSON_ToNumber(jsonNode);
+
+
+		jsonNode = cJSON_GetObjectItem (json, "backwardsSpeedModifier");
+		bgConstants.backwardsSpeedModifier = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "strafeSpeedModifier");
+		bgConstants.strafeSpeedModifier = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "backwardsDiagonalSpeedModifier");
+		bgConstants.backwardsDiagonalSpeedModifier = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "baseSpeedModifier");
+		bgConstants.baseSpeedModifier = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "walkSpeedModifier");
+		bgConstants.walkSpeedModifier = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "minimumSpeedModifier");
+		bgConstants.minimumSpeedModifier = cJSON_ToNumber(jsonNode);
+
+		jsonNode = cJSON_GetObjectItem (json, "sprintSpeedModifier");
+		bgConstants.sprintSpeedModifier = cJSON_ToNumber(jsonNode);
+		//Stoiss end
     }
     
     cJSON_Delete (json);

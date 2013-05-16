@@ -4119,7 +4119,7 @@ void SP_emplaced_gun( gentity_t *ent )
 
 			qboolean bIsCrouching	= ent->client->ps.pm_flags & PMF_DUCKED;
 			qboolean bIsMoving		= ( ent->client->pers.cmd.forwardmove || ent->client->pers.cmd.rightmove || ent->client->pers.cmd.upmove > 0 );
-			qboolean bIsWalking		= (ent->client->pers.cmd.buttons & BUTTON_WALKING) && !BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, &ent->client->ns);
+			qboolean bIsWalking		= (ent->client->pers.cmd.buttons & BUTTON_WALKING) && !BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, &ent->client->ns, qfalse);
 			qboolean bInIronsights  = (ent->client->pers.cmd.buttons & BUTTON_IRONSIGHTS);
 
 			/* Client is in air, might be using a jetpack or something, add some slop! */

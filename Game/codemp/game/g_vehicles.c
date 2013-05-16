@@ -71,7 +71,7 @@ extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t push
 
 #ifdef _JK2MP
 #include "../namespace_begin.h"
-extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void BG_SetAnim(playerState_t *ps, networkState_t *ns, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
 extern void BG_SetLegsAnimTimer(playerState_t *ps, int time );
 extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
 #include "../namespace_end.h"
@@ -90,7 +90,7 @@ void Vehicle_SetAnim(gentity_t *ent,int setAnimParts,int anim,int setAnimFlags, 
 {
 #ifdef _JK2MP
 	assert(ent->client);
-	BG_SetAnim(&ent->client->ps, bgAllAnims[ent->localAnimIndex].anims, setAnimParts, anim, setAnimFlags, iBlend);
+	BG_SetAnim(&ent->client->ps, &ent->client->ns, bgAllAnims[ent->localAnimIndex].anims, setAnimParts, anim, setAnimFlags, iBlend);
 	ent->s.legsAnim = ent->client->ps.legsAnim;
 #else
 	NPC_SetAnim(ent, setAnimParts, anim, setAnimFlags, iBlend);
@@ -1748,6 +1748,7 @@ bool Initialize( Vehicle_t *pVeh )
 #ifdef _JK2MP
 		pVeh->m_ulFlags |= VEH_GEARSOPEN;
 		BG_SetAnim(pVeh->m_pParentEntity->playerState, 
+			NULL,
 			bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims,
 			SETANIM_BOTH, BOTH_VS_IDLE, iFlags, iBlend);
 #else

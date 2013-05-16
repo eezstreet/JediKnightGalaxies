@@ -715,6 +715,16 @@ struct statData_s
 	int			weight;
 };
 
+//Stoiss add
+typedef struct 
+{
+	int EntityNum;
+	int Debounce;
+	int SaberNum;
+	int BladeNum;
+}  sabimpact_t;
+//Stois end
+
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
 struct gclient_s {
@@ -933,6 +943,15 @@ struct gclient_s {
 	int			lastGenCmd;
 	int			lastGenCmdTime;
 
+	//Stoiss add
+	//the SaberNum of the last enemy blade that you hit.
+	int			lastSaberCollided;
+	//the BladeNum of the last enemy blade that you hit.
+	int			lastBladeCollided;
+
+	sabimpact_t	sabimpact[MAX_SABERS][MAX_BLADES];
+	//Stoiss end
+
 	// Jedi Knight Galaxies
 	int			IDCode;
 	int			InCinematic;
@@ -967,11 +986,23 @@ struct gclient_s {
 	unsigned int storedCredits;				// hack a doodle doo to prevent the credits from spectators from carrying over to people that join
 	unsigned int saberStanceDebounce;		// prevent people from spamming style change and causing issues
 
+	int				saberBPDebRecharge;
+	unsigned int	saberProjBlockTime;
+	unsigned int	saberBlockTime;
+
+	// all of the below was migrated from the playerState. None of it belonged there. --eez
+	int saberBlockDebounce;
+	int saberAttackWound;
+	int saberIdleWound;
+	int saberAttackSequence;				// FIXME: not used? --eez
+	int saberSaberBlockDebounce;
+
 #ifndef __MMO__
 	unsigned int numKillsThisLife;			// Killstreaks!
 #endif
 
 	char		botSoundDir[MAX_QPATH];
+	float		blockingLightningAccumulation;//Stoiss add
 };
 
 //Interest points
@@ -1203,7 +1234,7 @@ typedef struct {
 	int			num_spawnpoints;
 } flag_list_t;
 
-flag_list_t flag_list[1024];
+extern flag_list_t flag_list[1024]; 
 
 extern int bluetickets;
 extern int redtickets;

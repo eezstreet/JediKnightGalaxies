@@ -718,12 +718,12 @@ int BG_InGrappleMove(int anim)
 	return 0;
 }
 
-int BG_BrokenParryForAttack( int move )
+int BG_BrokenParryForAttack( int move, int stance )
 {
 	//Our attack was knocked away by a knockaway parry
 	//FIXME: need actual anims for this
 	//FIXME: need to know which side of the saber was hit!  For now, we presume the saber gets knocked away from the center
-	switch ( saberMoveData[move].startQuad )
+	switch ( SaberStances[stance].moves[move].startingQuadrant )
 	{
 	case Q_B:
 		return LS_V1_B_;
@@ -1112,9 +1112,9 @@ qboolean BG_StabDownAnim( int anim )
 	return qfalse;
 }
 
-int PM_SaberBounceForAttack( int move )
+int PM_SaberBounceForAttack( int stance, int move )
 {
-	switch ( saberMoveData[move].startQuad )
+	switch ( SaberStances[stance].moves[move].startingQuadrant )
 	{
 	case Q_B:
 	case Q_BR:
@@ -1773,9 +1773,7 @@ int PM_AnimLength( int index, animNumber_t anim )
 	}
 	if ( anim < 0 )
 	{
-		//Com_Error(ERR_DROP,"ERROR: anim %d < 0\n", anim );
-		Com_Printf("ERROR: anim %d < 0 - ignored.\n", anim ); // UQ1: I see no reason to crash the game over this... Report it and return 0...
-		return 0;
+		Com_Error(ERR_DROP,"ERROR: anim %d < 0\n", anim );
 	}
 	return pm->animations[anim].numFrames * fabs((float)(pm->animations[anim].frameLerp));
 }
@@ -2931,7 +2929,7 @@ void PM_SetTorsoAnimTimer(int time )
 	BG_SetTorsoAnimTimer(pm->ps, time);
 }
 
-void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken )
+void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken, float saberMoveSwingSpeed, float saberSwingSpeed, int saberMove )
 {
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_ROLL_STAB )
 	{
@@ -2988,6 +2986,14 @@ void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int 
 			*animSpeed *= 0.65f;
 		}
 	}
+
+	if( (saberMove >= LS_A_TL2BR &&
+		saberMove <= LS_A_T2B) ||
+		(saberMove >= LS_S_TL2BR &&
+		saberMove <= LS_T1_BL__L) )
+	{
+		*animSpeed *= saberSwingSpeed;
+	}
 }
 
 void JKG_ReloadAnimation( int firingMode, int weaponID, int anim, animation_t *anims, float *animSpeed )
@@ -3004,7 +3010,7 @@ PM_SetAnimFinal
 qboolean PM_RunningAnim( int anim );
 qboolean PM_WalkingAnim( int anim );
 
-void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
+void BG_SetAnimFinal(playerState_t *ps, networkState_t *ns, animation_t *animations,
 					 int setAnimParts,int anim,int setAnimFlags,
 					 int blendTime)		// default blendTime=350
 {
@@ -3015,23 +3021,21 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 		return;
 	}
 
-	//assert(anim > -1);
-	if (!(anim > -1))
-	{
-		Com_Printf("ERROR: (BG_SetAnimFinal) anim %d < 0 - ignored.\n", anim ); // UQ1: I see no reason to crash the game over this... Report it and return 0...
-		return;
-	}
-
+	assert(anim > -1);
 	assert(animations[anim].firstFrame > 0 || animations[anim].numFrames > 0);
 
 	//NOTE: Setting blendTime here breaks actual blending..
 	blendTime = 0;
 
-	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs);
-
-	if(ps->weaponstate == WEAPON_RELOADING)
+	if(ns)
 	{
-		JKG_ReloadAnimation(ps->firingMode, ps->weaponId, anim, animations, &editAnimSpeed);
+		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs, 
+			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ns->saberSwingSpeed, ps->saberMove);
+	}
+	else
+	{
+		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs, SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale,
+			1.0f, ps->saberMove);
 	}
 
 	// Set torso anim
@@ -3059,6 +3063,16 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 				//Yeah, I don't think this was working correctly before
 				//int dur;
 				//int speedDif;
+				if((ps->saberMove >= LS_A_TL2BR &&
+					ps->saberMove < LS_A_BACKSTAB) ||
+					(ps->saberMove >= LS_S_TL2BR &&
+					ps->saberMove <= LS_T1_BL__L))
+					{
+						// todo: see if i can fix this
+					}
+
+				// 
+
 				if( editAnimSpeed > 0 )
 				{
 					if(animations[anim].numFrames < 2)
@@ -3191,7 +3205,7 @@ setAnimDone:
 void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 					 int blendTime)		// default blendTime=350
 {
-	BG_SetAnimFinal(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
+	BG_SetAnimFinal(pm->ps, pm->ns, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
 
 
@@ -3243,7 +3257,7 @@ int BG_PickAnim( int animIndex, int minAnim, int maxAnim )
 //of a pmove too so I have ported it to true BGishness.
 //Please do not reference pm in this function or any functions that it calls,
 //or I will cry. -rww
-void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime)
+void BG_SetAnim(playerState_t *ps, networkState_t *ns, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime)
 {
 	if (!animations)
 	{
@@ -3298,12 +3312,12 @@ void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int
 		}
 	}
 
-	BG_SetAnimFinal(ps, animations, setAnimParts, anim, setAnimFlags, blendTime);
+	BG_SetAnimFinal(ps, ns, animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
 
 void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags, int blendTime)
 {	
-	BG_SetAnim(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
+	BG_SetAnim(pm->ps, pm->ns, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
 
 //[BugFix2]
@@ -3313,19 +3327,25 @@ void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags, int blendTime)
 
 //Get the point in the animation and return a percentage of the current point in the anim between 0 and the total anim length (0.0f - 1.0f)
 //This function assumes that your animation timer is set to the exact length of the animation
-float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex)
+float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns)
 {
 	float attackAnimLength = 0;
 	float currentPoint = 0;
 	float animSpeedFactor = 1.0f;
 	float animPercentage = 0;
 
-	//Be sure to scale by the proper anim speed just as if we were going to play the animation
-	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->torsoAnim, &animSpeedFactor, ps->brokenLimbs);
+	//animSpeedFactor *= ns->saberSwingSpeed;
 
-	if( ps->weaponstate == WEAPON_RELOADING )
+	//Be sure to scale by the proper anim speed just as if we were going to play the animation
+	if(ns)
 	{
-		JKG_ReloadAnimation(ps->firingMode, ps->weaponId, ps->torsoAnim, bgAllAnims[AnimIndex].anims, &animSpeedFactor);
+		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->torsoAnim, &animSpeedFactor, ps->brokenLimbs, 
+			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ns->saberSwingSpeed, ps->saberMove);
+	}
+	else
+	{
+		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->torsoAnim, &animSpeedFactor, ps->brokenLimbs, 
+			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, 1.0f, ps->saberMove);
 	}
 
 	if( animSpeedFactor > 0 )
@@ -3357,7 +3377,7 @@ float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex)
 }
 
 
-float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex)
+float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns)
 {
 	float attackAnimLength = 0;
 	float currentPoint = 0;
@@ -3365,11 +3385,15 @@ float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex)
 	float animPercentage = 0;
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
-	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->legsAnim, &animSpeedFactor, ps->brokenLimbs);
-
-	if( ps->weaponstate == WEAPON_RELOADING )
+	if(ns)
 	{
-		JKG_ReloadAnimation(ps->firingMode, ps->weaponId, ps->torsoAnim, bgAllAnims[AnimIndex].anims, &animSpeedFactor);
+		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->legsAnim, &animSpeedFactor, ps->brokenLimbs, 
+			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ns->saberSwingSpeed, ps->saberMove);
+	}
+	else
+	{
+		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->legsAnim, &animSpeedFactor, ps->brokenLimbs, 
+			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, 1.0f, ps->saberMove);
 	}
 
 	if( animSpeedFactor > 0 )

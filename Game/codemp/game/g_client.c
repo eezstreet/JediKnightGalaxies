@@ -391,9 +391,9 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		other->client->ps.stats[STAT_HEALTH] = other->health = 200;
 	}
 
-	if (other->client->ps.fd.forcePower < 100)
+	if (other->client->ns.forcePower < 100)
 	{
-		other->client->ps.fd.forcePower = 100;
+		other->client->ns.forcePower = 100;
 	}
 
 	while (i < NUM_FORCE_POWERS)
@@ -2664,10 +2664,10 @@ void G_BreakArm(gentity_t *ent, int arm)
 		return;
 	}
 
-	if (ent->client->ps.fd.saberAnimLevel == SS_STAFF)
-	{ //I'm too lazy to deal with this as well for now.
-		return;
-	}
+	//if (ent->client->ps.fd.saberAnimLevel == SS_STAFF)
+	//{ //I'm too lazy to deal with this as well for now.
+	//	return;
+	//}
 
 	if (arm == BROKENLIMB_LARM)
 	{
@@ -2808,7 +2808,9 @@ tryTorso:
 
 		f = torsoAnim;
 
-		BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, f, &animSpeedScale, self->client->ps.brokenLimbs);
+		BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, f, &animSpeedScale,
+			self->client->ps.brokenLimbs, SaberStances[self->client->ps.fd.saberAnimLevel].moves[self->client->ps.saberMove].animspeedscale, 
+			self->client->ns.saberSwingSpeed, self->client->ps.saberMove);
 
 		if( self->client->ps.weaponstate == WEAPON_RELOADING )
 		{
@@ -3109,34 +3111,62 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 		if (ent->client->saber[0].model[0] &&
 			ent->client->saber[1].model[0])
 		{ //dual
-			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_DUAL;
+			//ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_DUAL;
+			int iterator = 0;
+			for(; iterator < MAX_STANCES; iterator++)
+			{
+				// Find the first stance that's duals-only
+				if( SaberStances[ iterator ].isDualsOnly )
+				{
+					ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = iterator;
+					break;
+				}
+			}
 		}
 		else if ((ent->client->saber[0].saberFlags&SFL_TWO_HANDED))
 		{ //staff
-			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_STAFF;
+			//ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_STAFF;
+			int iterator = 0;
+			for(; iterator < MAX_STANCES; iterator++)
+			{
+				// Find the first stance that's duals-only
+				if( SaberStances[ iterator ].isStaffOnly )
+				{
+					ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = iterator;
+					break;
+				}
+			}
 		}
 		else
 		{
-			if (ent->client->sess.saberLevel < SS_FAST)
+			if (ent->client->sess.saberLevel < 0)
 			{
-				ent->client->sess.saberLevel = SS_FAST;
+				ent->client->sess.saberLevel = 0;
 			}
-			else if (ent->client->sess.saberLevel > SS_STRONG)
+			/*else if (ent->client->sess.saberLevel > SS_SORESU)
 			{
-				ent->client->sess.saberLevel = SS_STRONG;
+				ent->client->sess.saberLevel = SS_SORESU;
+			}*/
+			else if( !SaberStances[ent->client->ps.fd.saberAnimLevel].moves[LS_READY].anim )
+			{
+				ent->client->sess.saberLevel = 0;
 			}
 			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
-			if (ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
+			if (g_gametype.integer != GT_SIEGE &&
+				ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 			{
 				ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
 			}
 		}
-		//let's just make sure the styles we chose are cool
-		if ( !WP_SaberStyleValidForSaber( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, ent->client->ps.fd.saberAnimLevel ) )
+		if ( g_gametype.integer != GT_SIEGE )
 		{
-			WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &ent->client->ps.fd.saberAnimLevel );
-			ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
+			//let's just make sure the styles we chose are cool
+			if ( !WP_SaberStyleValidForSaber( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, ent->client->ps.fd.saberAnimLevel ) )
+			{
+				WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &ent->client->ps.fd.saberAnimLevel );
+				ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
+			}
 		}
 	}
 	l = 0;
@@ -3147,26 +3177,34 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 		client->ps.fd.forceDoInit = 0;
 	}
 
-	if (ent->client->ps.fd.saberAnimLevel != SS_STAFF &&
-		ent->client->ps.fd.saberAnimLevel != SS_DUAL &&
+	if (!SaberStances[ent->client->ps.fd.saberAnimLevel].isDualsOnly &&
+		!SaberStances[ent->client->ps.fd.saberAnimLevel].isStaffOnly &&
 		ent->client->ps.fd.saberAnimLevel == ent->client->ps.fd.saberDrawAnimLevel &&
 		ent->client->ps.fd.saberAnimLevel == ent->client->sess.saberLevel)
 	{
-		if (ent->client->sess.saberLevel < SS_FAST)
+		if (ent->client->sess.saberLevel < 0)
 		{
-			ent->client->sess.saberLevel = SS_FAST;
+			ent->client->sess.saberLevel = 0;
 		}
-		else if (ent->client->sess.saberLevel > SS_STRONG)
+		/*else if (ent->client->sess.saberLevel > SS_SORESU)
 		{
-			ent->client->sess.saberLevel = SS_STRONG;
+			ent->client->sess.saberLevel = SS_SORESU;
+		}*/
+		if (!SaberStances[ent->client->ps.fd.saberAnimLevel].moves[LS_READY].anim)
+		{
+			ent->client->sess.saberLevel = 0;
 		}
 		ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
-		if (ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
+		if (g_gametype.integer != GT_SIEGE &&
+			ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 		{
 			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
 		}
 	}
+
+	// UQ1: Record their teamowner as well... For NPCs and WarZone to use...
+	ent->s.teamowner = client->sess.sessionTeam;
 	
 	// find a spawn point
 	// do it before setting health back up, so farthest
@@ -3333,6 +3371,9 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	//spawn with 100
 	client->ps.jetpackFuel = 100;
 	client->ps.cloakFuel = 100;
+
+	// start out with full block points --eez
+	client->ns.blockPoints = 100;
 
 	client->pers = saved;
 	client->sess = savedSess;
@@ -3813,6 +3854,7 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	// positively link the client, even if the command times are weird
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+		BG_NetworkStateToExtraState( &client->ns, &ent->x );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		trap_LinkEntity( ent );
 	}
@@ -3872,6 +3914,7 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+	BG_NetworkStateToExtraState( &client->ns, &ent->x );
 
 	//rww - make sure client has a valid icarus instance
 	trap_ICARUS_FreeEnt( ent );

@@ -2240,6 +2240,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		return;
 	}
 
+	if (self->s.eType == ET_PLAYER && self->s.clientNum > MAX_CLIENTS)
+		return; // UQ1: Secondary entity???
+
 	//check player stuff
 	g_dontFrickinCheck = qfalse;
 
@@ -4789,7 +4792,7 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 	}
 
 	//eezstreet add - Defense n Armor
-	if( ent->client && ent->s.eType != ET_NPC && !(ent->r.svFlags & SVF_BOT) && hitLoc != HL_NONE )
+	if( ent->client && ent->inventory && ent->s.eType != ET_NPC && !(ent->r.svFlags & SVF_BOT) && hitLoc != HL_NONE )
 	{ //Valid player
 		int armorItem = ent->client->armorItems[armorSlot];
 		itemInstance_t *item = &ent->inventory->items[armorItem];
@@ -5846,7 +5849,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	{//protect overridden by no_protection
 		if (take && targ->client && (targ->client->ps.fd.forcePowersActive & (1 << FP_PROTECT)))
 		{
-			if (targ->client->ps.fd.forcePower)
+			if (targ->client->ns.forcePower)
 			{
 				int maxtake = take;
 
@@ -5890,17 +5893,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 				if (!targ->client->ps.powerups[PW_FORCE_BOON])
 				{
-					targ->client->ps.fd.forcePower -= maxtake*famt;
+					targ->client->ns.forcePower -= maxtake*famt;
 				}
 				else
 				{
-					targ->client->ps.fd.forcePower -= (maxtake*famt)/2;
+					targ->client->ns.forcePower -= maxtake*famt/2;
 				}
 				subamt = (maxtake*hamt)+(take-maxtake);
-				if (targ->client->ps.fd.forcePower < 0)
+				if (targ->client->ns.forcePower < 0)
 				{
-					subamt += targ->client->ps.fd.forcePower;
-					targ->client->ps.fd.forcePower = 0;
+					subamt += targ->client->ns.forcePower;
+					targ->client->ns.forcePower = 0;
 				}
 				if (subamt)
 				{
@@ -6420,3 +6423,18 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 
 	return hitClient;
 }
+
+//Stoiss/Scooper add
+void G_DelayedDisintegrate( gentity_t *ent )
+{
+	// Disintgrate the player	
+	VectorClear( ent->client->ps.lastHitLoc );
+	VectorClear( ent->client->ps.velocity );
+
+	ent->client->ps.eFlags	|= EF_DISINTEGRATION;
+	ent->r.contents = 0;
+
+	ent->think = G_FreeEntity;
+	ent->nextthink = level.time;
+}
+//Stoiss/Scooper end

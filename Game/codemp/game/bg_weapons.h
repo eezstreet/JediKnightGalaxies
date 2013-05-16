@@ -398,7 +398,7 @@ typedef struct
 	
 	float           speedModifier;          // Modifier to apply to player's speed when weapon in use. 1.0f for default speed.
 	float           reloadModifier;         // Modifier to apply to player's speed when reloading. 1.0f for no change.
-	                                        // The modifier is applied to the player's speed after the speed has been modified.
+
 
 	weaponAnimationReplacements_t anims;
 
@@ -497,4 +497,129 @@ typedef struct
 	qboolean isString;
 	int byteCount;
 } weaponDataGrab_t;
+
+//======================================
+// Here be sabers
+//======================================
+
+typedef struct
+{
+	unsigned short crystalID;
+	vec3_t vRGB;					// glow RGB
+	vec3_t bRGB;					// blade RGB
+	char crystalName[64];			// can be referenced via files
+	char bladeEffect[64];			// "none" for defaults
+	char trailEffect[64];			// "none" for defaults
+	char glowEffect[64];			// "none" for defaults
+} saberCrystalData_t;
+
+#define MAX_SABER_CRYSTALS	64
+#define MAX_CRYSTAL_FILE_SIZE (16834) // 16kb
+
+extern saberCrystalData_t saberCrystalsLookup[MAX_SABER_CRYSTALS];
+
+void JKG_InitializeSaberCrystalData( void );
+const saberCrystalData_t *JKG_GetSaberCrystal( const char *crystalName );
+
+typedef struct
+{
+	char baseName[64];						// Not sure how base uses these. just replicate them to be on the safe side --eez
+
+	int FPdrain;						// drain this much FP on using this move
+
+	int chainIdle;						// What move to call if the attack button is not pressed at the end of this anim
+	int chainAttack;					// What move to call if the attack button (and nothing else) is pressed
+
+	int startingQuadrant;				// starts at this quadrant
+	int endQuadrant;					// and ends at this one
+	
+	int blockType;						// BLK_NO, BLK_TIGHT, BLK_WIDE
+
+	int trailLen;						// trail length in move. unknown unit of measure
+
+	int blendTime;						// blend time for the animation
+	int setanimflag;					// set anim flag		
+	int anim;							// use this anim
+	float animspeedscale;				// alters the speed of this move
+} saberMoveExternal_t;
+
+typedef struct
+{
+	qboolean allowBackStab;
+	qboolean allowBackAttack;
+	qboolean allowCrouchedBackAttack;
+	qboolean allowRollStab;
+	qboolean allowLunge; // aka "blue DFA"
+	qboolean allowLeapAttack; // aka "red DFA"
+	qboolean allowFlipStab;	// unused in MP
+	qboolean allowFlipSlash; // aka "yellow DFA" 
+	qboolean allowButterfly;
+	qboolean allowCartwheel;
+	qboolean allowBackflipAttack; // unused in MP
+	qboolean allowDualSpinAttack;	// i think this is Dual Kata, but unsure --eez
+	qboolean allowSpeedLunge;
+	qboolean allowStabDown;
+	qboolean allowSpinAttack;	// possibly unused
+	qboolean allowSoulCal; // was staff kata, but could be reusued
+	qboolean allowBlueKata; // different controls?
+	qboolean allowYellowKata;
+	qboolean allowRedKata;
+	qboolean allowUpsideDown; // unused in MP
+	qboolean allowPullStab; // unused in MP
+	qboolean allowPullSlash; // unused in MP
+	qboolean allowAloraSpin; // unused in MP
+	qboolean allowDualFrontBack;
+	qboolean allowDualSides;
+	qboolean allowHiltBash; // unused in MP
+} saberSpecial_t;
+
+typedef struct
+{
+	// Moves
+	saberMoveExternal_t moves[162];		// FIXME: INCORRECT MAX!! this should be LS_MOVE_MAX but this file doesn't have access to that enum
+	saberSpecial_t specialMoves;
+	int chainStyle;						// 0 = chain like blue, 1 = chain like red
+	int maxChainCount;					// maximum number of moves in a chain
+	float attackSpeedModifier;			// Modify movement speed while running with each attack by this amount
+	float transitionSpeedModifier;		// Modify movement speed while running while in a transition by this amount
+	float attackBackSpeedModifier;		// same as attackSpeedModifier, but when running backwards
+	int baseDamageDefault;
+	int baseDamageMin;
+	int baseDamageMax;
+	int BPdrain;						// how much to drain BP (based on NUMBER of PLANES)
+
+
+	int defensePenetration;				// higher numbers for faster stances.
+										// baseJA values:
+										// Blue - 24
+										// Yellow - 16
+										// Red - 8
+										// All others - 16 (this is why duals are so OP)
+	int defense;						// Base defense level
+
+	// Basic data
+	char saberName_technical[64];			// "Makashi", "Soresu", "Ataru" et al
+	char saberName_simple[64];				// "Fast", "Medium", "Strong" et al
+
+	int offensiveStanceAnim;			// anim while standing still
+	int projectileBlockAnim;			// use this anim in projectile block mode
+
+	// Accessiblity
+	qboolean isStaffFriendly;			// can be used with staffs and single?
+	qboolean isDualsFriendly;			// can be used with duals and single?
+	qboolean isStaffOnly;				// Staff only? (no use in singles period)
+	qboolean isDualsOnly;				// Duals only? (no use in singles period)
+	qboolean sabSpecific;				// only allowed for use in specific vibroblade weapons (unused as of 12/7/12)
+
+	// Saber throw
+	float saberThrowSpeed;
+	float saberThrowPitch;
+	float saberThrowYaw;
+	float saberThrowRoll;
+	char saberThrowSound[MAX_QPATH];
+} saberStanceExternal_t;
+
+extern saberStanceExternal_t SaberStances[MAX_STANCES];
+void JKG_InitializeStanceData( void );
 #endif
+

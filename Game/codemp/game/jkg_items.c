@@ -886,7 +886,7 @@ void JKG_CreateNewVendor(gentity_t *ent, int desiredVendorID, qboolean random, q
 	ent->flags |= FL_GODMODE;
 	ent->flags |= FL_NOTARGET;
 	ent->flags |= FL_NO_KNOCKBACK;
-
+	//FIXME: Getting a Error in this swift, npc files need a scripts on its own. --Stoiss
 	switch (ent->client->NPC_class)
 	{// UQ1: Need to change these in the actual NPC script files...
 	case CLASS_GENERAL_VENDOR:
