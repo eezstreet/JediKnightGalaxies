@@ -98,8 +98,18 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
     weaponInfo = CG_WeaponInfo (WP_SABER, 0);
 
 	// draw the current saber style in this window
-	switch ( cg.predictedPlayerState.fd.saberDrawAnimLevel )
+	// TODO: cvar plz
+	if(jkg_simpleHUD.integer)
 	{
+		text = va( "Style: %s", SaberStances[cg.predictedPlayerState.fd.saberDrawAnimLevel].saberName_simple );
+	}
+	else
+	{
+		text = va( "Stance: %s", SaberStances[cg.predictedPlayerState.fd.saberDrawAnimLevel].saberName_technical );
+	}
+	/*switch ( cg.predictedPlayerState.fd.saberDrawAnimLevel )
+	{
+
 	case 1: //FORCE_LEVEL_1: Fast
 		text = "Style: Fast";
 		break;
@@ -124,7 +134,7 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 	default:	// ??? Should never happen
 		text = "Style: Unknown";
 		break;
-	}
+	}*/
 
 	// Now then, lets render this text ^_^
 
@@ -397,7 +407,7 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 
 	// Work out the bar now
 
-	percent = (float)cg.snap->ps.fd.forcePower / (float)maxForcePower;
+	percent = (float)cg.networkState.forcePower / (float)maxForcePower;
 	//percent *= 0.75f; // Range of the bar is 0 to 0.75f
 
 	focusItem = Menu_FindItemByName(menuHUD, "staminabar");
@@ -412,6 +422,13 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 							0, 0, percent, 1,
 							focusItem->window.background
 							);		
+	}
+
+	{
+		char *Force = va("%i / %i", cg.networkState.forcePower, maxForcePower);
+		trap_R_Font_DrawString( focusItem->window.rect.x + (focusItem->window.rect.w / 2) - (trap_R_Font_StrLenPixels(Force, 1, 0.4)/2),
+				focusItem->window.rect.y - 2/* + (trap_R_Font_HeightPixels(1, 1.0)*0.4)*/,
+				Force, colorWhite, 1, -1, 0.4f );
 	}
 }
 

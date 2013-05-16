@@ -2105,6 +2105,7 @@ extern  vmCvar_t		cg_scorePlum;
 extern	vmCvar_t		cg_hudFiles;
 // JKG
 extern	vmCvar_t		cg_drawHUD;
+extern	vmCvar_t		jkg_simpleHUD;
 
 extern	vmCvar_t		cg_smoothClients;
 

@@ -3196,9 +3196,16 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			}
 		}
 
+		if( cent->currentState.saberActionFlags & ( 1 << SAF_BLOCKING ) && cent->currentState.saberMove == LS_READY)
+		{
+			blendTime *= 1.8;
+		}
+
 		animSpeed *= animSpeedMult;
 
-		BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, cent->currentState.weapon, newAnimation, &animSpeed, cent->currentState.brokenLimbs);
+		BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, cent->currentState.weapon, newAnimation, &animSpeed, 
+			cent->currentState.brokenLimbs, SaberStances[cent->currentState.fireflag].moves[cent->currentState.saberMove].animspeedscale, 
+			cent->extraState.saberSwingSpeed, cent->currentState.saberMove );
 
 		if ( cent->currentState.weaponstate == WEAPON_RELOADING )
 		{
@@ -3763,6 +3770,15 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		ci = &cgs.clientinfo[ clientNum ];
 	}
 
+	/*if(cent->extraState.saberSwingSpeed && cent->extraState.saberSwingSpeed != 1.0f)
+	{
+		speedScale *= SaberStances[cent->currentState.saberMove].moves[cent->currentState.saberMove].animspeedscale;
+		if(speedScale < 0.25)
+		{
+			speedScale = 0.25;
+		}
+	}*/
+
 	CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsFlip, cent->currentState.legsAnim, speedScale, qfalse);
 
 	if (!(cent->currentState.forcePowersActive & (1 << FP_RAGE)))
@@ -3781,6 +3797,11 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	// If this is not a vehicle, you may lerm the frame (since vehicles never have a torso anim). -AReis
 	if ( cent->currentState.NPC_class != CLASS_VEHICLE )
 	{	
+		if( cent->currentState.saberActionFlags & ( 1 << SAF_BLOCKING ) && cent->currentState.saberMove == LS_READY)
+		{
+			speedScale *= 0.3;
+		}
+
 		CG_RunLerpFrame( cent, ci, &cent->pe.torso, cent->currentState.torsoFlip, cent->currentState.torsoAnim, speedScale, qtrue );
 
 		*torsoOld = cent->pe.torso.oldFrame;
@@ -4487,7 +4508,7 @@ static void CG_G2SetHeadAnim( centity_t *cent, int anim )
 	const animation_t *animations = bgAllAnims[cent->localAnimIndex].anims;
 	int	animFlags = BONE_ANIM_OVERRIDE ;//| BONE_ANIM_BLEND;
 	// animSpeed is 1.0 if the frameLerp (ms/frame) is 50 (20 fps).
-//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ps.forcePowersActive&(1<<FP_SPEED))?(1.0/cg_timescale.value):1.0;
+//	float		timeScaleMod = (cg_timescale.value&&gent&&gent->s.clientNum==0&&!player_locked&&!MatrixMode&&gent->client->ns.forcePowersActive&(1<<FP_SPEED))?(1.0/cg_timescale.value):1.0;
 	const float		timeScaleMod = (cg_timescale.value)?(1.0/cg_timescale.value):1.0;
 	float animSpeed = 50.0f / animations[anim].frameLerp * timeScaleMod;
 	int	firstFrame;
@@ -4737,7 +4758,7 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 					cent->lerpOrigin, cent->lerpAngles, legs, legsAngles, &cent->pe.torso.yawing, &cent->pe.torso.pitching,
 					&cent->pe.legs.yawing, &cent->pe.torso.yawAngle, &cent->pe.torso.pitchAngle, &cent->pe.legs.yawAngle,
 					cg.frametime, cent->turAngles, cent->modelScale, ci->legsAnim, ci->torsoAnim, &ci->corrTime,
-					lookAngles, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime);
+					lookAngles, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime, cent->currentState.saberActionFlags);
 			}
 			for(i = 0; i < ARMSLOT_MAX; i++)
 			{
@@ -4748,7 +4769,7 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 						cent->lerpOrigin, cent->lerpAngles, legs, legsAngles, &cent->pe.torso.yawing, &cent->pe.torso.pitching,
 						&cent->pe.legs.yawing, &cent->pe.torso.yawAngle, &cent->pe.torso.pitchAngle, &cent->pe.legs.yawAngle,
 						cg.frametime, cent->turAngles, cent->modelScale, ci->legsAnim, ci->torsoAnim, &ci->corrTime,
-						lookAngles, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime);
+						lookAngles, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime, cent->currentState.saberActionFlags);
 				}
 			}
 			if(cent->armorGhoul2[ARMSLOT_HEAD])
@@ -4757,7 +4778,7 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 					cent->lerpOrigin, cent->lerpAngles, legs, legsAngles, &cent->pe.torso.yawing, &cent->pe.torso.pitching,
 					&cent->pe.legs.yawing, &cent->pe.torso.yawAngle, &cent->pe.torso.pitchAngle, &cent->pe.legs.yawAngle,
 					cg.frametime, cent->turAngles, cent->modelScale, ci->legsAnim, ci->torsoAnim, &ci->corrTime,
-					lookAnglesBefore, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime);
+					lookAnglesBefore, ci->lastHeadAngles, ci->lookTime, emplaced, &ci->superSmoothTime, cent->currentState.saberActionFlags);
 			}
 		}
 
@@ -6097,7 +6118,7 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 	}
 }
 
-void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight )
+void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, unsigned char crystal, int rfx, qboolean doLight )
 {
 	vec3_t		mid;
 	qhandle_t	blade = 0, glow = 0;
@@ -6115,7 +6136,28 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	// Find the midpoint of the saber for lighting purposes
 	VectorMA( origin, length * 0.5f, dir, mid );
 
-	switch( color )
+	// TODO: precache
+	if(!Q_stricmp(saberCrystalsLookup[crystal].glowEffect, "NULL_GLOW") ||
+		!saberCrystalsLookup[crystal].glowEffect[0])
+ 	{
+		glow = trap_R_RegisterShader("gfx/lightsabers/rgb_glow");
+	}
+	else
+	{
+		glow = trap_R_RegisterShader(va("gfx/lightsabers/rgb_glow_%s", saberCrystalsLookup[crystal].glowEffect));
+	}
+
+	if(!Q_stricmp(saberCrystalsLookup[crystal].bladeEffect, "NULL_BLADE") ||
+		!saberCrystalsLookup[crystal].bladeEffect[0])
+	{
+		blade = trap_R_RegisterShader("gfx/lightsabers/rgb_blade_dull");
+	}
+	else
+	{
+		blade = trap_R_RegisterShader(va("gfx/lightsabers/rgb_blade_%s", saberCrystalsLookup[crystal].bladeEffect));
+	}
+
+	/*switch( color )
 	{
 		case SABER_RED:
 			glow = cgs.media.redSaberGlowShader;
@@ -6145,13 +6187,16 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			glow = cgs.media.blueSaberGlowShader;
 			blade = cgs.media.blueSaberCoreShader;
 			break;
-	}
+	}*/
 
 	if (doLight)
 	{	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
-		vec3_t rgb={1,1,1};
-		CG_RGBForSaberColor( color, rgb );
-		trap_R_AddLightToScene( mid, (length*1.4f) + (random()*3.0f), rgb[0], rgb[1], rgb[2] );
+		//vec3_t rgb={1,1,1};
+		vec3_t rgb;
+		VectorCopy(saberCrystalsLookup[crystal].vRGB, rgb);
+ 		trap_R_AddLightToScene( mid, (length*1.4f) + (random()*3.0f), rgb[0], rgb[1], rgb[2] );
+		//CG_RGBForSaberColor( color, rgb );
+		//trap_R_AddLightToScene( mid, (length*1.4f) + (random()*3.0f), rgb[0], rgb[1], rgb[2] );
 	}
 
 	memset( &saber, 0, sizeof( refEntity_t ));
@@ -6186,7 +6231,13 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	VectorCopy( dir, saber.axis[0] );
 	saber.reType = RT_SABER_GLOW;
 	saber.customShader = glow;
-	saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
+
+	/*saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;*/
+	saber.shaderRGBA[0] = saberCrystalsLookup[crystal].vRGB[0]*255;
+	saber.shaderRGBA[1] = saberCrystalsLookup[crystal].vRGB[1]*255;
+	saber.shaderRGBA[2] = saberCrystalsLookup[crystal].vRGB[2]*255;
+	saber.shaderRGBA[3] = 0xff;
+
 	saber.renderfx = rfx;
 
 	trap_R_AddRefEntityToScene( &saber );
@@ -7035,7 +7086,7 @@ CheckTrail:
 		}
 		else
 		{
-			trailDur = SABER_TRAIL_TIME;
+			trailDur = 40;
 		}
 	}
 
@@ -7146,10 +7197,17 @@ CheckTrail:
 						if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4)
 						{//does other stuff below
 						}
+						else if ( (!WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle == 1 )
+								|| ( WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle2 == 1 ) )
+						{//motion trail
+							fx.mShader = cgs.media.swordTrailShader;
+							VectorSet( rgb1, 32.0f, 32.0f, 32.0f ); // make the sith sword trail pretty faint
+							trailDur *= 2.0f; // stay around twice as long?
+						} 
 						else
 						{
-							if ( (!WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle == 1 )
-								|| ( WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle2 == 1 ) )
+							/*if ( (!WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle == 1 )
+ 								|| ( WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle2 == 1 ) )
 							{//motion trail
 								fx.mShader = cgs.media.swordTrailShader;
 								VectorSet( rgb1, 32.0f, 32.0f, 32.0f ); // make the sith sword trail pretty faint
@@ -7159,6 +7217,26 @@ CheckTrail:
 							{ 
 								fx.mShader = cgs.media.saberBlurShader;
 							}
+							*/
+							if( cent->extraState.saberCrystal[saberNum] >= 0 &&
+								(saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].trailEffect &&
+								Q_stricmp(saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].trailEffect, "NULL_TRAIL")))
+							{
+								fx.mShader = trap_R_RegisterShader(va("gfx/lightsabers/rgb_trail_%s", saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].trailEffect));
+ 							}
+							else
+							{
+								fx.mShader = cgs.media.saberBlurShader;
+							}
+							VectorCopy( saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].vRGB, rgb1 );
+							VectorScale( rgb1, 255, rgb1 );
+						}
+
+						if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4)
+						{//does other stuff below
+						}
+						else
+						{
 							fx.mKillTime = trailDur;
 							fx.mSetFlags = FX_USE_ALPHA;
 						}
@@ -7257,7 +7335,7 @@ JustDoIt:
 	//CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
 	//	scolor, renderfx, (qboolean)(saberNum==0&&bladeNum==0) );
 	CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
-		scolor, renderfx, (qboolean)(client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
+		cent->extraState.saberCrystal[saberNum], renderfx, (qboolean)(client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
 }
 
 int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int trickIndex4, int client)
@@ -9214,7 +9292,8 @@ GetSelfLegAnimPoint
 float GetSelfLegAnimPoint(void)
 {
 	//[BugFix2]
-	return BG_GetLegsAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex);
+	return BG_GetLegsAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex,
+		&cg.networkState);
 	
 	/*
 	int animindex = cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex;
@@ -9247,7 +9326,8 @@ GetSelfTorsoAnimPoint
 float GetSelfTorsoAnimPoint(void)
 {
 	//[BugFix2]
-	return BG_GetTorsoAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex);
+	return BG_GetTorsoAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex,
+		&cg.networkState);
 	
 	/*
 	int animindex = cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex;
@@ -9758,6 +9838,11 @@ void CG_Player( centity_t *cent ) {
 
 	/* Improvement: Don't send the data of the network if the length exceeds, but still fade (much better) */
 	vec3_t difference;
+
+	if (cent->currentState.eType != ET_NPC
+		&& cent->currentState.clientNum > MAX_CLIENTS) 
+		return; // UQ1: Secondary entities???
+
 	VectorSubtract( cg_entities[cg.clientNum].lerpOrigin, cent->lerpOrigin, difference );
 
 	/* JKG - Fading Players: This player is further away then allowed, decide what to do. */
@@ -10548,6 +10633,38 @@ void CG_Player( centity_t *cent ) {
 	CG_G2PlayerAngles( cent, legs.axis, rootAngles );
 	CG_G2PlayerHeadAnims( cent );
 
+	if( cent->ghoul2 )
+	{ //eezstreet add
+		if (ci->superSmoothTime)
+		{ //do crazy smoothing
+			if (ci->superSmoothTime > cg.time)
+			{ //do it
+				int ijk;
+				trap_G2API_AbsurdSmoothing(cent->ghoul2, qtrue);
+				for(ijk = 0; ijk < ARMSLOT_MAX; ijk++)
+				{
+					if(cent->armorGhoul2[ijk] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[ijk]))
+					{
+						trap_G2API_AbsurdSmoothing(cent->armorGhoul2[ijk], qtrue);
+					}
+				}
+			}
+			else
+			{ //turn it off
+				int ijk;
+				ci->superSmoothTime = 0;
+				trap_G2API_AbsurdSmoothing(cent->ghoul2, qfalse);
+				for(ijk = 0; ijk < ARMSLOT_MAX; ijk++)
+				{
+					if(cent->armorGhoul2[ijk] && trap_G2_HaveWeGhoul2Models(cent->armorGhoul2[ijk]))
+					{
+						trap_G2API_AbsurdSmoothing(cent->armorGhoul2[ijk], qfalse);
+					}
+				}
+			}
+		}
+	}
+
 	if ( (cent->currentState.eFlags2&EF2_HELD_BY_MONSTER) 
 		&& cent->currentState.hasLookTarget )//NOTE: lookTarget is an entity number, so this presumes that client 0 is NOT a Rancor...
 	{
@@ -10938,7 +11055,8 @@ SkipTrueView:
 	{//doing the electrocuting
 		vec3_t axis[3];
 		vec3_t tAng, fAng, fxDir;
-		vec3_t efOrg;
+		vec3_t efOrgL; //origin left hand
+		vec3_t efOrgR; //origin right hand
 
 		VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
 
@@ -10946,16 +11064,37 @@ SkipTrueView:
 
 		AngleVectors( fAng, fxDir, NULL, NULL );
 
-		//trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-		if (!gotLHandMatrix)
-		{
-			trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-			gotLHandMatrix = qtrue;
+		if ( cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING
+			||cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_START
+			||cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_HOLD
+			||cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_RELEASE)
+		{//jackin' 'em up, Palpatine-style
+			mdxaBone_t 	rHandMatrix;
+			trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_rhand, &rHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+			efOrgR[0] = rHandMatrix.matrix[0][3]; //right hand matrix -> efOrgR
+			efOrgR[1] = rHandMatrix.matrix[1][3];
+			efOrgR[2] = rHandMatrix.matrix[2][3];	
+			
+			if (!gotLHandMatrix)
+			{
+				trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+				gotLHandMatrix = qtrue;
+			}
+			efOrgL[0] = lHandMatrix.matrix[0][3]; //left hand matrix -> efOrgL
+			efOrgL[1] = lHandMatrix.matrix[1][3];
+			efOrgL[2] = lHandMatrix.matrix[2][3];
 		}
-
-		efOrg[0] = lHandMatrix.matrix[0][3];
-		efOrg[1] = lHandMatrix.matrix[1][3];
-		efOrg[2] = lHandMatrix.matrix[2][3];
+		else
+		{
+			if (!gotLHandMatrix)
+			{
+				trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+				gotLHandMatrix = qtrue;
+			}
+			efOrgL[0] = lHandMatrix.matrix[0][3]; //just for the simple lightning from the left hand
+			efOrgL[1] = lHandMatrix.matrix[1][3];
+			efOrgL[2] = lHandMatrix.matrix[2][3];
+		}
 
 		AnglesToAxis( fAng, axis );
 	
@@ -10963,13 +11102,18 @@ SkipTrueView:
 		{//arc
 			//trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
 			//trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);
+			if ( pm->ps->weapon == WP_NONE || pm->ps->weapon == WP_MELEE || ( pm->ps->weapon == WP_SABER && pm->ps->saberHolstered ) )
+			{
+				trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrgR, axis, -1, -1, -1, -1); // thats the solution - we need to play the fx from two origins
+			}
+
+			trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrgL, axis, -1, -1, -1, -1);
 		}
 		else
 		{//line
 			//trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
 			//trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, -1, -1, -1, -1);
+			trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrgL, axis, -1, -1, -1, -1);
 		}
 
 		/*
@@ -11656,7 +11800,7 @@ stillDoSaber:
 
 							if (tagBolt == -1)
 							{
-								assert(0);
+								//assert(0);
 								break;
 							}
 						}

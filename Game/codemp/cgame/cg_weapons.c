@@ -1626,7 +1626,7 @@ void CG_NextWeapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
 		{
 			return;
 		}
@@ -1718,7 +1718,7 @@ void CG_PrevWeapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
 		{
 			return;
 		}
@@ -1823,7 +1823,7 @@ void CG_Weapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
 		{
 			return;
 		}
@@ -1917,7 +1917,7 @@ void CG_WeaponClean_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
 		{
 			return;
 		}
