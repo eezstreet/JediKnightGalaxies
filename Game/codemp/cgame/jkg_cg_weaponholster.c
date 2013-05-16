@@ -16,16 +16,15 @@
 #include "jkg_cg_damagetypes.h"
 
 #ifdef __WEAPON_HOLSTER__
-extern vmCvar_t	d_poff;
+/*extern vmCvar_t	d_poff;
 extern vmCvar_t	d_roff;
-extern vmCvar_t	d_yoff;
+extern vmCvar_t	d_yoff;*/
 
 qboolean CG_SnapRefEntToBone(centity_t *cent, refEntity_t *refEnt, const char *bone_name)
 {
 	centity_t *cl = cent;
 	mdxaBone_t matrix;
-	vec3_t boltOrg, holsterAngles, boltAng;
-	//vec3_t out_axis[3];
+	vec3_t boltOrg, holsterAngles;//, boltAng;
 	int getBolt = -1;
 
 	if (!cl->ghoul2)
@@ -48,21 +47,20 @@ qboolean CG_SnapRefEntToBone(centity_t *cent, refEntity_t *refEnt, const char *b
 
 	trap_G2API_GetBoltMatrix(cl->ghoul2, 0, getBolt, &matrix, holsterAngles /*cl->lerpAngles*/, cl->lerpOrigin, cg.time, cgs.gameModels, cl->modelScale);
 
-	BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
-	BG_GiveMeVectorFromMatrix(&matrix, NEGATIVE_Y, boltAng);
-	vectoangles(boltAng, boltAng);
+	//BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
+	//BG_GiveMeVectorFromMatrix(&matrix, NEGATIVE_Y, boltAng);
+	//vectoangles(boltAng, boltAng);
 	//boltAng[PITCH] = boltAng[ROLL] = 0;
 
-	//BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
-	//BG_GiveMeVectorFromMatrix( &matrix, NEGATIVE_Y, refEnt->axis[0] );//out_axis[0] );
-	//BG_GiveMeVectorFromMatrix( &matrix, POSITIVE_X, refEnt->axis[1] );//out_axis[1] );
-	//BG_GiveMeVectorFromMatrix( &matrix, POSITIVE_Z, refEnt->axis[2] );//out_axis[2] );
+	BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
+	//BG_GiveMeVectorFromMatrix( &matrix, NEGATIVE_Y, out_axis[0] );
+	//BG_GiveMeVectorFromMatrix( &matrix, POSITIVE_X, out_axis[1] );
+	//BG_GiveMeVectorFromMatrix( &matrix, POSITIVE_Z, out_axis[2] );
 
 	VectorCopy(boltOrg, refEnt->origin);
-	
-	//VectorCopy(cl->lerpAngles, refEnt->angles);
-	VectorCopy(boltAng, refEnt->angles);
-	
+	//VectorCopy(boltAng, refEnt->angles);
+	VectorCopy(cl->lerpAngles, refEnt->angles);
+
 	return qtrue;
 }
 
@@ -74,10 +72,10 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 		&& (cent && cent->ghoul2 && cent->currentState.eType != ET_NPC))
 	{
 		int				HOLSTER_POINT = 0;
-		int				NUM_HOLSTERS = 5; // UQ1: Extra 2 look stupid...
+		int				NUM_HOLSTERS = 4; // UQ1: Extra 2 look stupid...
 		int				i = 0;
-		cgItemData_t	*LIGHT_ITEMS_LIST[5];
-		cgItemData_t	*HEAVY_ITEMS_LIST[5];
+		cgItemData_t	*LIGHT_ITEMS_LIST[4];
+		cgItemData_t	*HEAVY_ITEMS_LIST[4];
 		int				NUM_LIGHT_ITEMS = 0;
 		int				NUM_HEAVY_ITEMS = 0;
 
@@ -85,7 +83,7 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 		//CG_Printf("Adding holster items...\n"); 
 #endif //_DEBUG
 
-		for (i = 0; i < 3; i++) LIGHT_ITEMS_LIST[i] = NULL;
+		for (i = 0; i < 2; i++) LIGHT_ITEMS_LIST[i] = NULL;
 		for (i = 0; i < 2; i++) HEAVY_ITEMS_LIST[i] = NULL;
 
 		// Create Light Items List...
@@ -97,7 +95,6 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 			//        Events? Even the data for just 4 holsters would be crazy...
 			if (cg.playerACI[i] < 0) continue;
 
-			if (cg.playerInventory[cg.playerACI[i]].id->weapon == cg.predictedPlayerState.weapon) continue;
 			if (cg.playerInventory[cg.playerACI[i]].equipped) continue;
 			if (!cg.playerInventory[cg.playerACI[i]].id) continue;
 
@@ -114,7 +111,7 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 			LIGHT_ITEMS_LIST[NUM_LIGHT_ITEMS] = cg.playerInventory[cg.playerACI[i]].id;
 			NUM_LIGHT_ITEMS++;
 
-			if (NUM_LIGHT_ITEMS >= 3) break; // Full...
+			if (NUM_LIGHT_ITEMS >= 2) break; // Full...
 		}
 
 		// Create Heavy Items List...
@@ -136,7 +133,7 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 			if (weap == cent->currentState.weapon) continue;
 
 			// Quick and dirty choice of where to put guns based on weight...
-			if (cg.playerInventory[cg.playerACI[i]].id->weight <= 1) continue; // Too light for back...
+			if (cg.playerInventory[cg.playerACI[i]].id->weight < 1) continue; // Too light for back...
 
 			// FIXME: Sort by new WEAPON_TYPE value...
 			HEAVY_ITEMS_LIST[NUM_HEAVY_ITEMS] = cg.playerInventory[cg.playerACI[i]].id;
@@ -154,44 +151,22 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 
 			if (HOLSTER_POINT == 0 && NUM_LIGHT_ITEMS < 1) continue; // No more light items to draw...
 			if (HOLSTER_POINT == 1 && NUM_LIGHT_ITEMS < 2) continue; // No more light items to draw...
-			//if (HOLSTER_POINT == 2 && NUM_LIGHT_ITEMS < 3) continue; // No more light items to draw...
-			if (HOLSTER_POINT == 2) continue; // Disabled...
-			if (HOLSTER_POINT == 3 && NUM_HEAVY_ITEMS < 1) continue; // No more heavy items to draw...
-			if (HOLSTER_POINT == 4 && NUM_HEAVY_ITEMS < 2) continue; // No more heavy items to draw...
+			if (HOLSTER_POINT == 2 && NUM_HEAVY_ITEMS < 1) continue; // No more heavy items to draw...
+			if (HOLSTER_POINT == 3 && NUM_HEAVY_ITEMS < 2) continue; // No more heavy items to draw...
 
 			
-			if (HOLSTER_POINT < 3)
+			if (HOLSTER_POINT < 2)
 			{
-				if (LIGHT_ITEMS_LIST[HOLSTER_POINT])
-				{// Light Items (waist)...
-					WEAPON_NUM = LIGHT_ITEMS_LIST[HOLSTER_POINT]->weapon;
-
-					if (WEAPON_NUM <= 0) continue;
-
-					weapon = CG_WeaponInfo (WEAPON_NUM, LIGHT_ITEMS_LIST[HOLSTER_POINT]->variation);
-				}
-				else
-				{
-					continue;
-				}
+				// Light Items (waist)...
+				WEAPON_NUM = LIGHT_ITEMS_LIST[HOLSTER_POINT]->weapon;
+				weapon = CG_WeaponInfo (WEAPON_NUM, LIGHT_ITEMS_LIST[HOLSTER_POINT]->variation);
 			}
 			else
 			{
-				if (HEAVY_ITEMS_LIST[HOLSTER_POINT-3])
-				{// Heavy Items (back)...
-					WEAPON_NUM = HEAVY_ITEMS_LIST[HOLSTER_POINT-3]->weapon;
-
-					if (WEAPON_NUM <= 0) continue;
-
-					weapon = CG_WeaponInfo (WEAPON_NUM, HEAVY_ITEMS_LIST[HOLSTER_POINT-3]->variation);
-				}
-				else
-				{
-					continue;
-				}
+				// Heavy Items (back)...
+				WEAPON_NUM = HEAVY_ITEMS_LIST[HOLSTER_POINT-2]->weapon;
+				weapon = CG_WeaponInfo (WEAPON_NUM, HEAVY_ITEMS_LIST[HOLSTER_POINT-2]->variation);
 			}
-
-			if (!weapon) continue;
 
 			memset( &holsterRefEnt, 0, sizeof( holsterRefEnt ) );
 
@@ -207,7 +182,6 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 				if (HOLSTER_POINT == 1) Q_strncpyz( bone_name , "pelvis", sizeof( bone_name ) );
 				if (HOLSTER_POINT == 2) Q_strncpyz( bone_name , "thoracic", sizeof( bone_name ) );
 				if (HOLSTER_POINT == 3) Q_strncpyz( bone_name , "thoracic", sizeof( bone_name ) );
-				if (HOLSTER_POINT == 4) Q_strncpyz( bone_name , "thoracic", sizeof( bone_name ) );
 				//if (HOLSTER_POINT == 4) Q_strncpyz( bone_name , "ltibia", sizeof( bone_name ) ); // UQ1: These look really dumb....
 				//if (HOLSTER_POINT == 5) Q_strncpyz( bone_name , "rtibia", sizeof( bone_name ) ); // UQ1: These look really dumb....
 
@@ -243,8 +217,6 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 
 						holsterRefEnt.origin[2] += 8; // because the bones suck for placement...
 
-						//AxisToAngles(holsterRefEnt.axis, holsterAngles);
-
 						holsterAngles[PITCH] += 90;
 						//holsterAngles[YAW] -= 90;
 						holsterAngles[ROLL] += 90;
@@ -252,7 +224,6 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 						holsterAngles[PITCH] += 30;
 						holsterAngles[YAW] -= 50;
 						holsterAngles[ROLL] -= 50;
-
 						break;
 					case 1:
 						// "pelvis" right
@@ -262,8 +233,6 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 
 						holsterRefEnt.origin[2] += 8; // because the bones suck for placement...
 
-						//AxisToAngles(holsterRefEnt.axis, holsterAngles);
-
 						holsterAngles[PITCH] += 90;
 						holsterAngles[YAW] += 180;
 						holsterAngles[ROLL] += 90;
@@ -271,28 +240,8 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 						holsterAngles[PITCH] -= 30;
 						holsterAngles[YAW] += 50;
 						holsterAngles[ROLL] += 50;
-
 						break;
 					case 2:
-						// "thoracic" left - used for center pistol - where on the back is this meant to fit???
-						VectorMA( originalOrigin, -4, fwd, end );
-						VectorMA( end, -2, rt, end );
-						VectorCopy(end, holsterRefEnt.origin);
-
-						holsterRefEnt.origin[2] += 8; // because the bones suck for placement...
-
-						//AxisToAngles(holsterRefEnt.axis, holsterAngles);
-
-						holsterAngles[PITCH] += 90;
-						//holsterAngles[YAW] -= 90;
-						holsterAngles[ROLL] += 90;
-
-						holsterAngles[PITCH] += 10;//d_poff.value;
-						holsterAngles[YAW] += 0;//d_yoff.value;
-						holsterAngles[ROLL] += 0;//d_roff.value;
-
-						break;
-					case 3:
 						// "thoracic" left
 						VectorMA( originalOrigin, -4, fwd, end );
 						VectorMA( end, -6, rt, end );
@@ -300,18 +249,15 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 
 						holsterRefEnt.origin[2] += 6; // because the bones suck for placement...
 
-						//AxisToAngles(holsterRefEnt.axis, holsterAngles);
-
 						holsterAngles[PITCH] += 90;
 						//holsterAngles[YAW] -= 90;
 						holsterAngles[ROLL] += 90;
 
-						holsterAngles[PITCH] += 10 + 25;
-						holsterAngles[YAW] += 50 + 15;
+						holsterAngles[PITCH] += 10;
+						holsterAngles[YAW] += 50;
 						holsterAngles[ROLL] += 50;
-
 						break;
-					case 4:
+					case 3:
 						// "thoracic" right
 						VectorMA( originalOrigin, -4, fwd, end );
 						VectorMA( end, 6, rt, end );
@@ -319,18 +265,15 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 
 						holsterRefEnt.origin[2] += 6; // because the bones suck for placement...
 
-						//AxisToAngles(holsterRefEnt.axis, holsterAngles);
-
 						holsterAngles[PITCH] += 90;
 						holsterAngles[YAW] += 180;
 						holsterAngles[ROLL] += 90;
 
-						holsterAngles[PITCH] -= 10 + 25;
-						holsterAngles[YAW] -= 50 + 15;
+						holsterAngles[PITCH] -= 10;
+						holsterAngles[YAW] -= 50;
 						holsterAngles[ROLL] -= 50;
-
 						break;
-					/*case 5: // UQ1: These look really dumb....
+					/*case 4: // UQ1: These look really dumb....
 						// "ltibia"
 						VectorMA( originalOrigin, -4, fwd, end );
 						VectorMA( end, -4, rt, end );
@@ -346,7 +289,7 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 						holsterAngles[YAW] -= d_yoff.value;
 						holsterAngles[ROLL] -= d_roff.value;
 						break;
-					case 6:  // UQ1: These look really dumb....
+					case 5:  // UQ1: These look really dumb....
 						// "rtibia"
 						VectorMA( originalOrigin, -4, fwd, end );
 						VectorMA( end, 4, rt, end );

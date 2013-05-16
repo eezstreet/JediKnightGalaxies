@@ -6,7 +6,7 @@ extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime )
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern qboolean NPC_CheckLookTarget( gentity_t *self );
 extern void NPC_ClearLookTarget( gentity_t *self );
-extern void NPC_Humanoid_RateNewEnemy( gentity_t *self, gentity_t *enemy );
+extern void NPC_Jedi_RateNewEnemy( gentity_t *self, gentity_t *enemy );
 extern int NAV_FindClosestWaypointForPoint2( vec3_t point );
 extern int NAV_GetNearestNode( gentity_t *self, int lastNode );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
@@ -400,7 +400,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 	if ( self->NPC && self->client && self->client->ps.weapon == WP_SABER )
 	{
 		//when get new enemy, set a base aggression based on what that enemy is using, how far they are, etc.
-		NPC_Humanoid_RateNewEnemy( self, enemy );
+		NPC_Jedi_RateNewEnemy( self, enemy );
 	}
 
 	//NOTE: this is not necessarily true!
@@ -848,9 +848,6 @@ void ChangeWeapon( gentity_t *ent, int newWeapon, int weapVariation )
 
 void NPC_ChangeWeapon( int newWeapon ) 
 {
-	NPC->s.weapon = NPC->client->ps.weapon = newWeapon;
-	ChangeWeapon( NPC, newWeapon, 0 );
-
 	/*
 	qboolean	changing = qfalse;
 	if ( newWeapon != NPC->client->ps.weapon )
@@ -1522,9 +1519,6 @@ You can mix and match any of those options (example: find closest visible player
 
 FIXME: this should go through the snapshot and find the closest enemy
 */
-extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
-extern int gWPNum;
-
 gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis, qboolean findPlayersFirst, qboolean findClosest )
 {
 	int			num_choices = 0;
@@ -1534,7 +1528,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 	int			entNum;
 	vec3_t		diff;
 	float		relDist;
-	float		bestDist = 2048.0f; //Q3_INFINITE; // UQ1: errr... Q3_INFINITE??? silly silly use of cpu time...
+	float		bestDist = Q3_INFINITE;
 	qboolean	failed = qfalse;
 	int			visChecks = (CHECK_360|CHECK_FOV|CHECK_VISRANGE);
 	int			minVis = VIS_FOV;
@@ -1542,22 +1536,6 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 	if ( enemyTeam == NPCTEAM_NEUTRAL )
 	{
 		return NULL;
-	}
-
-	if ( NPC->enemy 
-		&& NPC->enemy->health > 0
-		&& !(NPC->enemy->s.eFlags & EF_DEAD)
-		&& NPC->NPC->enemyLastSeenTime >= level.time - 5000 
-		&& !NPC_EnemyTooFar(NPC->enemy, Distance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin), qfalse) )
-	{// UQ1: Already got an enemy...
-		if (NPC->longTermGoal > 0 
-			&& NPC->longTermGoal < gWPNum
-			&& Distance(gWPArray[NPC->longTermGoal]->origin, NPC->r.currentOrigin) < 256)
-		{// Since it is also still good, and we have a route to it - init the timer as well...
-			NPC->NPC->enemyLastSeenTime = level.time; // UQ1: Added...
-		}
-
-		return NPC->enemy;
 	}
 
 	if ( NPCInfo->behaviorState == BS_STAND_AND_SHOOT || 
@@ -1569,7 +1547,6 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 		minVis = VIS_360;
 	}
 
-#ifdef __UMM_WHY__ // UQ1: This is meant to be multiplayer...
 	if( findPlayersFirst )
 	{//try to find a player first
 		newenemy = &g_entities[0];
@@ -1696,10 +1673,9 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 		return NULL;
 	}
 	*/
-#endif //__UMM_WHY__
 
 	num_choices = 0;
-	bestDist = 2048.0f; //Q3_INFINITE; // UQ1: errr... Q3_INFINITE??? silly silly use of cpu time...
+	bestDist = Q3_INFINITE;
 	closestEnemy = NULL;
 
 	for ( entNum = 0; entNum < level.num_entities; entNum++ )
@@ -1723,10 +1699,10 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 
 					if ( newenemy != NPC->lastEnemy )
 					{//Make sure we're not just going back and forth here
-						/*if(!trap_InPVS(newenemy->r.currentOrigin, NPC->r.currentOrigin))
+						if(!trap_InPVS(newenemy->r.currentOrigin, NPC->r.currentOrigin))
 						{
 							continue;
-						}*/
+						}
 
 						if ( NPCInfo->behaviorState == BS_INVESTIGATE || NPCInfo->behaviorState == BS_PATROL )
 						{
@@ -1736,7 +1712,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 								{
 									continue;
 								}
-								else if ( NPC_CheckVisibility ( newenemy, CHECK_360|/*CHECK_FOV|*/CHECK_VISRANGE ) != VIS_360/*VIS_FOV*/ )
+								else if ( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_FOV|CHECK_VISRANGE ) != VIS_FOV )
 								{
 									continue;
 								}
@@ -1786,8 +1762,8 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 									{
 										//FIXME: NPCs need to be able to pick up other NPCs behind them,
 										//but for now, commented out because it was picking up enemies it shouldn't
-										if ( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_VISRANGE ) >= VIS_360 )
-										//if ( NPC_CheckVisibility ( newenemy, visChecks ) == minVis )
+										//if ( NPC_CheckVisibility ( newenemy, CHECK_360|CHECK_VISRANGE ) >= VIS_360 )
+										if ( NPC_CheckVisibility ( newenemy, visChecks ) == minVis )
 										{
 											bestDist = relDist;
 											closestEnemy = newenemy;
@@ -1825,7 +1801,6 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 	
 	if (findClosest)
 	{//FIXME: you can pick up an enemy around a corner this way.
-		NPC->NPC->enemyLastSeenTime = level.time; // UQ1: Added...
 		return closestEnemy;
 	}
 
@@ -3029,7 +3004,6 @@ qboolean NPC_SetCombatPoint( int combatPointID )
 extern qboolean CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper );
 gentity_t *NPC_SearchForWeapons( void )
 {
-/*
 	gentity_t *found = g_entities, *bestFound = NULL;
 	float		dist, bestDist = Q3_INFINITE;
 	int i;
@@ -3085,18 +3059,11 @@ gentity_t *NPC_SearchForWeapons( void )
 	}
 
 	return bestFound;
-*/
-
-	// UQ1: WTF! NPCs don't pick up weapons... No point wasting time here...
-	return NULL;
 }
 
 void NPC_SetPickUpGoal( gentity_t *foundWeap )
 {
 	vec3_t org;
-
-	if (!foundWeap) return;
-	if (!NPCInfo->tempGoal) return;
 
 	//NPCInfo->goalEntity = foundWeap;
 	VectorCopy( foundWeap->r.currentOrigin, org );

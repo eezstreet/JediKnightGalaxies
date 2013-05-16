@@ -443,11 +443,11 @@ void CG_InitGlass( void )
 	}
 }
 
-/*void Vector2Set(vec2_t a,float b,float c)
+void Vector2Set(vec2_t a,float b,float c)
 {
 	a[0] = b;
 	a[1] = c;
-}*/
+}
 
 #define TIME_DECAY_SLOW		0.1f
 #define TIME_DECAY_MED		0.04f

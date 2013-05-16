@@ -95,7 +95,7 @@ void JKG_Easy_DIMA_Add(inv_t *inventory, itemInstance_t item)
 
 void JKG_Easy_DIMA_Remove(inv_t *inventory, unsigned int invID)
 {
-	if(invID > inventory->elements)
+	if(invID > inventory->elements || invID < 0)
 		return;
 	if(invID != inventory->elements-1)
 	{

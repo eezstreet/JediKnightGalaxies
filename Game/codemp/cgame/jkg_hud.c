@@ -15,13 +15,12 @@ void CG_DrawJetpackCloak(menuDef_t *menuHUD);
 static __inline void AdjustOpacityLevels(void)
 {
 	//playerState_t *ps = &cg.predictedPlayerState;
-
 	if ( (cg.predictedPlayerState.stats[STAT_HEALTH] < 1 || cg.deathcamTime) ||
 		cg.predictedPlayerState.zoomMode ||
 		cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
 		cg.spectatorTime)
 	{
-		cg.jkg_HUDOpacity -= ((float)cg.frameDelta/200.0f);
+		cg.jkg_HUDOpacity -= ((float)cg.frameDelta/250.0f);
 	} else {
 		cg.jkg_HUDOpacity += ((float)cg.frameDelta/200.0f);	
 	}
@@ -414,48 +413,6 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 							);		
 	}
 }
-
-/*
-===================
-FlagCaptureBar
-===================
-*/
-
-void FlagCaptureBar(void)
-{
-	const int numticks = 50, tickwidth = 1, tickheight = 3;
-	const int tickpadx = 2, tickpady = 2;
-	const int capwidth = 2;
-	const int barwidth = numticks*tickwidth+tickpadx*2+capwidth*2;
-	const int barleft = ((1202-barwidth)/2);
-	const int barheight = tickheight + tickpady*2;
-	const int bartop = 173-barheight;
-	const int capleft = barleft+tickpadx;
-	const int tickleft = capleft+capwidth, ticktop = bartop+tickpady;
-	float percentage = 0.0f;
-
-	if (cg.captureFlagPercent <= 0)
-		return;
-
-	percentage = cg.captureFlagPercent/2;
-
-	trap_R_SetColor( colorWhite );
-	// Draw background
-	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.loadBarLEDSurround);
-
-	// Draw left cap (backwards)
-	CG_DrawPic(tickleft, ticktop, -capwidth, tickheight, cgs.media.loadBarLEDCap);
-
-	// Draw bar
-	CG_DrawPic(tickleft, ticktop, tickwidth*percentage, tickheight, cgs.media.loadBarLED);
-
-	// Draw right cap
-	CG_DrawPic(tickleft+tickwidth*percentage, ticktop, capwidth, tickheight, cgs.media.loadBarLEDCap);
-}
-
-static int color_selector = 0;
-int next_color_update = 0;
-qboolean color_forwards = qtrue;
 
 /*
 ================
@@ -1169,78 +1126,6 @@ void CG_DrawHUD(centity_t *cent)
 	vec4_t	opacity		=	{1, 1, 1, 1};
 	AdjustOpacityLevels();
 	MAKERGBA(opacity, 1, 1, 1, cg.jkg_HUDOpacity);
-
-	if (cg.captureFlagPercent > 0 && cg.captureFlagPercent < 100 && cg.capturingFlag)
-	{// For attack/defence/scenario gametype flag captures...
-		int x = 600;
-		int y = 154;
-		vec3_t color;
-
-		if (cg.captureFlagPercent > 100)
-			cg.captureFlagPercent = 100;
-
-		FlagCaptureBar();
-
-		VectorSet(color, 250, 100, 1);
-
-		if (next_color_update < cg.time)
-		{
-			// Cycle writing color...
-			if (color_forwards)
-			{
-				if (color_selector >= 250)
-				{
-					color_forwards = qfalse;
-					color_selector--;
-				}
-				else
-				{
-					color_selector++;
-				}
-			}
-			else
-			{
-				if (color_selector <= 50)
-				{
-					color_forwards = qtrue;
-					color_selector++;
-				}
-				else
-				{
-					color_selector--;
-				}
-			}
-
-			next_color_update = cg.time + 10;
-		}
-
-		color[0] = color_selector;
-		color[1] = color_selector;
-		color[2] = 1;
-
-		if (cg.recaptureingFlag)
-		{
-			x-=15;
-			UI_DrawScaledProportionalString(x, y, va("Consolidating Control Point"), UI_RIGHT|UI_DROPSHADOW, color, 0.4);
-		}
-		else
-			UI_DrawScaledProportionalString(x, y, va("Capturing Control Point"), UI_RIGHT|UI_DROPSHADOW, color, 0.4);
-	}
-	else if (cg.captureFlagPercent >= 100 && cg.capturingFlag)
-	{// For attack/defence/scenario gametype flag captures...
-		int x = 600;
-		int y = 154;
-		vec3_t color;
-
-		if (cg.captureFlagPercent > 100)
-			cg.captureFlagPercent = 100;
-
-		FlagCaptureBar();
-
-		VectorSet(color, 250, 250, 0);
-
-		UI_DrawScaledProportionalString(x, y, va("^3Control Point Captured!"), UI_RIGHT|UI_DROPSHADOW, color, 0.4);
-	}
 
 	if (cgs.gametype >= GT_TEAM)
 	{	// tint the hud items based on team

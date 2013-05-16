@@ -47,7 +47,6 @@
 												//area before moving to this waypoint.
 #define WPFLAG_FORCEPULL			0x10000000 //force pull all the active func_doors in the
 												//area before moving to this waypoint.	
-#define WPFLAG_COVER				0x20000000 //cover point
 
 #define LEVELFLAG_NOPOINTPREDICTION			1 //don't take waypoint beyond current into account when adjusting path view angles
 #define LEVELFLAG_IGNOREINFALLBACK			2 //ignore enemies when in a fallback navigation routine
@@ -165,28 +164,26 @@ typedef int bot_route_t[MAX_WPARRAY_SIZE];
 //bot state
 typedef struct bot_state_s
 {
-	int					inuse;									//true if this state is used by a bot client
-	int					botthink_residual;						//residual for the bot thinks
-	int					client;									//client number of the bot
-	int					entitynum;								//entity number of the bot
-	playerState_t		cur_ps;									//current player state
-	usercmd_t			lastucmd;								//usercmd from last frame
-	bot_settings_t		settings;								//several bot settings
-	int					thinktime;								//time the bot thinks this frame
-	vec3_t				origin;									//origin of the bot
-	vec3_t				velocity;								//velocity of the bot
-	vec3_t				eye;									//eye coordinates of the bot
-	int					setupcount;								//true when the bot has just been setup
-	int					ltime;									//local bot time
-	int					entergame_time;							//time the bot entered the game
-#ifndef __MMO__
-	int					ms;										//move state of the bot
-	int					gs;										//goal state of the bot
-	int					ws;										//weapon state of the bot
-#endif //__MMO__
-	vec3_t				viewangles;								//current view angles
-	vec3_t				ideal_viewangles;						//ideal view angles
-	vec3_t				viewanglespeed;
+	int inuse;										//true if this state is used by a bot client
+	int botthink_residual;							//residual for the bot thinks
+	int client;										//client number of the bot
+	int entitynum;									//entity number of the bot
+	playerState_t cur_ps;							//current player state
+	usercmd_t lastucmd;								//usercmd from last frame
+	bot_settings_t settings;						//several bot settings
+	float thinktime;								//time the bot thinks this frame
+	vec3_t origin;									//origin of the bot
+	vec3_t velocity;								//velocity of the bot
+	vec3_t eye;										//eye coordinates of the bot
+	int setupcount;									//true when the bot has just been setup
+	float ltime;									//local bot time
+	float entergame_time;							//time the bot entered the game
+	int ms;											//move state of the bot
+	int gs;											//goal state of the bot
+	int ws;											//weapon state of the bot
+	vec3_t viewangles;								//current view angles
+	vec3_t ideal_viewangles;						//ideal view angles
+	vec3_t viewanglespeed;
 
 	//rww - new AI values
 	gentity_t			*currentEnemy;
@@ -231,29 +228,28 @@ typedef struct bot_state_s
 
 	int					wpDirection;
 
-	int					destinationGrabTime;
-	int					wpSeenTime;
-	int					wpTravelTime;
-	int					wpDestSwitchTime;
-	int					wpSwitchTime;
-	int					wpDestIgnoreTime;
+	float				destinationGrabTime;
+	float				wpSeenTime;
+	float				wpTravelTime;
+	float				wpDestSwitchTime;
+	float				wpSwitchTime;
+	float				wpDestIgnoreTime;
 
-	int					timeToReact;
+	float				timeToReact;
 
-	int					enemySeenTime;
-	int					enemyScanTime;
+	float				enemySeenTime;
 
-	int					chickenWussCalculationTime;
+	float				chickenWussCalculationTime;
 
-	int					beStill;
-	int					duckTime;
-	int					jumpTime;
-	int					jumpHoldTime;
-	int					jumpPrep;
-	int					forceJumping;
-	int					jDelay;
+	float				beStill;
+	float				duckTime;
+	float				jumpTime;
+	float				jumpHoldTime;
+	float				jumpPrep;
+	float				forceJumping;
+	float				jDelay;
 
-	int					aimOffsetTime;
+	float				aimOffsetTime;
 	float				aimOffsetAmtYaw;
 	float				aimOffsetAmtPitch;
 
@@ -276,8 +272,8 @@ typedef struct bot_state_s
 	int					canChat;
 	int					chatFrequency;
 	char				currentChat[MAX_CHAT_LINE_SIZE];
-	int					chatTime;
-	int					chatTime_stored;
+	float				chatTime;
+	float				chatTime_stored;
 	int					doChat;
 	int					chatTeam;
 	gentity_t			*chatObject;
@@ -289,9 +285,9 @@ typedef struct bot_state_s
 
 	int					altChargeTime;
 
-	int					escapeDirTime;
+	float				escapeDirTime;
 
-	int					dontGoBack;
+	float				dontGoBack;
 
 	int					doAttack;
 	int					doAltAttack;

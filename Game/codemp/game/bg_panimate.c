@@ -1773,9 +1773,7 @@ int PM_AnimLength( int index, animNumber_t anim )
 	}
 	if ( anim < 0 )
 	{
-		//Com_Error(ERR_DROP,"ERROR: anim %d < 0\n", anim );
-		Com_Printf("ERROR: anim %d < 0 - ignored.\n", anim ); // UQ1: I see no reason to crash the game over this... Report it and return 0...
-		return 0;
+		Com_Error(ERR_DROP,"ERROR: anim %d < 0\n", anim );
 	}
 	return pm->animations[anim].numFrames * fabs((float)(pm->animations[anim].frameLerp));
 }
@@ -3015,13 +3013,7 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 		return;
 	}
 
-	//assert(anim > -1);
-	if (!(anim > -1))
-	{
-		Com_Printf("ERROR: (BG_SetAnimFinal) anim %d < 0 - ignored.\n", anim ); // UQ1: I see no reason to crash the game over this... Report it and return 0...
-		return;
-	}
-
+	assert(anim > -1);
 	assert(animations[anim].firstFrame > 0 || animations[anim].numFrames > 0);
 
 	//NOTE: Setting blendTime here breaks actual blending..

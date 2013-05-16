@@ -347,52 +347,24 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 	//NPCs cheat and store this directly because converting movement into a ucmd loses precision
 	VectorCopy( dir, self->client->ps.moveDir );
 
-	if (cmd->buttons & BUTTON_WALKING
-		|| NPC->client->ps.speed == NPCInfo->stats.walkSpeed)
+	fDot = DotProduct( forward, dir ) * 127.0f;
+	rDot = DotProduct( right, dir ) * 127.0f;
+	//Must clamp this because DotProduct is not guaranteed to return a number within -1 to 1, and that would be bad when we're shoving this into a signed byte
+	if ( fDot > 127.0f )
 	{
-		fDot = DotProduct( forward, dir ) * 48.0f;
-		rDot = DotProduct( right, dir ) * 48.0f;
-
-		//Must clamp this because DotProduct is not guaranteed to return a number within -1 to 1, and that would be bad when we're shoving this into a signed byte
-		if ( fDot > 48.0f )
-		{
-			fDot = 48.0f;
-		}
-		if ( fDot < -48.0f )
-		{
-			fDot = -48.0f;
-		}
-		if ( rDot > 48.0f )
-		{
-			rDot = 48.0f;
-		}
-		if ( rDot < -48.0f )
-		{
-			rDot = -48.0f;
-		}
+		fDot = 127.0f;
 	}
-	else
+	if ( fDot < -127.0f )
 	{
-		fDot = DotProduct( forward, dir ) * 127.0f;
-		rDot = DotProduct( right, dir ) * 127.0f;
-
-		//Must clamp this because DotProduct is not guaranteed to return a number within -1 to 1, and that would be bad when we're shoving this into a signed byte
-		if ( fDot > 127.0f )
-		{
-			fDot = 127.0f;
-		}
-		if ( fDot < -127.0f )
-		{
-			fDot = -127.0f;
-		}
-		if ( rDot > 127.0f )
-		{
-			rDot = 127.0f;
-		}
-		if ( rDot < -127.0f )
-		{
-			rDot = -127.0f;
-		}
+		fDot = -127.0f;
+	}
+	if ( rDot > 127.0f )
+	{
+		rDot = 127.0f;
+	}
+	if ( rDot < -127.0f )
+	{
+		rDot = -127.0f;
 	}
 	cmd->forwardmove = floor(fDot);
 	cmd->rightmove = floor(rDot);

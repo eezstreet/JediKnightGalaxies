@@ -8,10 +8,10 @@
 
 //NEEDED FOR MIND-TRICK on NPCS=========================================================
 extern void NPC_PlayConfusionSound( gentity_t *self );
-extern void NPC_Humanoid_PlayConfusionSound( gentity_t *self );
+extern void NPC_Jedi_PlayConfusionSound( gentity_t *self );
 extern void NPC_UseResponse( gentity_t *self, gentity_t *user, qboolean useWhenDone );
 //NEEDED FOR MIND-TRICK on NPCS=========================================================
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 
 extern vmCvar_t		g_saberRestrictForce;
 
@@ -1871,7 +1871,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 					}
 					if ( traceEnt->client->ps.powerups[PW_CLOAKED] )
 					{//disable cloak temporarily
-						NPC_Humanoid_Decloak( traceEnt );
+						Jedi_Decloak( traceEnt );
 						traceEnt->client->cloakToggleTime = level.time + Q_irand( 3000, 10000 );
 					}
 				}
@@ -2656,7 +2656,7 @@ qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qbool
 			}
 			else
 			{
-				NPC_Humanoid_PlayConfusionSound( traceEnt );
+				NPC_Jedi_PlayConfusionSound( traceEnt );
 			}
 			WP_ForcePowerStart( self, FP_TELEPATHY, override );
 		}
@@ -5620,7 +5620,7 @@ powersetcheck:
 	}
 }
 
-qboolean NPC_Humanoid_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
+qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc )
 {
 	int	dodgeAnim = -1;
 

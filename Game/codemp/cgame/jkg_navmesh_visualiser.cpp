@@ -1,9 +1,6 @@
-#ifdef __DISABLED__
-
 #include <DebugDraw.h>
 #include <Recast.h>
 #include <RecastDebugDraw.h>
-
 extern "C"
 {
     #include "cg_local.h"
@@ -193,13 +190,10 @@ static navMeshDataHeader_t navMeshHeader;
 static navMeshVisual_t navMeshVisual;
 static jkgNavmeshDebugDraw navMeshDrawer;
 
-#endif //__DISABLED__
-
 extern "C"
 {
 	void JKG_Nav_Init ( const char *mapname )
 	{
-#ifdef __DISABLED__
 		fileHandle_t f;
 		char *buffer;
 		int size = 0;
@@ -266,12 +260,10 @@ extern "C"
 		free (buffer);
 
 		CG_Printf ("^2Navigation mesh cache found for this map.\n");
-#endif //__DISABLED__
 	}
 
 	void JKG_Nav_Destroy ( void )
 	{
-#ifdef __DISABLED__
 		free (navMeshVisual.areas);
 		free (navMeshVisual.dVerts);
 		free (navMeshVisual.flags);
@@ -279,16 +271,12 @@ extern "C"
 		free (navMeshVisual.polys);
 		free (navMeshVisual.tris);
 		free (navMeshVisual.verts);
-#endif //__DISABLED__
 	}
 
-#ifdef __DISABLED__
 	extern vmCvar_t jkg_debugNavmesh;
-#endif //__DISABLED__
 
 	void JKG_Nav_VisualizeMesh ( void )
 	{
-#ifdef __DISABLED__
 		if ( !jkg_debugNavmesh.integer )
 		{
 			return;
@@ -300,6 +288,6 @@ extern "C"
 		}
 
 		duDebugDrawPolyMesh (&navMeshDrawer, navMeshVisual.polyMesh);
-#endif //__DISABLED__
 	}
+
 }

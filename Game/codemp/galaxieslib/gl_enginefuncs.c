@@ -1,19 +1,3 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// gl_enginefuncs.c
-// Duplicates the functionality of various Q_ funcs
-// (c) 2013 Jedi Knight Galaxies
-
 #include "gl_enginefuncs.h"
 #include <stdio.h>
 #include <windows.h>
@@ -203,6 +187,16 @@ void __declspec(naked) FS_FCloseFile( fileHandle_t file ) {
 	(void)file;
 	__asm {
 		push 0x43B1A0
+		ret
+	}
+}
+
+int __declspec(naked) FS_Seek( fileHandle_t f, long offset, int origin ) {
+	(void)f;
+	(void)offset;
+	(void) origin;
+	__asm {
+		push 0x43C200
 		ret
 	}
 }

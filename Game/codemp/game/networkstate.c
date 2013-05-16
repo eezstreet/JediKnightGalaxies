@@ -13,14 +13,6 @@ netField_t	networkStateFields[] =
 	{ NSF(ironsightsDebounceStart), 32 },
 	{ NSF(isSprinting), 1 },
 	{ NSF(isInSights), 1 },
-	// This code always exists on at least one gametype --eez
-#ifdef __JKG_NINELIVES__
-	{ NSF(iLivesLeft), 8 },
-#elif defined __JKG_TICKETING__
-	{ NSF(iLivesLeft), 8 },
-#elif defined __JKG_ROUNDBASED__
-	{ NSF(iLivesLeft), 8 },
-#endif
 };
 
 netField_t extraStateFields[] =

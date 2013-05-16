@@ -218,10 +218,6 @@ void CG_DrawInformation( void ) {
 			s = CG_GetStringEdString("MENUS", "FREE_FOR_ALL");//"Free For All";
 //		s = "Free For All";
 		break;
-	case GT_WARZONE:
-			s = CG_GetStringEdString("MENUS", "WARZONE");//"Free For All";
-//		s = "Free For All";
-		break;
 	case GT_HOLOCRON:
 			s = CG_GetStringEdString("MENUS", "HOLOCRON_FFA");//"Holocron FFA";
 //		s = "Holocron FFA";
@@ -304,15 +300,6 @@ void CG_DrawInformation( void ) {
 	}
 
 	if (cgs.gametype >= GT_CTF) {
-		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
-		if ( value ) {
-			UI_DrawProportionalString( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "CAPTURELIMIT"), value ),
-				UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
-			y += iPropHeight;
-		}
-	}
-
-	if (cgs.gametype == GT_WARZONE) {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
 			UI_DrawProportionalString( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "CAPTURELIMIT"), value ),
@@ -441,11 +428,6 @@ void CG_DrawInformation( void ) {
 			UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		UI_DrawProportionalString( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_CTY_2")),
-			UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
-		y += iPropHeight;
-		break;
-	case GT_WARZONE:					
-		UI_DrawProportionalString( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_WARZONE_1")),
 			UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;

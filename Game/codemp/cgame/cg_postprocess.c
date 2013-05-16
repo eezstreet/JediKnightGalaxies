@@ -51,12 +51,6 @@ gshshader_t shMotionBlur;
 gshshader_t shBrightPass;
 gshshader_t shBloom;
 #endif
-#ifdef __GL_ANAGLYPH__
-gshshader_t shAnaglyph;
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-gshshader_t shEmboss;
-#endif //__GL_EMBOSS__
 //GLuint cmshader;
 
 gshshader_t shGenericOutput;
@@ -78,12 +72,6 @@ static void PP_RenderGaussianBlur (const void *data);
 #ifndef BLOOM
 static void PP_RenderBloom (const void *data);
 #endif
-#ifdef __GL_ANAGLYPH__
-static void PP_RenderAnaglyph (const void *data);
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-static void PP_RenderEmboss (const void *data);
-#endif //__GL_EMBOSS__
 
 static const postProcessEffect_t postProcessEffects[] = {
     { "colormod", PP_RenderColorMod },
@@ -92,12 +80,6 @@ static const postProcessEffect_t postProcessEffects[] = {
 #ifndef BLOOM
     { "bloom", PP_RenderBloom },
 #endif
-#ifdef __GL_ANAGLYPH__
-	{ "anaglyph", PP_RenderAnaglyph },
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-	{ "emboss", PP_RenderEmboss },
-#endif //__GL_EMBOSS__
 };
 static const unsigned int numEffects = sizeof (postProcessEffects) / sizeof (postProcessEffect_t);
 
@@ -120,7 +102,7 @@ static int PPInited = 0;
 static unsigned int sceneDepth;
 
 #define GL_BIND_ADDRESS 0x489FA0
-void GL_Bind ( unsigned int textureId )
+static void GL_Bind ( unsigned int textureId )
 {
     static image_t image;
     image.texnum = textureId;
@@ -135,7 +117,7 @@ void GL_Bind ( unsigned int textureId )
 }
 
 #define GL_SELECTTEXTURE_ADDRESS 0x48A010
-int GL_SelectTexture ( int textureUnit )
+static int GL_SelectTexture ( int textureUnit )
 {
     __asm
     {
@@ -188,12 +170,6 @@ int PP_InitPostProcess() {
 	GSH_SetUniform1i ("sceneTexture", 0);
 	GSH_SetUniform1i ("bloomTexture", 1);
 #endif
-#ifdef __GL_ANAGLYPH__
-	GSH_LoadShader(&shAnaglyph, "gsh/pp/anaglyph.gsh");
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-	GSH_LoadShader(&shEmboss, "gsh/pp/emboss.gsh");
-#endif //__GL_EMBOSS__
 	
 	GSH_LoadShader(&shGenericOutput, "gsh/generic.gsh");
 	CheckGLErrors (__FILE__, __LINE__);
@@ -265,12 +241,6 @@ void PP_TerminatePostProcess() {
 	GSH_FreeShader(&shMotionBlur);
 	//GSH_FreeShader(&shBrightPass);
 	//GSH_FreeShader(&shBloom);
-#ifdef __GL_ANAGLYPH__
-	GSH_FreeShader(&shAnaglyph);
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-	GSH_FreeShader(&shEmboss);
-#endif //__GL_EMBOSS__
 	
 	GSH_FreeShader(&shGenericOutput);
 	
@@ -556,16 +526,6 @@ void PP_BeginPostProcess (void) {
     postProcessQueueTail = 0;
 }
 
-#ifdef __SWF__
-extern void	gameswf_processor(char *filename);
-
-extern void	gameswf_startswf(char *filename);
-extern void	gameswf_finishswf();
-extern void	gameswf_continueswf();
-extern int gameswf_swfplaying();
-extern vmCvar_t	jkg_swf;
-#endif //__SWF__
-
 //=========================================================
 // PP_EndPostProcess
 //---------------------------------------------------------
@@ -754,118 +714,6 @@ static void PP_RenderBloom (const void *data) {
     PP_RenderEffectToTexture (&quadTextureData, fboToUse);
 }
 #endif
-
-#ifdef __GL_ANAGLYPH__
-extern int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName );
-
-//=========================================================
-// PP_RenderAnaglyph
-//---------------------------------------------------------
-// Description:
-// Carries out the anaglyph pass.
-//=========================================================
-static void PP_RenderAnaglyph (const void *data) {
-	float pixelx, pixely;
-	int i;
-	const ppAnaglyphParams_t *anaglyphParams;
-	int loc_left, loc_right;
-	static unsigned int sdr;
-
-	if (!PPInited || !jkg_postprocess.integer) return;
-	
-	anaglyphParams = (const ppAnaglyphParams_t *)data;
-
-	pixelx = fboLastUsed->colorTextures[0]->width;
-	pixely = fboLastUsed->colorTextures[0]->height;
-
-	GSH_UseShader (&shAnaglyph);
-	GSH_SetUniform1f ("tex_left", 0);
-	GSH_SetUniform1f ("tex_right", 1);
-
-	//loc_left = GSH_GetUniformLocation(&shAnaglyph, "tex_left");
-    //loc_right = GSH_GetUniformLocation(&shAnaglyph, "tex_right");
-	
-#ifdef __0
-	/*
-	qglUseProgramObjectARB(sdr);
-	qglUniform1iARB(loc_left, 0);
-	qglUniform1iARB(loc_right, 1);
-
-	qglActiveTextureARB(GL_TEXTURE1_ARB);
-	qglBindTexture(GL_TEXTURE_2D, RIGHT_TEX);
-	qglEnable(GL_TEXTURE_2D);
-
-	qglActiveTextureARB(GL_TEXTURE0_ARB);
-	qglBindTexture(GL_TEXTURE_2D, LEFT_TEX);
-	qglEnable(GL_TEXTURE_2D);
-
-	draw_quad(-1, -1, 1, 1);
-
-	qglActiveTextureARB(GL_TEXTURE1_ARB);
-	qglDisable(GL_TEXTURE_2D);
-
-	qglActiveTextureARB(GL_TEXTURE0_ARB);
-	qglDisable(GL_TEXTURE_2D);
-
-	qglUseProgramObjectARB(0);
-	*/
-
-	GSH_UseShader(&shAnaglyph);
-	GSH_SetUniform1f("tex_left", 0);
-	GSH_SetUniform1f("tex_right", 1);
-
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glEnable(GL_TEXTURE_2D);
-
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glBindTexture(GL_TEXTURE_2D, 1);
-    glEnable(GL_TEXTURE_2D);
-
-    //draw_quad(-1, -1, 1, 1);
-	glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(-1, -1);
-    glTexCoord2f(1, 0); glVertex2f(1, -1);
-    glTexCoord2f(1, 1); glVertex2f(1, 1);
-    glTexCoord2f(0, 1); glVertex2f(-1, 1);
-    glEnd();
-
-    glActiveTextureARB(GL_TEXTURE1_ARB);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glDisable(GL_TEXTURE_2D);
-
-    glUseProgramObjectARB(0);
-#endif //_0
-		
-	quadTextureData.numTexturesUsed = 1;
-	quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
-		
-	PP_RenderEffectToTexture (&quadTextureData, fboToUse);
-}
-#endif //__GL_ANAGLYPH__
-
-#ifdef __GL_EMBOSS__
-static void PP_RenderEmboss (const void *data) {
-	const ppEmbossParams_t *EmbossParams;
-
-	if (!PPInited || !jkg_postprocess.integer) return;
-	
-	EmbossParams = (const ppEmbossParams_t *)data;
-
-	GSH_UseShader (&shEmboss);
-	//SetParameter4f( 0, m_varEmbossScale, 0, 0, 0 );
-	//GSH_SetUniform1f ("embossScale", EmbossParams->embossScale);
-	GSH_SetUniform1f ("0", EmbossParams->embossScale);
-	GSH_SetUniform1f ("1", EmbossParams->embossScale);
-
-	quadTextureData.numTexturesUsed = 1;
-	quadTextureData.textures[0] = fboLastUsed->colorTextures[0];
-		
-	PP_RenderEffectToTexture (&quadTextureData, fboToUse);
-}
-#endif //__GL_EMBOSS__
 
 float Q_flrand(float min, float max);
 

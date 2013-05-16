@@ -1,21 +1,9 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// bg_public.h
+// Copyright (C) 1999-2000 Id Software, Inc.
+//
 // bg_public.h -- definitions shared by both the server game and client game modules
 
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
-// Copyright (C) 1999-2000 Id Software, Inc. (c) 2013 Jedi Knight Galaxies
 
 #ifndef __BG_PUBLIC_H__
 #define __BG_PUBLIC_H__
@@ -113,11 +101,9 @@
 #define	CS_SKYBOXORG			(CS_MODELS+MAX_MODELS)		//rww - skybox info
 #define	CS_SOUNDS				(CS_SKYBOXORG+1)
 #define CS_ICONS				(CS_SOUNDS+MAX_SOUNDS)
-//#define	CS_PLAYERS				(CS_ICONS+MAX_ICONS)
 #define	CS_PLAYERS				(CS_ICONS+MAX_ICONS)
 //#define CS_G2BONES				(CS_PLAYERS+MAX_CLIENTS)
-//#define CS_G2BONES				(CS_PLAYERS+MAX_ICONS) // UQ1: Set this to MAX_ICONS (64) for now... See what happens...
-#define CS_G2BONES				(CS_PLAYERS+1) // UQ1: Just enough for the 1 bone ent we still use...
+#define CS_G2BONES				(CS_PLAYERS+MAX_ICONS) // UQ1: Set this to MAX_ICONS (64) for now... See what happens...
 #define CS_LOCATIONS			(CS_G2BONES+MAX_G2BONES)
 #define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS) 
 #define CS_EFFECTS				(CS_PARTICLES+MAX_LOCATIONS)
@@ -272,15 +258,9 @@ enum {
 	GT_FFA,				// free for all
 	GT_HOLOCRON,		// holocron ffa
 	GT_JEDIMASTER,		// jedi master
-	GT_DUEL,			// one on one tournament
-	GT_POWERDUEL,		// one on two tournament
+	GT_DUEL,		// one on one tournament
+	GT_POWERDUEL,
 	GT_SINGLE_PLAYER,	// single player ffa
-
-#ifdef __RPG__
-	// UQ1: Added... Need to update gametypes file and menus to match...
-	GT_RPG_CITY,		// UQ1: New combined gametypes gametype. City area version.
-	GT_RPG_WILDERNESS,	// UQ1: New combined gametypes gametype. Wilderness area version.
-#endif //__RPG__
 
 	//-- team games go after this --
 
@@ -288,16 +268,6 @@ enum {
 	GT_SIEGE,			// siege
 	GT_CTF,				// capture the flag
 	GT_CTY,
-	GT_WARZONE,
-#ifdef __JKG_NINELIVES__
-	GT_LMS_NINELIVES,	// replace Holocron/Singleplayer?
-#endif
-#ifdef __JKG_TICKETING__
-	GT_LMS_TICKETED,
-#endif
-#ifdef __JKG_ROUNDBASED__
-	GT_LMS_ROUNDS,
-#endif
 	GT_MAX_GAME_TYPE
 };
 typedef int gametype_t;
@@ -674,8 +644,7 @@ typedef enum {
 	STAT_MAX_HEALTH,				// Maximum health
 	// Jedi Knight Galaxies
 	STAT_MAX_ARMOR,					// Maximum shield/armor
-	STAT_AMMO,						// Ammo in current weapon (ps->ammo contains total ammo in clips))
-	STAT_CAPTURE_ENTITYNUM			// Warzone Flag Capture Entity...
+	STAT_AMMO						// Ammo in current weapon (ps->ammo contains total ammo in clips))
 } statIndex_t;
 
 
@@ -1151,11 +1120,11 @@ typedef enum {
 	EV_EXPLOSIVE_ARM,
 	EV_MISSILE_DIE,
 	EV_ITEM_BREAK,		//Item gets broken due to loss of durability
-#ifdef __MMO__
+#ifdef __NOT_MMO__
 	EV_GOTO_ACI,		//Go to specific ACI slot (inexpensive)
 	EV_HITMARKER_ASSIST,
 	EV_HITMARKER_KILL,
-#endif //__MMO__
+#endif //__NOT_MMO__
 _
 	
 } entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
@@ -1387,10 +1356,6 @@ typedef enum {
 	ET_BODY,
 	ET_TERRAIN,
 	ET_FX,
-
-	ET_FLAG,				// Warzone Flag...
-	ET_AMMO_CRATE,			// Warzone Ammo Crate...
-	ET_HEALTH_CRATE,		// Warzone Health Crate...
 
 	ET_EVENTS				// any of the EV_* events can be added freestanding
 							// by setting eType to ET_EVENTS + eventNum
@@ -1908,8 +1873,5 @@ extern bgConstants_t bgConstants;
 void JKG_InitializeConstants(void);
 
 int BG_GetPairedValue(char *buf, char *key, char *outbuf);
-int trap_PC_LoadSource( const char *filename );
-int trap_PC_FreeSource( int handle );
-int trap_PC_ReadToken( int handle, pc_token_t *pc_token );
 
 #endif //__BG_PUBLIC_H__

@@ -507,23 +507,14 @@ static void JKG_PrintWeaponList_f ( void )
 	BG_PrintWeaponList();
 }
 
-static void JKG_ToggleCrouch ( void )
+static void JKG_PrintOrigin_f ( void )
 {
-	if((cg.time - cg.crouchToggleTime) <= 400)
-	{
-		// You can now no longer "teabag at maximum velocity" --eez
-		return;
-	}
-	cg.crouchToggled = !cg.crouchToggled;
-	cg.crouchToggleTime = cg.time;
+	Com_Printf("origin: %f %f %f\n", cg.predictedPlayerState.origin[0], cg.predictedPlayerState.origin[1], cg.predictedPlayerState.origin[2]);
 }
 
 #ifdef __AUTOWAYPOINT__
 extern void AIMod_AutoWaypoint ( void );
 extern void AIMod_AutoWaypoint_Clean ( void );
-extern void AIMod_MarkBadHeight ( void );
-extern void AIMod_AddRemovalPoint ( void );
-extern void AIMod_AWC_MarkBadHeight ( void );
 extern void CG_ShowSurface ( void );
 extern void CG_ShowSlope ( void );
 #endif //__AUTOWAYPOINT__
@@ -586,6 +577,9 @@ static consoleCommand_t	commands[] = {
 	// TEST
 	{ "cg_testmaster", CG_TestMaster },
 
+	// TEST
+	{ "fmodtest3d", JKG_TestFMOD3D },
+	{ "printOrigin", JKG_PrintOrigin_f },
 #ifdef __AUTOWAYPOINT__
 	{ "awp", AIMod_AutoWaypoint },
 	{ "autowaypoint", AIMod_AutoWaypoint },
@@ -593,12 +587,7 @@ static consoleCommand_t	commands[] = {
 	{ "autowaypointclean", AIMod_AutoWaypoint_Clean },
 	{ "showsurface", CG_ShowSurface },
 	{ "showslope", CG_ShowSlope },
-	{ "aw_badheight", AIMod_MarkBadHeight },
-	{ "awc_addremovalspot", AIMod_AddRemovalPoint },
-	{ "awc_addbadheight", AIMod_AWC_MarkBadHeight },
 #endif //__AUTOWAYPOINT__
-
-	{ "togglecrouch", JKG_ToggleCrouch },
 };
 
 

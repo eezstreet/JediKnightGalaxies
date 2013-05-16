@@ -1,5 +1,3 @@
-
-
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // cg_weapons.c -- events and effects dealing with weapons
@@ -17,10 +15,6 @@ extern vec4_t	redhudtint;
 extern float	*hudTintColor;
 
 static weaponInfo_t cg_weapons[MAX_WEAPON_TABLE_SIZE];
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-extern void CG_RecordLightPosition( vec3_t org );
-#endif //__EXPERIMENTAL_SHADOWS__
 
 // I'm so damned lazy when it comes to these phases...
 // We ought to take these and add some sort of extra time
@@ -3047,12 +3041,6 @@ static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDra
              weaponData->projectileRender.generic.lightColor[2]
         );
     }
-#ifdef __EXPERIMENTAL_SHADOWS__
-	else
-	{// UQ1: Seems to me these all glow anyway??? Just some don't have D lighting...
-		CG_RecordLightPosition( cent->lerpOrigin );
-	}
-#endif //__EXPERIMENTAL_SHADOWS__
     
     if ( weaponData->projectileRender.generic.runSound )
     {
@@ -3248,10 +3236,6 @@ static __inline void JKG_RenderChargingEffect ( centity_t *cent, const vec3_t mu
         );
         //trap_FX_PlayEffectID (chargingEffect, muzzlePosition, axis[0], -1, -1);
     }
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-	CG_RecordLightPosition( muzzlePosition );
-#endif //__EXPERIMENTAL_SHADOWS__
 }
 
 void JKG_RenderGenericWeaponWorld ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode, const vec3_t angles )
@@ -3281,10 +3265,6 @@ void JKG_RenderGenericWeaponWorld ( centity_t *cent, const weaponDrawData_t *wea
                 qfalse,
                 s->constantLight
             );
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_RecordLightPosition( flashOrigin );
-#endif //__EXPERIMENTAL_SHADOWS__
 	    }
 	}
 	
@@ -3393,7 +3373,7 @@ static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDra
             weaponData->explosiveRender.tripmine.g2Radius
         );
         
-        if ( firingMode )
+        /*if ( altFire )
         {
             if ( !JKG_IsTripMineArmed (cent) )
             {
@@ -3405,7 +3385,7 @@ static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDra
 		    ent.shaderRGBA[0] = ent.shaderRGBA[1] = ent.shaderRGBA[2] = 255;
 		    ent.shaderRGBA[3] = 0;
 		    ent.customShader = cgs.media.cloakedShader;
-		}
+		}*/
 
 		trap_R_AddRefEntityToScene (&ent);
 		
@@ -3480,10 +3460,6 @@ static void JKG_BlowGenericExplosive ( const centity_t *cent, const weaponDrawDa
         }
         
         trap_FX_PlayEffectID (weaponData->explosiveBlow.generic.explodeEffect, s->origin, forward, -1, -1);
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_RecordLightPosition( s->origin );
-#endif //__EXPERIMENTAL_SHADOWS__
     }
 }
 
@@ -3706,10 +3682,6 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
             qtrue,
             qtrue,
             s->constantLight);
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_RecordLightPosition( muzzle.origin );
-#endif //__EXPERIMENTAL_SHADOWS__
     }
     
     // TODO: At some point, I want to put this into a common function which the

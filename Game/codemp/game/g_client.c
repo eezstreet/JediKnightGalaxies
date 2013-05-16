@@ -13,15 +13,7 @@
 
 #include "qcommon/game_version.h"
 
-extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
-extern int gWPNum;
-
 extern void JKG_A_GiveEntItemForcedToACI( unsigned int itemIndex, int qualityOverride, inv_t *inventory, gclient_t *owner, unsigned int ACIslot );
-
-// Warzone...
-extern void Calculate_Warzone_Flag_Spawns ( void );
-extern gentity_t *SelectWarzoneSpawnpoint ( gentity_t *ent );
-
 
 static const char	*NET_AdrToString (netadr_t a)
 {
@@ -1068,9 +1060,9 @@ static qboolean CopyToBodyQue( gentity_t *ent ) {
 		islight = 1;
 	}
 
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	trap_SendServerCommand(-1, va("ircg %i %i %i %i %i", ent->s.number, body->s.number, body->s.weapon, body->s.weaponVariation, islight));
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	body->r.svFlags = ent->r.svFlags | SVF_BROADCAST;
 	VectorCopy (ent->r.mins, body->r.mins);
@@ -1929,18 +1921,18 @@ void ClientUserinfoChanged( int clientNum ) {
 		{
 			if ( client->pers.netnameTime > level.time  )
 			{
-#ifndef __MMO__ // UQ: Really do we need to announce this anyway??? Specially every 5 secs... lol!!!
+#ifndef __NOT_MMO__ // UQ: Really do we need to announce this anyway??? Specially every 5 secs... lol!!!
 				trap_SendServerCommand( clientNum, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NONAMECHANGE")) );
-#endif //__MMO__
+#endif //__NOT_MMO__
 				Info_SetValueForKey( userinfo, "name", oldname );
 				trap_SetUserinfo( clientNum, userinfo );			
 				strcpy ( client->pers.netname, oldname );
 			}
 			else
 			{				
-#ifndef __MMO__ // Really do we need to announce this anyway???
+#ifndef __NOT_MMO__ // Really do we need to announce this anyway???
 				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString("MP_SVGAME", "PLRENAME"), client->pers.netname) );
-#endif //__MMO__
+#endif //__NOT_MMO__
 				client->pers.netnameTime = level.time + 5000;
 			}
 		}
@@ -1949,7 +1941,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	// set model
 	Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
 
-	if (d_perPlayerGhoul2.integer || ent->r.svFlags & SVF_BOT)
+	if (d_perPlayerGhoul2.integer)
 	{
 		if (Q_stricmp(model, client->modelname))
 		{
@@ -2023,22 +2015,12 @@ void ClientUserinfoChanged( int clientNum ) {
 	strcpy(saber2Name, client->sess.saber2Type);
 
 	// set max health
-	{
-		char *test = strchr(jkg_startingStats.string, '/');
-		char test2[16];
-		int len = test - jkg_startingStats.string;
-
-		strncpy(test2, jkg_startingStats.string, len);
-		test2[len] = '\0';
-
-		maxHealth = atoi(test2);
-	}
-	health = maxHealth; //atoi( Info_ValueForKey( userinfo, "handicap" ) );
+	maxHealth = 100;
+	health = 100; //atoi( Info_ValueForKey( userinfo, "handicap" ) );
 	client->pers.maxHealth = health;
-	// When the hell would the below ever be valid? NEVER --eez
-	// if ( client->pers.maxHealth < 1 || client->pers.maxHealth > maxHealth ) {
-	// 	client->pers.maxHealth = 100;
-	// }
+	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > maxHealth ) {
+		client->pers.maxHealth = 100;
+	}
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
 /*	NOTE: all client side now
@@ -2103,10 +2085,9 @@ void ClientUserinfoChanged( int clientNum ) {
 //	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
 //	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
 
-#ifdef __MMO__
+#ifndef __NOT_MMO__
 	// UQ1: MY GOD! THE DIFFERENCE IN SPEED!!!!!!
 	// eez: Fixed, the define was backwards
-	// UQ1: Actually it was correct. This version sends less data for MMO mode. Some of the missing data is still needed in phase 1.
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
@@ -2121,7 +2102,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			client->pers.maxHealth,
 			sex );
 	}
-#else //!__MMO__
+#else //!__NOT_MMO__
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
@@ -2134,7 +2115,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			client->pers.netname, client->sess.sessionTeam, model, c1, c2, 
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader, saberName, saber2Name, client->sess.duelTeam, sex);
 	}
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	trap_SetConfigstring( CS_PLAYERS+clientNum, s );
 
@@ -2201,7 +2182,7 @@ extern int NextIDCode;
 extern int ClientConnectionActive[32];
 
 extern vmCvar_t jkg_antifakeplayer;
-extern qboolean g_dontPenalizeTeam; //g_cmds.c
+
 const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value;
 //	char		*areabits;
@@ -2212,6 +2193,12 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char *luaresp;
 	const char *banreason;
 	int i;
+	// JKG Accounts
+	char *loginreply;
+	jkgCharacter_t *character = NULL;
+	char username[64];
+	char hashedpass[256];
+	int charslot;
 
 	ent = &g_entities[ clientNum ];
 	ent->LuaUsable = 1; // So we can use it in lua (PlayerConnected hook)
@@ -2272,14 +2259,6 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	//assign the pointer for bg entity access
 	ent->playerState = &ent->client->ps;
 
-	if ( ent->health && ent->client && ent->client->sess.sessionTeam != TEAM_SPECTATOR && clientNum == ent->client->ps.clientNum) {
-		ent->flags &= ~FL_GODMODE;
-		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-		g_dontPenalizeTeam = qtrue;
-		player_die( ent, ent, ent, 100000, MOD_TEAM_CHANGE );
-		g_dontPenalizeTeam = qfalse;
-	}
-
 //	areabits = client->areabits;
 
 	memset( client, 0, sizeof(*client) );
@@ -2336,6 +2315,24 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		}
 	}
 
+	// JKG Accounts Login
+	if ( !isBot ) {
+		value = Info_ValueForKey(userinfo, "user");
+		Q_strncpyz( username, value, sizeof(username) );
+
+		value = Info_ValueForKey(userinfo, "pass");
+		Q_strncpyz( hashedpass, value, sizeof(hashedpass) );
+
+		value = Info_ValueForKey(userinfo, "slot");
+		charslot = atoi( value );
+
+		loginreply = JKG_AccountLogin( username, hashedpass, charslot, clientNum, &character );
+		if ( loginreply ) {
+			client->pers.connected = CON_DISCONNECTED;
+			return loginreply;
+		}
+	}
+
 	// get and distribute relevent paramters
 	G_LogPrintf( "ClientConnect: %i. IP: %s\n", clientNum, isBot ? "Bot" : NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress) );
 	ClientUserinfoChanged( clientNum );
@@ -2365,6 +2362,8 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	TeamInitialize( clientNum );
 	UpdateWindowTitle();
 	
+	level.nextHeartbeat = level.time + 2000;	// Send an update in a second
+
 	client->ps.persistant[PERS_CREDITS] = jkg_startingCredits.integer-1;	// hack to give us our starting gear
 	client->storedCredits = jkg_startingCredits.integer-1;
 
@@ -2406,7 +2405,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	ent->inventory = g_entities[clientNum].inventory;
 
 	// eezstreet edit: set our item data
-	// TODO: fix this broken mess
 	memset(&ent->client->coreStats, 0, sizeof(ent->client->coreStats));
 	ent->client->coreStats.weight = MAX_INVENTORY_WEIGHT;
 	//eezstreet end
@@ -2450,19 +2448,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 			return;
 		}
 	}
-	// Alright, let's set up the lives for LMS.
-#ifdef __JKG_NINELIVES__
-	if(g_gametype.integer == GT_LMS_NINELIVES)
-	{
-		client->ns.iLivesLeft = 9;	// Nine lives
-	}
-#endif
-#ifdef __JKG_ROUNDBASED__
-	if(g_gametype.integer == GT_LMS_ROUNDS)
-	{
-		client->ns.iLivesLeft = 1;	// One life for each round
-	}
-#endif
 
 	client = level.clients + clientNum;
 
@@ -3019,7 +3004,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	int                 savedWeaponId = 0;
 	int					topAmmoValues[JKG_MAX_AMMO_INDICES];
 	qboolean			haveItem = qfalse;
-	qboolean			use_secondary_spawnpoint = qfalse;
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -3037,8 +3021,7 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	//first we want the userinfo so we can see if we should update this client's saber -rww
 	/*if (level.clients[ent->s.clientNum].deathcamTime) {
 		level.clients[ent->s.clientNum].deathcamTime = 0;
-		if (!(ent->r.svFlags & SVF_BOT))
-			trap_SendServerCommand(ent->s.clientNum, "dcr");
+		trap_SendServerCommand(ent->s.clientNum, "dcr");
 	}*/
 	trap_GetUserinfo( index, userinfo, sizeof(userinfo) );
 	while (l < MAX_SABERS)
@@ -3167,36 +3150,16 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
 		}
 	}
-	
+
 	// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
-		if (g_gametype.integer == GT_WARZONE)
-		{
-			// In case spawns havn't been allocated as yet...
-			Calculate_Warzone_Flag_Spawns();
-
-			spawnPoint = SelectWarzoneSpawnpoint(ent);
-			VectorCopy(spawnPoint->s.origin, spawn_origin);
-			VectorCopy(spawnPoint->s.angles, spawn_angles);
-
-			trap_SendServerCommand( -1, va("tkt %i %i", redtickets, bluetickets ));
-		}
-		else
-		{
-			if (!GLua_Hook_SelectSpectatorSpawn(ent->s.number, &spawnPoint, spawn_origin, spawn_angles))
-				spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles );
-		}
+		if (!GLua_Hook_SelectSpectatorSpawn(ent->s.number, &spawnPoint, spawn_origin, spawn_angles))
+			spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles );
 	}
-	else if (g_gametype.integer == GT_WARZONE && client->sess.sessionTeam != TEAM_SPECTATOR)
-	{
-		// In case spawns havn't been allocated as yet...
-		Calculate_Warzone_Flag_Spawns();
-		use_secondary_spawnpoint = qtrue;
-	}
-	else 
-	{
+
+	else {
 		do {
 			// the first spawn should be at a good looking spot
 			if ( !client->pers.initialSpawn /*&& client->pers.localClient*/ ) {
@@ -3360,16 +3323,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	}
 	// clear entity values
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
-	{
-		char *test = strchr(jkg_startingStats.string, '/');
-		char test2[16];
-		int len = test - jkg_startingStats.string;
-
-		strncpy(test2, jkg_startingStats.string, len);
-		test2[len] = '\0';
-
-		client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth = atoi(test2);
-	}
 	client->ps.eFlags = flags;
 	client->mGameFlags = gameFlags;
 
@@ -3654,15 +3607,7 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	}
 	else
 	{
-		char *test = strchr(jkg_startingStats.string, '/');
-		char test2[16];
-		int len;
-		test++;
-		len = strlen(jkg_startingStats.string)-(test-jkg_startingStats.string);
-
-		strncpy(test2, test, len);
-		test2[len] = '\0';
-		client->ps.stats[STAT_ARMOR] = client->ps.stats[STAT_MAX_ARMOR] * (float)(atoi(test2)/100.0f);
+		client->ps.stats[STAT_ARMOR] = client->ps.stats[STAT_MAX_ARMOR] * 0.25;
 	}
 
 	G_SetOrigin( ent, spawn_origin );
@@ -3716,66 +3661,7 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	} else {
 		// fire the targets of the spawn point
 		if (spawnPoint) G_UseTargets( spawnPoint, ent );
-		
-#ifdef __WAYPOINT_SPAWNS__
-		if (gWPNum > 0)
-		{
-			vec3_t		org;
-			gentity_t	*npc = NULL;
-			int			waypoint = irand(0, gWPNum-1);
-			int			random = irand(0,10);
-			int			tries = 0;
 
-			while (gWPArray[waypoint]->inuse == qfalse || !JKG_CheckBelowWaypoint(waypoint) || !JKG_CheckRoutingFrom( waypoint ))
-			{
-				gWPArray[waypoint]->inuse = qfalse; // set it bad!
-
-				if (tries > 10)
-				{
-					return; // Try again on next check...
-				}
-
-				// Find a new one... This is probably a bad waypoint...
-				waypoint = irand(0, gWPNum-1);
-				tries++;
-			}
-
-			VectorCopy(gWPArray[waypoint]->origin, org);
-			org[2]+=48;
-			G_SetOrigin(ent, gWPArray[waypoint]->origin);
-			VectorCopy(org, ent->client->ps.origin);
-			VectorCopy(org, ent->r.currentOrigin);
-			VectorCopy(org, ent->s.origin);
-			VectorCopy(org, ent->s.pos.trBase);
-		}
-#endif //__WAYPOINT_SPAWNS__
-
-		if ( client->sess.sessionTeam != TEAM_SPECTATOR && use_secondary_spawnpoint)
-		{// Warzone gametype flag spawnpoint usage...
-			spawnPoint = SelectWarzoneSpawnpoint( ent );
-
-			VectorCopy(spawnPoint->s.origin, ent->client->ps.origin);
-			VectorCopy(spawnPoint->s.origin, ent->s.origin);
-			VectorCopy(spawnPoint->s.origin, ent->r.currentOrigin);
-
-			G_SetOrigin(ent, spawnPoint->s.origin);
-			VectorCopy(spawnPoint->s.origin, ent->client->ps.origin);
-			VectorCopy(spawnPoint->s.origin, ent->r.currentOrigin);
-			VectorCopy(spawnPoint->s.origin, ent->s.origin);
-			VectorCopy(spawnPoint->s.origin, ent->s.pos.trBase);
-
-			if (client->sess.sessionTeam == TEAM_RED)
-			{// Decrease the tickets for this team...
-				redtickets--;
-			}
-			else
-			{// Decrease the tickets for this team...
-				bluetickets--;
-			}
-
-			trap_SendServerCommand( -1, va("tkt %i %i", redtickets, bluetickets ));
-		}
-		
 		// select the highest weapon number available, after any
 		// spawn given items have fired
 		/*
@@ -3823,11 +3709,10 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 		ent->client->invulnerableTimer = level.time + g_spawnInvulnerability.integer;
 	}
 
-//#ifndef __MMO__
+#ifndef __NOT_MMO__
 	// UQ1: Again, use an event :)
-	if (!(ent->r.svFlags & SVF_BOT))
-		trap_SendServerCommand(ent->s.number, "dcr");
-//#endif //__MMO__
+	trap_SendServerCommand(ent->s.number, "dcr");
+#endif //__NOT_MMO__
 
 	// Loop through the items in our inventory to determine ammo count
 	memset(topAmmoValues, 0, sizeof(topAmmoValues));
@@ -3878,11 +3763,11 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	trap_ICARUS_InitEnt( ent );
 
 	// set their weapon
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	trap_SendServerCommand(client->ps.clientNum, "aciset 1");
-#else __MMO__
+#else __NOT_MMO__
 	G_AddEvent(ent, EV_GOTO_ACI, 1);
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	// send important shop data to them ~eez
 	
@@ -4042,6 +3927,8 @@ void ClientDisconnect( int clientNum ) {
 
 	G_ClearClientLog(clientNum);
 	UpdateWindowTitle();
+
+	level.nextHeartbeat = level.time + 2000;	// Send an update in a second
 }
 
 

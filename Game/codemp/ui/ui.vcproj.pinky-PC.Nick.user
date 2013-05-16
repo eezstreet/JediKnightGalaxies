@@ -39,7 +39,7 @@
 			<DebugSettings
 				Command="C:\Program Files (x86)\LucasArts\Star Wars Jedi Knight Jedi Academy\GameData\jamp.exe"
 				WorkingDirectory="../Debug/DLLs"
-				CommandArguments="+set fs_cdpath &quot;C:\progra~2\LucasArts\starwa~1\GameData&quot; +set fs_game &quot;JKG&quot; +set password &quot;waffle&quot; +connect localhost:29001 +set r_fullscreen 0 +seta jkg_swf 0 -zone 1024"
+				CommandArguments="+set fs_cdpath &quot;C:\progra~2\LucasArts\starwa~1\GameData&quot; +set fs_game &quot;JKG&quot; +set password &quot;waffle&quot; +connect localhost:29001 +set r_fullscreen 0"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"

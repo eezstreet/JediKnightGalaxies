@@ -1,18 +1,5 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// cg_public.h
-// Copyright (C) 1999-2000 Id Software, Inc. (c) 2013 Jedi Knight Galaxies
-
+// Copyright (C) 1999-2000 Id Software, Inc.
+//
 #ifndef __CG_PUBLIC_H
 #define __CG_PUBLIC_H
 
@@ -25,7 +12,7 @@
 
 // Jedi Knight Galaxies
 // Goddamn morrons at Ravensoft.. 256 clientside, 1024 serverside? yea right.. fixin
-// Note, this uses a engine patch to disable the limit and an offset change to ensure snap.serverCommandSequence is still set --boba
+// Note, this uses a engine patch to disable the limit and an offset change to ensure snap.serverCommandSequence is still set
 
 //#define	MAX_ENTITIES_IN_SNAPSHOT	256
 #define	MAX_ENTITIES_IN_SNAPSHOT	1024

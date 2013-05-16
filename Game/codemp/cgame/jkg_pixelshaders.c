@@ -232,7 +232,7 @@ int GSH_LoadShader(gshshader_t *shader, const char *filename) {
 // Description:
 // Gets the location of the uniform for the given shader.
 //=========================================================
-int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName )
+static int GSH_GetUniformLocation ( gshshader_t *shader, const char *uniformName )
 {
     int i;
     int location = -1;

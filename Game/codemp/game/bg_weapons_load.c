@@ -5,8 +5,6 @@
 #include <json/cJSON.h>
 #include "../cgame/animtable.h"
 
-static int fmLoadCounter;
-
 static ID_INLINE void BG_ParseWeaponStatsFlags ( weaponData_t *weaponData, const char *flagStr )
 {
     if ( Q_stricmp (flagStr, "cookable") == 0 )
@@ -552,7 +550,7 @@ static void ReadString ( cJSON *parent, const char *field, char *dest, size_t de
 
 #ifdef CGAME
 
-static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *fireModeNode, int numFireModes )
+static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *fireModeNode )
 {
     cJSON *node = NULL;
     cJSON *child = NULL;
@@ -571,17 +569,6 @@ static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *f
 
 	ReadString (fireModeNode, "crosshairShader", fireMode->crosshairShader, MAX_QPATH);
 	ReadString (fireModeNode, "switchToSound", fireMode->switchToSound, MAX_QPATH);
-	if(!fireMode->switchToSound || !fireMode->switchToSound[0])
-	{
-		if(fmLoadCounter == 0)
-		{
-			Com_sprintf(fireMode->switchToSound, MAX_QPATH, "sound/weapons/common/click%i.wav", numFireModes);
-		}
-		else
-		{
-			Com_sprintf(fireMode->switchToSound, MAX_QPATH, "sound/weapons/common/click1.wav");
-		}
-	}
 
 	node = cJSON_GetObjectItem (fireModeNode, "animType");
     fireMode->animType = cJSON_ToInteger (node);
@@ -698,8 +685,6 @@ static void BG_ParseVisualsFireMode ( weaponVisualFireMode_t *fireMode, cJSON *f
     
     // Explosive armed event
     ReadString (fireModeNode, "armsound", fireMode->explosiveArm.armSound, sizeof (fireMode->explosiveArm.armSound));
-
-	fmLoadCounter++;
 }
 
 static void BG_ParseVisuals ( weaponData_t *weaponData, cJSON *visualsNode )
@@ -779,7 +764,7 @@ static void BG_ParseVisuals ( weaponData_t *weaponData, cJSON *visualsNode )
 		node = cJSON_GetObjectItem (visualsNode, va("firemode%i", i) );
 		if(node)
 		{
-			BG_ParseVisualsFireMode(&weaponVisuals->visualFireModes[i], node, weaponData->numFiringModes);
+			BG_ParseVisualsFireMode(&weaponVisuals->visualFireModes[i], node);
 		}
 	}
 }
@@ -802,8 +787,6 @@ static qboolean BG_ParseWeaponFile ( const char *weaponFilePath )
     int fileLen = strap_FS_FOpenFile (weaponFilePath, &f, FS_READ);
     
     weaponData_t weaponData;
-
-	fmLoadCounter = 0;
     
     if ( !f || fileLen == -1 )
     {

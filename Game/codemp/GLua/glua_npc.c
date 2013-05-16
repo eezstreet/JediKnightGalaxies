@@ -1889,7 +1889,7 @@ static int GLua_Player_GiveHoldable(lua_State *L) {
 }
 
 void Jetpack_Off(gentity_t *ent);
-void NPC_Humanoid_Decloak( gentity_t *self );
+void Jedi_Decloak( gentity_t *self );
 
 static int GLua_Player_TakeHoldable(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);

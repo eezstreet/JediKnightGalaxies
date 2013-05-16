@@ -1,23 +1,5 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// jkg_gangwars.h
-// Contains crap about the TDM/"Gang Wars" gametype proposed by Pande
-// Copyright (c) 2013 Jedi Knight Galaxies
-
 #ifndef __JKG_GANGWARS_H
 #define __JKG_GANGWARS_H
-
-#pragma once
 
 typedef struct {
 	char name[512];			// Display Name
@@ -40,9 +22,8 @@ typedef struct {
 	vec4_t teamColor;
 } gangWarsTeam_t;
 
-// UQ1: Moved to q_shared.c to stop compile header issues...
-extern gangWarsTeam_t bgGangWarsTeams[32];
-extern int bgnumGangWarTeams;
+gangWarsTeam_t bgGangWarsTeams[32];
+int bgnumGangWarTeams;
 
 void JKG_BG_GangWarsInit(void);
 void JKG_BG_GangWarsExit(void);

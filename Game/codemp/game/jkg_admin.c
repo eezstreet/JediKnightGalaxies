@@ -282,9 +282,9 @@ static void AdmCmd_AmKick(gentity_t *ent, int clientNum, int rank)
 		trap_DropClient(target, va("was kicked: %s", reason));
 	} else {
 		G_LogPrintf("Admin: %s has kicked %s\n", SanitizeName(ent->client->pers.netname), SanitizeName(level.clients[target].pers.netname));
-#ifndef __MMO__ // UQ1: clear up some spam when kicking mass bots. Could add bot check if we really need this to display...
+#ifndef __NOT_MMO__ // UQ1: clear up some spam when kicking mass bots. Could add bot check if we really need this to display...
 		trap_DropClient(target, "was kicked");
-#endif //__MMO__
+#endif //__NOT_MMO__
 	}
 }
 
@@ -877,7 +877,7 @@ static void AdmCmd_AmLoot(gentity_t *ent, int clientNum, int rank)
 	item.id = &itemLookupTable[id];
 	item.itemQuality = quality;
 
-	if((ent->client->coreStats.weight - item.id->weight) <= 0)
+	if((ent->client->coreStats.weight - item.id->weight) < 0)
 	{
 		trap_SendServerCommand(clientNum, "print \"You cannot carry any more items.\n\"");
 		return;

@@ -2211,7 +2211,7 @@ extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 extern void AI_DeleteSelfFromGroup( gentity_t *self );
 extern void AI_GroupMemberKilled( gentity_t *self );
 extern void Boba_FlyStop( gentity_t *self );
-extern qboolean NPC_Humanoid_WaitingAmbush( gentity_t *self );
+extern qboolean Jedi_WaitingAmbush( gentity_t *self );
 void CheckExitRules( void );
 extern void Rancor_DropVictim( gentity_t *self );
 
@@ -2368,61 +2368,21 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->client->pmlock = qfalse;
 	self->client->pmnomove = qfalse;
 
-	// K, let's see if we can raise the killstreak on the attacker
-#ifndef __MMO__
-	if(jkg_bounty.integer)
-	{
-		if( attacker != self )
-		{
-			if( attacker->client )
-			{
-				attacker->client->numKillsThisLife++;
-			}
-		}
-	}
-#endif
-
 	// JKG: Give credits for each kill
-	if(attacker->s.number < MAX_CLIENTS && (self->s.number < MAX_CLIENTS || self->s.eType == ET_NPC))
+	if(attacker->s.number < MAX_CLIENTS && self->s.number < MAX_CLIENTS)
 	{
 		// TODO: Divide equally amongst party (once new party interface is done)
 		if(!OnSameTeam(attacker, self) && attacker != self)
 		{
-#ifndef __MMO__
-			int credits = jkg_creditsPerKill.integer;
-			int bounty = (self->client->numKillsThisLife >= 3) ? self->client->numKillsThisLife*jkg_bounty.integer : 0;
-			attacker->client->ps.persistant[PERS_CREDITS] += (credits + bounty);
+			attacker->client->ps.persistant[PERS_CREDITS] += jkg_creditsPerKill.integer;
+#ifndef __NOT_MMO__
 			// UQ1: Again, use an event :) creds as additional value on it.
-			// eez: events are sent to all players...
-			if(bounty > 0)
-			{
-				trap_SendServerCommand(attacker-g_entities, va("notify 1 \"Kill: +%i Credits, +%i Bounty\"", credits, bounty));
-			}
-			else
-			{
-				trap_SendServerCommand(attacker-g_entities, va("notify 1 \"Kill: +%i Credits\"", credits));
-			}
-#else //!__MMO__
+			trap_SendServerCommand(attacker-g_entities, va("notify 1 \"Kill: +%i Credits\"", jkg_creditsPerKill.integer));
+#else //!__NOT_MMO__
 			G_AddEvent(attacker, EV_HITMARKER_KILL, jkg_creditsPerKill.integer);
-#endif //__MMO__
+#endif //__NOT_MMO__
 		}
 	}
-#ifndef __MMO__
-	// Need to send this as an event. This is incredibly ugly atm
-	if(jkg_bounty.integer)
-	{
-		if(self->client && attacker->client && self->client->numKillsThisLife >= 3 )
-		{
-			trap_SendServerCommand(-1, va("chat 100 \"%s^7's bounty was claimed by %s.\"", self->client->pers.netname, attacker->client->pers.netname));
-		}
-		if(attacker->client && attacker->client->numKillsThisLife == 3)
-		{
-			trap_SendServerCommand(-1, va("chat 100 \"%s ^7has a bounty on their head!\"", attacker->client->pers.netname));
-		}
-		self->client->numKillsThisLife = 0;
-	}
-#endif
-
 	if(self->s.number < MAX_CLIENTS)
 	{
 		// Assists
@@ -2448,7 +2408,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				{
 					continue;
 				}
-				if( ((self->assistData.hitRecords[i].entWhoHit-g_entities) > MAX_CLIENTS && g_entities[self->assistData.hitRecords[i].entWhoHit-g_entities].s.eType != ET_NPC) ||
+				if( (self->assistData.hitRecords[i].entWhoHit-g_entities) > MAX_CLIENTS ||
 					(self->assistData.hitRecords[i].entWhoHit-g_entities) < 0)
 				{
 					continue;
@@ -2468,14 +2428,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 							assistCredits = jkg_creditsPerKill.integer - 1;
 						}
 						selfClient->ps.persistant[PERS_CREDITS] += assistCredits;
-#ifndef __MMO__ // UQ1: Use events! 1 event with credits param...
+#ifndef __NOT_MMO__ // UQ1: Use events! 1 event with credits param...
 						//trap_SendServerCommand(self->assistData.hitRecords[i].entWhoHit->client->ps.clientNum, "hitmarker");
 						trap_SendServerCommand(selfClient->ps.clientNum,
 							va("notify 1 \"Assist: +%i Credits\"", assistCredits));
 						trap_SendServerCommand(selfClient->ps.clientNum, "hitmarker");
-#else //!__MMO__
+#else //!__NOT_MMO__
 						G_AddEvent(self, EV_HITMARKER_ASSIST, assistCredits);
-#endif //__MMO__
+#endif //__NOT_MMO__
 					}
 				}
 			}
@@ -2571,7 +2531,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	if ( self->NPC )
 	{
-		if ( self->client && NPC_Humanoid_WaitingAmbush( self ) )
+		if ( self->client && Jedi_WaitingAmbush( self ) )
 		{//ambushing trooper
 			self->client->noclip = qfalse;
 		}
@@ -2741,20 +2701,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	}
 
 	if ( killer < 0 || killer >= MAX_CLIENTS ) {
-		gentity_t *killerEnt = &g_entities[killer];
-		
-		if (killerEnt && killerEnt->inuse && killerEnt->s.eType == ET_NPC)
-		{
-			if (killerEnt->client->pers.netname && killerEnt->client->pers.netname[0])
-				killerName = killerEnt->client->pers.netname; // UQ1: NPCs have names now...
-			else
-				killerName = va("A %s NPC", killerEnt->NPC_type);
-		}
-		else
-		{
-			killer = ENTITYNUM_WORLD;
-			killerName = "<world>";
-		}
+		killer = ENTITYNUM_WORLD;
+		killerName = "<world>";
 	}
 
 	if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) {
@@ -4890,7 +4838,7 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, fl
 	//{
 	//	return;
 	//}
-	//else if ( NPC_Humanoid_StopKnockdown( self, attacker, pushDir ) )
+	//else if ( Jedi_StopKnockdown( self, attacker, pushDir ) )
 	//{//They can sometimes backflip instead of be knocked down
 	//	return;
 	//}
@@ -5049,70 +4997,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	    return;
 	}
 
-	if (targ
-		&& targ->client
-		&& targ->s.eType == ET_NPC 
-		&& (attacker && (attacker->s.eType == ET_PLAYER || attacker->s.eType == ET_NPC)))
-	{// UQ1: Civilians don't take damage from players or other NPCs.
-
-		switch( targ->client->NPC_class)
-		{// UQ1: Vendor types... Stand still for now...
-		case CLASS_CIVILIAN:
-		case CLASS_GENERAL_VENDOR:
-		case CLASS_WEAPONS_VENDOR:
-		case CLASS_ARMOR_VENDOR:
-		case CLASS_SUPPLIES_VENDOR:
-		case CLASS_FOOD_VENDOR:
-		case CLASS_MEDICAL_VENDOR:
-		case CLASS_GAMBLER_VENDOR:
-		case CLASS_TRADE_VENDOR:
-		case CLASS_ODDITIES_VENDOR:
-		case CLASS_DRUG_VENDOR:
-		case CLASS_TRAVELLING_VENDOR:
-			{
-				targ->enemy = NULL; // Make sure civilians never have an enemy... (no AI for it, no weapon for it)
-
-				if (attacker && attacker->s.eType == ET_NPC)
-					attacker->enemy = NULL; // Make sure this does not happen again...
-
-				return;
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
-	if (targ
-		&& targ->client
-		&& targ->s.eType == ET_NPC 
-		&& attacker 
-		&& attacker->s.eType == ET_PLAYER
-		&& OnSameTeam( targ, attacker)
-		&& targ != attacker)
-	{// UQ1: NPCs don't take damage from same team players (unless they suicide somehow, like falling).
-		return;
-	}
-
-	if (targ
-		&& targ->client
-		&& targ->s.eType == ET_NPC 
-		&& attacker 
-		&& attacker->s.eType == ET_NPC
-		&& attacker->client->playerTeam == targ->client->playerTeam
-		&& targ != attacker)
-	{// UQ1: NPCs don't take damage from other same team NPCs (unless they suicide somehow, like falling).
-		return;
-	}
-
 	if (targ && targ->damageRedirect)
 	{
 		G_Damage(&g_entities[targ->damageRedirectTo], inflictor, attacker, dir, point, damage, dflags, mod);
 		return;
 	}
-
-	if (attacker && targ && OnSameTeam(targ, attacker) && g_gametype.integer == GT_WARZONE)
-		return; // No team damage in warzone gametype.
 
 	// TODO: GLua hook!
 
@@ -5410,20 +5299,20 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if(mod == MOD_REPEATER && attacker->client->lastHitmarkerTime < (level.time-250))
 			{
 				// Small hack to prevent the ACP array gun from ear-raping people so much --eez
-#ifndef __MMO__ // UQ1: This is just a sound and a message? Worth the spam????
+#ifndef __NOT_MMO__ // UQ1: This is just a sound and a message? Worth the spam????
 				trap_SendServerCommand(attacker->client->ps.clientNum, "hitmarker");
-#else //!__MMO__
+#else //!__NOT_MMO__
 				G_AddEvent(attacker, EV_HITMARKER_ASSIST, 0);
-#endif //__MMO__
+#endif //__NOT_MMO__
 				attacker->client->lastHitmarkerTime = level.time;
 			}
 			else if(attacker->client->lastHitmarkerTime < (level.time-100))
 			{
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 				trap_SendServerCommand(attacker->client->ps.clientNum, "hitmarker");
-#else //!__MMO__
+#else //!__NOT_MMO__
 				G_AddEvent(attacker, EV_HITMARKER_ASSIST, 0);
-#endif //__MMO__
+#endif //__NOT_MMO__
 				attacker->client->lastHitmarkerTime = level.time;
 			}
 		}

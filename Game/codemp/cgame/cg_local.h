@@ -1,17 +1,5 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// cg_local.h
-// Copyright (C) 1999-2000 Id Software, Inc. (c) 2013 Jedi Knight Galaxies
+// Copyright (C) 1999-2000 Id Software, Inc.
+//
 #ifndef CG_LOCAL_H
 #define CG_LOCAL_H
 
@@ -21,11 +9,11 @@
 #include "cg_public.h"
 
 #include "cg_weapons.h"
-
 //eezstreet edit
 #include "jkg_cg_items.h"
 #include "jkg_cg_damagetypes.h"
-#include "../game/jkg_gangwars.h"
+#include "jkg_gangwars.h"
+#include "jkg_advsound.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.
@@ -531,11 +519,6 @@ typedef struct centity_s {
 	int		equippedArmor[ARMSLOT_MAX];
 	int		previousEquippedArmor[ARMSLOT_MAX];
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-	float		shadowPlanes[MAX_GENTITIES];
-	vec3_t		shadowPlaneDirections[MAX_GENTITIES];
-	int			shadowPlaneNumber;
-#endif //__EXPERIMENTAL_SHADOWS__
 } centity_t;
 
 
@@ -931,9 +914,6 @@ typedef struct {
 	playerState_t	predictedPlayerState;
 	playerState_t	predictedVehicleState;
 	networkState_t	networkState;
-
-
-	int lastPurchasedItem;
 	
 	//centity_t		predictedPlayerEntity;
 	//rww - I removed this and made it use cg_entities[clnum] directly.
@@ -1052,9 +1032,6 @@ typedef struct {
 	// warmup countdown
 	int			warmup;
 	int			warmupCount;
-
-	qboolean	crouchToggled;
-	int			crouchToggleTime;
 
 	//==========================
 
@@ -1231,11 +1208,6 @@ Ghoul2 Insert End
 
 	int					last_joy;
 
-	// Warzone Gametype...
-	int					captureFlagPercent;
-	qboolean			capturingFlag;
-	qboolean			recaptureingFlag;
-
 } cg_t;
 
 extern cgItemData_t CGitemLookupTable[MAX_ITEM_TABLE_SIZE];
@@ -1315,11 +1287,6 @@ typedef struct {
 	qhandle_t	itemHoloModel;
 	qhandle_t	redFlagModel;
 	qhandle_t	blueFlagModel;
-	qhandle_t	neutralFlagModel; // Warzone...
-
-	qhandle_t	redFlagRadarShader;
-	qhandle_t	blueFlagRadarShader;
-	qhandle_t	neutralFlagRadarShader; // Warzone...
 
 	qhandle_t	flagPoleModel;
 	qhandle_t	flagFlapModel;
@@ -1542,6 +1509,9 @@ typedef struct {
 	sfxHandle_t blueLeadsSound;
 	sfxHandle_t teamsTiedSound;
 
+	// test
+	sfxHandle_t	*oggSoundTest;
+
 	sfxHandle_t redFlagReturnedSound;
 	sfxHandle_t blueFlagReturnedSound;
 	sfxHandle_t	redTookFlagSound;
@@ -1577,8 +1547,6 @@ typedef struct {
 	qhandle_t retrieveShader;
 	qhandle_t escortShader;
 	qhandle_t flagShaders[3];
-
-	qhandle_t swfTestShader;
 
 	qhandle_t halfShieldModel;
 	qhandle_t halfShieldShader;
@@ -1645,10 +1613,6 @@ typedef struct {
 	qhandle_t   carboniteOverlay;
 	qhandle_t   iceOverlay;
 	qhandle_t   playerFireEffect;
-
-#ifdef __MUSIC_ENGINE__
-	qhandle_t	radio_player;
-#endif //__MUSIC_ENGINE__
 
 } cgMedia_t;
 
@@ -1930,9 +1894,6 @@ typedef struct {
 	//eezstreet add: armor
 	int				armorInformation[MAX_CLIENTS][ARMSLOT_MAX];
 
-	// UQ1: Warzone Gametype...
-	int redtickets;
-	int bluetickets;
 } cgs_t;
 
 //==============================================================================
@@ -2002,6 +1963,8 @@ extern	vmCvar_t		cg_simpleItems;
 extern	vmCvar_t		cg_fov;
 extern	vmCvar_t		cg_zoomFov;
 
+extern	vmCvar_t		s_ext_volume;
+extern	vmCvar_t		s_ext_openAL;
 extern	vmCvar_t		in_invertYLook;
 extern	vmCvar_t		in_invertXLook;
 extern	vmCvar_t		in_controlScheme;
@@ -2259,12 +2222,6 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 void CG_DrawSides(float x, float y, float w, float h, float size);
 void CG_DrawTopBottom(float x, float y, float w, float h, float size);
 
-// UQ1: Added...
-void CG_FilledBar(float x, float y, float w, float h, float *startColor, float *endColor, const float *bgColor, float frac, int flags);
-void CG_HorizontalPercentBar( float x, float y, float width, float height, float percent );
-void CG_VerticalPercentBar( float x, float y, float width, float height, float percent );
-void CG_VerticalPercentBarNoBorder( float x, float y, float width, float height, float percent );
-
 //
 // cg_draw.c, cg_newDraw.c
 //
@@ -2297,6 +2254,7 @@ const char *CG_GameTypeString(void);
 qboolean CG_YourTeamHasFlag(void);
 qboolean CG_OtherTeamHasFlag(void);
 qhandle_t CG_StatusHandle(int task);
+
 
 
 //
@@ -2993,8 +2951,5 @@ void __cdecl JKG_ControllerUpdate(void);
 void __cdecl JKG_CL_JoystickMovement( usercmd_t *cmd );
 void _Hook_CL_JoystickMovement();
 void JKG_DoControllerRumble( int duration, int intensity );
-
-// jkg_cg_damagetypes.c -- UQ1: Moved to stop cg_local.h recursive #include error...
-void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity );
 
 #endif

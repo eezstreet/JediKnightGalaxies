@@ -751,11 +751,6 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			continue;
 		}
 
-		if ( target->vendorData.ourID )
-		{
-			continue;
-		}
-
 		if ( target->client )
 		{
 			VectorCopy( target->client->renderInfo.eyePoint, org );

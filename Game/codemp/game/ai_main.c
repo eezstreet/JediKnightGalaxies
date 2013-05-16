@@ -348,43 +348,9 @@ void BotInputToUserCommand(bot_input_t *bi, gentity_t *bot, usercmd_t *ucmd, int
 	if (bi->actionflags & ACTION_USE) ucmd->buttons |= BUTTON_USE_HOLDABLE;
 	if (bi->actionflags & ACTION_WALK) ucmd->buttons |= BUTTON_WALKING;
 
-	/*if ( bot->enemy 
-		&& VectorDistance(bot->enemy->r.currentOrigin, bot->r.currentOrigin) < 256 
-		&& (botstates[bot->s.number]->frame_Enemy_Vis || botstates[bot->s.number]->enemySeenTime > level.time - 2000) )
-	{// In dominance, only when the enemy is close should we walk...
+	// In dominance, only when the enemy is close should we walk...
+	if ( bot->enemy && VectorDistance(bot->enemy->r.currentOrigin, bot->r.currentOrigin) < 512 )
 		bi->actionflags |= ACTION_WALK;
-		ucmd->buttons |= BUTTON_WALKING;
-	}
-	else if ( !bot->enemy )
-	{// Walk when we have no enemy too...
-		bi->actionflags |= ACTION_WALK;
-		ucmd->buttons |= BUTTON_WALKING;
-	}*/
-
-	/*
-	if ( bot->client->ps.weapon != WP_SABER )
-	{
-
-	}
-	else if ( bot->enemy 
-		&& VectorDistance(bot->enemy->r.currentOrigin, bot->r.currentOrigin) < 256 
-		&& (botstates[bot->s.number]->frame_Enemy_Vis || botstates[bot->s.number]->enemySeenTime > level.time - 2000) )
-	{
-		if (bot->client->ps.saberHolstered != 0)
-		{
-			bot->client->ps.saberHolstered = 0;
-			G_Sound(bot, CHAN_AUTO, bot->client->saber[0].soundOn);
-		}
-	}
-	else
-	{
-		if (bot->client->ps.saberHolstered != 2)
-		{
-			bot->client->ps.saberHolstered = 2;
-			G_Sound(bot, CHAN_AUTO, bot->client->saber[0].soundOff);
-		}
-	}
-	*/
 
 	if (bi->actionflags & ACTION_FORCEPOWER) ucmd->buttons |= BUTTON_FORCEPOWER;
 
@@ -432,29 +398,43 @@ void BotInputToUserCommand(bot_input_t *bi, gentity_t *bot, usercmd_t *ucmd, int
 	angles[YAW] = bi->viewangles[YAW];
 	angles[ROLL] = 0;
 	AngleVectors(angles, forward, right, NULL);
-
 	//bot input speed is in the range [0, 400]
 	bi->speed = bi->speed * 127 / 400;
-
-	if (ucmd->buttons & BUTTON_WALKING)
-		bi->speed = bi->speed * 62.4 / 400;
-
 	//set the view independent movement
 	ucmd->forwardmove = DotProduct(forward, bi->dir) * bi->speed;
 	ucmd->rightmove = DotProduct(right, bi->dir) * bi->speed;
 	ucmd->upmove = abs((int)(forward[2])) * bi->dir[2] * bi->speed;
-
 	//normal keyboard movement
 	if (bi->actionflags & ACTION_MOVEFORWARD) ucmd->forwardmove += 127;
 	if (bi->actionflags & ACTION_MOVEBACK) ucmd->forwardmove -= 127;
 	if (bi->actionflags & ACTION_MOVELEFT) ucmd->rightmove -= 127;
 	if (bi->actionflags & ACTION_MOVERIGHT) ucmd->rightmove += 127;
-
 	//jump/moveup
 	if (bi->actionflags & ACTION_JUMP) ucmd->upmove += 127;
-
 	//crouch/movedown
 	if (bi->actionflags & ACTION_CROUCH) ucmd->upmove -= 127;
+
+	//Make walking work for bots.
+	if (bi->actionflags & ACTION_WALK)
+	{
+		if (ucmd->forwardmove > 46)
+		{
+			ucmd->forwardmove = 46;	
+		}
+		else if (ucmd->forwardmove < -46)
+		{
+			ucmd->forwardmove = -46;
+		}
+		
+		if (ucmd->rightmove > 46)
+		{
+			ucmd->rightmove = 46;
+		}
+		else if ( ucmd->rightmove < -46)
+		{
+			ucmd->rightmove = -46;
+		}
+	}
 
 	//
 	//Com_Printf("forward = %d right = %d up = %d\n", ucmd.forwardmove, ucmd.rightmove, ucmd.upmove);
@@ -528,7 +508,6 @@ void RemoveColorEscapeSequences( char *text ) {
 	text[l] = '\0';
 }
 
-extern void DOM_StandardBotAI2(bot_state_t *bs, float thinktime);
 
 /*
 ==============
@@ -593,7 +572,6 @@ int BotAI(int client, float thinktime) {
 #endif
 
 	DOM_StandardBotAI(bs, thinktime);
-	//DOM_StandardBotAI2(bs, thinktime);
 
 #ifdef _DEBUG
 	end = trap_Milliseconds();
@@ -702,21 +680,21 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 		bs->botWeaponWeights[WP_SABER] = 13;
 	}
 
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	//allocate a goal state
 	bs->gs = trap_BotAllocGoalState(client);
 
 	//allocate a weapon state
 	bs->ws = trap_BotAllocWeaponState();
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	bs->inuse = qtrue;
 	bs->entitynum = client;
 	bs->setupcount = 4;
 	bs->entergame_time = FloatTime();
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	bs->ms = trap_BotAllocMoveState();
-#endif //__MMO__
+#endif //__NOT_MMO__
 	numbots++;
 
 	//NOTE: reschedule the bot thinking
@@ -744,13 +722,13 @@ int BotAIShutdownClient(int client, qboolean restart) {
 		return qfalse;
 	}
 
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	trap_BotFreeMoveState(bs->ms);
 	//free the goal state`			
 	trap_BotFreeGoalState(bs->gs);
 	//free the weapon weights
 	trap_BotFreeWeaponState(bs->ws);
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	//
 	//clear the bot state
@@ -773,9 +751,7 @@ when the level is changed
 */
 void BotResetState(bot_state_t *bs) {
 	int client, entitynum, inuse;
-#ifndef __MMO__
 	int movestate, goalstate, weaponstate;
-#endif //__MMO__
 	bot_settings_t settings;
 	playerState_t ps;							//current player state
 	float entergame_time;
@@ -786,34 +762,34 @@ void BotResetState(bot_state_t *bs) {
 	inuse = bs->inuse;
 	client = bs->client;
 	entitynum = bs->entitynum;
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	movestate = bs->ms;
 	goalstate = bs->gs;
 	weaponstate = bs->ws;
-#endif //__MMO__
+#endif //__NOT_MMO__
 	entergame_time = bs->entergame_time;
 	//reset the whole state
 	memset(bs, 0, sizeof(bot_state_t));
 	//copy back some state stuff that should not be reset
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	bs->ms = movestate;
 	bs->gs = goalstate;
 	bs->ws = weaponstate;
-#endif //__MMO__
+#endif //__NOT_MMO__
 	memcpy(&bs->cur_ps, &ps, sizeof(playerState_t));
 	memcpy(&bs->settings, &settings, sizeof(bot_settings_t));
 	bs->inuse = inuse;
 	bs->client = client;
 	bs->entitynum = entitynum;
 	bs->entergame_time = entergame_time;
-#ifndef __MMO__
+#ifndef __NOT_MMO__
 	//reset several states
 	if (bs->ms) trap_BotResetMoveState(bs->ms);
 	if (bs->gs) trap_BotResetGoalState(bs->gs);
 	if (bs->ws) trap_BotResetWeaponState(bs->ws);
 	if (bs->gs) trap_BotResetAvoidGoals(bs->gs);
 	if (bs->ms) trap_BotResetAvoidReach(bs->ms);
-#endif //__MMO__
+#endif //__NOT_MMO__
 }
 
 /*

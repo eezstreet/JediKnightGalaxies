@@ -21,7 +21,6 @@
 extern void G_CheapWeaponFire(int entNum, int ev);
 extern qboolean TryGrapple(gentity_t *ent); //g_cmds.c
 extern void trap_FX_PlayEffect( const char *file, vec3_t org, vec3_t fwd, int vol, int rad );
-extern void JKG_RemoveDamageType ( gentity_t *ent, damageType_t type );
 #endif
 
 #include "../namespace_begin.h"
@@ -2922,10 +2921,6 @@ Flying out of the water
 */
 static void PM_WaterJumpMove( void ) {
 	// waterjump has no control, but falls
-#ifdef QAGAME
-	// moving around in water removes fire effects
-	JKG_RemoveDamageType((gentity_t *)pm_entSelf, DT_FIRE);
-#endif
 
 	PM_StepSlideMove( qtrue );
 
@@ -3005,11 +3000,6 @@ static void PM_WaterMove( void ) {
 		VectorNormalize(pm->ps->velocity);
 		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
-
-#ifdef QAGAME
-	// moving around in water removes fire effects
-	JKG_RemoveDamageType((gentity_t *)pm_entSelf, DT_FIRE);
-#endif
 
 	PM_SlideMove( qfalse );
 }
@@ -4285,18 +4275,7 @@ static void PM_GroundTrace( void ) {
 		{
 			minNormal = pEnt->m_pVehicle->m_pVehicleInfo->maxSlope;
 		}
-		else
-		{// UQ1: NPCs get off easy - for the sake of lower CPU usage (routing) and looking better in general...
-			minNormal = 0.0;//0.5;
-		}
 	}
-
-#ifdef QAGAME
-	if ( g_entities[pm->ps->clientNum].r.svFlags & SVF_BOT )
-	{// UQ1: BOTs get off easy - for the sake of lower CPU usage (routing) and looking better in general...
-		minNormal = 0.0;//0.5;
-	}
-#endif //QAGAME
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
@@ -4654,36 +4633,11 @@ static void PM_CheckDuck (void)
 	{
 		if (pm->ps->clientNum < MAX_CLIENTS)
 		{
-			/*
 			pm->mins[0] = -15;
 			pm->mins[1] = -15;
 
 			pm->maxs[0] = 15;
 			pm->maxs[1] = 15;
-			*/
-
-			//
-			// UQ1: More realistic hitboxes for players/bots...
-			//
-			if (!pm_entVeh && !(pm_entVeh && pm_entVeh->m_pVehicle))
-			{
-				if (pm->ps->pm_flags & PMF_DUCKED)
-				{
-					pm->maxs[2] = pm->ps->crouchheight;
-					pm->maxs[1] = 8;
-					pm->maxs[0] = 8;
-					pm->mins[1] = -8;
-					pm->mins[0] = -8;
-				}
-				else if (!(pm->ps->pm_flags & PMF_DUCKED))
-				{
-					pm->maxs[2] = pm->ps->standheight-8;
-					pm->maxs[1] = 8;
-					pm->maxs[0] = 8;
-					pm->mins[1] = -8;
-					pm->mins[0] = -8;
-				}
-			}
 		}
 
 		if ( PM_CheckDualForwardJumpDuck() )
@@ -5634,13 +5588,6 @@ static void PM_Footsteps( void ) {
 			pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 			pm->ps->pm_flags &= ~PMF_DUCKED;
 			pm->ps->pm_flags |= PMF_ROLLING;
-			// Remove fire damage...some of the time. Jumping into water is a better bet --eez
-#ifdef QAGAME
-			if(Q_irand(1,2) == 1)
-			{
-				JKG_RemoveDamageType((gentity_t *)pm_entSelf, DT_FIRE);
-			}
-#endif
 		}
 	}
 	else if ((pm->ps->pm_flags & PMF_ROLLING) && !BG_InRoll(pm->ps, pm->ps->legsAnim) &&
@@ -7935,17 +7882,7 @@ static void PM_Weapon( void )
 	{
 		PM_StartTorsoAnim( BOTH_ATTACK4 );
 	}
-	else */
-#ifndef QAGAME
-	if (pm->ps->weapon == WP_MELEE)
-#else //!QAGAME
-	if (pm->ps->weapon == WP_MELEE
-		// UQ1: NPCs can hit you with their rifle butt at close range...
-		|| (g_entities[pm->ps->clientNum].s.eType == ET_NPC 
-			&& pm->ps->weapon != WP_SABER 
-			&& g_entities[pm->ps->clientNum].enemy
-			&& Distance(g_entities[pm->ps->clientNum].enemy->r.currentOrigin, g_entities[pm->ps->clientNum].r.currentOrigin) <= 72))
-#endif //QAGAME
+	else */if (pm->ps->weapon == WP_MELEE)
 	{ //special anims for standard melee attacks
 		//Alternate between punches and use the anim length as weapon time.
 		if (!pm->ps->m_iVehicleNum)
@@ -8078,14 +8015,6 @@ static void PM_Weapon( void )
 				int desTAnim = BOTH_MELEE1;
 				if (pm->ps->torsoAnim == BOTH_MELEE1)
 				{
-#ifdef QAGAME
-				if (!(pm->ps->weapon == WP_MELEE
-					// UQ1: NPCs can hit you with their rifle butt at close range...
-					|| (g_entities[pm->ps->clientNum].s.eType == ET_NPC 
-						&& pm->ps->weapon != WP_SABER 
-						&& g_entities[pm->ps->clientNum].enemy
-						&& Distance(g_entities[pm->ps->clientNum].enemy->r.currentOrigin, g_entities[pm->ps->clientNum].r.currentOrigin) <= 72)))
-#endif //QAGAME
 					desTAnim = BOTH_MELEE2;
 				}
 				PM_StartTorsoAnim( desTAnim );

@@ -1,18 +1,5 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// q_shared.h
-// Copyright (C) 1999-2000 Id Software, Inc., Copyright (c) 2013 Jedi Knight Galaxies
-
+// Copyright (C) 1999-2000 Id Software, Inc.
+//
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
@@ -32,43 +19,6 @@
 #include "teams.h" //npc team stuff
 #include <time.h>
 
-#ifdef __SECONDARY_NETWORK__
-// ================================================================================================================================
-//
-// UQ1: Secondary Network - Packet Event Types. 
-//
-// ================================================================================================================================
-//
-// Adding New Stuff:
-//
-// Add the new event type you need here, then add the functionality inside the switch in GetDataFromPacket 
-// in ClientGame.cpp or ServerGame.cpp.
-//
-// jkg_net_send_packet() is the bridge you can use to quickly send packets from within the game/cgame code 
-// (or make your own - see below).
-//
-// It is also possible to make longer packets, but for now those will be needed to be done with their own functions in 
-// ClientGame.cpp, and jkg_clientsidenetwork.cpp, -or- ServerGame.cpp, and jkg_serversidenetwork.cpp.
-//
-//
-// There is no limit to how we use these packets. The system is very adaptable and uses only the bandwidth we actually need.
-//
-// ================================================================================================================================
-
-enum PacketEventTypes {
-	PACKETEVENT_NONE,
-	PACKETEVENT_TEST_TEXT,
-};
-
-#ifdef CGAME
-void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize );
-#else //GAME
-void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int entityNum );
-#endif //GAME
-
-// ================================================================================================================================
-#endif //__SECONDARY_NETWORK__
-
 #define MAX_WORLD_COORD		( 64 * 1024 )
 #define MIN_WORLD_COORD		( -64 * 1024 )
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
@@ -82,6 +32,9 @@ void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int e
 #define VALIDATEP( a )	if ( a == NULL ) {	assert(0);	return NULL;	}
 
 #define VALIDSTRING( a )	( ( a != 0 ) && ( a[0] != 0 ) )
+
+// eez -- just added this as a macro since this is being used like everywhere
+#define JKA_UNITS_PER_METER		36.5
 
 /*
 #define G2_EHNANCEMENTS
@@ -1102,9 +1055,6 @@ typedef struct wpobject_s
 
 	int neighbornum;
 	wpneighbor_t neighbors[MAX_NEIGHBOR_SIZE];
-
-	//int			coverpointNum;		// UQ1: Number of waypoints this node can be used as cover for...
-	//int			coverpointFor[1024];	// UQ1: List of all the waypoints this waypoint is cover for...
 } wpobject_t;
 
 
@@ -1485,15 +1435,7 @@ typedef struct {
 #define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define VectorSet5(v,x,y,z,a,b)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z), (v)[3]=(a), (v)[4]=(b)) //rwwRMG - added
-
-#define Vector2Set(v, x, y)			((v)[0]=(x),(v)[1]=(y)) // UQ1: Added
-#define Vector2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1]) // UQ1: Added
-#define Vector2Subtract(a,b,c)		((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1]) // UQ1: Added
-
-#define Vector4Set(v, x, y, z, n)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(n)) // UQ1: Added
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
-#define	Vector4MA(v, s, b, o)		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s)) // UQ1: Added
-#define	Vector4Average(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s))) // UQ1: Added
 static ID_INLINE void Vector4Clear ( vec4_t v )
 {
     v[0] = v[1] = v[2] = v[3] = 0.0f;
@@ -1707,7 +1649,6 @@ int		T_meridiem( void );
 
 void vectoangles( const vec3_t value1, vec3_t angles);
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] );
-void AxisToAngles( vec3_t axis[3], vec3_t angles ); // UQ1: Added. We need this...
 
 void AxisClear( vec3_t axis[3] );
 void AxisCopy( vec3_t in[3], vec3_t out[3] );
@@ -3015,7 +2956,7 @@ typedef struct entityState_s {
 	int 			freezeLegsAnim;
 
 	unsigned int			userInt1;
-	unsigned int	userInt2;
+	unsigned int			userInt2;
 	unsigned int    userInt3;
 	unsigned int	userInt4;
 	vec3_t			userVec2;
@@ -3460,16 +3401,6 @@ typedef struct networkState_s
 
 	qboolean		isSprinting;			// Only used for spectators.
 	qboolean		isInSights;				// Only used for spectators.
-
-	// This code always exists on at least one gametype --eez
-	// Put this in the second playerstate (networkstate) so that clients can see their lives display
-#ifdef __JKG_NINELIVES__
-	unsigned char iLivesLeft;
-#elif defined __JKG_TICKETING__
-	unsigned char iLivesLeft;
-#elif defined __JKG_ROUNDBASED__
-	unsigned char iLivesLeft;
-#endif
 }networkState_t;
 
 
@@ -3525,15 +3456,7 @@ typedef struct {
 // using the stringizing operator to save typing...
 #define	NSF(x) #x,(int)&((networkState_t*)0)->x
 
-#ifdef __JKG_NINELIVES__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_TICKETING__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_ROUNDBASED__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#else
 extern netField_t	networkStateFields[7];		// increment count whenever you change the number of fields.
-#endif
 extern netField_t	extraStateFields[3];		// increment count whenever you change the number of fields.
 extern int numNetworkStateFields;
 extern int numExtraStateFields;
@@ -3569,62 +3492,9 @@ void JKG_GenericMemoryObject_AddElement(GenericMemoryObject *gmo, void *element)
 void JKG_GenericMemoryObject_DeleteElement(GenericMemoryObject *gmo, unsigned int number);
 void Q_RGBCopy( vec4_t *output, vec4_t source );
 qboolean Text_IsExtColorCode(const char *text);
-qboolean StringContainsWord(const char *haystack, const char *needle);
 
-/*==============================================*/
-/** 
- *  @brief stdcall function pointer declaration.
- *
- *  Declares the type for a STDCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define STDCALL_FUNCTION( R, N, A )  typedef R (__stdcall *N) A
-
-/*==============================================*/
-/**
- *  @brief fastcall function pointer declaration.
- *
- *  Declares the type for a FASTCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define FASTCALL_FUNCTION( R, N, A ) typedef R (__fastcall *N) A
-
-/*==============================================*/
-/**
- *  @brief cdecl function pointer declaration.
- *
- *  Declares the type for a CDECL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define CDECL_FUNCTION( R, N, A ) typedef R (__cdecl *N) A
-
-/*==============================================*/
-/**
- *  @brief thiscall function pointer declaration.
- *
- *  Declares the type for a THISCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define THISCALL_FUNCTION( R, N, A ) typedef R (__thiscall *N) A
-
-/*==============================================*/
-/*
- * blank function type
- */
-/*==============================================*/
-
-#define BLANK_FUNCTION( R, N, A ) typedef R (*N) A
+//#define BUMP(x,y)		if(#x < #y) #x = #y;
+//#define CAP(x,y)		if(#x > #y) #x = #y;
+//#define CLAMP(x,y,z)	if(#x < #y) #x = #y; else if(#x > #z) #x = #z;
 
 #endif	// __Q_SHARED_H

@@ -20,24 +20,10 @@ void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 extern void AIMod_CheckMapPaths ( gentity_t *ent );
 extern void AIMod_CheckObjectivePaths ( gentity_t *ent );
 
-extern void WARZONE_SaveGameInfo ( void );
-extern void WARZONE_LoadGameInfo ( void );
-extern void WARZONE_AddHealthCrate ( vec3_t origin, vec3_t angles );
-extern void WARZONE_AddAmmoCrate ( vec3_t origin, vec3_t angles );
-extern void WARZONE_AddFlag ( vec3_t origin, int team );
-extern void WARZONE_ChangeFlagTeam ( int flag_number, int new_team );
-extern void WARZONE_RaiseAllWarzoneEnts ( int modifier );
-extern void WARZONE_ShowInfo ( void );
-extern void WARZONE_RemoveAllWarzoneEnts ( void );
-extern void WARZONE_RemoveAmmoCrate ( void );
-extern void WARZONE_RemoveHealthCrate ( void );
-
 // Include GLua stuff
 #include "../GLua/glua.h"
 #include "jkg_admin.h"
-#ifdef __UNUSED__
 #include "jkg_navmesh_creator.h"
-#endif //__UNUSED__
 
 /*
 ==================
@@ -46,7 +32,7 @@ DeathmatchScoreboardMessage
 ==================
 */
 void DeathmatchScoreboardMessage( gentity_t *ent ) {
-#ifndef __MMO__ 
+#ifndef __NOT_MMO__ 
 	// UQ1: This is a very spammy one!
 	// Suggest, use an event for each player. Staggered over time. 
 	// Scores don't need to be instant, and in future maybe not even needed until after a match.
@@ -112,7 +98,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	trap_SendServerCommand( ent-g_entities, va("scores %i %i %i%s", i, 
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
 		string ) );
-#endif //__MMO__
+#endif //__NOT_MMO__
 }
 
 /*
@@ -258,30 +244,7 @@ void JKG_BuyItem_f(gentity_t *ent)
 {
 	int i;
 	int entities[MAX_GENTITIES];
-	int numEnts = 0;//trap_EntitiesInBox(ent->r.absmin, ent->r.absmax, entities, MAX_GENTITIES);
-
-	//if (numEnts <= 1)
-	{// UQ1: Non-Trigger Vendors...
-		vec3_t mins;
-		vec3_t maxs;
-		int e = 0;
-
-		for ( e = 0 ; e < 3 ; e++ ) 
-		{
-			if (e == 2)
-			{// Up/Down axis is smaller so people can't buy from another level of the building...
-				mins[e] = ent->r.currentOrigin[e] - 48;
-				maxs[e] = ent->r.currentOrigin[e] + 48;
-			}
-			else
-			{
-				mins[e] = ent->r.currentOrigin[e] - 192;
-				maxs[e] = ent->r.currentOrigin[e] + 192;
-			}
-		}
-
-		numEnts = trap_EntitiesInBox(mins, maxs, entities, MAX_GENTITIES);
-	}
+	int numEnts = trap_EntitiesInBox(ent->r.absmin, ent->r.absmax, entities, MAX_GENTITIES);
 
 	if(trap_Argc() < 1)
 	{
@@ -312,46 +275,10 @@ void JKG_BuyItem_f(gentity_t *ent)
 					char buffer[16];
 					trap_Argv(1, buffer, sizeof(buffer));
 					JKG_Vendor_Buy(ent, pointingAt, atoi(buffer));
-					return;
-				}
-			}
-			else
-			{// UQ1: Actual NPC (non trigger) usage...
-				gentity_t *pointingAt = &g_entities[entities[i]];
-
-				if(!pointingAt || !pointingAt->inuse || !pointingAt->client || pointingAt->s.eType != ET_NPC)
-				{
-					continue;	//No target
-				}
-
-				switch (pointingAt->client->NPC_class)
-				{// UQ1: Need to change these in the actual NPC script files...
-				case CLASS_GENERAL_VENDOR:
-				case CLASS_WEAPONS_VENDOR:
-				case CLASS_ARMOR_VENDOR:
-				case CLASS_SUPPLIES_VENDOR:
-				case CLASS_FOOD_VENDOR:
-				case CLASS_MEDICAL_VENDOR:
-				case CLASS_GAMBLER_VENDOR:
-				case CLASS_TRADE_VENDOR:
-				case CLASS_ODDITIES_VENDOR:
-				case CLASS_DRUG_VENDOR:
-				case CLASS_TRAVELLING_VENDOR:
-					{//This is a vendor. Buy it!
-						char buffer[16];
-						trap_Argv(1, buffer, sizeof(buffer));
-						JKG_Vendor_Buy(ent, pointingAt, atoi(buffer));
-						return;
-					}
-					break;
-				default:
-					break;
 				}
 			}
 		}
 	}
-
-	trap_SendServerCommand(ent->s.number, "print \"You need to be at a vendor to purchase items.\n\"");
 }
 /*
 ==================
@@ -1167,24 +1094,6 @@ void SetTeam( gentity_t *ent, char *s ) {
 			//}
 		}
 
-#ifdef __JKG_NINELIVES__
-#ifdef __JKG_TICKETING__
-#ifdef __JKG_ROUNDBASED__
-		// Can't switch teams to anything but Spectator if the round is not ready
-		if(level.time - level.gamestartTime > 300000 &&
-			g_gametype.integer >= GT_LMS_NINELIVES &&
-			g_gametype.integer <= GT_LMS_ROUNDS)
-		{
-			// Restrict joining the game if the game is beyond 5 minutes time
-			if( team != TEAM_SPECTATOR )
-			{
-				return;
-			}
-		}
-#endif
-#endif
-#endif
-
 		if ( g_teamForceBalance.integer && !g_trueJedi.integer ) {
 			int		counts[TEAM_NUM_TEAMS];
 
@@ -1899,7 +1808,6 @@ void JKG_Cmd_SellItem_f(gentity_t *ent)
 					trap_SendServerCommand(ent->client->ps.clientNum, "print \"You cannot sell your starter gun unless you have another item in your inventory.\n\"");
 					return;
 				}
-				ent->inventory->items[numbah].id->baseCost = 2;	// hackery. Starting weapon sells for 1 credit.
 			}
 		}
 		ent->client->ps.persistant[PERS_CREDITS] += (ent->inventory->items[numbah].id->baseCost)/2;
@@ -2827,8 +2735,7 @@ static const char *gameNames[] = {
 	"Team FFA",
 	"Siege",
 	"Capture the Flag",
-	"Capture the Ysalamiri",
-	"Warzone",
+	"Capture the Ysalamiri"
 };
 
 /*
@@ -2980,11 +2887,6 @@ int G_ClientNumberFromStrippedSubstring ( const char* name, qboolean checkAll )
 	return match;
 }
 
-#ifdef __SECONDARY_NETWORK__
-extern void jkg_netserverbegin();
-extern void jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
-
 /*
 ==================
 Cmd_CallVote_f
@@ -3087,10 +2989,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE_MAPNOTSUPPORTEDBYGAME")) );
 			return;
 		}
-
-#ifdef __SECONDARY_NETWORK__
-		jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
 
 		trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
 		if (*s) {
@@ -4704,14 +4602,12 @@ void ClientCommand( int clientNum ) {
 		Cmd_SetViewpos_f( ent );
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
-#ifdef __UNUSED__
 	else if ( Q_stricmp (cmd, "nav_generate") == 0 )
 	{
 	    char mapname[MAX_STRING_CHARS] = { 0 };
 	    trap_Cvar_VariableStringBuffer ("mapname", mapname, sizeof (mapname));
 	    JKG_Nav_CreateNavMesh (va ("maps/%s.bsp", mapname));
 	}
-#endif //__UNUSED__
 #ifdef __AUTOWAYPOINT__ // __DOMINANCE_NPC__
 	else if (Q_stricmp (cmd, "checkbotreach") == 0 && !Q_strncmp(ent->client->sess.IP, "127.0.0.1:",10))	{
 		AIMod_CheckMapPaths( ent );
@@ -5472,131 +5368,6 @@ void ClientCommand( int clientNum ) {
 	{
 		JKG_Cmd_SellItem_f(ent);
 	}
-	//
-	// BEGIN - Warzone Gametype Editing...
-	//
-	else if(!Q_stricmp (cmd, "warzone_savegameinfo") && CheatsOk( ent )) 
-	{
-		WARZONE_SaveGameInfo();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_loadgameinfo") && CheatsOk( ent )) 
-	{
-		WARZONE_LoadGameInfo();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addhealthcrate") && CheatsOk( ent )) 
-	{
-		WARZONE_AddHealthCrate( ent->r.currentOrigin, ent->r.currentAngles );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addammocrate") && CheatsOk( ent )) 
-	{
-		WARZONE_AddAmmoCrate( ent->r.currentOrigin, ent->r.currentAngles );
-#ifdef __VEHICLES__
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addvehicle") && CheatsOk( ent )) 
-	{
-		int  vehicleType;
-		char str[MAX_TOKEN_CHARS];
-
-		trap_Argv(1, str, sizeof(str));
-
-		if (!Q_stricmp(str,"heavy")) 
-		{
-			vehicleType = VEHICLE_CLASS_HEAVY_TANK;
-		} 
-		else if (!Q_stricmp(str,"medium")) 
-		{
-			vehicleType = VEHICLE_CLASS_MEDIUM_TANK;
-		} 
-		else if (!Q_stricmp(str,"flame")) 
-		{
-			vehicleType = VEHICLE_CLASS_FLAMETANK;
-		} 
-		else 
-		{
-			vehicleType = VEHICLE_CLASS_LIGHT_TANK;
-		}
-
-		WARZONE_AddVehicle( ent->r.currentOrigin, ent->r.currentAngles, vehicleType );
-#endif //__VEHICLES__
-	} 
-	else if(!Q_stricmp (cmd, "warzone_addflag") && CheatsOk( ent )) 
-	{
-		int  team;
-		char str[MAX_TOKEN_CHARS];
-
-		trap_Argv(1, str, sizeof(str));
-
-		if (!Q_stricmp(str,"red")) 
-		{
-			team = TEAM_RED;
-		} 
-		else if (!Q_stricmp(str,"blue")) 
-		{
-			team = TEAM_BLUE;
-		} 
-		else 
-		{
-			team = TEAM_FREE;
-		}
-
-		WARZONE_AddFlag( ent->r.currentOrigin, team );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_changeflagteam") && CheatsOk( ent )) 
-	{
-		int  team = 0, flag_number = 0;
-		char str[MAX_TOKEN_CHARS];
-
-		trap_Argv(1, str, sizeof(str));
-
-		if (!str || !str[0])
-		{
-			G_Printf("Format: /warzone_changeflagteam <flag #> <team name>\n");
-			WARZONE_ShowInfo();
-			return;
-		}
-
-		flag_number = atoi(str);
-
-		trap_Argv(2, str, sizeof(str));
-
-		if (!Q_stricmp(str,"red")) 
-		{
-			team = TEAM_RED;
-		} 
-		else if (!Q_stricmp(str,"blue")) 
-		{
-			team = TEAM_BLUE;
-		} 
-		else 
-		{
-			team = TEAM_FREE;
-		}
-		
-		WARZONE_ChangeFlagTeam( flag_number, team );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_raiseents") && CheatsOk( ent )) 
-	{
-		WARZONE_RaiseAllWarzoneEnts( -1 );
-	} 
-	else if(!Q_stricmp (cmd, "warzone_removeents") && CheatsOk( ent )) 
-	{
-		WARZONE_RemoveAllWarzoneEnts();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_removeammocrate") && CheatsOk( ent )) 
-	{
-		WARZONE_RemoveAmmoCrate();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_removehealthcrate") && CheatsOk( ent )) 
-	{
-		WARZONE_RemoveHealthCrate();
-	} 
-	else if(!Q_stricmp (cmd, "warzone_showinfo") && CheatsOk( ent )) 
-	{
-		WARZONE_ShowInfo();
-	}
-	//
-	// END - Warzone Gametype Editing...
-	//
 	else
 	{
 		if (Q_stricmp(cmd, "addbot") == 0)

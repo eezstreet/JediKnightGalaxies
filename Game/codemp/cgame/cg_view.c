@@ -15,6 +15,7 @@
 #define CAMERA_SIZE	4
 
 #include "jkg_cg_auxlib.h"
+#include "jkg_advsound.h"
 
 //[TrueView]
 #define		MAX_TRUEVIEW_INFO_SIZE					8192
@@ -2715,6 +2716,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	qboolean	isFighter = qfalse;
 #endif
 
+//#ifndef __JKGADVFMOD
+//	JKG_SoundLoop();
+//#endif
+
 	if (cgQueueLoad)
 	{ //do this before you start messing around with adding ghoul2 refents and crap
 		CG_ActualLoadDeferredPlayers();
@@ -3088,7 +3093,7 @@ defaultCmd:
 	if ( cg_stats.integer ) {
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
-	
+	JKG_AdvSoundUpdateListener();
 }
 
 //[TrueView]

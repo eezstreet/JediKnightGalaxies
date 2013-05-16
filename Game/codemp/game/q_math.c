@@ -623,43 +623,6 @@ void AnglesToAxis( const vec3_t angles, vec3_t axis[3] ) {
 	VectorSubtract( vec3_origin, right, axis[1] );
 }
 
-/*
-=================
-AxisToAngles
-
-  Used to convert the MD3 tag axis to MDC tag angles, which are much smaller
-
-  This doesn't have to be fast, since it's only used for conversion in utils, try to avoid
-  using this during gameplay
-=================
-*/
-
-void AxisToAngles( vec3_t axis[3], vec3_t angles ) {
-	vec3_t right, roll_angles, tvec;
-
-	// first get the pitch and yaw from the forward vector
-	vectoangles( axis[0], angles );
-
-	// now get the roll from the right vector
-	VectorCopy( axis[1], right );
-	// get the angle difference between the tmpAxis[2] and axis[2] after they have been reverse-rotated
-	RotatePointAroundVector( tvec, axisDefault[2], right, -angles[YAW] );
-	RotatePointAroundVector( right, axisDefault[1], tvec, -angles[PITCH] );
-	// now find the angles, the PITCH is effectively our ROLL
-	vectoangles( right, roll_angles );
-	roll_angles[PITCH] = AngleNormalize180( roll_angles[PITCH] );
-	// if the yaw is more than 90 degrees difference, we should adjust the pitch
-	if ( DotProduct( right, axisDefault[1] ) < 0 ) {
-		if ( roll_angles[PITCH] < 0 ) {
-			roll_angles[PITCH] = -90 + ( -90 - roll_angles[PITCH] );
-		} else {
-			roll_angles[PITCH] =  90 + ( 90 - roll_angles[PITCH] );
-		}
-	}
-
-	angles[ROLL] = -roll_angles[PITCH];
-}
-
 void AxisClear( vec3_t axis[3] ) {
 	axis[0][0] = 1;
 	axis[0][1] = 0;

@@ -755,9 +755,7 @@ void JKG_Shop_BuyConfirm_Yes(char **args)
 	actualItemID = UIshopItems[shopState.selectedShopItem-1];
 	if(actualItemID == desiredItemID)
 	{
-		// Here's a thought...why not send the item ID _instead_ of the selected index?
-		// 100% guaranteed to work then --eez
-		CO_SendClientCommand(va("buyVendor %i", UIshopItems[shopState.selectedShopItem-1]));
+		CO_SendClientCommand(va("buyVendor %i", shopState.selectedShopItem-1));
 	}
 	Menu_ItemDisable(shopState.menu, "shop_preview", qfalse);
 	Menu_ItemDisable(shopState.menu, "shop_feederSel", qfalse);

@@ -3,6 +3,7 @@
 
 #include "g_local.h"
 #include "jkg_threading.h" // JKG Threading Header
+#include "jkg_libcurl.h"
 #include "jkg_gangwars.h"
 #include "g_ICARUScb.h"
 #include "g_nav.h"
@@ -53,86 +54,6 @@ gentity_t		g_entities[MAX_ENTITIESTOTAL];
 gentity_t		*g_logicalents = &g_entities[MAX_GENTITIES]; // Quicker access xD
 KeyPairSet_t	g_spawnvars[MAX_ENTITIESTOTAL];
 gclient_t		g_clients[MAX_CLIENTS];
-
-
-// Warzone gametype tickets...
-int redtickets = 0;
-int bluetickets = 0;
-
-int next_flag_check = 0;
-
-int next_endgame_flag_check = 0;
-
-int num_red_flags = 0;
-int num_blue_flags = 0;
-
-vmCvar_t	g_ticketPercent;
-vmCvar_t	g_redTickets;
-vmCvar_t	g_blueTickets;
-vmCvar_t	g_redTicketRatio;
-vmCvar_t	g_blueTicketRatio;
-
-extern int number_of_flags; // Current number of warzone flags.
-
-extern void Warzone_Create_Flags( void );
-extern void Warzone_Flag_Think( gentity_t *ent );
-
-void AdjustTickets ( void )
-{// Count flags and adjust (add to) ticket numbers for each team...
-	int total_num_flags = GetNumberOfWarzoneFlags();
-	int red_flags = 0;
-	int blue_flags = 0;
-	int i;
-	int red_original = redtickets;
-	int blue_original = bluetickets;
-
-	//if (next_endgame_flag_check > level.time)
-	//	return;
-
-	// Check/Record flag numbers info for endgame every 100ms...
-	//next_endgame_flag_check = level.time + 100;
-
-	for (i=0; i<=total_num_flags;i++)
-	{
-		if (flag_list[i].flagentity)
-		{
-			if (flag_list[i].flagentity->s.modelindex == TEAM_RED)
-				red_flags++;
-			if (flag_list[i].flagentity->s.modelindex == TEAM_BLUE)
-				blue_flags++;
-		}
-	}
-	
-	// Record how many flags each team owns for endgame checks...
-	num_red_flags = red_flags;
-	num_blue_flags = blue_flags;
-
-	//G_Printf("%i red flags. %i blue flags. %i flags total.\n", num_red_flags, num_blue_flags, total_num_flags);
-
-	if (next_flag_check > level.time)
-		return;
-
-	if (total_num_flags < 4)
-		next_flag_check = level.time + 15000;
-	else if (total_num_flags < 7)
-		next_flag_check = level.time + 30000;
-	else
-		next_flag_check = level.time + 60000;
-
-	redtickets+=red_flags;
-	if (redtickets > g_redTickets.integer)
-		redtickets = g_redTickets.integer;
-
-	bluetickets+=blue_flags;
-	if (bluetickets > g_blueTickets.integer)
-		bluetickets = g_blueTickets.integer;
-
-	if (red_original != redtickets || blue_original != bluetickets)
-	{// Transmit if required only...
-		trap_SendServerCommand( -1, va("tkt %i %i", redtickets, bluetickets ));
-	}
-}
-
 
 qboolean gDuelExit = qfalse;
 
@@ -231,10 +152,6 @@ vmCvar_t	g_debugMove;
 #ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
 #endif
-#ifdef __PTR
-// eez: kill off disallowed servers
-vmCvar_t	letEmDie;
-#endif
 vmCvar_t	g_debugAlloc;
 vmCvar_t	g_debugServerSkel;
 vmCvar_t	g_weaponRespawn;
@@ -253,9 +170,6 @@ vmCvar_t	g_statLogFile;
 vmCvar_t	g_banfile;
 vmCvar_t	jkg_startingCredits;
 vmCvar_t	jkg_creditsPerKill;
-#ifndef __MMO__
-vmCvar_t	jkg_bounty;					// Not sure if all servers wanted this or not, so I'm putting this here
-#endif
 #ifdef _PHASE1
 vmCvar_t	jkg_arearestrictions;		// TEMP FOR PHASE 1
 #endif
@@ -272,8 +186,6 @@ vmCvar_t	g_debugForward;
 vmCvar_t	g_debugRight;
 vmCvar_t	g_debugUp;
 vmCvar_t	g_smoothClients;
-
-vmCvar_t	jkg_startingStats;
 
 #include "../namespace_begin.h"
 vmCvar_t	pmove_fixed;
@@ -365,16 +277,6 @@ vmCvar_t		jkg_url;
 vmCvar_t		jkg_chatFloodProtect;
 vmCvar_t        jkg_deathTimer;
 
-#ifdef __MUSIC_ENGINE__
-vmCvar_t		s_radioStation;
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-vmCvar_t net_ip;
-vmCvar_t net_port;
-#endif //__SECONDARY_NETWORK__
-
-
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -399,10 +301,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_maxGameClients, "g_maxGameClients", "0", /*CVAR_SERVERINFO |*/ CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_trueJedi, "g_jediVmerc", "0", /*CVAR_SERVERINFO |*/ CVAR_LATCH | CVAR_ARCHIVE, 0, qtrue },
-
-#ifdef __PTR
-	{ &letEmDie, "letEmDie", "0", CVAR_ARCHIVE, 0, qfalse },
-#endif
 
 	// change anytime vars
 	{ &g_ff_objectives, "g_ff_objectives", "0", /*CVAR_SERVERINFO |*/ CVAR_CHEAT | CVAR_NORESTART, 0, qtrue },
@@ -548,8 +446,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-	{ &jkg_startingStats, "jkg_startingStats", "100/25", CVAR_ARCHIVE|CVAR_LATCH, 0, qfalse },
-
 	{ &g_dismember, "g_dismember", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_forceDodge, "g_forceDodge", "1", 0, 0, qtrue  },
 
@@ -624,10 +520,7 @@ static cvarTable_t		gameCvarTable[] = {
 	// JKGalaxies
 	{ &g_banfile, "g_banfile", "bans.dat", CVAR_ARCHIVE, 0, qfalse },
 	{ &jkg_startingCredits, "jkg_startingCredits", "500", CVAR_ARCHIVE, 0, qtrue },
-	{ &jkg_creditsPerKill, "jkg_creditsPerKill", "150", CVAR_ARCHIVE, 0, qtrue },
-#ifndef __MMO__
-	{ &jkg_bounty, "jkg_bounty", "10", CVAR_ARCHIVE, 0, qtrue },
-#endif
+	{ &jkg_creditsPerKill, "jkg_creditsPerKill", "200", CVAR_ARCHIVE, 0, qtrue },
 #ifdef _PHASE1
 	{ &jkg_arearestrictions, "jkg_arearestrictions", "0", CVAR_ARCHIVE, 0, qtrue },	//TEMP FOR PHASE 1
 #endif
@@ -650,21 +543,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &jkg_chatFloodProtect, "jkg_chatfloodprotect", "200", CVAR_ARCHIVE },
 	{ &jkg_deathTimer, "jkg_deathTimer", "1", CVAR_ARCHIVE },
 
-#ifdef __MUSIC_ENGINE__
-	{ &s_radioStation, "s_radioStation", "http://jblive.fm", CVAR_SERVERINFO | CVAR_ARCHIVE },
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-	{ &net_ip, "net_ip", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-	{ &net_port, "net_port", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-#endif //__SECONDARY_NETWORK__
-
-	// Warzone Gametype...
-	{ &g_ticketPercent, "g_ticketPercent", "100", CVAR_ARCHIVE /*| CVAR_SERVERINFO*/, 0 , qtrue },
-	{ &g_redTickets, "g_redTickets", "200", CVAR_ARCHIVE, 0 , qtrue },
-	{ &g_blueTickets, "g_blueTickets", "200", CVAR_ARCHIVE, 0 , qtrue },
-	{ &g_redTicketRatio, "g_redTicketRatio", "1", CVAR_ARCHIVE, 0 , qtrue },
-	{ &g_blueTicketRatio, "g_blueTicketRatio", "1", CVAR_ARCHIVE, 0 , qtrue },
 };
 
 // bk001129 - made static to avoid aliasing
@@ -693,11 +571,6 @@ qboolean G_EntIsBreakable( int entityNum );
 qboolean G_EntIsRemovableUsable( int entNum );
 void CP_FindCombatPointWaypoints( void );
 
-#ifdef __SECONDARY_NETWORK__
-extern void jkg_netserverbegin();
-extern void jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
-
 /*
 ================
 vmMain
@@ -713,19 +586,11 @@ extern "C" {
 #endif
 */
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-#ifdef __SECONDARY_NETWORK__
-	if (command != GAME_SHUTDOWN)
-		jkg_netserverbegin();
-#endif //__SECONDARY_NETWORK__
-
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
 		return 0;
 	case GAME_SHUTDOWN:
-#ifdef __SECONDARY_NETWORK__
-		jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
 		G_ShutdownGame( arg0 );
 		return 0;
 	case GAME_CLIENT_CONNECT:
@@ -1150,6 +1015,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// Initialize Threading System
 	JKG_InitThreading();
 
+	// Initialize Accounts Table
+	JKG_InitAccounts();
 	// Initialize admin commands
 	JKG_Admin_Init();
 	//JKG_Nav_Init();
@@ -1178,13 +1045,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_RegisterCvars();
 
-#ifdef __PTR
-	if(!letEmDie.integer)
-	{
-		Com_Error(ERR_FATAL, "You are not allowed to create PTR servers!");
-	}
-#endif
-
 	JKG_Bans_Init();
 	G_ProcessIPBans();
 
@@ -1202,10 +1062,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.snd_medSupplied = G_SoundIndex("sound/player/supp_supplied.wav");
 
 	//trap_SP_RegisterServer("mp_svgame");
-
-#if defined( __JKG_NINELIVES__ ) || defined( __JKG_TICKETING__ ) || defined( __JKG_ROUNDBASED__ )
-	level.allowjoin = qtrue;
-#endif // ! defined( __JKG_NINELIVES__ ) || defined( __JKG_TICKETING__ ) || defined( __JKG_ROUNDBASED__ )
 
 #ifndef _XBOX
 	if ( g_log.string[0] ) {
@@ -1385,14 +1241,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		//No loading games in MP.
 	}
 
-	if (g_gametype.integer == GT_WARZONE)
-	{// Do scenario flags and generate spawnpoints before anyone tries to use them...
-		Warzone_Create_Flags(); // From .scenario file if needed...
-
-		redtickets = (g_redTickets.integer * (g_ticketPercent.integer*0.01)) * g_redTicketRatio.integer;
-		bluetickets = (g_redTickets.integer * (g_ticketPercent.integer*0.01)) * g_blueTicketRatio.integer;
-	}
-
 	/* Initialize the party table */
 	TeamInitializeServer();
 
@@ -1401,6 +1249,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	lastStressLog = levelTime;
 
 	UpdateWindowTitle();
+
+	if (!level.serverInit) {
+		JKG_NewNetworkTask(LCMETHOD_SVSTARTUP, JKG_RegisteServerCallback);
+		level.nextHeartbeat = level.time + 300000;
+	}
+	
 }
 
 
@@ -1418,7 +1272,7 @@ void G_ShutdownGame( int restart ) {
 
 	if(JKG_ThreadingInitialized())
 	{
-		//if (!level.serverInit) JKG_NewNetworkTask(LCMETHOD_SVSHUTDOWN, NULL, 0);
+		if (!level.serverInit) JKG_NewNetworkTask(LCMETHOD_SVSHUTDOWN, NULL, 0);
 	}
 	// Shutdown JKG's Threading System
 	JKG_ShutdownThreading( 7000 );
@@ -2880,12 +2734,7 @@ and the time everyone is moved to the intermission spot, so you
 can see the last frag.
 =================
 */
-extern int GetNumberOfWarzoneFlags ( void );
-extern int WARZONE_GetNumberOfBlueFlags();
-extern int WARZONE_GetNumberOfRedFlags();
-
 qboolean g_endPDuel = qfalse;
-
 void CheckExitRules( void ) {
  	int			i;
 	gclient_t	*cl;
@@ -2901,38 +2750,6 @@ void CheckExitRules( void ) {
 	if (gDoSlowMoDuel)
 	{ //don't go to intermission while in slow motion
 		return;
-	}
-
-	if ((g_gametype.integer == GT_WARZONE /*|| g_gametype.integer == GT_WARZONE_CAMPAIGN*/) && GetNumberOfWarzoneFlags() > 0)
-	{
-		if (WARZONE_GetNumberOfRedFlags() <= 0)
-		{// Red team has lost!
-			LogExit( "^4Rebels ^7WIN^5: ^1Imperials ^5have no more control points!" );
-			level.intermissionQueued = 0;
-			BeginIntermission();
-			return;
-		}
-		else if (WARZONE_GetNumberOfBlueFlags() <= 0)
-		{// Blue team has lost!
-			LogExit( "Imperials ^7WIN^5: ^4Rebels ^5have no more control points!" );
-			level.intermissionQueued = 0;
-			BeginIntermission();
-			return;
-		}
-		else if (redtickets <= 0)
-		{// Red team has lost!
-			LogExit( "^4Rebels ^7WIN^5: ^1Imperials ^5have no more tickets!" );
-			level.intermissionQueued = 0;
-			BeginIntermission();
-			return;
-		}
-		else if (bluetickets <= 0)
-		{// Blue team has lost!
-			LogExit( "Imperials ^7WIN^5: ^4Rebels ^5have no more tickets!" );
-			level.intermissionQueued = 0;
-			BeginIntermission();
-			return;
-		}
 	}
 
 	if (gEscaping)
@@ -3884,6 +3701,20 @@ int BG_GetTime(void)
 }
 #include "../namespace_end.h"
 
+static void JKG_CheckMasterHeartBeat()
+{
+	if (level.serverInit) {
+		return;
+	}
+	if (level.time > level.nextHeartbeat) {
+#ifndef FINAL_BUILD
+		Com_Printf("Sending heartbeat to JKG master server\n");
+#endif
+		JKG_NewNetworkTask(LCMETHOD_SVHEARTBEAT, NULL);
+		level.nextHeartbeat = level.time + 300000;	// Send another one in 5 minutes
+	}
+}
+
 /*
 ================
 G_RunFrame
@@ -3895,7 +3726,7 @@ void ClearNPCGlobals( void );
 void AI_UpdateGroups( void );
 void ClearPlayerAlertEvents( void );
 void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 
 int g_siegeRespawnCheck = 0;
@@ -3961,8 +3792,8 @@ void G_RunFrame( int levelTime ) {
 	GLua_Timer();
 	GLua_Thread();
 
-	if (g_gametype.integer == GT_WARZONE /*|| g_gametype.integer == GT_WARZONE_CAMPAIGN*/)
-		AdjustTickets();
+	// Send heartbeat if required
+	JKG_CheckMasterHeartBeat();
 
 	/* JKG - Automatic healing when out-of-combat */
 	for ( i = 0; i < MAX_CLIENTS; i++ )
@@ -4322,7 +4153,7 @@ void G_RunFrame( int levelTime ) {
 					if (ent->client->ps.cloakFuel <= 0)
 					{ //turn it off
 						ent->client->ps.cloakFuel = 0;
-						NPC_Humanoid_Decloak(ent);
+						Jedi_Decloak(ent);
 					}
 					ent->client->cloakDebReduce = level.time + CLOAK_DEFUEL_RATE;
 				}
@@ -4474,7 +4305,7 @@ void G_RunFrame( int levelTime ) {
 
 
 #ifdef _G_FRAME_PERFANAL
-	Com_Printf("---------------\nItemRun: %i\n ROFF: %i\n ClientEndframe: %i\n GameChecks: %i\n Queues: %i\n---------------\n",
+	Com_Printf("---------------\nItemRun: %i\nROFF: %i\nClientEndframe: %i\nGameChecks: %i\nQueues: %i\n---------------\n",
 		iTimer_ItemRun,
 		iTimer_ROFF,
 		iTimer_ClientEndframe,

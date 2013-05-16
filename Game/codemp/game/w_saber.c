@@ -212,7 +212,7 @@ static GAME_INLINE int G_SaberAttackPower(gentity_t *ent, qboolean attacking)
 
 void WP_DeactivateSaber( gentity_t *self, qboolean clearLength )
 {
-	if ( !self || !self->client || (self->r.svFlags & SVF_BOT)  )
+	if ( !self || !self->client )
 	{
 		return;
 	}
@@ -243,7 +243,7 @@ void WP_DeactivateSaber( gentity_t *self, qboolean clearLength )
 
 void WP_ActivateSaber( gentity_t *self )
 {
-	if ( !self || !self->client || (self->r.svFlags & SVF_BOT) )
+	if ( !self || !self->client )
 	{
 		return;
 	}
@@ -5477,9 +5477,9 @@ qboolean BG_SaberInTransitionAny( int move );
 
 qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
 qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV );
-qboolean NPC_Humanoid_WaitingAmbush( gentity_t *self );
-void NPC_Humanoid_Ambush( gentity_t *self );
-evasionType_t NPC_Humanoid_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist );
+qboolean Jedi_WaitingAmbush( gentity_t *self );
+void Jedi_Ambush( gentity_t *self );
+evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist );
 void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 {
@@ -5831,9 +5831,9 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	{
 		if ( self->NPC /*&& !G_ControlledByPlayer( self )*/ )
 		{
-			if ( NPC_Humanoid_WaitingAmbush( self ) )
+			if ( Jedi_WaitingAmbush( self ) )
 			{
-				NPC_Humanoid_Ambush( self );
+				Jedi_Ambush( self );
 			}
 			if ( self->client->NPC_class == CLASS_BOBAFETT 
 				&& (self->client->ps.eFlags2&EF2_FLYING)//moveType == MT_FLYSWIM 
@@ -5850,7 +5850,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 					self->client->ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] = level.time + Q_irand( 1000, 2000 );
 				}
 			}
-			else if ( NPC_Humanoid_SaberBlockGo( self, &self->NPC->last_ucmd, NULL, NULL, incoming, 0.0f ) != EVASION_NONE )
+			else if ( Jedi_SaberBlockGo( self, &self->NPC->last_ucmd, NULL, NULL, incoming, 0.0f ) != EVASION_NONE )
 			{//make sure to turn on your saber if it's not on
 				if ( self->client->NPC_class != CLASS_BOBAFETT )
 				{
@@ -8806,12 +8806,9 @@ nextStep:
 				rBladeNum = 0;
 				while (rBladeNum < self->client->saber[rSaberNum].numBlades)
 				{ //Don't bother updating the bolt for each blade for this, it's just a very rough fallback method for during saberlocks
-					if (self->s.eType != ET_NPC)
-					{// UQ1: Added check because of crash... Blades not being registerred for them???
-						VectorCopy(boltOrigin, self->client->saber[saberNum].blade[rBladeNum].trail.base);
-						VectorCopy(end, self->client->saber[saberNum].blade[rBladeNum].trail.tip);
-						self->client->saber[saberNum].blade[rBladeNum].trail.lastTime = level.time;
-					}
+					VectorCopy(boltOrigin, self->client->saber[saberNum].blade[rBladeNum].trail.base);
+					VectorCopy(end, self->client->saber[saberNum].blade[rBladeNum].trail.tip);
+					self->client->saber[saberNum].blade[rBladeNum].trail.lastTime = level.time;
 
 					rBladeNum++;
 				}

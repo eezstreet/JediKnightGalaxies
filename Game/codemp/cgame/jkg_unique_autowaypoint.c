@@ -78,7 +78,6 @@ int outdoor_waypoint_scatter_distance = 192;
 
 
 qboolean optimize_again = qfalse;
-qboolean DO_THOROUGH = qfalse;
 
 extern void		CG_Printff ( const char *fmt );
 extern void		trap_UpdateScreen( void );
@@ -154,92 +153,6 @@ const char* szFeatures[] =
 
 qboolean CPU_CHECKED = qfalse;
 qboolean SSE_CPU = qfalse;
-
-float		ENTITY_HEIGHTS[MAX_GENTITIES];
-int			NUM_ENTITY_HEIGHTS = 0;
-qboolean	ENTITY_HIGHTS_INITIALIZED = qfalse;
-
-qboolean AlreadyHaveEntityAtHeight( float height )
-{
-	int i = 0;
-
-	for (i = 0; i < NUM_ENTITY_HEIGHTS; i++)
-	{
-		float heightDif = height - ENTITY_HEIGHTS[i];
-
-		if (heightDif < 0) heightDif = ENTITY_HEIGHTS[i] - height;
-
-		if (heightDif < 128) return qtrue;
-	}
-
-	return qfalse;
-}
-
-qboolean AIMOD_HaveEntityNearHeight( float height )
-{
-	int i = 0;
-
-	for (i = 0; i < NUM_ENTITY_HEIGHTS; i++)
-	{
-		float heightDif = height - ENTITY_HEIGHTS[i];
-
-		if (heightDif < 0) heightDif = ENTITY_HEIGHTS[i] - height;
-
-		if (heightDif < 512) return qtrue;
-	}
-
-	return qfalse;
-}
-
-void AIMOD_MapEntityHeights()
-{
-	int i;
-
-	if (ENTITY_HIGHTS_INITIALIZED) return; // Already made the list for this level...
-
-	for (i = 0; i < MAX_GENTITIES; i++)
-	{
-		centity_t *cent = &cg_entities[i];
-
-		if (!cent) continue;
-		if (AlreadyHaveEntityAtHeight( cent->currentState.origin[2] )) continue;
-
-		ENTITY_HEIGHTS[NUM_ENTITY_HEIGHTS] = cent->currentState.origin[2];
-		NUM_ENTITY_HEIGHTS++;
-	}
-
-	CG_Printf("^3*** ^3%s: ^5Mapped %i entity heights.\n", "AUTO-WAYPOINTER", NUM_ENTITY_HEIGHTS);
-	trap_UpdateScreen();
-
-	ENTITY_HIGHTS_INITIALIZED = qtrue;
-}
-
-float	BAD_HEIGHTS[1024];
-int		NUM_BAD_HEIGHTS = 0;
-
-qboolean AIMOD_IsWaypointHeightMarkedAsBad( vec3_t org )
-{
-	int i = 0;
-
-	AIMOD_MapEntityHeights(); // Initialize the entity height list...
-
-	if (!AIMOD_HaveEntityNearHeight(org[2]))
-	{
-		if (NUM_ENTITY_HEIGHTS > 0) // Only exit here if the level actually has entities!
-			return qtrue;
-	}
-
-	for (i = 0; i < NUM_BAD_HEIGHTS; i++)
-	{
-		float heightDif = org[2] - BAD_HEIGHTS[i];
-
-		if (heightDif < 0) heightDif = BAD_HEIGHTS[i] - org[2];
-
-		if (heightDif < 96/*48*/) return qtrue;
-	}
-
-	return qfalse;
-}
 
 int UQ_Get_CPU_Info( void )
 {
@@ -652,8 +565,6 @@ typedef struct node_s           // Node Structure
 	short int	objTeam;			//the team that should complete this objective
 	short int	objType;			//what type of objective this is - see OBJECTIVE_XXX flags
 	short int	objEntity;			//the entity number of what object to dynamite at a dynamite objective node
-	//int			coverpointNum;		// Number of waypoints this node can be used as cover for...
-	//int			coverpointFor[1024];	// List of all the waypoints this waypoint is cover for...
 } node_t;                       // Node Typedef
 
 typedef struct nodelink_convert_s       // Node Link Structure
@@ -1201,7 +1112,7 @@ BAD_WP_Distance ( vec3_t start, vec3_t end )
 		hitsmover = qtrue;
 	}
 
-	if (!hitsmover && length_diff * 0.8 < height_diff)
+	if (!hitsmover && length_diff < height_diff * 0.6)
 	{
 		// This slope looks too sharp...
 		return ( qtrue );
@@ -1260,12 +1171,11 @@ qboolean AIMod_AutoWaypoint_Check_PlayerWidth ( vec3_t origin )
 	vec3_t		org, destorg;
 
 	//Offset the step height
-	//vec3_t	mins = {-18, -18, 0};
-	//vec3_t	maxs = {18, 18, 48};
-	vec3_t	mins = {-24, -24, 0};
-	vec3_t	maxs = {24, 24, 48};
-	//vec3_t	mins = {-48, -48, 0};
-	//vec3_t	maxs = {48, 48, 48};
+	//vec3_t	mins = {-18, -18, -24};
+	vec3_t	mins = {-18, -18, 0};
+	//vec3_t	mins = {-8, -8, 0};
+	vec3_t	maxs = {18, 18, 48};
+	//vec3_t	maxs = {8, 8, 48};
 
 	VectorCopy(origin, org);
 	org[2]+=18;
@@ -1280,125 +1190,7 @@ qboolean AIMod_AutoWaypoint_Check_PlayerWidth ( vec3_t origin )
 		return qfalse;
 	}
 
-	//if ( trace.contents == 0 && trace.surfaceFlags == 0 )
-	//{// Dont know what to do about these... Gonna try disabling them and see what happens...
-	//	return qfalse;
-	//}
-
-	if ( trace.contents == CONTENTS_WATER || trace.contents == CONTENTS_LAVA )
-	{
-		return qfalse;
-	}
-
 	return qtrue;
-}
-
-float FloorHeightAt ( vec3_t org ); // below
-
-int CheckHeightsBetween( vec3_t from, vec3_t dest )
-{
-	vec3_t	from_point, to_point, current_point;
-	vec3_t	dir, forward;
-	float	distance;
-
-	VectorCopy(from, from_point);
-	from_point[2]+=32;
-	VectorCopy(dest, to_point);
-	to_point[2]+=32;
-
-	distance = VectorDistance(from_point, to_point);
-
-	VectorSubtract(to_point, from_point, dir);
-	vectoangles(dir, dir);
-
-	AngleVectors( from_point, forward, NULL, NULL );
-
-	VectorCopy(from_point, current_point);
-
-	while (distance > -15)
-	{
-		float floor = 0;
-
-		VectorMA( current_point, 16, forward, current_point );
-
-		floor = FloorHeightAt(current_point);
-
-		if (floor > 65000.0f || floor < -65000.0f || floor < from_point[2] - 128.0f)
-		{// Found a bad drop!
-			return 0;
-		}
-
-		distance -= 16.0f; // Subtract this move from the distance...
-	}
-
-	//we made it!
-	return 1;
-}
-
-int NodeVisible_WithExtraHeightAtTraceEnd( vec3_t from, vec3_t dest, int ignore )
-{
-	trace_t		trace;
-	vec3_t		org, destorg;
-	int			j = 0;
-
-	//Offset the step height
-	//vec3_t	mins = {-18, -18, -24};
-	vec3_t	mins = {-8, -8, -6};
-	//vec3_t	maxs = {18, 18, 48};
-	vec3_t	maxs = {8, 8, 48-STEPSIZE};
-
-	VectorCopy(from, org);
-	org[2]+=STEPSIZE;
-
-	VectorCopy(dest, destorg);
-	destorg[2]+=STEPSIZE;
-
-	CG_Trace( &trace, org, mins, maxs, destorg, ignore, MASK_PLAYERSOLID );
-
-	//Do a simple check
-	if ( trace.allsolid || trace.startsolid )
-	{//inside solid
-		return 0;
-	}
-
-	if ( trace.fraction < 1.0f )
-	{//hit something
-		if (trace.entityNum != ENTITYNUM_NONE 
-			&& trace.entityNum < ENTITYNUM_MAX_NORMAL )
-		{
-			if (VisibleAllowEntType(cg_entities[trace.entityNum].currentState.eType, cg_entities[trace.entityNum].currentState.eFlags))
-				if (CheckHeightsBetween(from, dest) != 0)
-					return ( 1 );
-		}
-
-		return 0;
-	}
-
-	// Doors... Meh!
-	for (j = MAX_CLIENTS; j < MAX_GENTITIES; j++)
-	{
-		centity_t *ent = &cg_entities[j];
-
-		if (!ent) continue;
-
-		// Too far???
-		if (Distance(from, ent->currentState.pos.trBase) > waypoint_scatter_distance*waypoint_distance_multiplier
-			|| Distance(from, ent->currentState.pos.trBase) > waypoint_scatter_distance*waypoint_distance_multiplier)
-			continue;
-
-		if (ent->currentState.eType == ET_GENERAL || ent->currentState.eType == ET_SPEAKER)
-		{
-			if (CheckHeightsBetween(from, dest) != 0)
-				return ( 2 ); // Doors???
-		}
-	}
-
-	// Check heights along this route for falls...
-	if (CheckHeightsBetween(from, dest) == 0)
-		return 0; // Bad height (drop) in between these points...
-
-	//we made it!
-	return 1;
 }
 
 //0 = wall in way
@@ -1437,13 +1229,10 @@ int NodeVisible( vec3_t from, vec3_t dest, int ignore )
 			&& trace.entityNum < ENTITYNUM_MAX_NORMAL )
 		{
 			if (VisibleAllowEntType(cg_entities[trace.entityNum].currentState.eType, cg_entities[trace.entityNum].currentState.eFlags))
-				//if (CheckHeightsBetween(from, dest) != 0)
-					return ( 1 );
+				return ( 1 );
 		}
 
-		// Instead of simply failing, first check if looking from above the trace end a little would see over a bump (steps)...
-		//if (NodeVisible_WithExtraHeightAtTraceEnd( trace.endpos, dest, ignore ) == 0)
-			return 0;
+		return 0;
 	}
 
 	// Doors... Meh!
@@ -1460,14 +1249,9 @@ int NodeVisible( vec3_t from, vec3_t dest, int ignore )
 
 		if (ent->currentState.eType == ET_GENERAL || ent->currentState.eType == ET_SPEAKER)
 		{
-			//if (CheckHeightsBetween(from, dest) != 0)
-				return ( 2 ); // Doors???
+			return ( 2 ); // Doors???
 		}
 	}
-
-	// Check heights along this route for falls...
-	//if (CheckHeightsBetween(from, dest) == 0)
-	//	return 0; // Bad height (drop) in between these points...
 
 	//we made it!
 	return 1;
@@ -1793,17 +1577,28 @@ AIMOD_SaveCoverPoints ( void )
 {
 	fileHandle_t	f;
 	int				i;
+	vmCvar_t		mapname;
+	char			map[64] = "";
+	char			filename[60];
 
 	CG_Printf( "^3*** ^3%s: ^7Saving cover point table.\n", "AUTO-WAYPOINTER" );
+	strcpy( filename, "nodes/" );
+
+	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+
+	Q_strcat( filename, sizeof(filename), mapname.string );
 
 	///////////////////
 	//try to open the output file, return if it failed
-	trap_FS_FOpenFile( va( "nodes/%s.cpw", cgs.rawmapname), &f, FS_WRITE );
+	trap_FS_FOpenFile( va( "%s.cpw", filename), &f, FS_WRITE );
 	if ( !f )
 	{
-		CG_Printf( "^1*** ^3ERROR^5: Error opening cover point file ^7/nodes/%s.cpw^5!!!\n", "AUTO-WAYPOINTER", cgs.rawmapname );
+		CG_Printf( "^1*** ^3ERROR^5: Error opening cover point file ^7%s.cpw^5!!!\n", "AUTO-WAYPOINTER", filename );
 		return;
 	}
+
+	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );	//get the map name
+	strcpy( map, mapname.string );
 
 	trap_FS_Write( &number_of_nodes, sizeof(int), f );							//write the number of nodes in the map
 									//write the map name
@@ -1811,159 +1606,22 @@ AIMOD_SaveCoverPoints ( void )
 
 	for ( i = 0; i < num_cover_spots; i++ )											//loop through all the nodes
 	{
-		int j = 0;
-
 		trap_FS_Write( &(cover_nodes[i]), sizeof(int), f );
-
-		/*
-		// UQ1: Now write the spots this is a coverpoint for...
-		trap_FS_Write( &(nodes[cover_nodes[i]].coverpointNum), sizeof(int), f );
-
-		// And then save each one...
-		for ( j = 0; j < nodes[cover_nodes[i]].coverpointNum; j++)
-		{
-			trap_FS_Write( &(nodes[cover_nodes[i]].coverpointFor[j]), sizeof(int), f );
-		}
-		*/
 	}
 
 	trap_FS_FCloseFile( f );		
 
-	CG_Printf( "^3*** ^3%s: ^5Cover point table saved to file ^7/nodes/%s.cpw^5.\n", "AUTO-WAYPOINTER", cgs.rawmapname );
-}
-
-qboolean
-AIMOD_LoadCoverPoints2 ( void )
-{
-	FILE			*f;
-	vmCvar_t		fs_homepath, fs_game;
-	int				i = 0;
-	int				num_map_waypoints = 0;
-
-	// Init...
-	num_cover_spots = 0;
-
-	trap_Cvar_Register( &fs_homepath, "fs_homepath", "", CVAR_SERVERINFO | CVAR_ROM );
-	trap_Cvar_Register( &fs_game, "fs_game", "", CVAR_SERVERINFO | CVAR_ROM );
-	
-	f = fopen( va("%s/%s/nodes/%s.cpw", fs_homepath.string, fs_game.string, cgs.rawmapname), "rb" );
-
-	if ( !f )
-	{
-		CG_Printf( "^1*** ^3%s^5: Reading coverpoints from ^7/nodes/%s.cpw^3 failed^5!!!\n", GAME_VERSION, cgs.rawmapname );
-		return qfalse;
-	}
-
-	fread( &num_map_waypoints, sizeof(int), 1, f );
-
-	if (num_map_waypoints != number_of_nodes)
-	{// Is an old file! We need to make a new one!
-		CG_Printf( "^1*** ^3%s^5: Reading coverpoints from ^7/nodes/%s.cpw^3 failed ^5(old coverpoint file: map wpNum %i - cpw wpNum: %i)^5!!!\n", GAME_VERSION, cgs.rawmapname, number_of_nodes, num_map_waypoints );
-		fclose( f );
-		return qfalse;
-	}
-
-	fread( &num_cover_spots, sizeof(int), 1, f );
-
-	for ( i = 0; i < num_cover_spots; i++ )
-	{
-		int j = 0;
-
-		fread( &cover_nodes[i], sizeof(int), 1, f );
-
-		/*
-		// UQ1: Now read the spots this is a coverpoint for...
-		fread( &nodes[cover_nodes[i]].coverpointNum, sizeof(int), 1, f );
-
-		// And then read each one...
-		for ( j = 0; j < nodes[cover_nodes[i]].coverpointNum; j++)
-		{
-			fread( &nodes[cover_nodes[i]].coverpointFor[j], sizeof(int), 1, f );
-		}
-		*/
-
-		if (!(nodes[cover_nodes[i]].type & NODE_COVER))
-			nodes[cover_nodes[i]].type |= NODE_COVER;
-
-		//CG_Printf("Cover spot #%i (node %i) is at %f %f %f.\n", i, cover_nodes[i], nodes[cover_nodes[i]].origin[0], nodes[cover_nodes[i]].origin[1], nodes[cover_nodes[i]].origin[2]);
-	}
-
-	fclose( f );
-
-	CG_Printf( "^1*** ^3%s^5: Successfully loaded %i cover points from file ^7/nodes/%s.cpw^5.\n", GAME_VERSION, num_cover_spots, cgs.rawmapname);
-
-	return qtrue;
-}
-
-qboolean
-AIMOD_LoadCoverPoints ( void )
-{
-	//FILE			*pIn;
-	int				i = 0;
-	fileHandle_t	f;
-	int				num_map_waypoints = 0;
-
-	// Init...
-	num_cover_spots = 0;
-
-	trap_FS_FOpenFile( va( "nodes/%s.cpw", cgs.rawmapname), &f, FS_READ );
-
-	if (!f)
-	{
-		return AIMOD_LoadCoverPoints2();
-	}
-
-	trap_FS_Read( &num_map_waypoints, sizeof(int), f );
-
-	if (num_map_waypoints != number_of_nodes)
-	{// Is an old file! We need to make a new one!
-		CG_Printf( "^1*** ^3%s^5: Reading coverpoints from ^7/nodes/%s.cpw^3 failed ^5(old coverpoint file)^5!!!\n", GAME_VERSION, cgs.rawmapname );
-		trap_FS_FCloseFile( f );
-		return qfalse;
-	}
-
-	trap_FS_Read( &num_cover_spots, sizeof(int), f );	
-
-	for ( i = 0; i < num_cover_spots; i++ )
-	{
-		int j = 0;
-
-		trap_FS_Read( &(cover_nodes[i]), sizeof(int), f );
-
-		/*
-		// UQ1: Now read the spots this is a coverpoint for...
-		trap_FS_Read( &(nodes[cover_nodes[i]].coverpointNum), sizeof(int), f );
-
-		// And then read each one...
-		for ( j = 0; j < nodes[cover_nodes[i]].coverpointNum; j++)
-		{
-			trap_FS_Read( &(nodes[cover_nodes[i]].coverpointFor[j]), sizeof(int), f );
-		}
-		*/
-
-		if (!(nodes[cover_nodes[i]].type & NODE_COVER))
-			nodes[cover_nodes[i]].type |= NODE_COVER;
-
-		//CG_Printf("Cover spot #%i (node %i) is at %f %f %f.\n", i, cover_nodes[i], nodes[cover_nodes[i]].origin[0], nodes[cover_nodes[i]].origin[1], nodes[cover_nodes[i]].origin[2]);
-	}
-
-	trap_FS_FCloseFile( f );
-
-	CG_Printf( "^1*** ^3%s^5: Successfully loaded %i cover points from file ^7/nodes/%s.cpw^5.\n", GAME_VERSION, num_cover_spots, cgs.rawmapname);
-
-	return qtrue;
+	CG_Printf( "^3*** ^3%s: ^5Cover point table saved to file ^7%s.cpw^5.\n", "AUTO-WAYPOINTER", filename );
 }
 
 void AIMOD_Generate_Cover_Spots ( void )
 {
 	{// Need to make some from waypoint list if we can!
-		if (number_of_nodes > 32000)
+		if (number_of_nodes > 40000)
 		{
 			CG_Printf("^3*** ^3%s: ^5Too many waypoints to make cover spots. Use ^3/awo^5 (auto-waypoint optimizer) to reduce the numbers!\n", "AUTO-WAYPOINTER");
 			return;
 		}
-
-		num_cover_spots = 0;
 
 		if (number_of_nodes > 0)
 		{
@@ -1978,11 +1636,9 @@ void AIMOD_Generate_Cover_Spots ( void )
 
 			for (i = 0; i < number_of_nodes; i++)
 			{
-				int			j = 0;
-				vec3_t		up_org2;
-				//qboolean	IS_GOOD_COVERPOINT = qfalse;
-
-				//nodes[i].coverpointNum = 0;
+				int		j = 0;
+//				int		num_found = 0;
+				vec3_t	up_org2;
 
 				// Draw a nice little progress bar ;)
 				aw_percent_complete = (float)((float)i/(float)number_of_nodes)*100.0f;
@@ -1995,53 +1651,41 @@ void AIMOD_Generate_Cover_Spots ( void )
 					update_timer = 0;
 				}
 
+				VectorCopy(nodes[i].origin, up_org2);
+				up_org2[2]+=DEFAULT_VIEWHEIGHT; // Standing height!
+
 				for (j = 0; j < number_of_nodes; j++)
 				{
-					if (VectorDistance(nodes[i].origin, nodes[j].origin) < 256.0f)
+					if (VectorDistance(nodes[i].origin, nodes[j].origin) < 512)
 					{
 						vec3_t up_org;
 
 						VectorCopy(nodes[j].origin, up_org);
-						up_org[2]+=DEFAULT_VIEWHEIGHT; // Standing height!
+						up_org[2]+=32;//CROUCH_VIEWHEIGHT; // Crouch height!
 
-						VectorCopy(nodes[i].origin, up_org2);
-						up_org2[2]+=DEFAULT_VIEWHEIGHT; // Standing height!
-
-						if (!OrgVisible(up_org, up_org2, -1))
+						if (OrgVisible(up_org, up_org2, -1))
 						{
-							/*
-							IS_GOOD_COVERPOINT = qtrue;
-							nodes[i].coverpointFor[nodes[i].coverpointNum] = j;
-							nodes[i].coverpointNum++;
+							continue;
+						}
+						else
+						{
+							VectorCopy(nodes[j].origin, up_org);
+							up_org[2]+=DEFAULT_VIEWHEIGHT; // Standing height!
 
-							if (nodes[i].coverpointNum > 1023)
-								break; // Maxed them out...
-							*/
-							nodes[i].type |= NODE_COVER;
-							cover_nodes[num_cover_spots] = i;
-							num_cover_spots++;
+							if (OrgVisible(up_org, up_org2, -1))
+							{
+								nodes[i].type |= NODE_COVER;
+								num_cover_spots++;
+								cover_nodes[num_cover_spots] = i;
+								num_cover_spots++;
 
-							strcpy( last_node_added_string, va("^5Waypoint ^3%i ^5set as a cover waypoint.", i) );
-							break;
+								strcpy( last_node_added_string, va("^5Waypoint ^3%i ^5set as a cover waypoint.", i) );
+								break;
+							}
 						}
 					}
 				}
-
-				/*
-				if (IS_GOOD_COVERPOINT)
-				{
-					nodes[i].type |= NODE_COVER;
-					cover_nodes[num_cover_spots] = i;
-					num_cover_spots++;
-
-					strcpy( last_node_added_string, va("^5Waypoint ^3%i ^5set as a cover waypoint for %i other waypoints.", i, nodes[i].coverpointNum) );
-				}
-				*/
 			}
-
-			aw_percent_complete = 0.0f;
-			trap_UpdateScreen();
-			update_timer = 0;
 
 			//if (bot_debug.integer)
 			{
@@ -2269,8 +1913,8 @@ AIMOD_MAPPING_CreateNodeLinks ( int node )
 
 	nodes[node].enodenum = linknum;
 
-	//if (nodes[node].enodenum > 0)
-	//	CG_Printf("Node %i has %i links. ", node, nodes[node].enodenum);
+	if (nodes[node].enodenum > 0)
+		CG_Printf("Node %i has %i links. ", node, nodes[node].enodenum);
 
 	return ( linknum );
 }
@@ -2743,9 +2387,22 @@ AIMOD_NODES_SaveNodes_Autowaypointed ( void )
 	aw_num_nodes = number_of_nodes;
 	strcpy( filename, "nodes/" );
 
+	////////////////////
+	/*trap_Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof(filename) );
+	if ( strlen( filename) > 0 )
+	{
+		trap_Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
+	}
+	else
+	{
+		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	}
+
+	Q_strcat( filename, sizeof(filename), cgs.mapname );
+	*/
 	///////////////////
 	//try to open the output file, return if it failed
-	trap_FS_FOpenFile( va( "nodes/%s.bwp", cgs.rawmapname), &f, FS_WRITE );
+	trap_FS_FOpenFile( va( "nodes/%s.bwp", cgs.rawmapname/*filename*/), &f, FS_WRITE );
 	if ( !f )
 	{
 		CG_Printf( "^1*** ^3ERROR^5: Error opening node file ^7nodes/%s.bwp^5!!!\n", cgs.rawmapname/*filename*/ );
@@ -2940,11 +2597,6 @@ float GroundHeightAt ( vec3_t org )
 		return -65536.0f;
 	}
 
-	if ( tr.contents & CONTENTS_WATER )
-	{// Water. Bad m'kay...
-		return -65536.0f;
-	}
-
 //	if ( (tr.surfaceFlags & SURF_NODRAW) 
 //		&& (tr.surfaceFlags & SURF_NOMARKS) 
 //		/*&& !Waypoint_FloorSurfaceOK(tr.surfaceFlags) 
@@ -2984,93 +2636,6 @@ float GroundHeightAt ( vec3_t org )
 	return tr.endpos[2];
 }
 
-qboolean BadHeightNearby( vec3_t org )
-{
-	vec3_t org1, org2, angles, forward, right;
-
-	VectorSet(angles, 0, 0, 0);
-	VectorCopy(org, org1);
-	org1[2] += 18;
-
-	AngleVectors( angles, forward, right, NULL );
-	
-	// Check forward...
-	VectorMA( org1, 192, forward, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	// Check back...
-	VectorCopy(org, org1);
-	org1[2] += 18;
-	VectorMA( org1, -192, forward, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	// Check right...
-	VectorCopy(org, org1);
-	org1[2] += 18;
-	VectorMA( org1, 192, right, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	// Check left...
-	VectorCopy(org, org1);
-	org1[2] += 18;
-	VectorMA( org1, -192, right, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	// Check forward right...
-	VectorCopy(org, org1);
-	org1[2] += 18;
-	VectorMA( org1, 192, forward, org2 );
-	VectorMA( org2, 192, right, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	// Check forward left...
-	VectorCopy(org, org1);
-	org1[2] += 18;
-	VectorMA( org1, 192, forward, org2 );
-	VectorMA( org2, -192, right, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	// Check back right...
-	VectorCopy(org, org1);
-	org1[2] += 18;
-	VectorMA( org1, -192, forward, org2 );
-	VectorMA( org2, 192, right, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	// Check back left...
-	VectorCopy(org, org1);
-	org1[2] += 18;
-	VectorMA( org1, -192, forward, org2 );
-	VectorMA( org2, -192, right, org2 );
-
-	if (OrgVisible(org1, org2, -1))
-		if (GroundHeightAt( org2 ) < org[2]-100)
-			return qtrue;
-
-	return qfalse;
-}
-
 qboolean aw_floor_trace_hit_mover = qfalse;
 
 float FloorHeightAt ( vec3_t org )
@@ -3080,11 +2645,6 @@ float FloorHeightAt ( vec3_t org )
 	float pitch = 0;
 
 	aw_floor_trace_hit_mover = qfalse;
-
-	if (AIMOD_IsWaypointHeightMarkedAsBad( org ))
-	{
-		return 65536.0f;
-	}
 
 	VectorCopy(org, org1);
 	org1[2]+=48;
@@ -3110,89 +2670,6 @@ float FloorHeightAt ( vec3_t org )
 //		//CG_Printf("(tr.surfaceFlags & SURF_NODRAW) && (tr.surfaceFlags & SURF_NOMARKS)\n");
 //		return 65536.0f;
 //	}
-
-/*
-
-#define	CONTENTS_SOLID			0x00000001	// Default setting. An eye is never valid in a solid
-#define	CONTENTS_LAVA			0x00000002
-#define	CONTENTS_WATER			0x00000004
-#define	CONTENTS_FOG			0x00000008
-#define	CONTENTS_PLAYERCLIP		0x00000010
-#define	CONTENTS_MONSTERCLIP	0x00000020	// Physically block bots
-#define CONTENTS_BOTCLIP		0x00000040	// A hint for bots - do not enter this brush by navigation (if possible)
-#define CONTENTS_SHOTCLIP		0x00000080
-#define	CONTENTS_BODY			0x00000100	// should never be on a brush, only in game
-#define	CONTENTS_CORPSE			0x00000200	// should never be on a brush, only in game
-#define	CONTENTS_TRIGGER		0x00000400
-#define	CONTENTS_NODROP			0x00000800	// don't leave bodies or items (death fog, lava)
-#define CONTENTS_TERRAIN		0x00001000	// volume contains terrain data
-#define CONTENTS_LADDER			0x00002000
-#define CONTENTS_ABSEIL			0x00004000  // (SOF2) used like ladder to define where an NPC can abseil
-#define CONTENTS_OPAQUE			0x00008000	// defaults to on, when off, solid can be seen through
-#define CONTENTS_OUTSIDE		0x00010000	// volume is considered to be in the outside (i.e. not indoors)
-
-#define	CONTENTS_INSIDE			0x10000000	// volume is considered to be inside (i.e. indoors)
-
-#define CONTENTS_SLIME			0x00020000	// CHC needs this since we use same tools
-#define CONTENTS_LIGHTSABER		0x00040000	// ""
-#define CONTENTS_TELEPORTER		0x00080000	// ""
-#define CONTENTS_ITEM			0x00100000	// ""
-#define CONTENTS_NOSHOT			0x00200000	// shots pass through me
-#define	CONTENTS_DETAIL			0x08000000	// brushes not used for the bsp
-#define	CONTENTS_TRANSLUCENT	0x80000000	// don't consume surface fragments inside
-
-#define	SURF_SKY				0x00002000	// lighting from environment map
-#define	SURF_SLICK				0x00004000	// affects game physics
-#define	SURF_METALSTEPS			0x00008000	// CHC needs this since we use same tools (though this flag is temp?)
-#define SURF_FORCEFIELD			0x00010000	// CHC ""			(but not temp)
-#define	SURF_NODAMAGE			0x00040000	// never give falling damage
-#define	SURF_NOIMPACT			0x00080000	// don't make missile explosions
-#define	SURF_NOMARKS			0x00100000	// don't leave missile marks
-#define	SURF_NODRAW				0x00200000	// don't generate a drawsurface at all
-#define	SURF_NOSTEPS			0x00400000	// no footstep sounds
-#define	SURF_NODLIGHT			0x00800000	// don't dlight even if solid (solid lava, skies)
-#define	SURF_NOMISCENTS			0x01000000	// no client models allowed on this surface
-
-
-			*surfaceparm     nodraw
-            *surfaceparm     nonsolid
-            *surfaceparm     nonopaque
-            *surfaceparm     trans
-            *surfaceparm     abseil
-            *surfaceparm     ladder
-    // Useless commands, AWP uses this to check intention of
-    // the brush as Notrace bounds.
-            *surfaceparm     monsterclip
-            *surfaceparm     playerclip
-            *surfaceparm     botclip
-            *surfaceparm     nodamage
-            *surfaceparm     noimpact
-            *surfaceparm     nomarks
-            *surfaceparm     nosteps
-            *surfaceparm     nodlight
-            *surfaceparm     nomiscents
-            surfaceparm     nodrop
-*/
-	if ( tr.surfaceFlags & SURF_NODRAW
-		&& tr.surfaceFlags & CONTENTS_ABSEIL
-		&& tr.surfaceFlags & SURF_NODAMAGE
-		&& tr.surfaceFlags & SURF_NOIMPACT
-		&& tr.surfaceFlags & SURF_NOMARKS
-		&& tr.surfaceFlags & SURF_NOSTEPS
-		&& tr.surfaceFlags & SURF_NODLIGHT
-		&& tr.surfaceFlags & SURF_NOMISCENTS
-		//&& !(tr.contents & CONTENTS_SOLID)
-		&& tr.contents & CONTENTS_OPAQUE
-		&& tr.contents & CONTENTS_TRANSLUCENT
-		&& tr.contents & CONTENTS_LADDER
-		&& tr.contents & CONTENTS_PLAYERCLIP
-		&& tr.contents & CONTENTS_MONSTERCLIP
-		&& tr.contents & CONTENTS_BOTCLIP
-		&& tr.contents & CONTENTS_NODROP)
-	{// Special flags - Mapped out Z axis here...
-		//CG_Printf("Ignore Area Surface\n");
-		return -65536.0f;
-	}
 	
 	if ( tr.surfaceFlags & SURF_NOMISCENTS )
 	{// Sky...
@@ -3205,20 +2682,6 @@ float FloorHeightAt ( vec3_t org )
 		//CG_Printf("CONTENTS_LAVA\n");
 		return 65536.0f;
 	}
-
-	if ( tr.contents & CONTENTS_WATER )
-	{// Water... I'm just gonna ignore these!
-		//CG_Printf("CONTENTS_LAVA\n");
-		return 65536.0f;
-	}
-
-	/*
-	if ( tr.contents == 0 && tr.surfaceFlags == 0 )
-	{// Dont know what to do about these... Gonna try disabling them and see what happens...
-		//CG_Printf("Hit noflag zone.\n");
-		return 65536.0f;
-	}
-	*/
 
 	/*if (tr.surfaceFlags & SURF_NODRAW)
 	{// Sky...
@@ -3235,8 +2698,7 @@ float FloorHeightAt ( vec3_t org )
 	if ( ((tr.contents & CONTENTS_TRANSLUCENT) && (tr.surfaceFlags & SURF_NOMARKS) && (tr.contents & CONTENTS_DETAIL)) )
 	{// Sky...
 		//CG_Printf("((tr.contents & CONTENTS_TRANSLUCENT) && (tr.surfaceFlags & SURF_NOMARKS))\n");
-		if (AIMOD_IsWaypointHeightMarkedAsBad( tr.endpos ))
-			return 65536.0f;
+		return 65536.0f;
 	}
 
 	/*if ( ((tr.contents & CONTENTS_TRANSLUCENT) && (tr.surfaceFlags & SURF_NOMARKS) && (tr.surfaceFlags & SURF_NOIMPACT)) )
@@ -3248,8 +2710,7 @@ float FloorHeightAt ( vec3_t org )
 	if ((tr.surfaceFlags & SURF_NOMARKS) && (tr.surfaceFlags & SURF_NODRAW) && (tr.contents & CONTENTS_SOLID) && (tr.contents & CONTENTS_OPAQUE))
 	{// Sky...
 		//CG_Printf("((tr.contents & CONTENTS_TRANSLUCENT) && (tr.surfaceFlags & SURF_NOMARKS))\n");
-		if (AIMOD_IsWaypointHeightMarkedAsBad( tr.endpos ))
-			return 65536.0f;
+		return 65536.0f;
 	}
 
 	/*if ( !((tr.contents & CONTENTS_OPAQUE) && (tr.contents & CONTENTS_SOLID)) )
@@ -3295,11 +2756,6 @@ float FloorHeightAt ( vec3_t org )
 		return 65536.0f; // bad slope...
 
 	if ( tr.startsolid || tr.allsolid /*|| tr.contents & CONTENTS_WATER*/ )
-	{
-		return 65536.0f;
-	}
-
-	if (DO_THOROUGH && BadHeightNearby( org ))
 	{
 		return 65536.0f;
 	}
@@ -3394,7 +2850,7 @@ void CG_ShowSlope ( void ) {
 	if (roll < -180)
 		roll += 360;
 
-	CG_Printf("Slope is %f %f %f\n", pitch, yaw, roll);
+	CG_Printf("Slope is %f %f %f\n", pitch, roll, yaw);
 }
 
 void CG_ShowSurface ( void )
@@ -3404,31 +2860,16 @@ void CG_ShowSurface ( void )
 
 	VectorCopy(cg_entities[cg.clientNum].lerpOrigin, org);
 	VectorCopy(cg_entities[cg.clientNum].lerpOrigin, down_org);
-	//down_org[2]-=48;
-	down_org[2] = -65000;
+	down_org[2]-=48;
 
 	// Do forward test...
-	CG_Trace( &tr, org, NULL, NULL, down_org, -1, MASK_PLAYERSOLID/*MASK_ALL*/ );
+	CG_Trace( &tr, org, NULL, NULL, down_org, -1, MASK_ALL );
 
 	//
 	// Surface
 	//
 
 	CG_Printf("Current surface flags (%i):\n", tr.surfaceFlags);
-
-/*
-#define	SURF_SKY				0x00002000	// lighting from environment map
-#define	SURF_SLICK				0x00004000	// affects game physics
-#define	SURF_METALSTEPS			0x00008000	// CHC needs this since we use same tools (though this flag is temp?)
-#define SURF_FORCEFIELD			0x00010000	// CHC ""			(but not temp)
-#define	SURF_NODAMAGE			0x00040000	// never give falling damage
-#define	SURF_NOIMPACT			0x00080000	// don't make missile explosions
-#define	SURF_NOMARKS			0x00100000	// don't leave missile marks
-#define	SURF_NODRAW				0x00200000	// don't generate a drawsurface at all
-#define	SURF_NOSTEPS			0x00400000	// no footstep sounds
-#define	SURF_NODLIGHT			0x00800000	// don't dlight even if solid (solid lava, skies)
-#define	SURF_NOMISCENTS			0x01000000	// no client models allowed on this surface
-*/
 
 	if (tr.surfaceFlags & SURF_NODAMAGE)
 		CG_Printf("SURF_NODAMAGE ");
@@ -4632,10 +4073,10 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 		{
 			while ( startz > mapMins[2]-2048 )
 			{
-				startz -= 70;//waypoint_scatter_distance;
+				startz -= waypoint_scatter_distance;
 				total_tests++;
 			}
-
+			
 			startz = orig_startz;
 			starty -= waypoint_scatter_distance;
 		}
@@ -4660,10 +4101,10 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	strcpy( task_string3, va("^5First pass. Finding temporary waypoints...") );
 	trap_UpdateScreen();
 
-	//#pragma omp parallel
+//#pragma omp parallel
 	while ( startx > mapMins[0]-2048 )
 	{
-		//#pragma omp parallel
+//#pragma omp parallel
 		while ( starty > mapMins[1]-2048 )
 		{
 			vec3_t last_org, new_org;
@@ -4676,7 +4117,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 			if (floor == -65536.0f || floor <= mapMins[2]-2048)
 			{// Can skip this one!
-				//#pragma omp parallel
+//#pragma omp parallel
 				while (startz > floor && startz > mapMins[2]-2048)
 				{// We can skip some checks, until we get to our hit position...
 					startz -= waypoint_scatter_distance;
@@ -4696,86 +4137,22 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 				// since we failed, decrease modifier...
 				//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-				{// Distance Variation...
-					int p;
-					qboolean got_close = qfalse;
-					int startspot = areas - 100;
-
-					if (startspot < 0) startspot = 0;
-
-					for (p = startspot; p < areas-1; p++)
-					{
-						intvec3_t org2;
-						org2[0] = startx;
-						org2[1] = starty;
-						org2[2] = floor;
-
-						if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-						{
-							got_close = qtrue;
-							break;
-						}
-					}
-
-					if (got_close)
-						waypoint_scatter_realtime_modifier = 2.0f;
-					else
-						waypoint_scatter_realtime_modifier = 0.33f;
-				}
 
 				startz = orig_startz;
 				starty -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
 				continue;
 			}
 
-			if (floor >= 65536.0f)
-			{// Marks a start-solid or on top of the sky... Skip...
-				// since we failed, decrease modifier...
-				//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-				{// Distance Variation...
-					int p;
-					qboolean got_close = qfalse;
-					int startspot = areas - 100;
-
-					if (startspot < 0) startspot = 0;
-
-					for (p = startspot; p < areas-1; p++)
-					{
-						intvec3_t org2;
-						org2[0] = startx;
-						org2[1] = starty;
-						org2[2] = floor;
-
-						if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-						{
-							got_close = qtrue;
-							break;
-						}
-					}
-
-					if (got_close)
-						waypoint_scatter_realtime_modifier = 2.0f;
-					else
-						waypoint_scatter_realtime_modifier = 0.33f;
-				}
-
-				startz -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
-
-				VectorSet(new_org, startx, starty, startz);
-
-				floor = FloorHeightAt(new_org);
-			}
-
-			//#pragma omp parallel
+//#pragma omp parallel
 			while ( startz > mapMins[2]-2048 )
 			{
 				vec3_t org;
 				float orig_floor;
-				//				qboolean bad = qfalse;
+//				qboolean bad = qfalse;
 
 				if (current_floor == -65536.0f || current_floor <= mapMins[2]-2048)
 				{// Can skip this one!
-					//#pragma omp parallel
+//#pragma omp parallel
 					while (startz > floor && startz > mapMins[2]-2048)
 					{// We can skip some checks, until we get to our hit position...
 						startz -= waypoint_scatter_distance;
@@ -4795,32 +4172,6 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 					// since we failed, decrease modifier...
 					//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-					{// Distance Variation...
-						int p;
-						qboolean got_close = qfalse;
-						int startspot = areas - 100;
-
-						if (startspot < 0) startspot = 0;
-
-						for (p = startspot; p < areas-1; p++)
-						{
-							intvec3_t org2;
-							org2[0] = startx;
-							org2[1] = starty;
-							org2[2] = floor;
-
-							if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-							{
-								got_close = qtrue;
-								break;
-							}
-						}
-
-						if (got_close)
-							waypoint_scatter_realtime_modifier = 2.0f;
-						else
-							waypoint_scatter_realtime_modifier = 0.33f;
-					}
 
 					startz = orig_startz;
 					starty -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
@@ -4838,10 +4189,10 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 				VectorSet(org, startx, starty, startz);
 
 				org[2]=FloorHeightAt(org);
-
-				if (org[2] <= -65536.0f)
+				
+				if (org[2] == -65536.0f)
 				{
-					//#pragma omp parallel
+//#pragma omp parallel
 					while (startz > floor && startz > mapMins[2]-2048)
 					{// We can skip some checks, until we get to our hit position...
 						startz -= waypoint_scatter_distance;
@@ -4861,32 +4212,6 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 					// since we failed, decrease modifier...
 					//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-					{// Distance Variation...
-						int p;
-						qboolean got_close = qfalse;
-						int startspot = areas - 100;
-
-						if (startspot < 0) startspot = 0;
-
-						for (p = startspot; p < areas-1; p++)
-						{
-							intvec3_t org2;
-							org2[0] = startx;
-							org2[1] = starty;
-							org2[2] = floor;
-
-							if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-							{
-								got_close = qtrue;
-								break;
-							}
-						}
-
-						if (got_close)
-							waypoint_scatter_realtime_modifier = 2.0f;
-						else
-							waypoint_scatter_realtime_modifier = 0.33f;
-					}
 
 					startz = orig_startz;
 					starty -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
@@ -4898,36 +4223,10 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 				// Draw a nice little progress bar ;)
 				aw_percent_complete = (float)((float)((float)final_tests/(float)total_tests)*100.0f);
 
-				if (org[2] >= 65536.0f)
+				if (org[2] == 65536.0f)
 				{// Marks a start-solid or on top of the sky... Skip...
 					// since we failed, decrease modifier...
 					//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-					{// Distance Variation...
-						int p;
-						qboolean got_close = qfalse;
-						int startspot = areas - 100;
-
-						if (startspot < 0) startspot = 0;
-
-						for (p = startspot; p < areas-1; p++)
-						{
-							intvec3_t org2;
-							org2[0] = startx;
-							org2[1] = starty;
-							org2[2] = floor;
-
-							if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-							{
-								got_close = qtrue;
-								break;
-							}
-						}
-
-						if (got_close)
-							waypoint_scatter_realtime_modifier = 2.0f;
-						else
-							waypoint_scatter_realtime_modifier = 0.33f;
-					}
 
 					startz -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
 					continue;
@@ -4937,32 +4236,6 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 				{
 					// since we failed, decrease modifier...
 					//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-					{// Distance Variation...
-						int p;
-						qboolean got_close = qfalse;
-						int startspot = areas - 100;
-
-						if (startspot < 0) startspot = 0;
-
-						for (p = startspot; p < areas-1; p++)
-						{
-							intvec3_t org2;
-							org2[0] = startx;
-							org2[1] = starty;
-							org2[2] = floor;
-
-							if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-							{
-								got_close = qtrue;
-								break;
-							}
-						}
-
-						if (got_close)
-							waypoint_scatter_realtime_modifier = 2.0f;
-						else
-							waypoint_scatter_realtime_modifier = 0.33f;
-					}
 
 					startz -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
 					continue;
@@ -4972,32 +4245,6 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 				{// Bad slope angles here!
 					// since we failed, decrease modifier...
 					//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-					{// Distance Variation...
-						int p;
-						qboolean got_close = qfalse;
-						int startspot = areas - 100;
-
-						if (startspot < 0) startspot = 0;
-
-						for (p = startspot; p < areas-1; p++)
-						{
-							intvec3_t org2;
-							org2[0] = startx;
-							org2[1] = starty;
-							org2[2] = floor;
-
-							if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-							{
-								got_close = qtrue;
-								break;
-							}
-						}
-
-						if (got_close)
-							waypoint_scatter_realtime_modifier = 2.0f;
-						else
-							waypoint_scatter_realtime_modifier = 0.33f;
-					}
 
 					startz -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
 					continue;
@@ -5007,60 +4254,26 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 				{// Not wide enough for a player to fit!
 					// since we failed, decrease modifier...
 					//waypoint_scatter_realtime_modifier = waypoint_scatter_realtime_modifier_alt;
-					{// Distance Variation...
-						int p;
-						qboolean got_close = qfalse;
-						int startspot = areas - 100;
-
-						if (startspot < 0) startspot = 0;
-
-						for (p = startspot; p < areas-1; p++)
-						{
-							intvec3_t org2;
-							org2[0] = startx;
-							org2[1] = starty;
-							org2[2] = floor;
-
-							if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-							{
-								got_close = qtrue;
-								break;
-							}
-						}
-
-						if (got_close)
-							waypoint_scatter_realtime_modifier = 2.0f;
-						else
-							waypoint_scatter_realtime_modifier = 0.33f;
-					}
 
 					startz -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
 					continue;
 				}
 
 				// Raise node a little to add it...(for visibility)
-				if (org[2] >= -65536.0f && org[2] <= 65536.0f)
-				{
-					orig_floor = org[2];
-					org[2] += 8;
+				orig_floor = org[2];
+				org[2] += 8;
 
-					//CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Adding temp waypoint ^3%i ^7at ^7%f %f %f^5. (^3%.2f^5%% complete)\n", areas, org[0], org[1], org[2], (float)((float)((float)final_tests/(float)total_tests)*100.0f));
-					strcpy( last_node_added_string, va("^5Adding temp waypoint ^3%i ^5at ^7%f %f %f^5.", areas/*+areas2+areas3*/, org[0], org[1], org[2]) );
+				//CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Adding temp waypoint ^3%i ^7at ^7%f %f %f^5. (^3%.2f^5%% complete)\n", areas, org[0], org[1], org[2], (float)((float)((float)final_tests/(float)total_tests)*100.0f));
+				strcpy( last_node_added_string, va("^5Adding temp waypoint ^3%i ^5at ^7%f %f %f^5.", areas/*+areas2+areas3*/, org[0], org[1], org[2]) );
 
-					VectorCopy( org, arealist[areas] );
-					areas++;
-				}
-				else
-				{// Don't add this one to the temp list...
-					orig_floor = org[2];
-					org[2] += 8;
-				}
+				VectorCopy( org, arealist[areas] );
+				areas++;
 
-				if (org[2] >= -65536.0f && org[2] <= 65536.0f && aw_floor_trace_hit_mover)
+				if (aw_floor_trace_hit_mover)
 				{// Need to generate waypoints to the top/bottom of the mover...
 					float temp_roof, temp_ground;
 					vec3_t temp_org, temp_org2;
-
+					
 					VectorCopy(org, temp_org2);
 					VectorCopy(org, temp_org);
 					temp_org[2] += 24; // Start above the lift...
@@ -5072,10 +4285,10 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 					temp_org2[2] = temp_roof;
 
-					if (temp_roof <= mapMaxs[2]/*< 64000*/ && HeightDistance(temp_org, temp_org2) >= 128)
+					if (temp_roof < 64000 && HeightDistance(temp_org, temp_org2) >= 128)
 					{// Looks like it goes up!
 						int z = 0;
-
+						
 						VectorCopy(org, temp_org);
 						temp_org[2] += 24;
 
@@ -5089,10 +4302,10 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 					temp_org2[2] = temp_ground;
 
-					if (temp_roof >= mapMins[2]/*> -64000*/ && HeightDistance(temp_org, temp_org2) >= 128)
+					if (temp_roof > -64000 && HeightDistance(temp_org, temp_org2) >= 128)
 					{// Looks like it goes up!
 						int z = 0;
-
+						
 						VectorCopy(org, temp_org);
 						temp_org[2] -= 24;
 
@@ -5107,49 +4320,19 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 				// Lower current org a back to where it was before raising it above...
 				org[2] = orig_floor;
-
+					
 				VectorCopy(org, last_org);
 
 				floor = org[2];
 				current_floor = floor;
 
 				// since we passed, increase modifier...
-				/*
 				if (waypoint_scatter_realtime_modifier == 1.25f)
-				waypoint_scatter_realtime_modifier = 1.0f;
+					waypoint_scatter_realtime_modifier = 1.0f;
 				else if (waypoint_scatter_realtime_modifier == 1.0f)
-				waypoint_scatter_realtime_modifier = 0.5f;
+					waypoint_scatter_realtime_modifier = 0.5f;
 				else
-				waypoint_scatter_realtime_modifier = 1.25f;
-				*/
-
-				{// Distance Variation...
-					int p;
-					qboolean got_close = qfalse;
-					int startspot = areas - 100;
-
-					if (startspot < 0) startspot = 0;
-
-					for (p = startspot; p < areas-1; p++)
-					{
-						intvec3_t org2;
-						org2[0] = org[0];
-						org2[1] = org[1];
-						org2[2] = org[2];
-
-						if (intVectorDistance(arealist[p], org2) <= waypoint_scatter_distance)
-						{
-							got_close = qtrue;
-							break;
-						}
-					}
-
-					if (got_close)
-						waypoint_scatter_realtime_modifier = 2.0f;
-					else
-						waypoint_scatter_realtime_modifier = 0.33f;
-				}
-
+					waypoint_scatter_realtime_modifier = 1.25f;
 
 				startz -= waypoint_scatter_distance * waypoint_scatter_realtime_modifier;
 
@@ -5244,7 +4427,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 //		total_waypoints = aw_total_waypoints;
 //		// End Ladders...
 
-		strcpy( task_string3, va("^5Saving %i generated waypoints.", total_waypoints) );
+		strcpy( task_string3, va("^5Saving the generated waypoints.") );
 		trap_UpdateScreen();
 
 		number_of_nodes = total_waypoints;
@@ -5269,7 +4452,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 		waypoint_scatter_distance = original_waypoint_scatter_distance;
 		
-		AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
+		//AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
 
 		free(arealist);
 
@@ -5418,7 +4601,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	number_of_nodes = total_waypoints;
 	AIMOD_NODES_SaveNodes_Autowaypointed();
 
-	AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
+	//AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
 
 	CG_Printf( va( "^4*** ^3AUTO-WAYPOINTER^4: ^5Waypoint database created successfully in ^3%.2f ^5seconds with ^7%i ^5waypoints.\n",
 				 (float) ((trap_Milliseconds() - start_time) / 1000), total_waypoints) );
@@ -5471,10 +4654,9 @@ void AIMod_AutoWaypoint_Free_Memory ( void )
 	}
 }
 
-void AIMod_AutoWaypoint_Init_Memory ( void ); // below...
 void AIMod_AutoWaypoint_Optimizer ( void ); // below...
 //void AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean relink_only ); // below...
-void AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean relink_only, qboolean multipass, qboolean initial_pass, qboolean extra, qboolean marked_locations, qboolean extra_reach );
+void AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean relink_only, qboolean multipass, qboolean initial_pass, qboolean extra );
 
 void AIMod_AutoWaypoint_Clean ( void )
 {
@@ -5489,9 +4671,6 @@ void AIMod_AutoWaypoint_Clean ( void )
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"clean\" ^5- Do a full clean.\n");
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"multipass\" ^5- Do a multi-pass full clean (max optimize).\n");
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"extra\" ^5- Do a full clean (but remove more - good if the number is still too high after optimization).\n");
-		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"markedlocations\" ^5- Remove waypoints nearby your marked locations (awc_addremovalspot & awc_addbadheight).\n");
-		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"extrareach\" ^5- Remove waypoints nearby your marked locations (awc_addremovalspot & awc_addbadheight) and add extra reachability (wp link ranges).\n");
-		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"cover\" ^5- Just generate coverpoints.\n");
 		trap_UpdateScreen();
 		return;
 	}
@@ -5500,60 +4679,19 @@ void AIMod_AutoWaypoint_Clean ( void )
 	
 	if ( Q_stricmp( str, "relink") == 0 )
 	{
-		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qtrue, qfalse, qfalse, qfalse, qfalse, qfalse);
+		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qtrue, qfalse, qfalse, qfalse);
 	}
 	else if ( Q_stricmp( str, "clean") == 0 )
 	{
-		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qfalse, qfalse, qfalse, qfalse, qfalse);
+		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qfalse, qfalse, qfalse);
 	}
 	else if ( Q_stricmp( str, "multipass") == 0 )
 	{
-		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qtrue, qfalse, qfalse, qfalse, qfalse);
+		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qtrue, qfalse, qfalse);
 	}
 	else if ( Q_stricmp( str, "extra") == 0 )
 	{
-		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qtrue, qfalse, qtrue, qfalse, qfalse);
-	}
-	else if ( Q_stricmp( str, "markedlocations") == 0 )
-	{
-		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qfalse, qfalse, qfalse, qtrue, qfalse);
-	}
-	else if ( Q_stricmp( str, "extrareach") == 0 )
-	{
-		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qfalse, qfalse, qfalse, qtrue, qtrue);
-	}
-	else if ( Q_stricmp( str, "cover") == 0 )
-	{
-		AIMod_AutoWaypoint_Init_Memory();
-
-		if (number_of_nodes > 0)
-		{// UQ1: Init nodes list!
-			number_of_nodes = 0; 
-			optimized_number_of_nodes = 0;
-
-			if (SSE_CPU)
-			{
-				sse_memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-				sse_memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-			}
-			else
-			{
-				memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-				memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-			}
-		}
-
-		AIMOD_NODES_LoadNodes();
-
-		if (number_of_nodes <= 0)
-		{
-			AIMod_AutoWaypoint_Free_Memory();
-			return;
-		}
-
-		AIMOD_Generate_Cover_Spots();
-
-		AIMod_AutoWaypoint_Free_Memory();
+		AIMod_AutoWaypoint_Cleaner(qtrue, qtrue, qfalse, qtrue, qfalse, qtrue);
 	}
 }
 
@@ -5571,17 +4709,14 @@ AIMod_AutoWaypoint ( void )
 	if ( trap_Argc() < 2 )
 	{
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^7Usage:\n" );
-		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3/autowaypoint <method> <scatter_distance> ^5or ^3/awp <method> <scatter_distance>^5. Distance is optional.\n" );
+		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3/autowaypoint <method> ^5or ^3/awp <method>^5.\n" );
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Available methods are:\n" );
-		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"standard\" ^5- For standard multi-level maps.\n");
-		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"thorough\" ^5- Use extensive fall waypoint checking.\n");
+		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"standard\" \"scatter_distance\" ^5- For standard multi-level maps. Distance is optional.\n");
 		//CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"noclean\" ^5- For standard multi-level maps (with no cleaning passes).\n");
 		//CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"outdoor_only\" ^5- For standard single level maps.\n");
 		trap_UpdateScreen();
 		return;
 	}
-
-	DO_THOROUGH = qfalse;
 
 	trap_Argv( 1, str, sizeof(str) );
 	
@@ -5605,44 +4740,9 @@ AIMod_AutoWaypoint ( void )
 
 			waypoint_scatter_distance = dist;
 			AIMod_AutoWaypoint_StandardMethod();
-
-			waypoint_scatter_distance = original_wp_scatter_dist;
 		}
 		else
 		{
-			AIMod_AutoWaypoint_StandardMethod();
-		}
-	}
-	else if ( Q_stricmp( str, "thorough") == 0 )
-	{
-		if ( trap_Argc() >= 2 )
-		{
-			// Override normal scatter distance...
-			int dist = waypoint_scatter_distance;
-
-			trap_Argv( 2, str, sizeof(str) );
-			dist = atoi(str);
-
-			if (dist <= 20)
-			{
-				// Fallback and warning...
-				dist = original_wp_scatter_dist;
-
-				CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^7Warning: ^5Invalid scatter distance set (%i). Using default (%i)...\n", atoi(str), original_wp_scatter_dist );
-			}
-
-			waypoint_scatter_distance = dist;
-
-			DO_THOROUGH = qtrue;
-
-			AIMod_AutoWaypoint_StandardMethod();
-
-			waypoint_scatter_distance = original_wp_scatter_dist;
-		}
-		else
-		{
-			DO_THOROUGH = qtrue;
-
 			AIMod_AutoWaypoint_StandardMethod();
 		}
 	}
@@ -6835,7 +5935,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 	trap_UpdateScreen();
 
 	// Remake cover spots...
-	AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
+	//AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
 
 	aw_percent_complete = 0.0f;
 	trap_UpdateScreen();
@@ -7185,8 +6285,8 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 	trap_UpdateScreen();
 
 	// Remake cover spots...
-	if (start_wp_total != number_of_nodes)
-		AIMOD_Generate_Cover_Spots();
+	//if (start_wp_total != number_of_nodes)
+	//	AIMOD_Generate_Cover_Spots();
 
 	aw_percent_complete = 0.0f;
 	trap_UpdateScreen();
@@ -7326,12 +6426,12 @@ qboolean CheckIfTooManyLinksRemoved ( int node, qboolean extra )
 
 		if (extra)
 		{
-			if (num_found > nodes[node].enodenum*0.3)//4)
+			if (num_found > 4)
 				return qfalse;
 		}
 		else
 		{
-			if (num_found > nodes[node].enodenum*0.6)//8)
+			if (num_found > 8)
 				return qfalse;
 		}
 	}
@@ -7339,27 +6439,9 @@ qboolean CheckIfTooManyLinksRemoved ( int node, qboolean extra )
 	return qtrue;
 }
 
-vec3_t	REMOVAL_POINTS[MAX_NODES];
-int		NUM_REMOVAL_POINTS = 0;
-
-void AIMod_AddRemovalPoint ( void )
-{
-	VectorCopy(cg.refdef.vieworg, REMOVAL_POINTS[NUM_REMOVAL_POINTS]);
-	CG_Printf( va( "^4*** ^3AUTO-WAYPOINTER^4: ^5Removal Point added at %f %f %f...\n", REMOVAL_POINTS[NUM_REMOVAL_POINTS][0], REMOVAL_POINTS[NUM_REMOVAL_POINTS][1], REMOVAL_POINTS[NUM_REMOVAL_POINTS][2]) );
-	CG_Printf( va( "^4*** ^3AUTO-WAYPOINTER^4: ^5Waypoints within 128 of this location will be removed on awc run...\n") );
-	NUM_REMOVAL_POINTS++;
-}
-
-void AIMod_AWC_MarkBadHeight ( void )
-{// Mark this height on the map as bad for waypoints...
-	BAD_HEIGHTS[NUM_BAD_HEIGHTS] = cg.refdef.vieworg[2];
-	NUM_BAD_HEIGHTS++;
-	CG_Printf( va( "^4*** ^3AUTO-WAYPOINTER^4: ^5Height %f marked as bad for waypoints.\n", cg.refdef.vieworg[2]) );
-}
-
 /* */
 void
-AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean relink_only, qboolean multipass, qboolean initial_pass, qboolean extra, qboolean marked_locations, qboolean extra_reach )
+AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean relink_only, qboolean multipass, qboolean initial_pass, qboolean extra )
 {
 	int i = 0;//, j = 0;//, k = 0, l = 0;//, m = 0;
 	int	total_calculations = 0;
@@ -7376,8 +6458,6 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 	int	num_disabled_nodes = 0;
 	int num_nolink_nodes = 0;
 	int num_trigger_hurt_nodes = 0;
-	int num_this_location_nodes = 0;
-	int num_marked_height_nodes = 0;
 	int num_skiped_nodes = 0;
 	int	node_disable_ratio = 2;
 	int total_removed = 0;
@@ -7390,8 +6470,6 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 	int			start_wp_total = 0;
 	int			node_clean_ticker = 0;
 	int			num_passes_completed = 0;
-	float		original_wp_max_distance = 0;
-	float		original_wp_scatter_multiplier = 0;
 
 	trap_Cvar_Set("jkg_waypoint_render", "0");
 
@@ -7511,30 +6589,6 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		reducecount = qfalse;
 	}*/
 
-	// waypoint_scatter_distance*waypoint_distance_multiplier
-	// Get original awp's distance multiplier...
-	for (i = 0; i < number_of_nodes; i++)
-	{
-		int j;
-
-		for (j = 0; j < nodes[i].enodenum; j++)
-		{
-			float dist = VectorDistance(nodes[i].origin, nodes[nodes[i].links[j].targetNode].origin);
-
-			if (dist > original_wp_max_distance)
-				original_wp_max_distance = dist;
-		}
-	}
-
-	if (extra_reach)
-	{// 1.5x?
-		original_wp_max_distance *= 1.5f;
-	}
-
-	// Set out distance multiplier...
-	original_wp_scatter_multiplier = waypoint_distance_multiplier;
-	waypoint_distance_multiplier = original_wp_max_distance/waypoint_scatter_distance;
-
 	while (1)
 	{
 		CG_Printf( va( "^4*** ^3AUTO-WAYPOINTER^4: ^5Cleaning waypoints list... Please wait...\n") );
@@ -7550,8 +6604,6 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		num_dupe_nodes = 0;
 		aw_num_bad_surfaces = 0;
 		num_skiped_nodes = 0;
-		num_this_location_nodes = 0;
-		num_marked_height_nodes = 0;
 		total_removed = 0;
 		
 		num_passes_completed++;
@@ -7591,12 +6643,6 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 			waypoint_distance_multiplier = 2.5f;
 		}*/
 
-		for (i = 0; i < number_of_nodes; i++)
-		{// Initialize...
-			nodes[i].objectNum[0] = 0;
-			nodes[i].objEntity = 0;
-		}
-
 		// Disable some ice/water ndoes...
 		if (!relink_only)
 		for (i = 0; i < number_of_nodes; i++)
@@ -7604,18 +6650,14 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 			node_clean_ticker++;
 			calculations_complete++;
 
-			/*
 			if (number_of_nodes <= 5000 )
 			{// No point relinking and saving...
+	//			free(areas);
 				AIMod_AutoWaypoint_Free_Memory();
 				AIMod_AutoWaypoint_Optimize_Free_Memory();
 				CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Waypoint cleaner exited. The waypoint file has been optimized enough.\n");
-				
-				// Restore the original multiplier...
-				waypoint_distance_multiplier = original_wp_scatter_multiplier;
 				return;
 			}
-			*/
 
 			// Draw a nice little progress bar ;)
 			aw_percent_complete = (float)((float)((float)(calculations_complete)/(float)(total_calculations))*100.0f);
@@ -7637,41 +6679,15 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 				continue;
 			}
 
-			if (marked_locations)
-			{
-				int z = 0;
-
-				if (AIMOD_IsWaypointHeightMarkedAsBad( nodes[i].origin ))
-				{
-					nodes[i].objectNum[0] = 1;
-					num_marked_height_nodes++;
-					continue;
-				}
-
-				for (z = 0; z < NUM_REMOVAL_POINTS; z++)
-				{
-					if (VectorDistance(nodes[i].origin, REMOVAL_POINTS[z]) <= 128)
-					{
-						nodes[i].objectNum[0] = 1;
-						num_this_location_nodes++;
-					}
-				}
-
-				// Skip cleaner...
-				continue;
-			}
-
 			if (relink_only)
 				continue;
 
-			/*
 			if (nodes[i].enodenum > 2 && LocationIsNearTriggerHurt(nodes[i].origin))
 			{// Lots of links, but also seems to be located close to barb wire (or other damage entity). Remove it!
 				nodes[i].objectNum[0] = 1;
 				num_trigger_hurt_nodes++;
 				continue;
 			}
-			*/
 
 #ifndef __TEST_CLEANER__
 			if (extra)
@@ -7748,12 +6764,12 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 							}
 						}
 
-						//if (return_to_start)
-						//	break;
+						if (return_to_start)
+							break;
 					}
 				}
 
-				if (num_links_alt_reachable >= nodes[i].enodenum*4)
+				if (num_links_alt_reachable >= nodes[i].enodenum)
 				{
 					int k = 0;
 					int num_alt_links = 0;
@@ -7781,12 +6797,12 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 								}
 							}
 
-							//if (found)
-							//	break;
+							if (found)
+								break;
 						}
 					}
 
-					if (num_alt_links >= nodes[i].enodenum*3 && num_alt_links >= num_reach_nodes*4)
+					if (num_alt_links >= num_reach_nodes)
 					{
 						nodes[i].objectNum[0] = 1;
 						num_skiped_nodes++;
@@ -7794,7 +6810,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 					}
 				}
 
-				//CheackForNearbyDupeNodes(i);
+				CheackForNearbyDupeNodes(i);
 			}
 #endif //__TEST_CLEANER__
 
@@ -7840,32 +6856,24 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 waypoints without links.\n", num_nolink_nodes);
 		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 waypoints with duplicate links to a neighbor.\n", num_dupe_nodes);
 		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 waypoints in over-waypointed areas.\n", num_skiped_nodes);
-		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 waypoints at your marked locations (removal spots).\n", num_this_location_nodes);
-		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 waypoints at your given bad heights (bad height spots).\n", num_marked_height_nodes);
 
-		total_removed = num_skiped_nodes + num_dupe_nodes + num_disabled_nodes + aw_num_bad_surfaces + num_nolink_nodes + num_trigger_hurt_nodes + num_this_location_nodes + num_marked_height_nodes;
+		total_removed = num_skiped_nodes + num_dupe_nodes + num_disabled_nodes + aw_num_bad_surfaces + num_nolink_nodes + num_trigger_hurt_nodes;
 
 		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 total waypoints in this run.\n", total_removed);
 
-		if (total_removed <= 100 && multipass && !relink_only )
+		if (total_removed <= 100/*== 0*/ && multipass && !relink_only )
 		{
 			CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Multipass waypoint cleaner completed in %i passes. Nothing left to remove.\n", num_passes_completed);
 			AIMod_AutoWaypoint_Free_Memory();
 			AIMod_AutoWaypoint_Optimize_Free_Memory();
-
-			// Restore the original multiplier...
-			waypoint_distance_multiplier = original_wp_scatter_multiplier;
 			return;
 		}
-		else if (total_removed == 0 && !relink_only )
+		else if (total_removed <= 100/*== 0*/ && !relink_only )
 		{// No point relinking and saving...
 //			free(areas);
 			AIMod_AutoWaypoint_Free_Memory();
 			AIMod_AutoWaypoint_Optimize_Free_Memory();
 			CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Waypoint cleaner completed. Nothing left to remove.\n");
-
-			// Restore the original multiplier...
-			waypoint_distance_multiplier = original_wp_scatter_multiplier;
 			return;
 		}
 
@@ -7961,13 +6969,11 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		num_dupe_nodes = 0;
 		aw_num_bad_surfaces = 0;
 		num_skiped_nodes = 0;
-		num_this_location_nodes = 0;
-		num_marked_height_nodes = 0;
 		total_removed = 0;
 	}
 
 	// Remake cover spots...
-	if (start_wp_total != number_of_nodes)
+	if (start_wp_total < number_of_nodes)
 		AIMOD_Generate_Cover_Spots();
 
 	aw_percent_complete = 0.0f;
@@ -7975,9 +6981,6 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 
 	AIMod_AutoWaypoint_Free_Memory();
 	AIMod_AutoWaypoint_Optimize_Free_Memory();
-
-	// Restore the original multiplier...
-	waypoint_distance_multiplier = original_wp_scatter_multiplier;
 
 	trap_SendConsoleCommand( "!loadnodes\n" );
 }
@@ -8024,19 +7027,6 @@ void CG_Waypoint( int wp_num ) {
 	}
 }
 
-qboolean LinkCanReachMe ( int wp_from, int wp_to )
-{
-	int i = 0;
-
-	for (i = 0; i < nodes[wp_to].enodenum; i ++)
-	{
-		if (nodes[wp_to].links[i].targetNode == wp_from)
-			return qtrue;
-	}
-
-	return qfalse;
-}
-
 void CG_AddWaypointLinkLine( int wp_from, int wp_to )
 {
 	refEntity_t		re;
@@ -8045,26 +7035,7 @@ void CG_AddWaypointLinkLine( int wp_from, int wp_to )
 
 	re.reType = RT_LINE;
 	re.radius = 1;
-
-	if (nodes[wp_from].type & NODE_COVER)
-	{// Cover spots show as yellow...
-		re.shaderRGBA[0] = 0xff;
-		re.shaderRGBA[1] = 0xff;
-		re.shaderRGBA[2] = 0x00;
-		re.shaderRGBA[3] = 0xff;
-	}
-	else if (LinkCanReachMe( wp_from, wp_to ))
-	{// Link is bi-directional.. Display in white..
-		re.shaderRGBA[0] = re.shaderRGBA[1] = re.shaderRGBA[2] = re.shaderRGBA[3] = 0xff;
-	}
-	else
-	{// Link is uni-directional.. Display in red..
-		re.shaderRGBA[0] = 0xff;
-		re.shaderRGBA[1] = 0x00;
-		re.shaderRGBA[2] = 0x00;
-		re.shaderRGBA[3] = 0xff;
-	}
-
+	re.shaderRGBA[0] = re.shaderRGBA[1] = re.shaderRGBA[2] = re.shaderRGBA[3] = 0xff;
 	re.customShader = cgs.media.whiteShader;
 
 	VectorCopy(nodes[wp_from].origin, re.origin);
@@ -8119,7 +7090,6 @@ void DrawWaypoints()
 		AIMod_AutoWaypoint_Init_Memory();
 
 		AIMOD_NODES_LoadNodes(); // Load node file on first check...
-		AIMOD_LoadCoverPoints();
 
 		if (number_of_nodes <= 0)
 		{
@@ -8159,15 +7129,4 @@ void DrawWaypoints()
 		}
 	}
 }
-
-//float	BAD_HEIGHTS[1024];
-//int		NUM_BAD_HEIGHTS = 0;
-
-void AIMod_MarkBadHeight ( void )
-{// Mark this height on the map as bad for waypoints...
-	BAD_HEIGHTS[NUM_BAD_HEIGHTS] = cg.refdef.vieworg[2];
-	NUM_BAD_HEIGHTS++;
-	CG_Printf("Height %f marked as bad for waypoints.\n", cg.refdef.vieworg[2]);
-}
-
 #endif //__AUTOWAYPOINT__

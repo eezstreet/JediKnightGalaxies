@@ -850,7 +850,7 @@ static void *_Hook_DiscoMsgOverride()
 // Moved to auxiliary library
 
 // =================================================
-// Hook 9:
+// Hook 8:
 // JKG Encrypted BSP support
 // -------------------------------------------------
 // This hook will facilitate the loading of
@@ -1035,62 +1035,6 @@ void *_Hook_PAKHook3()
 	__JKG_EndHook(10);
 }
 
-// =================================================
-// Hook 11:
-// Nerfed /donedl
-// -------------------------------------------------
-// This command, when executed, allows people to
-// bypass some things such as LMS lives and whatnot.
-// In MB2, this allowed players to respawn and avoid
-// losing lives.
-// This also causes players to lose flags and other carryables.
-// Thanks to Sil and Raz0r for this patch.
-// =================================================
-
-#ifdef _WIN32
-#define DDL_HOOKPOS      0x43AEF4  //  mov dword ptr [esi], CS_PRIMED
-#define DDL_RETSUCCESS    0x43AEFA  //  mov dword ptr [esi+39430h], 0
-#define DDL_ORIGBYTES    { 0xC7, 0x06, 0x03, 0x00, 0x00 }
-#define NET_ADDRTOSTRING	0x00419F10;
-#else
-#define DDL_HOOKPOS      0x804CF54  // mov dword ptr [esi], CS_PRIMED
-#define DDL_RETSUCCESS    0x804CF5A  // mov eax, [esi+39458h]
-#define DDL_ORIGBYTES    { 0xC7, 0x06, 0x03, 0x00, 0x00 }
-#endif //_WIN32
-
-static PatchData_t *DoneDLPatch;
-
-void (*NET_AddrToString)(char *address, size_t size, netadr_t *add) = (void(*)(char *, size_t, netadr_t *))NET_ADDRTOSTRING;
-
-static void __cdecl DoneDL_Handler( client_t *client )
-{
-	// fix: set CS_PRIMED only when CS_CONNECTED is current state
-	if ( client->state == CS_CONNECTED )
-		client->state = CS_PRIMED;
-	else
-	{
-		char tmpIP[10] = {0};
-		NET_AddrToString( tmpIP, sizeof( tmpIP ), &client->netchan.remoteAddress );
-		G_LogPrintf( "Client %d (%s) probably tried \"donedl\" exploit when client->state(%d)!=CS_CONNECTED(%d) [IP: %s]\n", client->gentity->s.number, client->name, client->state, CS_CONNECTED, tmpIP );
-	}
-}
-
-void *_Hook_DoneDL()
-{//DoneDL patch
-	__JKG_StartHook( 11 )
-	{
-		__asm1__( pushad );
-		__asm1__( push esi );
-		__asm1__( call DoneDL_Handler );
-		__asm2__( add esp, 4 );
-		__asm1__( popad );
-		__asm1__( push DDL_RETSUCCESS );
-		__asm1__( ret );
-	}	
-
-    __JKG_EndHook( 11 )	
-}
-
 #ifdef _WIN32
 #define _CLIENTCAPPOS1	0x4426B6
 #define _CLIENTCAPPOS2	0x4426BA
@@ -1131,11 +1075,7 @@ void JKG_PatchEngine() {
 	// Patch 1: Change protocol version shown by getinfo to 27 (q3fill bait)
 	///////////////////////////////
 	UnlockMemory(_PVCHECK_INFOPROTOCOL,1);
-#ifdef __PTR
-	*(unsigned char *)_PVCHECK_INFOPROTOCOL = 28;
-#else
 	*(unsigned char *)_PVCHECK_INFOPROTOCOL = 27;
-#endif
 	LockMemory(_PVCHECK_INFOPROTOCOL,1);
 
 	pIBFix = JKG_PlacePatch(PATCH_CALL, _IBFIX_PATCHPOS, (unsigned int)_Hook_InfoBoomFix()); // We'll be overwriting a call here
@@ -1189,15 +1129,6 @@ void JKG_PatchEngine() {
     if (!pDMO) {
 		Com_Printf("Warning: Failed to place hook 8: Disconnect message override\n");
     }
-
-	///////////////////////////////
-	// Hook 11: DoneDL exploit prevention
-	///////////////////////////////
-
-	DoneDLPatch = JKG_PlacePatch(PATCH_JUMP, DDL_HOOKPOS, (unsigned int)_Hook_DoneDL());
-	if(!DoneDLPatch) {
-		Com_Printf("Warning: Failed to place hook 11: DoneDL protection\n");
-	}
 
 	///////////////////////////////
 	// Patch 3: Client cap elevation

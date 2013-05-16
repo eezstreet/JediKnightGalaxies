@@ -21,6 +21,7 @@
 
 #include "g_local.h"
 #include "jkg_threading.h"
+#include "jkg_libcurl.h"
 #include <openssl/crypto.h>
 #include "json/cJSON.h"
 #include "jkg_threadingsq.h"
@@ -333,6 +334,11 @@ static unsigned long __stdcall JKG_BackgroundWorker ( void *lulz /*Pass somethin
 static void *JKG_BackgroundWorker ( void *lulz /*Pass something useful if you need*/ )
 #endif
 {
+	int errcode = 0;
+
+	errcode = JKG_Libcurl_Init();
+	if ( errcode ) return errcode;
+
 	backgrounderActive = qtrue;
 
 #ifndef FINAL_BUILD
@@ -341,6 +347,8 @@ static void *JKG_BackgroundWorker ( void *lulz /*Pass something useful if you ne
 	while ( !shuttingDown || (jkg_tasks.taskCount > 0) )
 	{
 		asyncTask_t *workTask = NULL;
+
+		JKG_Libcurl_Poller();
 
 		JKG_Task_ProcessDelayedTasks();
 
@@ -366,6 +374,8 @@ static void *JKG_BackgroundWorker ( void *lulz /*Pass something useful if you ne
 
 		JKG_ThreadSleep( 1 );
 	}
+
+	JKG_Libcurl_Shutdown();
 
 	shuttingDown = qfalse;
 	backgrounderActive = qfalse;

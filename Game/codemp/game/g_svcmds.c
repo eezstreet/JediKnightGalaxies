@@ -8,10 +8,10 @@
 // Include GLua 
 #include "../GLua/glua.h"
 #include "jkg_admin.h"
-#ifdef __UNUSED__
 #include "jkg_navmesh_creator.h"
-#endif //__UNUSED__
+
 #include "jkg_threading.h"
+#include "jkg_libcurl.h"
 #include "json/cJSON.h"
 
 
@@ -561,7 +561,6 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-#ifdef __UNUSED__
 	if ( Q_stricmp (cmd, "nav_generate") == 0 )
 	{
 		char mapname[MAX_STRING_CHARS] = { 0 };
@@ -569,7 +568,6 @@ qboolean	ConsoleCommand( void ) {
 		JKG_Nav_CreateNavMesh (va ("maps/%s.bsp", mapname));
 		return qtrue;
 	}
-#endif //__UNUSED__
 
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {

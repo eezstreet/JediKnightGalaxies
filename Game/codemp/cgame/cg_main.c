@@ -15,6 +15,7 @@ displayContextDef_t cgDC;
 // Jedi Knight Galaxies
 #include "cg_crossover.h"
 #include "cg_postprocess.h"
+#include "jkg_advsound.h"
 #include "cg_weapons.h"
 #include "jkg_gangwars.h"
 #include "bg_items.h"
@@ -161,36 +162,6 @@ extern vec3_t cg_autoMapAngle;
 void CG_MiscEnt(void);
 void CG_DoCameraShake( vec3_t origin, float intensity, int radius, int time );
 
-qboolean cgame_initializing = qtrue;
-
-#ifdef __MUSIC_ENGINE__
-qboolean	cvarsLoaded = qfalse;
-
-extern void CG_DoMusic ( void );
-extern void CG_StopMusic ( void );
-
-extern vmCvar_t s_radioVolume;
-
-//extern void CG_DoSound ( void );
-//vmCvar_t s_musicvolume;
-
-qboolean CG_GameLoading ( void )
-{
-	return cgame_initializing;
-}
-
-/* */
-float CG_GetMusicVolume ( void )
-{	// cvars good, conflicting values bad --eez
-	return ( s_radioVolume.value );
-}
-
-int CG_GetTime ( void )
-{// Unique1 added.. For access by sound engine...
-	return cg.time;
-}
-#endif //__MUSIC_ENGINE__
-
 //do we have any force powers that we would normally need to cycle to?
 qboolean CG_NoUseableForce(void)
 {
@@ -214,17 +185,6 @@ qboolean CG_NoUseableForce(void)
 	return qtrue;
 }
 
-#ifdef __SECONDARY_NETWORK__
-extern void jkg_netclientbegin();
-extern void jkg_netclientshutdown();
-
-extern qboolean CLIENT_FORCED_SHUTDOWN;
-#endif //__SECONDARY_NETWORK__
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-extern void CG_ClearRecordedLights();
-#endif //__EXPERIMENTAL_SHADOWS__
-
 /*
 ================
 vmMain
@@ -236,38 +196,16 @@ This must be the very first function compiled into the .q3vm file
 #include "../namespace_begin.h"
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 
-#ifdef __MUSIC_ENGINE__
-	if (command != CG_INIT && command != CG_SHUTDOWN && cvarsLoaded)
-		CG_DoMusic(); // We need to make sure this is checked every frame...
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-	//if (command != CG_INIT && command != CG_SHUTDOWN && cvarsLoaded)
-		jkg_netclientbegin(); // Need this ASAP, so do it here...
-
-	if (CLIENT_FORCED_SHUTDOWN)
-		jkg_netclientshutdown();
-#endif //__SECONDARY_NETWORK__
-
 	switch ( command ) {
 	case CG_INIT:
 		CG_Init( arg0, arg1, arg2 );
 		return 0;
 	case CG_SHUTDOWN:
-#ifdef __MUSIC_ENGINE__
-		CG_StopMusic();
-#endif //__MUSIC_ENGINE__
-#ifdef __SECONDARY_NETWORK__
-		jkg_netclientshutdown();
-#endif //__SECONDARY_NETWORK__
 		CG_Shutdown();
 		return 0;
 	case CG_CONSOLE_COMMAND:
 		return CG_ConsoleCommand();
 	case CG_DRAW_ACTIVE_FRAME:
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_ClearRecordedLights();
-#endif //__EXPERIMENTAL_SHADOWS__
 		CG_DrawActiveFrame( arg0, arg1, arg2 );
 		return 0;
 	case CG_CROSSHAIR_PLAYER:
@@ -354,9 +292,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		    TCGIncomingConsoleCommand *icc = (TCGIncomingConsoleCommand *)cg.sharedBuffer;
 		    if ( Q_stricmpn (icc->conCommand, "quit", 4) == 0 )
 		    {
-#ifdef __MUSIC_ENGINE__
-				CG_StopMusic();
-#endif //__MUSIC_ENGINE__
 		        PP_TerminatePostProcess();
 		        return 1;
 		    }
@@ -840,6 +775,9 @@ vmCvar_t	cg_simpleItems;
 vmCvar_t	cg_fov;
 vmCvar_t	cg_zoomFov;
 
+vmCvar_t	s_ext_volume;
+vmCvar_t	s_ext_openAL;
+
 vmCvar_t	cg_swingAngles;
 
 vmCvar_t	cg_oldPainSounds;
@@ -1020,10 +958,6 @@ vmCvar_t	ui_blurbackground;	// Blur the background when UI is active?
 extern vmCvar_t	jkg_postprocess;
 extern vmCvar_t	jkg_nokillmessages;
 
-#ifdef __SWF__
-vmCvar_t	jkg_swf;
-#endif //__SWF__
-
 vmCvar_t jkg_normalMapping;
 vmCvar_t jkg_debugNavmesh;
 
@@ -1031,26 +965,6 @@ vmCvar_t jkg_debugNavmesh;
 vmCvar_t jkg_waypoint_render;
 #endif //__AUTOWAYPOINT__
 
-#ifdef __WEAPON_HOLSTER__
-vmCvar_t	d_poff;
-vmCvar_t	d_roff;
-vmCvar_t	d_yoff;
-#endif //__WEAPON_HOLSTER__
-
-#ifdef __MUSIC_ENGINE__
-vmCvar_t s_radioStation;
-vmCvar_t s_radioStationOverride;
-vmCvar_t s_radioStationInfo1;
-vmCvar_t s_radioStationInfo2;
-vmCvar_t s_radioStationInfo3;
-vmCvar_t s_inetRadio;
-vmCvar_t s_radioVolume;
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-vmCvar_t net_ip;
-vmCvar_t net_port;
-#endif //__SECONDARY_NETWORK__
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -1118,6 +1032,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_showVehMiss, "cg_showVehMiss", "0", 0 },
 	{ &cg_footsteps, "cg_footsteps", "3", CVAR_ARCHIVE },
 	{ &cg_swingAngles, "cg_swingAngles", "1", 0 },
+
+	{ &s_ext_volume, "s_ext_volume", "1.0", 0 },
+	{ &s_ext_openAL, "s_ext_openAL", "1", 0 },
 
 	{ &cg_oldPainSounds, "cg_oldPainSounds", "0", 0 },
 
@@ -1262,11 +1179,6 @@ Ghoul2 Insert End
 // Jedi Knight Galaxies
 	{ &jkg_noletterbox, "jkg_noletterbox", "0", CVAR_ARCHIVE },
 	{ &jkg_postprocess, "jkg_postprocess", "1", CVAR_ARCHIVE | CVAR_LATCH },
-
-#ifdef __SWF__
-	{ &jkg_swf, "jkg_swf", "0", CVAR_ARCHIVE },
-#endif //__SWF__
-
 	{ &jkg_gunlesscrosshair, "jkg_gunlesscrosshair", "0", CVAR_ARCHIVE },
 	{ &jkg_nokillmessages, "jkg_nokillmessages", "1", CVAR_ARCHIVE },
 	{ &jkg_smoothcamera, "jkg_smoothcamera", "1", CVAR_ARCHIVE },
@@ -1305,27 +1217,6 @@ Ghoul2 Insert End
 #ifdef __AUTOWAYPOINT__
 	{ &jkg_waypoint_render, "jkg_waypoint_render", "0", CVAR_ARCHIVE /*| CVAR_CHEAT*/ },
 #endif //__AUTOWAYPOINT__
-
-#ifdef __WEAPON_HOLSTER__
-	{ &d_poff, "d_poff", "0", CVAR_ARCHIVE },
-	{ &d_roff, "d_roff", "0", CVAR_ARCHIVE },
-	{ &d_yoff, "d_yoff", "0", CVAR_ARCHIVE },
-#endif //__WEAPON_HOLSTER__
-
-#ifdef __MUSIC_ENGINE__
-	{ &s_radioStation, "s_radioStation", "", CVAR_SERVERINFO | CVAR_ARCHIVE },
-	{ &s_radioStationOverride, "s_radioStationOverride", "", CVAR_ARCHIVE },
-	{ &s_radioStationInfo1, "s_radioStationInfo1", "", CVAR_ARCHIVE },
-	{ &s_radioStationInfo2, "s_radioStationInfo2", "", CVAR_ARCHIVE },
-	{ &s_radioStationInfo3, "s_radioStationInfo3", "", CVAR_ARCHIVE },
-	{ &s_inetRadio, "s_inetRadio", "1", CVAR_ARCHIVE },	// jaquboss, to turn of the radio stuff
-	{ &s_radioVolume, "s_radioVolume", "0", CVAR_ARCHIVE },
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-	{ &net_ip, "net_ip", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-	{ &net_port, "net_port", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-#endif //__SECONDARY_NETWORK__
 };
 
 static int  cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -1386,9 +1277,6 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "ui_tm2_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL );
 	trap_Cvar_Register(NULL, "ui_tm2_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL );
 
-#ifdef __MUSIC_ENGINE__
-	cvarsLoaded = qtrue;
-#endif // __MUSIC_ENGINE__
 }
 
 /*																																			
@@ -1757,10 +1645,6 @@ static void CG_RegisterSounds( void ) {
 
 	cgs.media.rivetMarkShader			= trap_R_RegisterShader( "gfx/damage/rivetmark" );
 
-#ifdef __MUSIC_ENGINE__
-	cgs.media.radio_player =			trap_R_RegisterShaderNoMip( "gfx/radio_player" );
-#endif //__MUSIC_ENGINE__
-
 	trap_R_RegisterShader( "gfx/effects/saberFlare" );
 
 	trap_R_RegisterShader( "powerups/ysalimarishell" );
@@ -1886,9 +1770,7 @@ static void CG_RegisterSounds( void ) {
 	//PRECACHE ALL MUSIC HERE (don't need to precache normally because it's streamed off the disk)
 	if (cg_buildScript.integer)
 	{
-#ifndef __MUSIC_ENGINE__
 		trap_S_StartBackgroundTrack( "music/mp/duel.mp3", "music/mp/duel.mp3", qfalse );
-#endif //__MUSIC_ENGINE__
 	}
 
 	cg.loadLCARSStage = 1;
@@ -2355,7 +2237,7 @@ static void CG_RegisterGraphics( void ) {
 		}
 	}
 
-	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY || cgs.gametype == GT_WARZONE || cg_buildScript.integer ) {
+	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY || cg_buildScript.integer ) {
 		if (cg_buildScript.integer)
 		{
 			trap_R_RegisterModel( "models/flags/r_flag.md3" );
@@ -2364,7 +2246,7 @@ static void CG_RegisterGraphics( void ) {
 			trap_R_RegisterModel( "models/flags/b_flag_ysal.md3" );
 		}
 
-		if (cgs.gametype == GT_CTF || cgs.gametype == GT_WARZONE)
+		if (cgs.gametype == GT_CTF)
 		{
 			cgs.media.redFlagModel = trap_R_RegisterModel( "models/flags/r_flag.md3" );
 			cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flags/b_flag.md3" );
@@ -2823,7 +2705,6 @@ CG_StartMusic
 ======================
 */
 void CG_StartMusic( qboolean bForceStart ) {
-#ifndef __MUSIC_ENGINE__
 	char	*s;
 	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
 
@@ -2833,7 +2714,6 @@ void CG_StartMusic( qboolean bForceStart ) {
 	Q_strncpyz( parm2, COM_Parse( (const char **)&s ), sizeof( parm2 ) );
 
 	trap_S_StartBackgroundTrack( parm1, parm2, !bForceStart );
-#endif //__MUSIC_ENGINE__
 }
 
 #ifndef _XBOX
@@ -3127,12 +3007,6 @@ static qboolean CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 	return qfalse;
 }
 
-#ifdef __MUSIC_ENGINE__
-extern int MyMusicTotal;
-extern int MyMusicSelection;
-extern const char *RADIO_GetStationName(int index);
-extern const char *RADIO_GetStationAddress(int index);
-#endif //__MUSIC_ENGINE__
 
 static int CG_FeederCount(float feederID) {
 	int i, count;
@@ -3151,10 +3025,6 @@ static int CG_FeederCount(float feederID) {
 		}
 	} else if (feederID == FEEDER_SCOREBOARD) {
 		return cg.numScores;
-#ifdef __MUSIC_ENGINE__
-	} else if (feederID == FEEDER_MUSICLIST || feederID == FEEDER_MUSICDESC) {
-		return MyMusicTotal;
-#endif //__MUSIC_ENGINE__
 	}
 	return count;
 }
@@ -3222,17 +3092,6 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 	score_t *sp = NULL;
 
 	*handle1 = *handle2 = *handle3 = -1;
-
-#ifdef __MUSIC_ENGINE__
-	if (feederID == FEEDER_MUSICLIST)
-	{
-		return RADIO_GetStationAddress(index);
-	}
-	else if (feederID == FEEDER_MUSICDESC)
-	{
-		return RADIO_GetStationName(index);
-	}
-#endif //__MUSIC_ENGINE__
 
 	if (feederID == FEEDER_REDTEAM_LIST) {
 		team = TEAM_RED;
@@ -3315,40 +3174,7 @@ static qhandle_t CG_FeederItemImage(float feederID, int index) {
 	return 0;
 }
 
-static qboolean CG_FeederSelection(float feederID, int index, itemDef_t *item) 
-{
-
-#ifdef __MUSIC_ENGINE__
-	if (feederID == FEEDER_MUSICLIST)
-	{// UQ1: I dont think we actually need the http to display on UI, just the description...
-		int count = 0;
-		int i = 0;
-	
-		for (i = 0; i < MyMusicTotal; i++) {
-			if (index == count) {
-				MyMusicSelection = i;
-			}
-			count++;
-		}
-
-		return qtrue;
-	}
-	else if (feederID == FEEDER_MUSICDESC)
-	{
-		int count = 0;
-		int i = 0;
-	
-		for (i = 0; i < MyMusicTotal; i++) {
-			if (index == count) {
-				MyMusicSelection = i;
-			}
-			count++;
-		}
-
-		return qtrue;
-	}
-#endif //__MUSIC_ENGINE__
-
+static qboolean CG_FeederSelection(float feederID, int index, itemDef_t *item) {
 	if ( cgs.gametype >= GT_TEAM ) {
 		int i, count;
 		int team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
@@ -3829,11 +3655,9 @@ void CG_CreateModelFromSpawnEnt(cgSpawnEnt_t *ent)
 	RefEnt = &MiscEnts[NumMiscEnts++];
 
 	modelIndex = trap_R_RegisterModel(ent->model);
-	
 	if (modelIndex == 0)
 	{
-		//Com_Error(ERR_DROP, "misc_model_static failed to load model '%s'",ent->model);
-		Com_Printf("misc_model_static failed to load model '%s'.\n",ent->model);
+		Com_Error(ERR_DROP, "misc_model_static failed to load model '%s'",ent->model);
 		return;
 	}
 
@@ -4097,8 +3921,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 	char buf[64];
 	const char	*s;
 	int i = 0;
-
-	cgame_initializing = qtrue;
+	FMOD_CHANNEL *loadmusicchan = (FMOD_CHANNEL *)0x1;
 
 	// Do the engine patches
 	PatchEngine();
@@ -4121,6 +3944,16 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
 	//Load external vehicle data
 	BG_VehicleLoadParms();
+
+	// testing testing testing
+//#ifndef __JKGADVFMOD
+	//cgs.media.oggSoundTest = JKG_RegisterAdvSound("music/ambience/loadscreen.ogg");
+	//JKG_PlaySoundIndex( cgs.media.oggSoundTest, qtrue, ADVCHAN_MUSIC );
+//#endif
+	JKG_InitAdvSoundSystem();
+
+	//cgs.media.oggSoundTest = ;
+	JKG_AdvSoundPlaySound2D( JKG_RegisterAdvSound("music/ambience/loadscreen.mp3", 0), qfalse, 1.0f, &loadmusicchan, ADVCHAN_MUSIC );
 
 	// clear everything
 /*
@@ -4204,6 +4037,9 @@ Ghoul2 Insert End
 	cg.numItemsInInventory = 0;
 
 	//eezstreet add
+	// Advanced Sound System
+	//JKG_InitAdvSoundSystem();
+
 	JKG_CG_InitItems();
 	JKG_CG_InitArmor();
 	BG_LoadDefaultWeaponItems();
@@ -4370,7 +4206,7 @@ Ghoul2 Insert End
 	// Make sure we have update values (scores)
 	CG_SetConfigValues();
 
-	CG_StartMusic(qfalse);
+//	CG_StartMusic(qfalse);
 
 //	CG_LoadingString( "Clearing light styles" );
 	CG_ClearLightStyles();
@@ -4411,10 +4247,7 @@ Ghoul2 Insert End
 		trap_Cvar_Set("ui_blurbackground", "1");
 		cg.turnOnBlurCvar = qfalse;
 	}
-
-	cgs.media.swfTestShader = trap_R_RegisterShaderNoMip("animation/swf/test");
-
-	cgame_initializing = qfalse;
+	JKG_AdvSoundFade(loadmusicchan, -0.0015f);
 }
 
 //makes sure returned string is in localized format
@@ -4512,6 +4345,8 @@ void CG_Shutdown( void )
 	JKG_GLCG_BreakLinkup();
 	UnpatchEngine();
 	JKG_UnpatchEngine();
+
+	JKG_ShutdownAdvSoundSystem();
 }
 
 /*

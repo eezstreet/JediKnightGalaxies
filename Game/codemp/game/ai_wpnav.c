@@ -2216,8 +2216,6 @@ int Convert_AWP_Flags ( int flags )
 	return out_flags;
 }
 
-extern qboolean AIMOD_LoadCoverPoints ( void );
-
 /* */
 qboolean
 AIMOD_NODES_LoadNodes2 ( void )
@@ -2358,7 +2356,6 @@ AIMOD_NODES_LoadNodes2 ( void )
 
 	//nodes_loaded = qtrue;
 
-	AIMOD_LoadCoverPoints();
 	return qtrue;
 }
 
@@ -2495,7 +2492,6 @@ AIMOD_NODES_LoadNodes ( void )
 			  numberNodes, filename );
 	//nodes_loaded = qtrue;
 
-	AIMOD_LoadCoverPoints();
 	return qtrue;
 }
 #endif //__AUTOWAYPOINT__

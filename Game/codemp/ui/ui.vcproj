@@ -187,7 +187,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="odbc32.lib odbccp32.lib libexpatMT.lib ..\cgame\bass.lib winmm.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib libexpatMT.lib"
 				OutputFile="$(OutDir)\uix86.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -401,10 +401,6 @@
 			</File>
 			<File
 				RelativePath="..\game\jkg_gangwars.c"
-				>
-			</File>
-			<File
-				RelativePath="..\cgame\jkg_musicengine.c"
 				>
 			</File>
 			<File
@@ -876,26 +872,6 @@
 					</File>
 				</Filter>
 			</Filter>
-			<Filter
-				Name="Bass"
-				>
-				<File
-					RelativePath="..\cgame\bass.h"
-					>
-				</File>
-				<File
-					RelativePath="..\cgame\basstest.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="Resources"
-			>
-			<File
-				RelativePath="..\cgame\loadnget.rc"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

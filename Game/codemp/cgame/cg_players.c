@@ -499,7 +499,7 @@ retryModel:
 		skinName = "default";
 	}
 
-	if ( cgs.gametype >= GT_TEAM && !cgs.jediVmerc && cgs.gametype != GT_WARZONE )
+	if ( cgs.gametype >= GT_TEAM && !cgs.jediVmerc )
 	{ //We won't force colors for siege.
 		int clientNumFixed = clientNum;
 		if(clientNumFixed < 0)
@@ -1900,10 +1900,10 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	//saber being used
 	v = Info_ValueForKey( configstring, "st" );
 
-#ifdef __MMO__
+#ifdef __NOT_MMO__
 	if (v)
 		v = va("default");
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	if (v && Q_stricmp(v, ci->saberName))
 	{
@@ -1920,11 +1920,11 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 
 	v = Info_ValueForKey( configstring, "st2" );
 
-#ifdef __MMO__
+#ifdef __NOT_MMO__
 	// UQ1: Need to know how many sabers they have. Guess we could use stance...
 	//if (v)
 	//	v = va("default");
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	if (v && Q_stricmp(v, ci->saber2Name))
 	{
@@ -2000,7 +2000,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	v = Info_ValueForKey( configstring, "forcepowers" );
 	Q_strncpyz( newInfo.forcePowers, v, sizeof( newInfo.forcePowers ) );
 
-	if (cgs.gametype >= GT_TEAM	&& !cgs.jediVmerc && cgs.gametype != GT_SIEGE && cgs.gametype != GT_WARZONE )
+	if (cgs.gametype >= GT_TEAM	&& !cgs.jediVmerc && cgs.gametype != GT_SIEGE )
 	{ //We won't force colors for siege.
 		BG_ValidateSkinForTeam( newInfo.modelName, newInfo.skinName, newInfo.team, newInfo.colorOverride, cgs.redTeam, cgs.blueTeam, clientNum );
 	}
@@ -3732,7 +3732,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	
 	if ( cent->currentState.eFlags & EF_SPRINTING )
 	{
-	    speedScale *= 1.0f;	// uhm
+	    speedScale *= 1.3f;
 	}
 
 	if (!PM_RunningAnim(cent->currentState.legsAnim) &&
@@ -5119,7 +5119,6 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	}
 }
 
-#ifndef __EXPERIMENTAL_SHADOWS__
 /*
 ===============
 CG_PlayerShadow
@@ -5226,266 +5225,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 
 	return qtrue;
 }
-#else // __EXPERIMENTAL_SHADOWS__
 
-vec3_t	PREVIOUS_LIGHT_POSITIONS[MAX_GENTITIES];
-int		PREVIOUS_NUM_LIGHT_POSITIONS = 0;
-vec3_t	LIGHT_POSITIONS[MAX_GENTITIES];
-int		NUM_LIGHT_POSITIONS = 0;
-
-void CG_ClearRecordedLights()
-{
-	memcpy(PREVIOUS_LIGHT_POSITIONS, LIGHT_POSITIONS, sizeof(vec3_t)*MAX_GENTITIES);
-	PREVIOUS_NUM_LIGHT_POSITIONS = NUM_LIGHT_POSITIONS;
-	NUM_LIGHT_POSITIONS = 0;
-}
-
-void CG_RecordLightPosition( vec3_t org )
-{
-	VectorCopy(org, LIGHT_POSITIONS[NUM_LIGHT_POSITIONS]);
-	NUM_LIGHT_POSITIONS++;
-}
-
-int LightOrgVisible ( vec3_t org1, vec3_t org2, int ignore )
-{// For when close enough is good enough...
-	trace_t tr;
-	CG_Trace( &tr, org1, NULL, NULL, org2, ignore, MASK_SOLID | MASK_OPAQUE | MASK_WATER );
-	if ( tr.fraction == 1 )
-	{
-		return ( 1 );
-	}
-
-	if (Distance(tr.endpos, org2) < 24)
-	{// Good enough...
-		return ( 1 );
-	}
-
-	return ( 0 );
-}
-
-void CG_GetFakeLightPostionFor( centity_t *cent, vec3_t org, vec3_t out_org )
-{// We need this because JKA engine is doing wierd shit with these positions...
-	vec3_t direction, good_org;
-	float distance = Distance(cent->lerpOrigin, org);
-
-	VectorSubtract(org, cent->lerpOrigin, direction);
-	direction[2]=0;
-	VectorMA (org, 0-(distance*distance), direction, good_org);
-
-	out_org[0] = good_org[0];
-	out_org[1] = good_org[1];
-	out_org[2] = good_org[2];
-}
-
-void CG_RecordAllShadows( centity_t *cent )
-{
-	int			i = 0;
-	vec3_t		start, end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
-	trace_t		trace;
-	float		SHADOW_DISTANCE = 128.0f;
-
-	cent->shadowPlaneNumber = 0;
-
-	for (i = 0; i < PREVIOUS_NUM_LIGHT_POSITIONS; i++)
-	{
-		vec3_t light_org;
-
-		// send a trace down from the player to the ground
-		VectorCopy( cent->lerpOrigin, start );
-		VectorCopy( PREVIOUS_LIGHT_POSITIONS[i], end );
-
-		// Too far...
-		if (Distance(start, end) > 2048.0f) continue;
-
-		start[2]+=8;
-		
-		//  This light is not visibile to them...
-		if (!LightOrgVisible(start, end, cent->currentState.number)) continue;
-
-		VectorCopy( cent->lerpOrigin, end );
-
-		if (cg_shadows.integer == 2)
-		{ //stencil
-			end[2] -= 4096.0f;
-
-			trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-			if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid )
-			{
-				trace.endpos[2] = cent->lerpOrigin[2]-25.0f;
-			}
-		}
-		else
-		{
-			end[2] -= SHADOW_DISTANCE;
-
-			trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-			// no shadow if too high
-			if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
-				continue;
-			}
-		}
-
-		if (cg_shadows.integer == 2)
-		{ //stencil shadows need plane to be on ground
-			VectorSubtract( cent->lerpOrigin, cg.refdef.vieworg, cent->shadowPlaneDirections[cent->shadowPlaneNumber] );
-			CG_GetFakeLightPostionFor( cent, PREVIOUS_LIGHT_POSITIONS[i], light_org );
-			VectorCopy(light_org, cent->shadowPlaneDirections[cent->shadowPlaneNumber]);
-			cent->shadowPlanes[cent->shadowPlaneNumber] = trace.endpos[2];
-			cent->shadowPlaneNumber++;
-		}
-		else
-		{
-			VectorSubtract( cent->lerpOrigin, cg.refdef.vieworg, cent->shadowPlaneDirections[cent->shadowPlaneNumber] );
-			CG_GetFakeLightPostionFor( cent, PREVIOUS_LIGHT_POSITIONS[i], light_org );
-			VectorCopy(light_org, cent->shadowPlaneDirections[cent->shadowPlaneNumber]);
-			cent->shadowPlanes[cent->shadowPlaneNumber] = trace.endpos[2] + 1;
-			cent->shadowPlaneNumber++;
-		}
-	}
-}
-
-void CG_AddRefEntityToSceneWithShadows( centity_t *cent, refEntity_t legs )
-{
-	int		i = 0;
-	int		original_renderfx = legs.renderfx;
-	float	original_plane = legs.shadowPlane;
-	vec3_t	original_light_org;
-	refEntity_t new_legs[MAX_GENTITIES]; // we need a new refent for each shadow because the render func uses a pointer...
-
-	VectorCopy(legs.lightingOrigin, original_light_org);
-
-	//if (cent->currentState.number == cg.clientNum)
-	//	CG_Printf("There are %i shadow origins and %i lighting origins (%i next frame).\n", cent->shadowPlaneNumber, PREVIOUS_NUM_LIGHT_POSITIONS, NUM_LIGHT_POSITIONS);
-
-	for (i = 0; i < cent->shadowPlaneNumber; i++)
-	{// Render each recorded shadow...
-		memcpy(&new_legs[i], &legs, sizeof(refEntity_t));
-		new_legs[i].renderfx = RF_SHADOW_ONLY;
-		new_legs[i].renderfx |= RF_SHADOW_PLANE;
-		new_legs[i].renderfx |= RF_LIGHTING_ORIGIN;
-		VectorCopy(cent->shadowPlaneDirections[i], new_legs[i].lightingOrigin);
-		new_legs[i].shadowPlane = cent->shadowPlanes[i];
-		trap_R_AddRefEntityToScene( &new_legs[i] );
-	}
-
-	// Now draw the normal model on top...
-	legs.renderfx = original_renderfx;
-	VectorCopy(original_light_org, legs.lightingOrigin);
-	legs.shadowPlane = original_plane;
-	trap_R_AddRefEntityToScene( &legs );
-}
-
-/*
-===============
-CG_PlayerShadow
-
-Returns the Z component of the surface being shadowed
-
-  should it return a full plane instead of a Z?
-===============
-*/
-static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
-	vec3_t		end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
-	trace_t		trace;
-	float		alpha;
-	float		radius = 24.0f;
-	float		SHADOW_DISTANCE = 128.0f;
-
-	*shadowPlane = 0;
-
-	if ( cg_shadows.integer == 0 ) {
-		return qfalse;
-	}
-
-	// no shadows when cloaked
-	if ( cent->currentState.powerups & ( 1 << PW_CLOAKED )) 
-	{
-		return qfalse;
-	}
-
-	if (cent->currentState.eFlags & EF_DEAD)
-	{
-		return qfalse;
-	}
-
-	if (CG_IsMindTricked(cent->currentState.trickedentindex,
-		cent->currentState.trickedentindex2,
-		cent->currentState.trickedentindex3,
-		cent->currentState.trickedentindex4,
-		cg.snap->ps.clientNum))
-	{
-		return qfalse; //this entity is mind-tricking the current client, so don't render it
-	}
-
-	if ( cg_shadows.integer == 1 )
-	{//dropshadow
-		if (cent->currentState.m_iVehicleNum &&
-			cent->currentState.NPC_class != CLASS_VEHICLE )
-		{//riding a vehicle, no dropshadow
-			return qfalse;
-		}
-	}
-	// send a trace down from the player to the ground
-	VectorCopy( cent->lerpOrigin, end );
-	if (cg_shadows.integer == 2)
-	{ //stencil
-		end[2] -= 4096.0f;
-
-		trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-		if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid )
-		{
-			trace.endpos[2] = cent->lerpOrigin[2]-25.0f;
-		}
-	}
-	else
-	{
-		end[2] -= SHADOW_DISTANCE;
-
-		trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
-
-		// no shadow if too high
-		if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
-			cent->shadowPlaneNumber = 0;
-			return qfalse;
-		}
-	}
-
-	if (cg_shadows.integer == 2)
-	{ //stencil shadows need plane to be on ground
-		*shadowPlane = trace.endpos[2];
-	}
-	else
-	{
-		*shadowPlane = trace.endpos[2] + 1;
-	}
-
-	if ( cg_shadows.integer != 1 ) {	// no mark for stencil or projection shadows
-		CG_RecordAllShadows( cent );
-		return qtrue;
-	}
-
-	// fade the shadow out with height
-	alpha = 1.0 - trace.fraction;
-
-	// bk0101022 - hack / FPE - bogus planes?
-	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 
-
-	// add the mark as a temporary, so it goes directly to the renderer
-	// without taking a spot in the cg_marks array
-	if ( cent->currentState.NPC_class == CLASS_REMOTE
-		|| cent->currentState.NPC_class == CLASS_SEEKER )
-	{
-		radius = 8.0f;
-	}
-	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal, 
-		cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, radius, qtrue );
-
-	return qtrue;
-}
-#endif //__EXPERIMENTAL_SHADOWS__
 
 /*
 ===============
@@ -6491,7 +6231,7 @@ void CG_G2SaberEffects(vec3_t start, vec3_t end, centity_t *owner)
 
 		CG_Trace( &trace, startTr, NULL, NULL, endTr, owner->currentState.number, MASK_PLAYERSOLID );
 
-		if (trace.entityNum < MAX_CLIENTS || cg_entities[trace.entityNum].currentState.eType == ET_NPC) // UQ1: NPCs too...
+		if (trace.entityNum < MAX_CLIENTS)
 		{ //hit a client..
 			CG_G2TraceCollide(&trace, NULL, NULL, startTr, endTr);
 
@@ -6869,7 +6609,6 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 
 	if (cgs.gametype >= GT_TEAM &&
 		cgs.gametype != GT_SIEGE &&
-		cgs.gametype != GT_WARZONE &&
 		!cgs.jediVmerc &&
 		cent->currentState.eType != ET_NPC)
 	{
@@ -8238,22 +7977,12 @@ qboolean CG_VehicleAttachDroidUnit( centity_t *droidCent, refEntity_t *legs )
 	return qfalse;
 }
 
-//
-//
-//
-//
-//   NPC STUFF
-//
-//
-//
-//
-//
-
 void CG_G2Animated( centity_t *cent )
 {
 #ifdef SMOOTH_G2ANIM_LERPANGLES
 	float angSmoothFactor = 0.7f;
 #endif
+
 
 	if (!cent->ghoul2)
 	{ //Initialize this g2 anim ent, then return (will start rendering next frame)
@@ -11200,11 +10929,7 @@ SkipTrueView:
 			legs.shaderRGBA[3] = ((cent->teamPowerEffectTime - cg.time)/8);
 
 			legs.customShader = trap_R_RegisterShader( "powerups/ysalimarishell" );
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+			trap_R_AddRefEntityToScene(&legs);
 
 			legs.customShader = 0;
 			legs.renderfx = preRFX;
@@ -12105,11 +11830,7 @@ stillDoSaber:
 				legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 				legs.customShader = cgs.media.forceShell;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-				CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
 				trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
 
 				legs.customShader = 0;	//reset to player model
 
@@ -12192,11 +11913,7 @@ stillDoSaber:
 		if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE)) 
 			&& cg.snap->ps.clientNum != cent->currentState.number)
 		{//just draw him
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__		}
+			trap_R_AddRefEntityToScene( &legs );
 		}
 		else
 		{
@@ -12220,11 +11937,7 @@ stillDoSaber:
 				legs.customShader = 0; // use regular skin
 				legs.renderfx &= ~RF_RGB_TINT;
 				legs.renderfx |= RF_FORCE_ENT_ALPHA;
-#ifdef __EXPERIMENTAL_SHADOWS__
-				CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-				trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+				trap_R_AddRefEntityToScene( &legs );
 			}
 		}
 	}
@@ -12233,11 +11946,7 @@ stillDoSaber:
 		if ((cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE)) 
 			&& cg.snap->ps.clientNum != cent->currentState.number)
 		{//just draw him
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+			trap_R_AddRefEntityToScene( &legs );
 		}
 		else
 		{
@@ -12259,11 +11968,7 @@ stillDoSaber:
 
 				ScaleModelAxis(&legs);
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-				CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-				trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+				trap_R_AddRefEntityToScene( &legs );
 				
 				legs.modelScale[0] = 0.98f;
 				legs.modelScale[1] = 0.98f;
@@ -12279,11 +11984,7 @@ stillDoSaber:
 				{
 					trap_R_SetRefractProp(1.0f, 0.0f, qfalse, qfalse); //don't need to do this every frame.. but..
 					legs.customShader = 2; //crazy "refractive" shader
-#ifdef __EXPERIMENTAL_SHADOWS__
-					CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-					trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+					trap_R_AddRefEntityToScene( &legs );
 					legs.customShader = 0;
 				}
 				else
@@ -12291,11 +11992,7 @@ stillDoSaber:
 					legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 					legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
 					legs.customShader = cgs.media.cloakedShader;
-#ifdef __EXPERIMENTAL_SHADOWS__
-					CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-					trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+					trap_R_AddRefEntityToScene( &legs );
 					legs.customShader = 0;
 				}
 			}
@@ -12305,11 +12002,7 @@ stillDoSaber:
 	if (!(cent->currentState.powerups & (1 << PW_CLOAKED)))
 	{ //don't add the normal model if cloaked
 		CG_CheckThirdPersonAlpha( cent, &legs );
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene(&legs);
 	}
 	{ //eezstreet add
 		int ijk;
@@ -12421,11 +12114,7 @@ stillDoSaber:
 
 		legs.customShader = cgs.media.playerShieldDamage;
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 
 	// =======================
@@ -12457,11 +12146,7 @@ stillDoSaber:
 			legs.customShader = cgs.media.electricBody2Shader;
 		}
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene(&legs);
 	}
 
 	if (!cg.snap->ps.duelInProgress && cent->currentState.bolt1 && !(cent->currentState.eFlags & EF_DEAD) && cent->currentState.number != cg.snap->ps.clientNum && (!cg.snap->ps.duelInProgress || cg.snap->ps.duelIndex != cent->currentState.number))
@@ -12474,11 +12159,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.customShader = cgs.media.forceSightBubble;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 
 	if ( CG_VehicleShouldDrawShields( cent ) //vehicle
@@ -12508,11 +12189,7 @@ stillDoSaber:
 			legs.customShader = cgs.media.playerShieldDamage;
 		}
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 	//For now, these two are using the old shield shader. This is just so that you
 	//can tell it apart from the JM/duel shaders, but it's still very obvious.
@@ -12559,11 +12236,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.customShader = cgs.media.playerShieldDamage;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 
 	if (cent->currentState.isJediMaster && cg.snap->ps.clientNum != cent->currentState.number)
@@ -12577,11 +12250,7 @@ stillDoSaber:
 		legs.renderfx |= RF_NODEPTH;
 		legs.customShader = cgs.media.forceShell;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 
 		legs.renderfx &= ~RF_NODEPTH;
 	}
@@ -12656,11 +12325,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.customShader = cgs.media.sightShell;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 	
 	// JKG: Damage types and debuffs..
@@ -12699,11 +12364,7 @@ stillDoSaber:
 				legs.customShader = cgs.media.electricBody2Shader;
 			}
 
-#ifdef __EXPERIMENTAL_SHADOWS__
-			CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-			trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+			trap_R_AddRefEntityToScene( &legs );
 
 			if ( random() > 0.9f )
 				trap_S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.crackleSound );
@@ -12729,11 +12390,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.customShader = cgs.media.playerShieldDamage;
 		
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_AddRefEntityToSceneWithShadows( cent, legs );	//draw the shell
-#else //!__EXPERIMENTAL_SHADOWS__
-		trap_R_AddRefEntityToScene( &legs );	//draw the shell
-#endif //__EXPERIMENTAL_SHADOWS__
+		trap_R_AddRefEntityToScene( &legs );
 	}
 #if 0
 endOfCall:

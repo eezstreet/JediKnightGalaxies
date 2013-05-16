@@ -1247,8 +1247,8 @@ void ItemUse_Jetpack( gentity_t *ent )
 }
 
 #define CLOAK_TOGGLE_TIME			1000
-extern void NPC_Humanoid_Cloak( gentity_t *self );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Cloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 void ItemUse_UseCloak( gentity_t *ent )
 {
 	assert(ent && ent->client);
@@ -1274,11 +1274,11 @@ void ItemUse_UseCloak( gentity_t *ent )
 
 	if ( ent->client->ps.powerups[PW_CLOAKED] )
 	{//decloak
-		NPC_Humanoid_Decloak( ent );
+		Jedi_Decloak( ent );
 	}
 	else
 	{//cloak
-		NPC_Humanoid_Cloak( ent );
+		Jedi_Cloak( ent );
 	}
 
 	ent->client->cloakToggleTime = level.time + CLOAK_TOGGLE_TIME;

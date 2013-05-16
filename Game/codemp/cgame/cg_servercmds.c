@@ -192,68 +192,6 @@ void CG_ParseServerinfo( void ) {
 
 /*
 ==================
-JKG_ShopConfirm
-See comment in g_cmds.c --eez
-==================
-*/
-
-static void JKG_ShopConfirm( void )
-{
-	int creditCount = atoi(CG_Argv(1));
-	int itemID = atoi(CG_Argv(2));
-
-	cg.snap->ps.persistant[PERS_CREDITS] = creditCount;
-	cg.playerInventory[cg.numItemsInInventory-1].id = &CGitemLookupTable[itemID];		// MEGA UNSTABLE HACK HERE USE EXTREME CAUTION
-
-	if(CGitemLookupTable[itemID].itemType == ITEM_WEAPON)
-	{
-		// hm, go for ACI now
-		int i = 0;
-		for(; i < MAX_ACI_SLOTS; i++)
-		{
-			if(cg.playerACI[i] == -1)
-			{
-				cg.playerACI[i] = cg.numItemsInInventory-1;
-				break;
-			}
-			
-		}
-	}
-
-	CO_ShopNotify(1);
-}
-
-/*
-==================
-JKG_AddToACI
-See comment in g_cmds.c --eez
-==================
-*/
-
-static void JKG_AddToACI( void )
-{
-	int itemID = atoi(CG_Argv(1));
-
-	cg.playerInventory[cg.numItemsInInventory-1].id = &CGitemLookupTable[itemID];		// MEGA UNSTABLE HACK HERE USE EXTREME CAUTION
-
-	if(CGitemLookupTable[itemID].itemType == ITEM_WEAPON)
-	{
-		// hm, go for ACI now
-		int i = 0;
-		for(; i < MAX_ACI_SLOTS; i++)
-		{
-			if(cg.playerACI[i] == -1)
-			{
-				cg.playerACI[i] = cg.numItemsInInventory-1;
-				break;
-			}
-			
-		}
-	}
-}
-
-/*
-==================
 CG_ParseWarmup
 ==================
 */
@@ -742,9 +680,9 @@ static void CG_ConfigStringModified( void ) {
 	str = CG_ConfigString( num );
 
 	// do something with it if necessary
-	if ( num == CS_MUSIC ) {
+	/*if ( num == CS_MUSIC ) {
 		CG_StartMusic( qtrue );
-	} else if ( num == CS_SERVERINFO ) {
+	} else */if ( num == CS_SERVERINFO ) {
 		CG_ParseServerinfo();
 	} else if ( num == CS_WARMUP ) {
 		CG_ParseWarmup();
@@ -1060,7 +998,7 @@ static void CG_MapRestart( void ) {
 
 	cg.mapRestart = qtrue;
 
-	CG_StartMusic(qtrue);
+//	CG_StartMusic(qtrue);
 
 	trap_S_ClearLoopingSounds();
 
@@ -1849,18 +1787,6 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if( !strcmp(cmd, "shopconfirm") )
-	{
-		JKG_ShopConfirm();
-		return;
-	}
-
-	if( !strcmp(cmd, "AddToACI") )
-	{
-		JKG_AddToACI();
-		return;
-	}
-
 	if ( !strcmp( cmd, "cp" ) ) {
 		char strEd[MAX_STRINGED_SV_STRING];
 		CG_CheckSVStringEdRef(strEd, CG_Argv(1));
@@ -1882,14 +1808,6 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "cs" ) ) {
 		CG_ConfigStringModified();
-		return;
-	}
-
-	// Warzone Tickets...
-	if ( !strcmp( cmd, "tkt" ) ) {
-		//CG_Printf("CG_Argv(0) = %s. CG_Argv(1) = %s. CG_Argv(2) = %s. CG_Argv(3) = %s.\n", CG_Argv(0), CG_Argv(1), CG_Argv(2), CG_Argv(3));
-		cgs.redtickets = atoi(CG_Argv(1));
-		cgs.bluetickets = atoi(CG_Argv(2));
 		return;
 	}
 

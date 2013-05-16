@@ -21,8 +21,6 @@ extern qboolean PM_InKnockDown( playerState_t *ps );
 
 extern void NPC_AimAdjust( int change );
 extern qboolean NPC_SomeoneLookingAtMe(gentity_t *ent);
-
-
 /*
  void NPC_BSAdvanceFight (void)
 
@@ -957,7 +955,6 @@ void GLua_NPCEV_OnLostEnemy(gentity_t *self);
 void NPC_BSSearch (void)
 {
 	NPC_CheckEnemy(qtrue, qfalse, qtrue);
-
 	//Look for enemies, if find one:
 	if ( NPC->enemy )
 	{
@@ -972,8 +969,6 @@ void NPC_BSSearch (void)
 		}
 		return;
 	}
-
-	if (!NPCInfo->tempGoal) return;
 
 	//FIXME: what if our goalEntity is not NULL and NOT our tempGoal - they must
 	//want us to do something else?  If tempBehavior, just default, else set
@@ -1155,8 +1150,6 @@ NPC_BSSearchStart
 
 void NPC_BSSearchStart( int homeWp, bState_t bState )
 {
-	if (!NPCInfo->tempGoal) return;
-
 	//FIXME: Reimplement
 	if ( homeWp == WAYPOINT_NONE )
 	{
@@ -1222,8 +1215,6 @@ void NPC_BSWander (void)
 	{//Starting out
 		float	minGoalReachedDistSquared = 64;//32*32;
 		vec3_t	vec;
-
-		if (!NPCInfo->tempGoal) return;
 
 		//Keep moving toward our tempGoal
 		NPCInfo->goalEntity = NPCInfo->tempGoal;

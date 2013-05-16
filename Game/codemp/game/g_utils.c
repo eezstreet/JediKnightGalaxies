@@ -1596,28 +1596,6 @@ qboolean ValidUseTarget( gentity_t *ent )
 		return qfalse;
 	}
 
-	if (ent->s.eType == ET_NPC)
-	{
-		switch (ent->client->NPC_class)
-		{
-		case CLASS_GENERAL_VENDOR:
-		case CLASS_WEAPONS_VENDOR:
-		case CLASS_ARMOR_VENDOR:
-		case CLASS_SUPPLIES_VENDOR:
-		case CLASS_FOOD_VENDOR:
-		case CLASS_MEDICAL_VENDOR:
-		case CLASS_GAMBLER_VENDOR:
-		case CLASS_TRADE_VENDOR:
-		case CLASS_ODDITIES_VENDOR:
-		case CLASS_DRUG_VENDOR:
-		case CLASS_TRAVELLING_VENDOR:
-			return qtrue;
-			break;
-		default:
-			break;
-		}
-	}
-
 	if ( ent->flags & FL_INACTIVE )
 	{//set by target_deactivate
 		return qfalse;
@@ -1780,7 +1758,6 @@ extern void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace );
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
 void GLua_NPCEV_OnUse(gentity_t *self, gentity_t *other, gentity_t *activator);
-extern void JKG_target_vendor_use(gentity_t *ent, gentity_t *other, gentity_t *activator);
 
 void TryUse( gentity_t *ent )
 {
@@ -1882,33 +1859,6 @@ void TryUse( gentity_t *ent )
 	if ((trace.fraction * USE_DISTANCE_MAX) > USE_DISTANCE)
 	{
 		goto tryJetPack;
-	}
-
-	//Check for a use command
-	if ( ValidUseTarget( target ) )
-	{
-		if (target->s.eType == ET_NPC)
-		{
-			switch (target->client->NPC_class)
-			{
-			case CLASS_GENERAL_VENDOR:
-			case CLASS_WEAPONS_VENDOR:
-			case CLASS_ARMOR_VENDOR:
-			case CLASS_SUPPLIES_VENDOR:
-			case CLASS_FOOD_VENDOR:
-			case CLASS_MEDICAL_VENDOR:
-			case CLASS_GAMBLER_VENDOR:
-			case CLASS_TRADE_VENDOR:
-			case CLASS_ODDITIES_VENDOR:
-			case CLASS_DRUG_VENDOR:
-			case CLASS_TRAVELLING_VENDOR:
-				JKG_target_vendor_use(target, ent, ent);
-				return;
-				break;
-			default:
-				break;
-			}
-		}
 	}
 
 //Enable for corpse dragging
@@ -2025,7 +1975,6 @@ void TryUse( gentity_t *ent )
 		{
 			G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		}
-
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		/*
 		NPC_SetAnim( ent, SETANIM_TORSO, BOTH_FORCEPUSH, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );

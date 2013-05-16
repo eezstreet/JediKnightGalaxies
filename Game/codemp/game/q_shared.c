@@ -4,10 +4,6 @@
 #include "q_shared.h"
 
 
-#include "../game/jkg_gangwars.h"
-gangWarsTeam_t bgGangWarsTeams[32];
-int bgnumGangWarTeams;
-
 /**************************************************
 * Q_stratt
 *
@@ -47,39 +43,6 @@ int GetIDForString ( const stringID_table_t *table, const char *string )
 	}
 
 	return -1;
-}
-
-#include <stdio.h>
-#include <ctype.h>
-
-qboolean StringContainsWord(const char *haystack, const char *needle)
-{
-	if ( !*needle )
-	{
-		return qfalse;
-	}
-	for ( ; *haystack; ++haystack )
-	{
-		if ( toupper(*haystack) == toupper(*needle) )
-		{
-			/*
-			* Matched starting char -- loop through remaining chars.
-			*/
-			const char *h, *n;
-			for ( h = haystack, n = needle; *h && *n; ++h, ++n )
-			{
-				if ( toupper(*h) != toupper(*n) )
-				{
-					break;
-				}
-			}
-			if ( !*n ) /* matched all of 'needle' to null termination */
-			{
-				return qtrue; /* return the start of the match */
-			}
-		}
-	}
-	return qfalse;
 }
 
 /*

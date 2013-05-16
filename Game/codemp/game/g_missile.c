@@ -8,7 +8,7 @@
 #define	MISSILE_PRESTEP_TIME	50
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 
 #include "../namespace_begin.h"
 extern qboolean FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS );

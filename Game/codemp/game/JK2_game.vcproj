@@ -301,7 +301,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="winmm.lib ws2_32.lib libeay32.lib dbghelp.lib psapi.lib"
+				AdditionalDependencies="winmm.lib libcurld.lib ws2_32.lib libeay32.lib dbghelp.lib psapi.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\jampgamex86.dll"
 				LinkIncremental="2"
@@ -351,10 +351,6 @@
 			>
 			<File
 				RelativePath=".\ai_dominance.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ai_dominance_evasion.c"
 				>
 			</File>
 			<File
@@ -598,7 +594,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\jkg_accounts.c"
+				>
+			</File>
+			<File
 				RelativePath=".\jkg_admin.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_astar.cpp"
 				>
 			</File>
 			<File
@@ -623,6 +627,14 @@
 			</File>
 			<File
 				RelativePath=".\jkg_damagetypes.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_dominance_npc.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_dominance_npc_conversation.c"
 				>
 			</File>
 			<File
@@ -651,6 +663,14 @@
 			</File>
 			<File
 				RelativePath=".\jkg_keypairs.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_libcurl.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jkg_navmesh_creator.cpp"
 				>
 			</File>
 			<File
@@ -773,6 +793,14 @@
 				Name="NPCs"
 				>
 				<File
+					RelativePath="AnimalNPC.c"
+					>
+				</File>
+				<File
+					RelativePath="FighterNPC.c"
+					>
+				</File>
+				<File
 					RelativePath=".\NPC.c"
 					>
 				</File>
@@ -806,6 +834,10 @@
 				</File>
 				<File
 					RelativePath=".\NPC_AI_Interrogator.c"
+					>
+				</File>
+				<File
+					RelativePath=".\NPC_AI_Jedi.c"
 					>
 				</File>
 				<File
@@ -896,28 +928,12 @@
 					RelativePath=".\NPC_utils.c"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="Network"
-				>
 				<File
-					RelativePath="..\network\jkg_serversidenetwork.cpp"
+					RelativePath="SpeederNPC.c"
 					>
 				</File>
 				<File
-					RelativePath="..\network\NetworkServices.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerGame.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerNetwork.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\network\stdafx.cpp"
+					RelativePath="WalkerNPC.c"
 					>
 				</File>
 			</Filter>
@@ -1083,6 +1099,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\jkg_accounts.h"
+				>
+			</File>
+			<File
 				RelativePath=".\jkg_admin.h"
 				>
 			</File>
@@ -1227,42 +1247,6 @@
 				>
 				<File
 					RelativePath="..\GLua\glua.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Network"
-				>
-				<File
-					RelativePath="..\network\ByteBuffer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\Common.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\NetworkData.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\NetworkServices.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerGame.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\ServerNetwork.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\stdafx.h"
-					>
-				</File>
-				<File
-					RelativePath="..\network\targetver.h"
 					>
 				</File>
 			</Filter>

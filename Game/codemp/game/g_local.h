@@ -437,15 +437,8 @@ struct gentity_s {
 	int			wpSeenTime;
 	int			wpTravelTime;
 	int			longTermGoal; // For ASTAR pathing NPCs...
-	int			coverpointGoal; // Coverpoint Waypoint...
-	int			coverpointOFC; // Coverpoint Out-From-Cover Waypoint...
-	int			coverpointOFCtime; // Coverpoint Out-From-Cover timer...
-	int			coverpointHIDEtime; // Coverpoint HIDE timer...
 	int			pathsize; // For ASTAR pathing NPCs...
 	int			pathlist[MAX_WPARRAY_SIZE]; // For ASTAR pathing NPCs...
-	float		patrol_range;
-	qboolean	return_home;
-	vec3_t		spawn_pos;
 	vec3_t		move_vector;
 	int			bot_strafe_left_timer;
 	int			bot_strafe_right_timer;
@@ -455,11 +448,6 @@ struct gentity_s {
 	vec3_t		bot_strafe_target_position;
 	int			npc_mover_start_pos;
 	int			npc_dumb_route_time;
-
-	int			next_weapon_switch;
-	int			next_rifle_butt_time;
-	int			next_flamer_time;
-	int			next_kick_time;
 };
 
 //used for objective dependancy stuff
@@ -966,12 +954,6 @@ struct gclient_s {
 	unsigned int lastHitmarkerTime;			// Timer to ensure that we don't get ear-raped whenever we hit someone with a scattergun --eez
 	unsigned int storedCredits;				// hack a doodle doo to prevent the credits from spectators from carrying over to people that join
 	unsigned int saberStanceDebounce;		// prevent people from spamming style change and causing issues
-
-#ifndef __MMO__
-	unsigned int numKillsThisLife;			// Killstreaks!
-#endif
-
-	char		botSoundDir[MAX_QPATH];
 };
 
 //Interest points
@@ -1178,35 +1160,13 @@ typedef struct {
 	int lastVendorUpdateTime;
 	int	lastUpdatedVendor;
 
+	int		nextHeartbeat;
+
 	char	startingWeapon[MAX_QPATH];			// mega hax here.
 												// gives you one of these suckers, and auto equips it to the first slot.
 
-#ifdef __JKG_NINELIVES__
-	int		gamestartTime;						// After a five minute or so period of time, disallows joining from outside players
-#elif defined __JKG_TICKETING__
-	int		gamestartTime;						// After a five minute or so period of time, disallows joining from outside players
-#elif defined __JKG_ROUNDBASED__
-	int		gamestartTime;						// After a five minute or so period of time, disallows joining from outside players
-#endif
-
 } level_locals_t;
 
-// Warzone Gametype...
-typedef struct {
-	int			closeWaypoints[256];
-	int			num_waypoints;
-	gentity_t	*flagentity;
-	gentity_t	*redNPCs[32];
-	gentity_t	*blueNPCs[32];
-	vec3_t		spawnpoints[32];
-	vec3_t		spawnangles[32];
-	int			num_spawnpoints;
-} flag_list_t;
-
-flag_list_t flag_list[1024];
-
-extern int bluetickets;
-extern int redtickets;
 
 //
 // g_spawn.c
@@ -1548,7 +1508,7 @@ void		 WP_CalculateMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, ve
 void		 WP_RecalculateTheFreakingMuzzleCrap( gentity_t *ent );
 gentity_t	*WP_FireGenericMissile( gentity_t *ent, qboolean altFire, vec3_t origin, vec3_t dir );
 void		 WP_FireGenericTraceLine( gentity_t *ent, qboolean altFire );
-void		 WP_FireGenericWeapon( gentity_t *ent, int firemode );
+void		 WP_FireGenericWeapon( gentity_t *ent, unsigned char firingMode );
 qboolean	 WP_GetWeaponAttackDisruption( gentity_t* ent, qboolean altFire );
 float		 WP_GetWeaponBoxSize( gentity_t *ent, qboolean altFire );
 int			 WP_GetWeaponBounce( gentity_t *ent, qboolean altFire );
@@ -1744,9 +1704,8 @@ void ForceTeamHeal( gentity_t *self );
 void ForceTeamForceReplenish( gentity_t *self );
 void ForceSeeing( gentity_t *self );
 void ForceThrow( gentity_t *self, qboolean pull );
-void ForceDrain( gentity_t *self );
 void ForceTelepathy(gentity_t *self);
-qboolean NPC_Humanoid_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc );
+qboolean Jedi_DodgeEvasion( gentity_t *self, gentity_t *shooter, trace_t *tr, int hitLoc );
 void WP_DeactivateSaber( gentity_t *self, qboolean clearLength );
 void WP_ActivateSaber( gentity_t *self );
 
@@ -1899,9 +1858,6 @@ extern	vmCvar_t	g_fraglimitVoteCorrection;
 // Jedi Knight Galaxies
 extern vmCvar_t		jkg_startingCredits;
 extern vmCvar_t		jkg_creditsPerKill;
-#ifndef __MMO__
-extern vmCvar_t		jkg_bounty;
-#endif
 #ifdef _PHASE1
 extern vmCvar_t	jkg_arearestrictions;		// TEMP FOR PHASE 1
 #endif
@@ -1949,8 +1905,6 @@ extern	vmCvar_t	g_debugUp;
 //extern	vmCvar_t	g_redteam;
 //extern	vmCvar_t	g_blueteam;
 extern	vmCvar_t	g_smoothClients;
-
-extern	vmCvar_t	jkg_startingStats;
 
 #include "../namespace_begin.h"
 extern	vmCvar_t	pmove_fixed;
@@ -2359,12 +2313,10 @@ void N_Init();
 void N_Clear();
 #endif
 
-#ifdef _DEBUG
 extern void JKG_AssertFunction(char *file, int linenum, const char *expression);
 #define JKG_Assert(_Expression) if(!_Expression){ JKG_AssertFunction(__FILE__, __LINE__, #_Expression); assert(_Expression); }
-#else //!_DEBUG
-#define JKG_Assert(_Expression) {  }
-#endif //_DEBUG
+
+#include "jkg_accounts.h" // Move this somewhere else if I'm adding this in the wrong place.
 
 #include "../namespace_end.h"
 

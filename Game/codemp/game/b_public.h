@@ -270,13 +270,11 @@ typedef struct
 	int			isLuaNPC;
 	int			maxUseRange;		// Max use distance for the npc (clamped to USE_DISTANCE_MAX)
 
-	int			conversationSearchTime;
 	int			conversationRole;
 	gentity_t	*conversationPartner;
 	int			conversationSection;
 	int			conversationPart;
 	int			conversationReplyTime;
-	int			conversationAvailable;
 } gNPC_t;
 
 void G_SquadPathsInit(void);

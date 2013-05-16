@@ -1,35 +1,20 @@
-//       ____ ___________________   ___           ____  __ _______   ___  ________  ___ ______________
-//      |    |\_   _____/\______ \ |   |         |    |/ _|\      \ |   |/  _____/ /   |   \__    ___/
-//      |    | |    __)_  |    |  \|   |         |      <  /   |   \|   /   \  ___/    ~    \|    |   
-//  /\__|    | |        \ |    `   \   |         |    |  \/    |    \   \    \_\  \    Y    /|    |   
-//  \________|/_______  //_______  /___|         |____|__ \____|__  /___|\______  /\___|_  / |____|   
-//                    \/         \/                      \/       \/            \/       \/           
-//                         ________    _____   ____       _____  ____  ___ ______________ _________   
-//                        /  _____/   /  _  \ |    |     /  _  \ \   \/  /|   \_   _____//   _____/   
-//                       /   \  ___  /  /_\  \|    |    /  /_\  \ \     / |   ||    __)_ \_____  \    
-//                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
-//                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
-//                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// jkg_cg_items.h
-// Jedi Knight Galaxies (c) 2011
-// File by eezstreet
-// jkg_cg_items.h - Defines clientside code for items.
-// Note that this file is needed by the entire clientside, so cg_local.h actually #includes this file.
-// Copyright (c) 2011 Jedi Knight Galaxies
+//Jedi Knight Galaxies (c) 2011
+//File by eezstreet
+//jkg_cg_items.h - Defines clientside code for items.
+//Note that this file is needed by the entire clientside, so cg_local.h actually #includes this file.
 
 
 /* Global Definitions */
 #ifndef CGITEMH
 #define CGITEMH
 
-//#include "../game/q_shared.h"
+#include "../game/q_shared.h"
 #include "../game/bg_items.h"
 
 #define MAX_ARMOR_PIECES		1024
 
-// UQ1: Moved to bg_items.c to stop compile header issues...
-extern int shopItems[128];
-extern int numShopItems;
+int shopItems[128];
+int numShopItems;
 
 /* Structure Definitions */
 typedef struct

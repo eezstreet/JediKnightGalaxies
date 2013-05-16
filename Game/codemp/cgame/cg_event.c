@@ -1535,9 +1535,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			}
 			else
 			{
-#ifndef __MUSIC_ENGINE__
 				trap_S_StartBackgroundTrack( "music/mp/duel.mp3", "music/mp/duel.mp3", qfalse );
-#endif //__MUSIC_ENGINE__
 			}
 		}
 		else
@@ -2016,17 +2014,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			int weapon;
 			int variation;
 			weaponInfo_t *weaponInfo;
-			weaponData_t *weaponData;
 			qboolean result;
 
 			assert(param >= 0 && param < MAX_WEAPON_TABLE_SIZE);
 			
 			result = BG_GetWeaponByIndex (param, &weapon, &variation);
 			assert (result);
-
-			weaponData = GetWeaponData( weapon, variation );
-
-			assert( weaponData );
 			
 			#ifdef _DEBUG
 			//CG_Printf ("Client-side received change weapon event: weapon %d, variation %d\n", weapon, variation);
@@ -2036,9 +2029,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 			assert(weaponInfo);
 
-			if(weaponData->visuals.selectSound && weaponData->visuals.selectSound[0])
+			if (weaponInfo->selectSound)
 			{
-				trap_S_StartSound( NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(weaponData->visuals.selectSound) );
+				trap_S_StartSound (NULL, es->number, CHAN_AUTO, weaponInfo->selectSound );
 			}
 			else if (weapon != WP_SABER)
 			{ //not sure what SP is doing for this but I don't want a select sound for saber (it has the saber-turn-on)
@@ -2498,7 +2491,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 
 	//Jedi Knight Galaxies add
-#ifdef __MMO__
 	case EV_GOTO_ACI:
 		if (es->number == cg.clientNum)
 			JKG_CG_SetACISlot(es->eventParm);
@@ -2525,7 +2517,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				CG_Notifications_Add(va("\"Kill: +%i Credits\"", es->eventParm), qfalse);
 		}
 		break;
-#endif //__MMO__
 
 	case EV_BECOME_JEDIMASTER:
 		DEBUGNAME("EV_SABER_UNHOLSTER");

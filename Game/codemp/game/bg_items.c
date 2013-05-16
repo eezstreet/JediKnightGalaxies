@@ -15,9 +15,6 @@
     #define itemTable CGitemLookupTable
 #endif
 
-int shopItems[128];
-int numShopItems;
-
 static int BG_GetNextFreeItemSlot ( void )
 {
     int i = 1;

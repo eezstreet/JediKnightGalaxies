@@ -6,8 +6,8 @@
 
 #include "../GLua/glua.h"
 
-extern void NPC_Humanoid_Cloak( gentity_t *self );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Cloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 
 #include "../namespace_begin.h"
 qboolean PM_SaberInTransition( int move );
@@ -389,10 +389,7 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 						if ( self.classname=="player_sheep "&& self.flags&FL_ONGROUND && self.velocity_z > -50 )
 							return;
 						*/
-						if (self->s.eType == ET_NPC)
-							G_Damage (self, NULL, NULL, NULL, NULL, magnitude*5, DAMAGE_NO_ARMOR, MOD_FALLING);
-						else
-							G_Damage( self, NULL, NULL, NULL, self->r.currentOrigin, magnitude/2, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
+						G_Damage( self, NULL, NULL, NULL, self->r.currentOrigin, magnitude/2, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
 					}
 				}
 		}
@@ -1016,11 +1013,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 				VectorSet (dir, 0, 0, 1);
 				ent->pain_debounce_time = level.time + 200;	// no normal pain sound
-
-				if (ent->s.eType == ET_NPC)
-					G_Damage (ent, NULL, NULL, NULL, NULL, damage*5, DAMAGE_NO_ARMOR, MOD_FALLING);
-				else
-					G_Damage (ent, NULL, NULL, NULL, NULL, damage, DAMAGE_NO_ARMOR, MOD_FALLING);
+				G_Damage (ent, NULL, NULL, NULL, NULL, damage, DAMAGE_NO_ARMOR, MOD_FALLING);
 
 				if (ent->health < 1)
 				{
@@ -1666,7 +1659,7 @@ static int NPC_GetWalkSpeed( gentity_t *ent )
 	{
 	case NPCTEAM_PLAYER:	//To shutup compiler, will add entries later (this is stub code)
 	default:
-		walkSpeed = ent->NPC->stats.walkSpeed*1.1;
+		walkSpeed = ent->NPC->stats.walkSpeed;
 		break;
 	}
 
@@ -3042,18 +3035,7 @@ void ClientThink_real( gentity_t *ent ) {
 					otherKiller = ent;
 				}
 			}
-
-			if (ent->s.eType == ET_NPC)
-			{
-				player_die(ent, ent, ent, 100000, MOD_FALLING);
-				ent->client->ps.fallingToDeath = 0;
-				ent->think = G_FreeEntity;
-			}
-			else // UQ1: This messes up all sorts of stuff...
-			{
-				G_Damage(ent, otherKiller, otherKiller, NULL, ent->client->ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_FALLING);
-				ent->client->ps.fallingToDeath = 0;
-			}
+			G_Damage(ent, otherKiller, otherKiller, NULL, ent->client->ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_FALLING);
 			//player_die(ent, ent, ent, 100000, MOD_FALLING);
 	//		if (!ent->NPC)
 	//		{
@@ -3659,11 +3641,11 @@ void ClientThink_real( gentity_t *ent ) {
 			{
 				if ( ent->client->ps.powerups[PW_CLOAKED] )
 				{//decloak
-					NPC_Humanoid_Decloak( ent );
+					Jedi_Decloak( ent );
 				}
 				else
 				{//cloak
-					NPC_Humanoid_Cloak( ent );
+					Jedi_Cloak( ent );
 				}
 			}
 			break;
@@ -3945,7 +3927,6 @@ void ClientThink( int clientNum,usercmd_t *ucmd ) {
 	gentity_t *ent;
 
 	ent = g_entities + clientNum;
-
 	if (clientNum < MAX_CLIENTS)
 	{
 		trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
@@ -3958,29 +3939,6 @@ void ClientThink( int clientNum,usercmd_t *ucmd ) {
 	if (ucmd)
 	{
 		ent->client->pers.cmd = *ucmd;
-	}
-
-	//
-	// UQ1: More realistic hitboxes for players/bots...
-	//
-	if (ent->s.eType == ET_PLAYER && !ent->client->ps.m_iVehicleNum)
-	{
-		if (ent->client->ps.pm_flags & PMF_DUCKED)
-		{
-			ent->r.maxs[2] = ent->client->ps.crouchheight;
-			ent->r.maxs[1] = 8;
-			ent->r.maxs[0] = 8;
-			ent->r.mins[1] = -8;
-			ent->r.mins[0] = -8;
-		}
-		else if (!(ent->client->ps.pm_flags & PMF_DUCKED))
-		{
-			ent->r.maxs[2] = ent->client->ps.standheight-8;
-			ent->r.maxs[1] = 8;
-			ent->r.maxs[0] = 8;
-			ent->r.mins[1] = -8;
-			ent->r.mins[0] = -8;
-		}
 	}
 
 /* 	This was moved to clientthink_real, but since its sort of a risky change i left it here for 

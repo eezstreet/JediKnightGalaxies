@@ -120,8 +120,8 @@ static	vec3_t	muzzle;
 
 // Melee
 //--------------
-#define MELEE_SWING1_DAMAGE			5
-#define MELEE_SWING2_DAMAGE			6
+#define MELEE_SWING1_DAMAGE			10
+#define MELEE_SWING2_DAMAGE			12
 #define MELEE_RANGE					8
 
 // ATST Main Gun
@@ -167,7 +167,7 @@ const weaponFireModeStats_t *GetEntsCurrentFireMode ( const gentity_t *ent )
 }
 
 extern qboolean G_BoxInBounds( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t boundsMins, vec3_t boundsMaxs );
-extern void NPC_Humanoid_Decloak( gentity_t *self );
+extern void Jedi_Decloak( gentity_t *self );
 
 static void WP_FireEmplaced( gentity_t *ent, qboolean altFire );
 
@@ -369,7 +369,6 @@ static void WP_TraceSetStart( gentity_t *ent, vec3_t start, vec3_t mins, vec3_t 
 
 void WP_ExplosiveDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
-	self->activator = attacker;
 	laserTrapExplode(self);
 }
 
@@ -1087,13 +1086,6 @@ void laserTrapExplode( gentity_t *self )
 		{
 		    JKG_DoSplashDamage (fireMode->secondaryDmgHandle, self->r.currentOrigin, self, self->activator, self, MOD_TRIP_MINE_SPLASH);
 		}
-
-		if( self->enemy && self->enemy->client && !OnSameTeam(self->activator, self->enemy) && self->activator != self->enemy )
-		{
-			// Give us some credits, we're a good person etc
-			self->enemy->client->ps.persistant[PERS_CREDITS] += 35;
-			trap_SendServerCommand(self->enemy->s.number, "notify 1 \"Destroyed Enemy Equipment: +35 Credits\"");
-		}
 	}
 
 	/*if (self->s.weapon != WP_FLECHETTE)
@@ -1124,7 +1116,6 @@ void laserTrapExplode( gentity_t *self )
 	VectorCopy (v, te->s.angles);
 	te->s.weapon = self->s.weapon;
 	te->s.weaponVariation = self->s.weaponVariation;
-	te->s.firingMode = self->s.firingMode;
 
 	self->think = G_FreeEntity;
 	self->nextthink = level.time;
@@ -1132,7 +1123,7 @@ void laserTrapExplode( gentity_t *self )
 
 void laserTrapDelayedExplode( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
-	//self->enemy = attacker;		// Redundant, this already gets set --eez
+	self->enemy = attacker;
 	self->think = laserTrapExplode;
 	self->nextthink = level.time + FRAMETIME;
 	self->takedamage = qfalse;
@@ -1510,8 +1501,6 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 	//set player-created-specific fields
 	laserTrap->setTime = level.time;//remember when we placed it
 
-	laserTrap->s.firingMode = ent->s.firingMode;
-
 	if (!alt_fire)
 	{//tripwire
 		laserTrap->count = 1;
@@ -1724,20 +1713,9 @@ void DetPackBlow(gentity_t *self)
 	VectorCopy (v, te->s.angles);
 	te->s.weapon = self->s.weapon;
 	te->s.weaponVariation = self->s.weaponVariation;
-	te->s.firingMode = self->parent->s.firingMode;
 
 	self->think = G_FreeEntity;
 	self->nextthink = level.time;
-
-	// Right, now we gotta do the equipment stuff
-	if( self->parent && self->enemy && self->parent->client && self->enemy->client)
-	{
-		if(self->parent != self->enemy && !OnSameTeam(self->parent, self->enemy))
-		{
-			self->enemy->client->ps.persistant[PERS_CREDITS] += 25;
-			trap_SendServerCommand(self->enemy->s.number, "notify 1 \"Destroyed Enemy Equipment: +25 Credits\"");
-		}
-	}
 }
 
 void DetPackPain(gentity_t *self, gentity_t *attacker, int damage)
@@ -2040,14 +2018,7 @@ void WP_FireMelee( gentity_t *ent, qboolean alt_fire )
 	vec3_t		mins, maxs, end;
 	vec3_t		muzzlePunch;
 
-	if ( ent->s.eType == ET_NPC 
-		&& ent->s.weapon != WP_SABER 
-		&& ent->enemy
-		&& Distance(ent->enemy->r.currentOrigin, ent->r.currentOrigin) <= 72)
-	{// UQ1: Added... At close range NPCs can hit you with their rifle butt...
-	
-	}
-	else if (ent->client && ent->client->ps.torsoAnim == BOTH_MELEE2)
+	if (ent->client && ent->client->ps.torsoAnim == BOTH_MELEE2)
 	{ //right
 		if (ent->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM))
 		{
@@ -2071,12 +2042,6 @@ void WP_FireMelee( gentity_t *ent, qboolean alt_fire )
 	{
 		VectorCopy(ent->client->ps.origin, muzzlePunch);
 		muzzlePunch[2] += ent->client->ps.viewheight-6;
-	}
-
-	// Melee "improvements" - sap a little bit of stamina for each punch
-	if (ent->client)
-	{
-		ent->client->ps.fd.forcePower -= 9;
 	}
 
 	VectorMA(muzzlePunch, 20.0f, forward, muzzlePunch);
@@ -2119,9 +2084,6 @@ void WP_FireMelee( gentity_t *ent, qboolean alt_fire )
 			{ //do a tad bit more damage on the second swing
 				dmg = MELEE_SWING2_DAMAGE;
 			}
-
-			if ( ent->s.weapon != WP_MELEE )
-				dmg *= 4; // UQ1: (NPCs) Hitting with rifle but does more damage...
 
 			G_Damage( tr_ent, ent, ent, forward, tr.endpos, dmg, DAMAGE_NO_ARMOR, MOD_MELEE );
 		}
@@ -3281,7 +3243,7 @@ void emplaced_gun_update(gentity_t *self)
 			self->genericValue1 = 0;
 		}
 
-		if (!(self->r.svFlags & SVF_BOT) && (self->activator->client->pers.cmd.buttons & BUTTON_USE) && !self->genericValue1)
+		if ((self->activator->client->pers.cmd.buttons & BUTTON_USE) && !self->genericValue1)
 		{
 			self->activator->client->ps.emplacedIndex = 0;
 			self->activator->client->ps.saberHolstered = 0;
@@ -3290,7 +3252,7 @@ void emplaced_gun_update(gentity_t *self)
 		}
 	}
 
-	if (!(self->r.svFlags & SVF_BOT) && (self->activator && self->activator->client) &&
+	if ((self->activator && self->activator->client) &&
 		(!self->activator->inuse || self->activator->client->ps.emplacedIndex != self->s.number || self->genericValue4 || ownLen > 64))
 	{ //get the user off of me then
 		self->activator->client->ps.stats[STAT_WEAPONS] &= ~(1<<WP_EMPLACED_GUN);
@@ -3763,7 +3725,7 @@ void SP_emplaced_gun( gentity_t *ent )
 
 			/* We have hit a dueler or a Jedi who is able to dodge the shot completely (which is a bit sad really) */
 			if (( traceEnt && traceEnt->client && traceEnt->client->ps.duelInProgress && traceEnt->client->ps.duelIndex != ent->s.number )
-				|| NPC_Humanoid_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation( traceEnt, tr.endpos )))
+				|| Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation( traceEnt, tr.endpos )))
 			{
 				/* Calculate the vector difference to decrease the maximum range */
 				vec3_t difference;
@@ -4400,24 +4362,9 @@ extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
 	void WP_FireGenericWeapon( gentity_t *ent, int firemode )
 	{
 		BG_SetTorsoAnimTimer(&ent->client->ps, 200);
-
 		if ( ent && ent->client && ent->client->NPC_class == CLASS_VEHICLE )
 		{
 			FireVehicleWeapon( ent, firemode );
-			return;
-		}
-		else if ( ent->s.eType == ET_NPC 
-			&& ent->s.weapon != WP_SABER 
-			&& ent->enemy
-			&& Distance(ent->enemy->r.currentOrigin, ent->r.currentOrigin) <= 72)
-		{// UQ1: Added... At close range NPCs can hit you with their rifle butt...
-			WP_FireMelee( ent, firemode );
-
-			/* Reset the grenade cook timer, if any (with the proper weapon) */
-			if ( ent->grenadeCookTime && ent->s.weapon == ent->grenadeWeapon && ent->s.weaponVariation == ent->grenadeVariation )
-			{
-				ent->grenadeCookTime = 0;
-			}
 			return;
 		}
 		else

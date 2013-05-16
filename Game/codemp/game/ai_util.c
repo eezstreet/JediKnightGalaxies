@@ -175,7 +175,7 @@ int GetPairedValue(char *buf, char *key, char *outbuf)
 
 int BotDoChat(bot_state_t *bs, char *section, int always)
 {
-#ifndef __MMO__ // UQ1: Unnecessary... But we will want targetted ai to player talk on NPCs later...
+#ifndef __NOT_MMO__ // UQ1: Unnecessary... But we will want targetted ai to player talk on NPCs later...
 	char *chatgroup;
 	int rVal;
 	int inc_1;
@@ -359,7 +359,7 @@ int BotDoChat(bot_state_t *bs, char *section, int always)
 	bs->chatTime = level.time + bs->chatTime_stored;
 
 	free(chatgroup); //chatgroup
-#endif //__MMO__
+#endif //__NOT_MMO__
 
 	return 1;
 }

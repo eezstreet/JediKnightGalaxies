@@ -308,18 +308,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 			}
 			else
 			{ //hack in progress
-				// UQ1: Added this code from below... It would never have gotten there before...
-				if (other->client->ps.torsoAnim != BOTH_BUTTON_HOLD &&
-					other->client->ps.torsoAnim != BOTH_CONSOLE1)
-				{
-					G_SetAnim( other, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
-				}
-				else
-				{
-					other->client->ps.torsoTimer = 500;
-				}
-				other->client->ps.weaponTime = other->client->ps.torsoTimer;
-				// UQ1: End added...
 				return;
 			}
 		}
@@ -367,7 +355,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	// UQ1: WTF. This would never play.... Moved into code above. (edit: copied, just in case)
 	if ( self->spawnflags & 4 )
 	{//USE_BUTTON
 		if (other->client->ps.torsoAnim != BOTH_BUTTON_HOLD &&
