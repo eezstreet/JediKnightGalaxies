@@ -2,117 +2,138 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{ca9db9cd-58b3-4e8e-afaf-bfd7d6ea90b3}</UniqueIdentifier>
+      <UniqueIdentifier>{efb41e77-1f70-4f1e-9874-66cc210f5a48}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90</Extensions>
     </Filter>
     <Filter Include="Source Files\GLua">
-      <UniqueIdentifier>{486065c7-5acc-425b-a102-1a31319615d1}</UniqueIdentifier>
+      <UniqueIdentifier>{d2cbf7d5-5e78-48aa-9ea1-64db339f641e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NPCs">
+      <UniqueIdentifier>{33e75c86-c683-4938-9362-845a81dd29be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{c81da7c7-a6fb-461b-bdc7-1698f6dd4b04}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{581ad356-550c-4b1f-9bfa-130d8f312cfb}</UniqueIdentifier>
+      <UniqueIdentifier>{a62872af-28a0-465b-82f5-877a9641ae06}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
     </Filter>
     <Filter Include="Header Files\ICARUS Headers">
-      <UniqueIdentifier>{2773950c-f998-4694-bef1-3ca92fa48ac2}</UniqueIdentifier>
+      <UniqueIdentifier>{c75d197d-8c14-4a62-a4f2-6843b280f315}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\GLua">
-      <UniqueIdentifier>{1567f7b9-5022-4df6-9f35-63321a32560c}</UniqueIdentifier>
+      <UniqueIdentifier>{249e46fc-b567-4ddb-8433-95139d94dc41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{3a066acc-bd5c-4ffa-b743-3b6b82d7c087}</UniqueIdentifier>
     </Filter>
     <Filter Include="win32">
-      <UniqueIdentifier>{760d79a5-21ae-49e6-8a3f-6668fd529c1f}</UniqueIdentifier>
+      <UniqueIdentifier>{361d6a3a-71a2-49df-96e1-0ff2e813fa77}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries">
-      <UniqueIdentifier>{1dd2afb9-c257-4992-8248-d8da9ef8feea}</UniqueIdentifier>
+      <UniqueIdentifier>{30402801-6c05-47c1-b6bb-c9cd02e4769d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86">
-      <UniqueIdentifier>{4f43df62-be8f-44d1-8986-8360f8905ffd}</UniqueIdentifier>
+      <UniqueIdentifier>{15c2a45f-135f-4d20-9967-1027fc99aeab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86\Source Files">
-      <UniqueIdentifier>{8778dbaa-2235-42a1-9f08-f0d6293309fb}</UniqueIdentifier>
+      <UniqueIdentifier>{424afe03-1b84-413c-91c5-8b790fdbeb5e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86\Header Files">
-      <UniqueIdentifier>{7fb8e2bc-caac-4f10-837c-cbde69924143}</UniqueIdentifier>
+      <UniqueIdentifier>{c590b1d6-3c4e-4329-ba7b-ca1810413bcb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json">
-      <UniqueIdentifier>{461e6925-5186-4e29-ac73-3a791f42fd19}</UniqueIdentifier>
+      <UniqueIdentifier>{2f794ef0-ad17-47e1-8406-8d44b0df3226}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json\Source Files">
-      <UniqueIdentifier>{8294ee1e-7fd4-41db-a98f-7fa9b0d36257}</UniqueIdentifier>
+      <UniqueIdentifier>{0c821842-b629-4c2d-a398-c910e8715ea1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json\Header Files">
-      <UniqueIdentifier>{0c82b6b2-59a2-447b-ac1d-710b1b49e94e}</UniqueIdentifier>
+      <UniqueIdentifier>{e32d1e94-7c5e-4f20-818d-88b8cf93104e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Lua">
-      <UniqueIdentifier>{ace518dc-a84b-4427-a1d2-1585f36a5144}</UniqueIdentifier>
+      <UniqueIdentifier>{7bb21c43-08f5-4488-b2a0-e44ceed4fdd9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Lua\Source Files">
-      <UniqueIdentifier>{8c35b984-66ff-47f0-8fa6-683640647a21}</UniqueIdentifier>
+      <UniqueIdentifier>{6529c6d5-3f59-4460-a0c4-26ea8d88980c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Lua\Header Files">
-      <UniqueIdentifier>{b5584107-b0d8-4b87-a07c-9309421bf415}</UniqueIdentifier>
+      <UniqueIdentifier>{9d1641a8-7bff-42d6-bb42-a87df6cb5792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Libcurl">
+      <UniqueIdentifier>{8e61cb23-29bf-4cc9-8295-d6b4ee16ad66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Libcurl\Header Files">
+      <UniqueIdentifier>{50c82225-1532-49ca-80c5-8aa5e3a52774}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128">
-      <UniqueIdentifier>{5f86e71a-6a8b-49df-bf1a-6104106a53cb}</UniqueIdentifier>
+      <UniqueIdentifier>{6bfa81a6-954a-4b39-8bd7-48b66ae25a93}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128\Source Files">
-      <UniqueIdentifier>{8fb98ccf-c2d3-4493-a1d9-ce908923a94f}</UniqueIdentifier>
+      <UniqueIdentifier>{3e8b2890-b223-4712-86e9-9bc4944dee0a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128\Header Files">
-      <UniqueIdentifier>{a0468294-df97-4861-8f55-4dc44887cc11}</UniqueIdentifier>
+      <UniqueIdentifier>{1fd3939c-1349-4d77-880b-c1f3c0935522}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base64">
-      <UniqueIdentifier>{bd6be10d-f82f-4220-b084-351f47a1d887}</UniqueIdentifier>
+      <UniqueIdentifier>{fdf9f886-e707-4977-9619-0dfa4b263c45}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base64\Header Files">
-      <UniqueIdentifier>{db478922-0b78-4c80-85b0-2092e3eebbea}</UniqueIdentifier>
+      <UniqueIdentifier>{47e000b7-8953-44f0-bec7-85a09ec022b3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base64\Source Files">
-      <UniqueIdentifier>{5d0104ad-20ea-412c-97ba-2edf05c7658f}</UniqueIdentifier>
+      <UniqueIdentifier>{d8398ff5-947c-4619-af06-66a68c8ebac4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\BitStream">
-      <UniqueIdentifier>{27fc3004-0341-4b3a-a2bc-3093931dca06}</UniqueIdentifier>
+      <UniqueIdentifier>{047128dc-d889-4c60-9f2a-f03247c956ed}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\BitStream\Header Files">
-      <UniqueIdentifier>{ed2f3094-a9e5-4b62-93ed-42de2f2ceac8}</UniqueIdentifier>
+      <UniqueIdentifier>{1149ac42-a5f4-4b63-b175-a385e1e9fd66}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\BitStream\Source Files">
-      <UniqueIdentifier>{a283abfc-d5d2-4b38-bacd-412a4e87da17}</UniqueIdentifier>
+      <UniqueIdentifier>{ec6cb84b-e4b6-4deb-84bb-95e4ba40fe94}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\OpenSSL">
-      <UniqueIdentifier>{0d5458c4-6ec4-413d-8c66-7e2a5f2048ba}</UniqueIdentifier>
+      <UniqueIdentifier>{df84cdb7-fc96-4a43-ba0e-2b8ae18679ea}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\OpenSSL\Header Files">
-      <UniqueIdentifier>{d9cceb35-c0f0-47fd-a561-617044ca9992}</UniqueIdentifier>
+      <UniqueIdentifier>{419d19e3-9a84-4e04-b28e-bc71a6b58c8c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Recast">
-      <UniqueIdentifier>{6f68b7bf-07ca-4e25-87ed-f2755c8d377d}</UniqueIdentifier>
+      <UniqueIdentifier>{3389d0bd-993c-4786-b2bf-2a9cabb56cef}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Recast\Header Files">
-      <UniqueIdentifier>{d18bda7e-6fd0-4ac3-8195-249bda0b5cd6}</UniqueIdentifier>
+      <UniqueIdentifier>{c1cb191a-b1eb-4ec5-bb2c-0676295f145d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Recast\Source Files">
-      <UniqueIdentifier>{a94cd0b0-1d87-4232-84ec-cda1a7bfcab2}</UniqueIdentifier>
+      <UniqueIdentifier>{57e710c8-c776-4d77-90f1-2b980b5c78b7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Detour %28Pathfinding%29">
-      <UniqueIdentifier>{036f52bc-17ba-4a38-a1a3-e8e219b5bd02}</UniqueIdentifier>
+      <UniqueIdentifier>{46962bec-de13-4b56-bbe5-d26792284d50}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Detour %28Pathfinding%29\Header Files">
-      <UniqueIdentifier>{d61012fb-0af2-4574-bb0e-58164b6d94d2}</UniqueIdentifier>
+      <UniqueIdentifier>{f9315974-5184-49e8-a1af-6a0fa803beb4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Detour %28Pathfinding%29\Source Files">
-      <UniqueIdentifier>{9334b947-0d50-44c6-8573-7e6be9e03781}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{42443a07-b2f7-404d-af43-2c792221f3a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\AI %28NPC%29">
-      <UniqueIdentifier>{071290e7-a3e4-40a8-9f34-6d15d009437b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\AI %28General%29">
-      <UniqueIdentifier>{40c14c16-74ae-4f52-9801-777de3f8f38b}</UniqueIdentifier>
+      <UniqueIdentifier>{a800e8ca-d588-4361-b38f-c4f34b6fd873}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ai_dominance.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_dominance_evasion.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_wpnav.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="animtable.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -164,6 +185,9 @@
     <ClCompile Include="g_arenas.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="g_bot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="g_client.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -204,6 +228,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="g_mover.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_nav.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_navnew.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="g_network.c">
@@ -381,64 +411,112 @@
       <Filter>Source Files\GLua</Filter>
     </ClCompile>
     <ClCompile Include="NPC.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Atst.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Default.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Droid.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_GalakMech.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Grenadier.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Howler.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_ImperialProbe.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Interrogator.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Mark1.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Mark2.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_MineMonster.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Rancor.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Remote.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Seeker.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Sentry.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Sniper.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Stormtrooper.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Utils.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
     </ClCompile>
     <ClCompile Include="NPC_AI_Wampa.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_behavior.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_combat.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_goal.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_misc.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_move.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_reactions.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_senses.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_sounds.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_spawn.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_stats.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_utils.c">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\jkg_serversidenetwork.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\NetworkServices.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\ServerGame.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\ServerNetwork.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\stdafx.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\libudis86\decode.c">
       <Filter>Libraries\LibUDis86\Source Files</Filter>
@@ -611,120 +689,6 @@
     <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp">
       <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\network\jkg_serversidenetwork.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\NetworkServices.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\ServerGame.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\ServerNetwork.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\stdafx.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_supremacy_flags.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_supremacy_flagsys.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_supremacy_spawnsys.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Humanoid.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_dominance.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_wpnav.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_dominance_evasion.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_main.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_util.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="g_bot.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="g_nav.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="g_navnew.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_dominance_bot.c">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_dominance_astar.cpp">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_navmesh_creator.cpp">
-      <Filter>Source Files\AI %28General%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Behavior.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Combat.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Conversations.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_CoverPoints.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Goal.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Misc.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Move.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Reactions.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Senses.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Sounds.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Spawn.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Stats.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Utils.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Waypointing.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Speeder.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Walker.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Animal.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Fighter.c">
-      <Filter>Source Files\AI %28NPC%29</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GLua\LuaCommands.txt">
@@ -886,6 +850,9 @@
     <ClInclude Include="jkg_keypairs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="jkg_libcurl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="jkg_navmesh_creator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -937,6 +904,9 @@
     <ClInclude Include="w_saber.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="z_global_defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\shared\icarus\interpreter.h">
       <Filter>Header Files\ICARUS Headers</Filter>
     </ClInclude>
@@ -948,6 +918,30 @@
     </ClInclude>
     <ClInclude Include="..\GLua\glua.h">
       <Filter>Header Files\GLua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\ByteBuffer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\Common.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\NetworkData.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\NetworkServices.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\ServerGame.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\ServerNetwork.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\stdafx.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\targetver.h">
+      <Filter>Header Files\Network</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\libudis86\decode.h">
       <Filter>Libraries\LibUDis86\Header Files</Filter>
@@ -1041,6 +1035,36 @@
     </ClInclude>
     <ClInclude Include="..\libraries\Lua\lzio.h">
       <Filter>Libraries\Lua\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\curl.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\curlbuild.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\curlrules.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\curlver.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\easy.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\mprintf.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\multi.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\stdcheaders.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\typecheck-gcc.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\libcurl\include\curl\types.h">
+      <Filter>Libraries\Libcurl\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\encoding\base128.h">
       <Filter>Libraries\Base128\Header Files</Filter>
@@ -1299,33 +1323,6 @@
     </ClInclude>
     <ClInclude Include="..\libraries\Detour\Include\DetourStatus.h">
       <Filter>Libraries\Detour %28Pathfinding%29\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="z_global_defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\NetworkData.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\NetworkServices.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ServerGame.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ServerNetwork.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\stdafx.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\targetver.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ByteBuffer.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\Common.h">
-      <Filter>Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

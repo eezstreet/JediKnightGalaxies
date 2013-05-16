@@ -1,16 +1,16 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Side Module (cgame)", "cgame\JK2_cgame.vcproj", "{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Side Module (cgame)", "cgame\JK2_cgame.vcxproj", "{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Side Module (game)", "game\JK2_game.vcproj", "{5B587283-8429-4F8B-AECA-C09BF364B617}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Side Module (game)", "game\JK2_game.vcxproj", "{5B587283-8429-4F8B-AECA-C09BF364B617}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bot Library (botlib)", "botlib\botlib.vcproj", "{07CCC82A-B905-4384-8AC5-E8A8E352B14C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bot Library (botlib)", "botlib\botlib.vcxproj", "{07CCC82A-B905-4384-8AC5-E8A8E352B14C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "User Interface Module (ui)", "ui\ui.vcproj", "{2DDA2041-6A68-4754-B342-14039CC91695}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "User Interface Module (ui)", "ui\ui.vcxproj", "{2DDA2041-6A68-4754-B342-14039CC91695}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Auxiliary Library (galaxieslib)", "galaxieslib\galaxieslib.vcproj", "{13EE074D-17E3-48AE-A7F5-64248369F986}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Auxiliary Library (galaxieslib)", "galaxieslib\galaxieslib.vcxproj", "{13EE074D-17E3-48AE-A7F5-64248369F986}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Auxiliary Library (galaxieslibsv)", "galaxieslibsv\galaxieslibsv.vcproj", "{49025D66-F014-4493-9A4C-12B9A0D0A99D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Auxiliary Library (galaxieslibsv)", "galaxieslibsv\galaxieslibsv.vcxproj", "{49025D66-F014-4493-9A4C-12B9A0D0A99D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
