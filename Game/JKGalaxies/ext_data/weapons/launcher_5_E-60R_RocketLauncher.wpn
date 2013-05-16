@@ -65,7 +65,7 @@
         "slot":         1,
         "reloadtime":   2000,
         "ammoIndex":         "rocket1",
-        "ammoOnSpawn":   8,
+        "ammoOnSpawn":   4,
         "ammoOnPickup":   2,
         "clipSize":              1,
 //        "flags":        [ "knockback" ],

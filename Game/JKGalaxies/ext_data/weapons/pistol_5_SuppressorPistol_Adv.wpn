@@ -56,7 +56,7 @@
     
     "stats": {
         "slot":         2,
-        "reloadtime":   750,
+        "reloadtime":   800,
         "ammoIndex":         "trandopowercell",
         "ammoOnSpawn":   100,
         "ammoOnPickup":   20,
@@ -67,7 +67,7 @@
     },
     
     "firemode0": {
-        "damage":       30,
+        "damage":       25,
         "ammocost":     1,
         "firedelay":    300,
         "firingtype":   "semi",

@@ -65,7 +65,7 @@
     
     "stats": {
         "slot":         1,
-        "reloadtime":   1500,
+        "reloadtime":   2250,
         "ammoIndex":         "powercell_s",
         "ammoOnSpawn":   160,
         "ammoOnPickup":   32,

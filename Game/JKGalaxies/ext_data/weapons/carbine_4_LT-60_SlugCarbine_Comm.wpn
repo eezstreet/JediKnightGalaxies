@@ -63,7 +63,7 @@
     
     "stats": {
         "slot":         1,
-        "reloadtime":   1500,
+        "reloadtime":   2250,
         "ammoIndex":         "7.62slugs",
         "ammoOnSpawn":   300,
         "ammoOnPickup":   60,

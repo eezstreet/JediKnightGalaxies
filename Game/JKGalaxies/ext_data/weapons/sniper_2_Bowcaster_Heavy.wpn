@@ -51,7 +51,7 @@
     
     "stats": {
         "slot":         0,
-        "reloadtime":   1000,
+        "reloadtime":   2750,
         "ammoIndex":         "quarrel",
         "ammoOnSpawn":   60,
         "ammoOnPickup":   12,
@@ -80,7 +80,7 @@
     
     "playeranims": {
         "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
-        "reload":       { "torso": "BOTH_RIFLERELOADB" },
+        "reload":       { "torso": "BOTH_RIFLERELOADR" },
         "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
         "firing":       { "torso": "BOTH_ATTACK3" },
 	"sprint":	{ "torso": "BOTH_RIFLERUN" },

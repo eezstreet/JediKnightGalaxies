@@ -77,7 +77,7 @@
     
     "stats": {
         "slot":         1,
-        "reloadtime":   1500,
+        "reloadtime":   2000,
         "ammoIndex":         "powercell_m",
         "ammoOnSpawn":   210,
         "ammoOnPickup":   42,
@@ -132,10 +132,10 @@
     },
     
     "playeranims": {
-        "idle":         { "torso": "TORSO_WEAPONIDLE3", "legs": "BOTH_IDLE1" },
+        "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
         "reload":       { "torso": "BOTH_RIFLERELOADB" },
 //        "reload":       { "torso": "BOTH_RIFLERELOADR" },
-        "ready":        { "torso": "TORSO_WEAPONIDLE3", "legs": "BOTH_STAND1" },
+        "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
         "firing":       { "torso": "BOTH_ATTACK3" },
 	"sprint":	{ "torso": "BOTH_RIFLERUN" },
         "sprintStyle": "6"

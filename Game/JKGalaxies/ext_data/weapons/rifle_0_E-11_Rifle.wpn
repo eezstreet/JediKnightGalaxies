@@ -56,7 +56,7 @@
     
     "stats": {
         "slot":         1,
-        "reloadtime":   1500,
+        "reloadtime":   2250,
         "ammoIndex":         "blaster_power_pack_m",
         "ammoOnSpawn":   600,
         "ammoOnPickup":   120,

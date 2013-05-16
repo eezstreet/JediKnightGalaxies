@@ -58,7 +58,7 @@
     
     "stats": {
         "slot":         2,
-        "reloadtime":   750,
+        "reloadtime":   850,
         "ammoIndex":         "powerpak",
         "ammoOnSpawn":   180,
         "ammoOnPickup":   20,

@@ -58,7 +58,7 @@
     
     "stats": {
         "slot":         1,
-        "reloadtime":   3000,
+        "reloadtime":   3250,
         "ammoIndex":         "acp_belt",
         "ammoOnSpawn":   900,
         "ammoOnPickup":   360,

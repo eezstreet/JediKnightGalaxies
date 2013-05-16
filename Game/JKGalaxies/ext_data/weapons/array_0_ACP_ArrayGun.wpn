@@ -56,7 +56,7 @@
     
     "stats": {
         "slot":         2,
-        "reloadtime":   1250,
+        "reloadtime":   2250,
         "ammoIndex":         "acp_cartridge",
         "ammoOnSpawn":   48,
         "ammoOnPickup":   32,

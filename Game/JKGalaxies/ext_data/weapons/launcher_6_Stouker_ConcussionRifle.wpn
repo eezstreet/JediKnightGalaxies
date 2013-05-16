@@ -55,13 +55,13 @@
     
     "stats": {
         "slot":         1,
-        "reloadtime":   2000,
+        "reloadtime":   3000,
         "ammoIndex":         "concussion",
         "ammoOnSpawn":   18,
         "ammoOnPickup":   6,
         "clipSize":              6,
         "flags":        [ "knockback" ],
-        "reloadmodifier": 0.4,
+        "reloadmodifier": 0.5,
         "speed":        0.9
     },
     
@@ -102,7 +102,7 @@
     "playeranims": {
         "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
 //        "reload":       { "torso": "TORSO_DROPWEAP1" },
-        "reload":       { "torso": "BOTH_RIFLERELOADL" },
+        "reload":       { "torso": "BOTH_RIFLERELOADB" },
         "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
         "firing":       { "torso": "BOTH_ATTACK3" },
 	"sprint":       { "torso": "BOTH_RIFLERUN" },

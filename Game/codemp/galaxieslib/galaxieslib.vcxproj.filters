@@ -120,12 +120,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gl_bspdecrypter.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gl_challenge.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gl_cin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -302,6 +296,12 @@
     </ClCompile>
     <ClCompile Include="..\libraries\libudis86\udis86.c">
       <Filter>Libraries\UDis86\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_bspdecrypter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_challenge.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

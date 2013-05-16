@@ -79,7 +79,7 @@
         "ballistic":    true,
         "ammocost":     1,
         "burstshotdelay": 100,
-        "firedelay":    1000,
+        "firedelay":    2400,
         "firingtype":   "burst",
         "range":        9000.0,
         "recoil":       1.8,
@@ -92,7 +92,7 @@
     
     "playeranims": {
         "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
-        "reload":       { "torso": "BOTH_RIFLERELOADB" },
+        "reload":       { "torso": "BOTH_RIFLERELOADR" },
         "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
         "firing":       { "torso": "BOTH_ATTACK3" },
 	"sprint":	{ "torso": "BOTH_RIFLERUN" },

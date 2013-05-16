@@ -61,7 +61,7 @@
     
     "stats": {
         "slot":         1,
-        "reloadtime":   1500,
+        "reloadtime":   2750,
         "ammoIndex":         "blaster_power_pack_l",
         "ammoOnSpawn":   600,
         "ammoOnPickup":   200,
@@ -103,7 +103,7 @@
     
     "playeranims": {
         "idle":         { "torso": "BOTH_IDLE1", "legs": "BOTH_IDLE1" },
-        "reload":       { "torso": "BOTH_RELOADRIFLER" },
+        "reload":       { "torso": "BOTH_RELOADRIFLEL" },
         "ready":        { "torso": "TORSO_WEAPONREADY3", "legs": "BOTH_STAND1" },
         "firing":       { "torso": "BOTH_ATTACK3" },
 	"sprint":       { "torso": "BOTH_RIFLERUN" },
