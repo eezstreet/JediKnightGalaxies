@@ -4,6 +4,8 @@
 #include "bg_local.h"
 #include "w_saber.h"
 
+saberStanceExternal_t SaberStances[MAX_STANCES];
+
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 //Could use strap stuff but I don't particularly care at the moment anyway.
@@ -14,6 +16,11 @@ extern void	trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 extern void	trap_FS_FCloseFile( fileHandle_t f );
 extern int	trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 extern qhandle_t trap_R_RegisterSkin( const char *name );
+extern int		trap_Milliseconds( void );
+extern void strap_FS_FCloseFile( fileHandle_t f );
+extern int strap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
+extern int strap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+extern void strap_FS_Read( void *buffer, int len, fileHandle_t f );
 #include "../namespace_end.h"
 
 
@@ -181,23 +188,23 @@ saber_styles_t TranslateSaberStyle( const char *name )
 {
 	if ( !Q_stricmp( name, "fast" ) ) 
 	{
-		return SS_FAST;
+		return SS_MAKASHI;
 	}
 	if ( !Q_stricmp( name, "medium" ) ) 
 	{
-		return SS_MEDIUM;
+		return SS_SHII_CHO;
 	}
 	if ( !Q_stricmp( name, "strong" ) ) 
 	{
-		return SS_STRONG;
+		return SS_SORESU;
 	}
 	if ( !Q_stricmp( name, "desann" ) ) 
 	{
-		return SS_DESANN;
+		return SS_ATARU;
 	}
 	if ( !Q_stricmp( name, "tavion" ) ) 
 	{
-		return SS_TAVION;
+		return SS_JUYO;
 	}
 	if ( !Q_stricmp( name, "dual" ) ) 
 	{
@@ -303,7 +310,7 @@ qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, i
 	}
 
 	//initially, all styles are valid
-	for ( styleNum = SS_NONE+1; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
+	for ( styleNum = 0; styleNum < MAX_STANCES; styleNum++ )
 	{
 		validStyles |= (1<<styleNum);
 	}
@@ -336,7 +343,7 @@ qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, i
 	if ( styleInvalid && validStyles )
 	{//using an invalid style and have at least one valid style to use, so switch to it
 		int styleNum;
-		for ( styleNum = SS_FAST; styleNum < SS_NUM_SABER_STYLES; styleNum++ )
+		for ( styleNum = 0; styleNum < MAX_STANCES; styleNum++ )
 		{
 			if ( (validStyles&(1<<styleNum)) )
 			{
@@ -430,31 +437,6 @@ qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, i
 			if ( (saber2->stylesForbidden&(1<<saberAnimLevel)) )
 			{//not a valid style for second saber!
 				return qfalse;
-			}
-		}
-		//now: if using dual sabers, only dual and tavion (if given with this saber) are allowed
-		if ( saberAnimLevel != SS_DUAL )
-		{//dual is okay
-			if ( saberAnimLevel != SS_TAVION )
-			{//tavion might be okay, all others are not
-				return qfalse;
-			}
-			else
-			{//see if "tavion" style is okay
-				if ( saber1Active
-					&& saber1
-					&& saber1->model
-					&& saber1->model[0]
-					&& (saber1->stylesLearned&(1<<SS_TAVION)) )
-				{//okay to use tavion style, first saber gave it to us
-				}
-				else if ( (saber2->stylesLearned&(1<<SS_TAVION)) )
-				{//okay to use tavion style, second saber gave it to us
-				}
-				else
-				{//tavion style is not allowed because neither of the sabers we're using gave it to us (I know, doesn't quite make sense, but...)
-					return qfalse;
-				}
 			}
 		}
 	}
@@ -2990,3 +2972,1305 @@ void BG_SI_DeactivateTrail ( saberInfo_t *saber, float duration )
 }
 
 #include "../namespace_end.h"
+
+
+//////////////////////////////////////////////////////////////////////////
+//																		//
+//																		//
+//						JEDI KNIGHT GALAXIES							//
+//					SABER SYSTEM CODE MODIFICATION						//
+//																		//
+//																		//
+//////////////////////////////////////////////////////////////////////////
+
+#include <json/cJSON.h>
+
+// Saber system aesthetics stuff
+// The data about crystals is stored in a table which is accessed elsewhere
+
+unsigned int numLoadedCrystals = 0;
+saberCrystalData_t saberCrystalsLookup[MAX_SABER_CRYSTALS];
+
+const saberCrystalData_t *JKG_GetSaberCrystal( const char *crystalName )
+{
+	int i;
+
+	if(atoi(crystalName))
+	{
+		int number = atoi(crystalName);
+		if(number < 0 || number >= numLoadedCrystals) return NULL;
+		return &saberCrystalsLookup[number];
+	}
+
+	for(i = 0; i < numLoadedCrystals; i++)
+	{
+		if(!Q_stricmp(crystalName, saberCrystalsLookup[i].crystalName))
+		{
+			return &saberCrystalsLookup[i];
+		}
+	}
+
+	return NULL;
+}
+
+static void JKG_ParseCrystalFile( const char *fileText )
+{
+	int i = 0;
+    cJSON *json = NULL;
+    char jsonError[MAX_STRING_CHARS] = { 0 };
+
+    json = cJSON_ParsePooled (fileText, jsonError, sizeof (jsonError));
+    if ( json == NULL )
+    {
+        Com_Printf (S_COLOR_RED "Error: %s\n", jsonError);
+    }
+    else
+    {
+        saberCrystalData_t *crystal = &saberCrystalsLookup[0];
+        cJSON *jsonNode;
+        cJSON *field;
+        const char *string = NULL;
+        
+        for ( jsonNode = cJSON_GetFirstItem (json); jsonNode; jsonNode = cJSON_GetNextItem (jsonNode), crystal++, numLoadedCrystals++, i++ )
+        {
+            field = cJSON_GetObjectItem (jsonNode, "name");
+            string = cJSON_ToString (field);
+			if(string && string[0])
+				Q_strncpyz (crystal->crystalName, string, sizeof (crystal->crystalName));
+			else
+				strcpy( crystal->crystalName, "noname" );
+
+			crystal->crystalID = i;
+            
+            #ifdef CGAME
+            {
+				cJSON *rgb;
+				field = cJSON_GetObjectItem (jsonNode, "bladeEffect");
+				string = cJSON_ToString (field);
+
+				if(string && string[0])
+					Q_strncpyz(crystal->bladeEffect, string, sizeof(crystal->bladeEffect));
+				else
+					strcpy(crystal->bladeEffect, "NULL_BLADE");
+
+				field = cJSON_GetObjectItem (jsonNode, "glowEffect");
+				string = cJSON_ToString (field);
+
+				if(string && string[0])
+					Q_strncpyz(crystal->glowEffect, string, sizeof(crystal->glowEffect));
+				else
+					strcpy(crystal->glowEffect, "NULL_GLOW");
+
+				field = cJSON_GetObjectItem (jsonNode, "trailEffect");
+				string = cJSON_ToString (field);
+
+				if(string && string[0])
+					Q_strncpyz(crystal->trailEffect, string, sizeof(crystal->trailEffect));
+				else
+					strcpy(crystal->trailEffect, "NULL_TRAIL");
+
+                rgb = cJSON_GetObjectItem (jsonNode, "rgb");
+                if ( rgb )
+                {       
+                    field = cJSON_GetObjectItem (rgb, "r");
+					if(field)
+					{
+						crystal->vRGB[0] = cJSON_ToInteger(field)/255.0f;
+					}
+					else
+					{
+						crystal->vRGB[0] = 1.0f;
+					}
+
+					field = cJSON_GetObjectItem (rgb, "g");
+					if(field)
+					{
+						crystal->vRGB[1] = cJSON_ToInteger(field)/255.0f;
+					}
+					else
+					{
+						crystal->vRGB[1] = 1.0f;
+					}
+
+					field = cJSON_GetObjectItem (rgb, "b");
+					if(field)
+					{
+						crystal->vRGB[2] = cJSON_ToInteger(field)/255.0f;
+					}
+					else
+					{
+						crystal->vRGB[2] = 1.0f;
+					}
+                }
+				else
+				{
+					crystal->vRGB[0] = crystal->vRGB[1] = crystal->vRGB[2] = 1.0f;
+				}
+
+				rgb = cJSON_GetObjectItem (jsonNode, "bladergb");
+                if ( rgb )
+                {       
+                    field = cJSON_GetObjectItem (rgb, "r");
+					if(field)
+					{
+						crystal->bRGB[0] = cJSON_ToInteger(field)/255.0f;
+					}
+					else
+					{
+						crystal->bRGB[0] = 1.0f;
+					}
+
+					field = cJSON_GetObjectItem (rgb, "g");
+					if(field)
+					{
+						crystal->bRGB[1] = cJSON_ToInteger(field)/255.0f;
+					}
+					else
+					{
+						crystal->bRGB[1] = 1.0f;
+					}
+
+					field = cJSON_GetObjectItem (rgb, "b");
+					if(field)
+					{
+						crystal->bRGB[2] = cJSON_ToInteger(field)/255.0f;
+					}
+					else
+					{
+						crystal->bRGB[2] = 1.0f;
+					}
+                }
+				else
+				{
+					crystal->bRGB[0] = crystal->bRGB[1] = crystal->bRGB[2] = 1.0f;
+				}
+            }
+            #endif
+        }
+    }
+}
+
+static qboolean JKG_LoadSaberCrystals( void )
+{
+	fileHandle_t f;
+    char buffer[MAX_CRYSTAL_FILE_SIZE + 1];
+    int fileLength;
+    
+    Com_Printf ("------- Crystals -------\n");
+    
+    fileLength = trap_FS_FOpenFile ("ext_data/tables/crystals.json", &f, FS_READ);
+    if ( fileLength == -1 || !f )
+    {
+        Com_Printf (S_COLOR_RED "Error: Failed to read the crystals.json file. File is unreadable or does not exist.\n");
+        return qfalse;
+    }
+    
+    if ( fileLength == 0 )
+    {
+        Com_Printf (S_COLOR_RED "Error: crystals.json file is empty.\n");
+        strap_FS_FCloseFile (f);
+        return qfalse;
+    }
+    
+    if ( fileLength > MAX_CRYSTAL_FILE_SIZE )
+    {
+        Com_Printf (S_COLOR_RED "Error: crystals.json file is too large (max file size is %d bytes)\n", MAX_CRYSTAL_FILE_SIZE);
+        strap_FS_FCloseFile (f);
+        return qfalse;
+    }
+    
+    strap_FS_Read (buffer, fileLength, f);
+    buffer[fileLength] = '\0';
+    strap_FS_FCloseFile (f);
+    
+    JKG_ParseCrystalFile (buffer);
+    
+    Com_Printf ("-----------------------------------\n");
+    
+    return qtrue;
+}
+
+void JKG_InitializeSaberCrystalData( void )
+{
+	if(!JKG_LoadSaberCrystals())
+	{
+		Com_Error(ERR_FATAL, "Could not read saber crystal data!");
+		return;
+	}
+}
+
+
+/////////////////////////////////////////////////////////////////
+//
+// SABER STANCE DATA
+// By default, a blank .stance file will just be a base "blue" stance
+// with no special moves enabled. You'll need a completed .stance
+// file if you want more moves enabled.
+//
+/////////////////////////////////////////////////////////////////
+
+// This needs to be initialized again, because I don't trust Raven's setup --eez
+stringID_table_t SaberMoves[] =
+{
+	ENUM2STRING(LS_NONE),
+	ENUM2STRING(LS_READY),
+	ENUM2STRING(LS_DRAW),
+	ENUM2STRING(LS_PUTAWAY),
+
+	// attacks -- base
+	ENUM2STRING(LS_A_TL2BR),		// Top left to bottom right
+	ENUM2STRING(LS_A_L2R),			// Left to right
+	ENUM2STRING(LS_A_BL2TR),		// Bottom left to top right
+	ENUM2STRING(LS_A_BR2TL),		// Bottom right to top left
+	ENUM2STRING(LS_A_R2L),			// Right to left
+	ENUM2STRING(LS_A_TR2BL),		// Top right to bottom left
+	ENUM2STRING(LS_A_T2B),			// Top to bottom
+
+	// attacks -- special
+	ENUM2STRING(LS_A_BACKSTAB),
+	ENUM2STRING(LS_A_BACK),
+	ENUM2STRING(LS_A_BACK_CR),
+	ENUM2STRING(LS_ROLL_STAB),
+	ENUM2STRING(LS_A_LUNGE),
+	ENUM2STRING(LS_A_JUMP_T__B_),
+	ENUM2STRING(LS_A_FLIP_STAB),
+	ENUM2STRING(LS_A_FLIP_SLASH),
+	ENUM2STRING(LS_JUMPATTACK_DUAL),
+	ENUM2STRING(LS_JUMPATTACK_ARIAL_LEFT),
+	ENUM2STRING(LS_JUMPATTACK_ARIAL_RIGHT),
+	ENUM2STRING(LS_JUMPATTACK_CART_LEFT),
+	ENUM2STRING(LS_JUMPATTACK_CART_RIGHT),
+	ENUM2STRING(LS_JUMPATTACK_STAFF_LEFT),
+	ENUM2STRING(LS_JUMPATTACK_STAFF_RIGHT),
+	ENUM2STRING(LS_BUTTERFLY_LEFT),
+	ENUM2STRING(LS_BUTTERFLY_RIGHT),
+	ENUM2STRING(LS_A_BACKFLIP_ATK),
+	ENUM2STRING(LS_SPINATTACK_DUAL),
+	ENUM2STRING(LS_SPINATTACK),
+	ENUM2STRING(LS_LEAP_ATTACK),
+
+	// Vehicles
+	ENUM2STRING(LS_SWOOP_ATTACK_RIGHT),
+	ENUM2STRING(LS_SWOOP_ATTACK_LEFT),
+	ENUM2STRING(LS_TAUNTAUN_ATTACK_RIGHT),
+	ENUM2STRING(LS_TAUNTAUN_ATTACK_LEFT),
+
+	// Kicks
+	ENUM2STRING(LS_KICK_F),
+	ENUM2STRING(LS_KICK_B),
+	ENUM2STRING(LS_KICK_R),
+	ENUM2STRING(LS_KICK_L),
+	ENUM2STRING(LS_KICK_S),
+	ENUM2STRING(LS_KICK_BF),
+	ENUM2STRING(LS_KICK_RL),
+	ENUM2STRING(LS_KICK_F_AIR),
+	ENUM2STRING(LS_KICK_B_AIR),
+	ENUM2STRING(LS_KICK_R_AIR),
+	ENUM2STRING(LS_KICK_L_AIR),
+
+	// More special moves u_u
+	ENUM2STRING(LS_STABDOWN),
+	ENUM2STRING(LS_STABDOWN_STAFF),
+	ENUM2STRING(LS_STABDOWN_DUAL),
+	ENUM2STRING(LS_DUAL_SPIN_PROTECT),
+	ENUM2STRING(LS_STAFF_SOULCAL),
+
+	// katas -- KILL THEM WITH FIRE!
+	ENUM2STRING(LS_A1_SPECIAL),
+	ENUM2STRING(LS_A2_SPECIAL),
+	ENUM2STRING(LS_A3_SPECIAL),
+
+	// even more special moves
+	ENUM2STRING(LS_UPSIDE_DOWN_ATTACK),
+	ENUM2STRING(LS_PULL_ATTACK_STAB),
+	ENUM2STRING(LS_PULL_ATTACK_SWING),
+	ENUM2STRING(LS_SPINATTACK_ALORA),
+	ENUM2STRING(LS_DUAL_FB),
+	ENUM2STRING(LS_DUAL_LR),
+	ENUM2STRING(LS_HILT_BASH),
+
+	// starts
+	ENUM2STRING(LS_S_TL2BR),
+	ENUM2STRING(LS_S_L2R),
+	ENUM2STRING(LS_S_BL2TR),
+	ENUM2STRING(LS_S_BR2TL),
+	ENUM2STRING(LS_S_R2L),
+	ENUM2STRING(LS_S_TR2BL),
+	ENUM2STRING(LS_S_T2B),
+
+	// returns
+	ENUM2STRING(LS_R_TL2BR),
+	ENUM2STRING(LS_R_L2R),
+	ENUM2STRING(LS_R_BL2TR),
+	ENUM2STRING(LS_R_BR2TL),
+	ENUM2STRING(LS_R_R2L),
+	ENUM2STRING(LS_R_TR2BL),
+	ENUM2STRING(LS_R_T2B),
+
+	// transitions
+	ENUM2STRING(LS_T1_BR__R),
+	ENUM2STRING(LS_T1_BR_TR),
+	ENUM2STRING(LS_T1_BR_T_),
+	ENUM2STRING(LS_T1_BR_TL),
+	ENUM2STRING(LS_T1_BR__L),
+	ENUM2STRING(LS_T1_BR_BL),
+	ENUM2STRING(LS_T1__R_BR),
+	ENUM2STRING(LS_T1__R_TR),
+	ENUM2STRING(LS_T1__R_T_),
+	ENUM2STRING(LS_T1__R_TL),
+	ENUM2STRING(LS_T1__R__L),
+	ENUM2STRING(LS_T1__R_BL),
+	ENUM2STRING(LS_T1_TR_BR),
+	ENUM2STRING(LS_T1_TR__R),
+	ENUM2STRING(LS_T1_TR_T_),
+	ENUM2STRING(LS_T1_TR_TL),
+	ENUM2STRING(LS_T1_TR__L),
+	ENUM2STRING(LS_T1_TR_BL),
+	ENUM2STRING(LS_T1_T__BR),
+	ENUM2STRING(LS_T1_T___R),
+	ENUM2STRING(LS_T1_T__TR),
+	ENUM2STRING(LS_T1_T__TL),
+	ENUM2STRING(LS_T1_T___L),
+	ENUM2STRING(LS_T1_T__BL),
+	ENUM2STRING(LS_T1_TL_BR),
+	ENUM2STRING(LS_T1_TL__R),
+	ENUM2STRING(LS_T1_TL_TR),
+	ENUM2STRING(LS_T1_TL_T_),
+	ENUM2STRING(LS_T1_TL__L),
+	ENUM2STRING(LS_T1_TL_BL),
+	ENUM2STRING(LS_T1__L_BR),
+	ENUM2STRING(LS_T1__L__R),
+	ENUM2STRING(LS_T1__L_TR),
+	ENUM2STRING(LS_T1__L_T_),
+	ENUM2STRING(LS_T1__L_TL),
+	ENUM2STRING(LS_T1__L_BL),
+	ENUM2STRING(LS_T1_BL_BR),
+	ENUM2STRING(LS_T1_BL__R),
+	ENUM2STRING(LS_T1_BL_TR),
+	ENUM2STRING(LS_T1_BL_T_),
+	ENUM2STRING(LS_T1_BL_TL),
+	ENUM2STRING(LS_T1_BL__L),
+
+	// bounces
+	ENUM2STRING(LS_B1_BR),
+	ENUM2STRING(LS_B1__R),
+	ENUM2STRING(LS_B1_TR),
+	ENUM2STRING(LS_B1_T_),
+	ENUM2STRING(LS_B1_TL),
+	ENUM2STRING(LS_B1__L),
+	ENUM2STRING(LS_B1_BL),
+
+	// deflected attack
+	ENUM2STRING(LS_D1_BR),
+	ENUM2STRING(LS_D1__R),
+	ENUM2STRING(LS_D1_TR),
+	ENUM2STRING(LS_D1_T_),
+	ENUM2STRING(LS_D1_TL),
+	ENUM2STRING(LS_D1__L),
+	ENUM2STRING(LS_D1_BL),
+	ENUM2STRING(LS_D1_B_),
+
+	// reflected attacks
+	ENUM2STRING(LS_V1_BR),
+	ENUM2STRING(LS_V1__R),
+	ENUM2STRING(LS_V1_TR),
+	ENUM2STRING(LS_V1_T_),
+	ENUM2STRING(LS_V1_TL),
+	ENUM2STRING(LS_V1__L),
+	ENUM2STRING(LS_V1_BL),
+	ENUM2STRING(LS_V1_B_),
+
+	// broken parries
+	ENUM2STRING(LS_H1_T_),
+	ENUM2STRING(LS_H1_TR),
+	ENUM2STRING(LS_H1_TL),
+	ENUM2STRING(LS_H1_BR),
+	ENUM2STRING(LS_H1_B_),
+	ENUM2STRING(LS_H1_BL),
+
+	// knockaways / staggers
+	ENUM2STRING(LS_K1_T_),
+	ENUM2STRING(LS_K1_TR),
+	ENUM2STRING(LS_K1_TL),
+	ENUM2STRING(LS_K1_BR),
+	ENUM2STRING(LS_K1_BL),
+
+	// parries
+	ENUM2STRING(LS_PARRY_UP),
+	ENUM2STRING(LS_PARRY_UR),
+	ENUM2STRING(LS_PARRY_UL),
+	ENUM2STRING(LS_PARRY_LR),
+	ENUM2STRING(LS_PARRY_LL),
+
+	// projectile blocks / unused
+	ENUM2STRING(LS_REFLECT_UP),
+	ENUM2STRING(LS_REFLECT_UR),
+	ENUM2STRING(LS_REFLECT_UL),
+	ENUM2STRING(LS_REFLECT_LR),
+	ENUM2STRING(LS_REFLECT_LL),
+};
+
+stringID_table_t SaberQuadrants[] = {
+	ENUM2STRING(Q_BR),
+	ENUM2STRING(Q_R),
+	ENUM2STRING(Q_TR),
+	ENUM2STRING(Q_T),
+	ENUM2STRING(Q_TL),
+	ENUM2STRING(Q_L),
+	ENUM2STRING(Q_BL),
+	ENUM2STRING(Q_B),
+};
+
+/*stringID_table_t SaberAnimFlags[] = {
+	ENUM2STRING
+};*/
+// uh wait...those aren't enum members 8D
+
+stringID_table_t SaberBlocking[] = {
+	ENUM2STRING(BLK_NO),
+	ENUM2STRING(BLK_TIGHT),
+	ENUM2STRING(BLK_WIDE),
+};
+
+#define MAX_STANCE_FILE_LENGTH		65535
+
+// todo: merge all these similar funcs into a better one that adds a default number as an arg, and a string table as an arg too
+int JKG_AnimationForJSON( cJSON *node )
+{
+	if( node )
+	{
+		const char *anim = cJSON_ToString (node);
+		if ( anim && anim[0] )
+		{
+			if( atoi( anim ) )
+			{
+				return cJSON_ToInteger(node);
+			}
+			else
+			{
+				return GetIDForString (animTable, anim);
+			}
+		}
+	}
+	return 0;
+}
+
+int JKG_LSForJSON( cJSON *node )
+{
+	if( node )
+	{
+		const char *move = cJSON_ToString (node);
+		if ( move && move[0] )
+		{
+			if( atoi( move ) )
+			{
+				return cJSON_ToInteger(node);
+			}
+			else
+			{
+				return GetIDForString (SaberMoves, move);
+			}
+		}
+	}
+	return LS_NONE;
+}
+
+int JKG_QForJSON( cJSON *node )
+{
+	if( node )
+	{
+		const char *quad = cJSON_ToString (node);
+		if ( quad && quad[0] )
+		{
+			if( atoi( quad ) )
+			{
+				return cJSON_ToInteger(node);
+			}
+			else
+			{
+				return GetIDForString (SaberQuadrants, quad);
+			}
+		}
+	}
+	return Q_NUM_QUADS;
+}
+
+int JKG_BLKForJSON( cJSON *node )
+{
+	if( node )
+	{
+		const char *blk = cJSON_ToString (node);
+		if ( blk && blk[0] )
+		{
+			if( atoi( blk ) )
+			{
+				return cJSON_ToInteger(node);
+			}
+			else
+			{
+				return GetIDForString (SaberBlocking, blk);
+			}
+		}
+	}
+	return BLK_NO;
+}
+
+// This func does not comply to the cleanup note posted before the bulk of these stated functions, since it cannot be done via ENUM2STRING --eez
+int JKG_SAFForJSON( cJSON *node )
+{
+	const char *text = cJSON_ToString( node );
+
+	if( !text || !text[0] )
+	{
+		return 0;
+	}
+
+	if( !Q_stricmp( "AFLAG_IDLE", text ) )
+	{
+		return (SETANIM_FLAG_NORMAL);
+	}
+	else if( !Q_stricmp( "AFLAG_ACTIVE", text ) )
+	{
+		return (SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+	} 
+	else if( !Q_stricmp( "AFLAG_WAIT", text ) )
+	{
+		return (SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+	}
+	else if( !Q_stricmp( "AFLAG_FINISH", text ) )
+	{
+		return (SETANIM_FLAG_HOLD);
+	}
+	else
+	{
+		return SETANIM_FLAG_NORMAL;
+	}
+}
+
+void JKG_CopyMoveFromDefaultInfo( int moveNum, saberMoveExternal_t *saberMove )
+{
+	saberMove->anim = saberMoveData[moveNum].animToUse;
+	saberMove->animspeedscale = 1.0f;
+
+	strcpy(saberMove->baseName, saberMoveData[moveNum].name);
+
+	saberMove->FPdrain = 0;
+
+	saberMove->startingQuadrant = saberMoveData[moveNum].startQuad;
+	saberMove->endQuadrant = saberMoveData[moveNum].endQuad;
+
+	saberMove->chainIdle = saberMoveData[moveNum].chain_idle;
+	saberMove->chainAttack = saberMoveData[moveNum].chain_attack;
+
+	saberMove->blockType = saberMoveData[moveNum].blocking;
+	saberMove->trailLen = saberMoveData[moveNum].trailLength;
+
+	saberMove->blendTime = saberMoveData[moveNum].blendTime;
+	saberMove->setanimflag = saberMoveData[moveNum].animSetFlags;
+}
+
+saberMoveExternal_t defaultMove = { 
+	// It's just LS_IDLE's default, basically
+	"LS_IDLE",				// baseName
+	0,						// fpDrain
+
+
+	LS_READY,				// chainIdle
+	LS_S_R2L,				// chainAttack
+
+	Q_R,					// startingQuadrant
+	Q_R,					// endQuadrant
+	BLK_WIDE,				// blockType
+
+	100,					// trailLen
+
+	350,					// blendTime
+	SETANIM_FLAG_NORMAL,
+	BOTH_STAND2,
+	1.0f,					// animspeedscale
+};
+
+// NO special moves by default --eez
+saberSpecial_t defaultSpecialMoves = {
+	qfalse,				// qboolean allowBackStab;
+	qfalse,				// qboolean allowBackAttack;
+	qfalse,				// qboolean allowCrouchedBackAttack;
+	qfalse,				// qboolean allowRollStab;
+	qfalse,				// qboolean allowLunge;
+	qfalse,				// qboolean allowLeapAttack;
+	qfalse,				// qboolean allowFlipStab;
+	qfalse,				// qboolean allowFlipSlash;
+	qfalse,				// qboolean allowButterfly;
+	qfalse,				// qboolean allowCartwheel;
+	qfalse,				// qboolean allowBackflipAttack;
+	qfalse,				// qboolean allowSpinAttack;
+	qfalse,				// qboolean allowSpeedLunge;
+	qfalse,				// qboolean allowStabDown;
+	qfalse,				// qboolean allowSpinAttack;
+	qfalse,				// qboolean allowSoulCal;
+	qfalse,				// qboolean allowBlueKata;
+	qfalse,				// qboolean allowYellowKata;
+	qfalse,				// qboolean allowRedKata;
+	qfalse,				// qboolean allowUpsideDown;
+	qfalse,				// qboolean allowPullStab;
+	qfalse,				// qboolean allowPullSlash;
+	qfalse,				// qboolean allowAloraSpin;
+	qfalse,				// qboolean allowDualFrontBack;
+	qfalse,				// qboolean allowDualSides;
+	qfalse,				// qboolean allowHiltBash;
+};
+
+static unsigned short numStancesParsed = 0;
+
+qboolean JKG_ParseSaberStanceFile( char *filename )
+{
+	cJSON *json = NULL;
+    cJSON *jsonNode = NULL;
+	cJSON *jsonChild = NULL;
+    char error[MAX_STRING_CHARS];
+    const char *str = NULL;
+    int stance, i;
+
+	char stanceFileData[MAX_STANCE_FILE_LENGTH];		// TODO: change
+	fileHandle_t f;
+	int fileLen = strap_FS_FOpenFile (filename, &f, FS_READ);
+
+	saberStanceExternal_t theStance;
+	saberMoveExternal_t theMove;
+
+	if ( !f || fileLen == -1 )
+    {
+        Com_Printf (S_COLOR_RED "%s: failed to read the stance file. File is unreadable or is empty.\n", filename);
+        return qfalse;
+    }
+    
+    if ( (fileLen + 1) >= MAX_STANCE_FILE_LENGTH )
+    {
+        trap_FS_FCloseFile (f);
+        Com_Printf (S_COLOR_RED "%s: file too big (%d bytes, maximum is %d).\n", filename, fileLen, MAX_STANCE_FILE_LENGTH - 1);
+        
+        return qfalse;
+    }
+    
+    strap_FS_Read (&stanceFileData, fileLen, f);
+    stanceFileData[fileLen] = '\0';
+    
+    strap_FS_FCloseFile (f);
+
+	json = cJSON_ParsePooled (stanceFileData, error, sizeof (error));
+    if ( json == NULL )
+    {
+        Com_Printf (S_COLOR_RED "%s: %s\n", filename, error);
+        
+        return qfalse;
+    }
+
+	jsonNode = cJSON_GetObjectItem (json, "maxChainCount");
+    stance = cJSON_ToInteger (jsonNode);
+    theStance.maxChainCount = stance;
+
+	jsonNode = cJSON_GetObjectItem (json, "attackSpeedModifier");
+	if(jsonNode)
+	{
+		theStance.attackSpeedModifier = cJSON_ToNumber(jsonNode);
+	}
+	else
+	{
+		theStance.attackSpeedModifier = 0.55f;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "transitionSpeedModifier");
+	if(jsonNode)
+	{
+		theStance.transitionSpeedModifier = cJSON_ToNumber(jsonNode);
+	}
+	else
+	{
+		theStance.transitionSpeedModifier = 0.55f;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "attackBackSpeedModifier");
+	if(jsonNode)
+	{
+		theStance.attackBackSpeedModifier = cJSON_ToNumber(jsonNode);
+	}
+	else
+	{
+		theStance.attackBackSpeedModifier = 0.75f;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "chainStyle");
+    stance = cJSON_ToInteger (jsonNode);
+	theStance.chainStyle = stance;
+
+	jsonNode = cJSON_GetObjectItem (json, "baseDamageDefault");
+	if(jsonNode)
+	{
+		theStance.baseDamageDefault = cJSON_ToInteger(jsonNode);
+	}
+	else
+	{
+		theStance.baseDamageDefault = 35;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "baseDamageMin");
+	if(jsonNode)
+	{
+		theStance.baseDamageMin = cJSON_ToInteger(jsonNode);
+	}
+	else
+	{
+		theStance.baseDamageMin = 2;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "baseDamageMax");
+	if(jsonNode)
+	{
+		theStance.baseDamageMax = cJSON_ToInteger(jsonNode);
+	}
+	else
+	{
+		theStance.baseDamageMax = 30;
+	}
+
+	jsonNode = cJSON_GetObjectItem( json, "BPDrain" );
+	if( jsonNode )
+	{
+		stance = cJSON_ToInteger ( jsonNode );
+		theStance.BPdrain = stance;
+	}
+	else
+	{
+		theStance.BPdrain = 16;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "defensePenetration");
+    if(jsonNode)
+	{
+		theStance.defensePenetration = cJSON_ToInteger(jsonNode);
+	}
+	else
+	{
+		theStance.defensePenetration = 1;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "name_technical");
+    str = cJSON_ToString (jsonNode);
+	Q_strncpyz(theStance.saberName_technical, str, 64);
+
+	jsonNode = cJSON_GetObjectItem (json, "name_simple");
+    str = cJSON_ToString (jsonNode);
+	Q_strncpyz(theStance.saberName_simple, str, 64);
+
+	// Saber throw data
+	jsonNode = cJSON_GetObjectItem (json, "saberThrowSound");
+	if(jsonNode)
+	{
+		str = cJSON_ToString (jsonNode);
+		Q_strncpyz(theStance.saberThrowSound, str, MAX_QPATH);
+	}
+	else
+	{
+		strcpy(theStance.saberThrowSound, "sound/weapons/saber/saberspin.wav");
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "saberThrowSpeed");
+	if(jsonNode)
+	{
+		theStance.saberThrowSpeed = cJSON_ToNumber(jsonNode);
+	}
+	else
+	{
+		theStance.saberThrowSpeed = 500.0f;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "saberThrowPitch");
+	if(jsonNode)
+	{
+		theStance.saberThrowPitch = cJSON_ToNumber(jsonNode);
+	}
+	else
+	{
+		theStance.saberThrowPitch = 0;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "saberThrowYaw");
+	if(jsonNode)
+	{
+		theStance.saberThrowSpeed = cJSON_ToNumber(jsonNode);
+	}
+	else
+	{
+		theStance.saberThrowYaw= 800.0f;
+	}
+
+	jsonNode = cJSON_GetObjectItem (json, "saberThrowRoll");
+	if(jsonNode)
+	{
+		theStance.saberThrowRoll = cJSON_ToNumber(jsonNode);
+	}
+	else
+	{
+		theStance.saberThrowRoll = 0;
+	}
+
+
+	jsonNode = cJSON_GetObjectItem (json, "offensiveStanceAnim");
+    stance = JKG_AnimationForJSON (jsonNode);
+    theStance.offensiveStanceAnim = stance;
+
+	jsonNode = cJSON_GetObjectItem (json, "projectileBlockAnim");
+    stance = JKG_AnimationForJSON (jsonNode);
+    theStance.projectileBlockAnim = stance;
+
+
+
+	jsonNode = cJSON_GetObjectItem (json, "isStaffFriendly");
+    stance = cJSON_ToInteger (jsonNode);
+    theStance.isStaffFriendly = stance;
+
+	jsonNode = cJSON_GetObjectItem (json, "isDualsFriendly");
+    stance = cJSON_ToInteger (jsonNode);
+    theStance.isDualsFriendly = stance;
+
+	jsonNode = cJSON_GetObjectItem (json, "isStaffOnly");
+    stance = cJSON_ToInteger (jsonNode);
+    theStance.isStaffOnly = stance;
+
+	jsonNode = cJSON_GetObjectItem (json, "isDualsOnly");
+    stance = cJSON_ToInteger (jsonNode);
+    theStance.isDualsOnly = stance;
+
+	jsonNode = cJSON_GetObjectItem (json, "sabSpecific");
+    stance = cJSON_ToInteger (jsonNode);
+    theStance.sabSpecific = stance;
+
+	// kk, handle all of the move stuff now
+	for(i = 0; i < LS_MOVE_MAX; i++)
+	{
+		JKG_CopyMoveFromDefaultInfo( i, &theMove );
+		jsonNode = cJSON_GetObjectItem( json, GetStringForID(SaberMoves, i) );
+		if( jsonNode )
+		{
+			// valid move i guess
+			jsonChild = cJSON_GetObjectItem( jsonNode, "FPDrain" );
+			if( jsonChild )
+			{
+				stance = cJSON_ToInteger ( jsonChild );
+				theMove.FPdrain = stance;
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "chainIdle" );
+			if( jsonChild )
+			{
+				theMove.chainIdle = JKG_LSForJSON(jsonChild);
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "chainAttack" );
+			if( jsonChild )
+			{
+				theMove.chainAttack = JKG_LSForJSON(jsonChild);
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "startingQuadrant" );
+			if( jsonChild )
+			{
+				theMove.startingQuadrant = JKG_QForJSON(jsonChild);
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "endQuadrant" );
+			if( jsonChild )
+			{
+				theMove.endQuadrant = JKG_QForJSON(jsonChild);
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "blockType" );
+			if( jsonChild )
+			{
+				theMove.blockType = JKG_BLKForJSON(jsonChild);
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "trailLen" );
+			if( jsonChild )
+			{
+				stance = cJSON_ToInteger ( jsonChild );
+				theMove.trailLen = stance;
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "blendTime" );
+			if( jsonChild )
+			{
+				stance = cJSON_ToNumber ( jsonChild );
+				theMove.blendTime = stance;
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "setanimflag" );
+			if( jsonChild )
+			{
+				theMove.setanimflag = JKG_SAFForJSON( jsonChild );
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "anim" );
+			if( jsonChild )
+			{
+				theMove.anim = JKG_AnimationForJSON( jsonChild );
+			}
+
+			jsonChild = cJSON_GetObjectItem( jsonNode, "animspeedscale" );
+			if( jsonChild )
+			{
+				theMove.animspeedscale = cJSON_ToNumber(jsonChild);
+			}
+		}
+
+		memcpy(&theStance.moves[i], &theMove, sizeof(theMove));
+	}
+
+	// Get the special move info
+	memcpy(&theStance.specialMoves, &defaultSpecialMoves, sizeof(SaberStances[numStancesParsed].specialMoves));
+	jsonNode = cJSON_GetObjectItem( json, "SpecialMoves" );
+	//if( jsonNode )
+	{
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowBackStab" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowBackStab = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowBackStab = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowBackAttack" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowBackAttack = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowBackAttack = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowCrouchedBackAttack" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowCrouchedBackAttack = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowCrouchedBackAttack = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowRollStab" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowRollStab = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowRollStab = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowLunge" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowLunge = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowLunge = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowLeapAttack" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowLeapAttack = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowLeapAttack = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowFlipStab" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowFlipStab = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowFlipStab = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowFlipSlash" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowFlipSlash = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowFlipSlash = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowButterfly" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowButterfly = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowButterfly = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowCartwheel" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowCartwheel = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowCartwheel = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowBackflipAttack" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowBackflipAttack = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowBackflipAttack = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowDualSpinAttack" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowDualSpinAttack = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowDualSpinAttack = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowSpeedLunge" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowSpeedLunge = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowSpeedLunge = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowStabDown" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowStabDown = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowStabDown = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowSpinAttack" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowSpinAttack = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowSpinAttack = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowSoulCal" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowSoulCal = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowSoulCal = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowBlueKata" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowBlueKata = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowBlueKata = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowYellowKata" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowYellowKata = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowYellowKata = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowRedKata" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowRedKata = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowRedKata = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowUpsideDown" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowUpsideDown = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowUpsideDown = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowPullStab" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowPullStab = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowPullStab = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowPullSlash" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowPullSlash = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowPullSlash = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowAloraSpin" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowAloraSpin = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowAloraSpin = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowDualFrontBack" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowDualFrontBack = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowDualFrontBack = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowDualSides" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowDualSides = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowDualSides = qfalse;
+		}
+
+		jsonChild = cJSON_GetObjectItem( jsonNode, "allowHiltBash" );
+		if( jsonChild )
+		{
+			stance = cJSON_ToInteger (jsonChild);
+			theStance.specialMoves.allowHiltBash = stance;
+		}
+		else
+		{
+			theStance.specialMoves.allowHiltBash = qfalse;
+		}
+	}
+
+	memcpy(&SaberStances[numStancesParsed], &theStance, sizeof(theStance));
+	return qtrue;
+}
+
+qboolean JKG_LoadStanceData(void)
+{
+	char stanceFiles[16384];
+	int numFiles = strap_FS_GetFileList ("ext_data/stances", ".stance", stanceFiles, sizeof (stanceFiles));
+	const char *stanceFile = stanceFiles;
+	int successful = 0;
+    int failed = 0;
+
+	int t = trap_Milliseconds();
+	int i;
+
+	Com_Printf ("------- Stance data -------\n");
+
+	{
+        for ( i = 0; i < numFiles; i++ )
+        {
+            if ( JKG_ParseSaberStanceFile (va ("ext_data/stances/%s", stanceFile)) )
+            {
+                successful++;
+				numStancesParsed++;
+            }
+            else
+            {
+                failed++;
+            }
+            
+            stanceFile += strlen (stanceFile) + 1;
+        }
+        
+        //WriteWeaponCacheFile (weaponDataTable, numLoadedWeapons);
+    }
+    /*else
+    {
+        successful = *numLoadedWeapons;
+    }*/
+    
+    Com_Printf ("Successfully loaded %d stances, failed to load %d stances.\n", successful, failed);
+    Com_Printf ("Took %d milliseconds.\n", trap_Milliseconds() - t);
+    Com_Printf ("-------------------------------------\n");
+    
+    return (qboolean)(successful > 0);
+}
+	
+void JKG_InitializeStanceData( void )
+{
+
+	if(!JKG_LoadStanceData())
+	{
+		Com_Error(ERR_FATAL, "Could not read saber stance data!");
+		return;
+	}
+}

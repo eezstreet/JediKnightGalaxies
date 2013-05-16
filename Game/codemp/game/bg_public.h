@@ -1489,13 +1489,13 @@ enum {
 	LS_PUTAWAY,
 
 	// Attacks
-	LS_A_TL2BR,//4
-	LS_A_L2R,
-	LS_A_BL2TR,
-	LS_A_BR2TL,
-	LS_A_R2L,
-	LS_A_TR2BL,
-	LS_A_T2B,
+	LS_A_TL2BR,//4			// Top left to bottom right
+	LS_A_L2R,				// Left to right
+	LS_A_BL2TR,				// Bottom left to top right
+	LS_A_BR2TL,				// Bottom right to top left
+	LS_A_R2L,				// Right to left
+	LS_A_TR2BL,				// Top right to bottom left
+	LS_A_T2B,				// Top to bottom
 	LS_A_BACKSTAB,
 	LS_A_BACK,
 	LS_A_BACK_CR,
@@ -1765,7 +1765,7 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 					   qboolean *tPitching, qboolean *lYawing, float *tYawAngle, float *tPitchAngle,
 					   float *lYawAngle, int frametime, vec3_t turAngles, vec3_t modelScale, int ciLegs,
 					   int ciTorso, int *corrTime, vec3_t lookAngles, vec3_t lastHeadAngles, int lookTime,
-					   entityState_t *emplaced, int *crazySmoothFactor);
+					   entityState_t *emplaced, int *crazySmoothFactor, int saberActionFlags);
 void BG_G2ATSTAngles(void *ghoul2, int time, vec3_t cent_lerpAngles );
 
 //BG anim utility functions:
@@ -1773,8 +1773,8 @@ void BG_G2ATSTAngles(void *ghoul2, int time, vec3_t cent_lerpAngles );
 int BG_AnimLength( int index, animNumber_t anim );
 
 //[BugFix2]
-float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex);
-float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex);
+float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns);
+float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns);
 //[/BugFix2]
 
 qboolean BG_InSpecialJump( int anim );
@@ -1795,7 +1795,7 @@ qboolean BG_SaberInKata( int saberMove );
 qboolean BG_InKataAnim(int anim);
 qboolean BG_KickingAnim( int anim );
 int BG_InGrappleMove(int anim);
-int BG_BrokenParryForAttack( int move );
+int BG_BrokenParryForAttack( int move, int stance );
 int BG_BrokenParryForParry( int move );
 int BG_KnockawayForParry( int move );
 qboolean BG_InRoll( playerState_t *ps, int anim );
@@ -1803,10 +1803,10 @@ qboolean BG_InDeathAnim( int anim );
 qboolean BG_InSaberLockOld( int anim );
 qboolean BG_InSaberLock( int anim );
 
-void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken );
+void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken, float saberMoveSwingSpeed, float saberSwingSpeed, int saberMove );
 void JKG_ReloadAnimation( int firingMode, int weaponID, int anim, animation_t *anims, float *animSpeed );
 
-void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt );
+void BG_ForcePowerDrain( playerState_t *ps, networkState_t *ns, forcePowers_t forcePower, int overrideAmt );
 
 void	BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
@@ -1853,7 +1853,7 @@ void BG_SI_ActivateTrail ( saberInfo_t *saber, float duration );
 void BG_SI_DeactivateTrail ( saberInfo_t *saber, float duration );
 extern void BG_AttachToRancor( void *ghoul2,float rancYaw,vec3_t rancOrigin,int time,qhandle_t *modelList,vec3_t modelScale,qboolean inMouth,vec3_t out_origin,vec3_t out_angles,vec3_t out_axis[3] );
 
-qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, const networkState_t *ns );
+qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, const networkState_t *ns, qboolean PMOVE );
 
 extern int forcePowerDarkLight[NUM_FORCE_POWERS];
 
@@ -1902,6 +1902,19 @@ typedef struct {
 	float baseJumpTapVelocity;
 	float baseJumpVelocity;
 	unsigned int baseForceJumpLevel;
+
+	// Stuff pertaining to movement
+	float walkingSpeed; // in units per second i think
+	float ironsightsMoveSpeed;
+	float blockingModeMoveSpeed;
+
+	float backwardsSpeedModifier;
+	float strafeSpeedModifier;
+	float backwardsDiagonalSpeedModifier;
+	float baseSpeedModifier;
+	float walkSpeedModifier;
+	float minimumSpeedModifier;
+	float sprintSpeedModifier;
 } bgConstants_t;
 
 extern bgConstants_t bgConstants;

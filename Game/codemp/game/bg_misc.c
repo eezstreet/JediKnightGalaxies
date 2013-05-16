@@ -3590,6 +3590,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 	s->weapon = ps->weapon;
 	s->weaponVariation = ps->weaponVariation;
 	s->groundEntityNum = ps->groundEntityNum;
+	s->saberActionFlags = ps->saberActionFlags;
 	s->firingMode = ps->firingMode;
 	s->weaponstate = ps->weaponstate;
 
@@ -3752,6 +3753,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->weapon = ps->weapon;
 	s->weaponVariation = ps->weaponVariation;
 	s->groundEntityNum = ps->groundEntityNum;
+	s->saberActionFlags = ps->saberActionFlags;
 	s->firingMode = ps->firingMode;
 	s->weaponstate = ps->weaponstate;
 
@@ -3810,6 +3812,11 @@ Extra hax --eez
 
 void BG_NetworkStateToExtraState( networkState_t *ns, extraState_t *x )
 {
+	if(!ns || !x)
+		return;
+	x->forcePower = ns->forcePower;
+	x->saberSwingSpeed = ns->saberSwingSpeed;
+	x->saberMoveSwingSpeed = ns->saberMoveSwingSpeed;
 }
 
 

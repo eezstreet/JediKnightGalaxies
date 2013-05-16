@@ -1017,6 +1017,8 @@ vmCvar_t    r_bloom_threshold;
 vmCvar_t	ui_hidehud;		// Used by the UI to disable the HUD at certain times
 vmCvar_t	ui_blurbackground;	// Blur the background when UI is active?
 
+vmCvar_t	jkg_simpleHUD;
+
 extern vmCvar_t	jkg_postprocess;
 extern vmCvar_t	jkg_nokillmessages;
 
@@ -1294,6 +1296,8 @@ Ghoul2 Insert End
 	{ &jkg_debugSprintStyle, "jkg_debugSprintStyle", "-2", CVAR_CHEAT },
 	{ &jkg_debugSprintBobSpeed, "jkg_debugSprintBobSpeed", "1.0", CVAR_CHEAT },
 */
+	{ &jkg_simpleHUD, "jkg_simpleHUD", "1", CVAR_ARCHIVE },
+
 	{ &jkg_meleeScroll, "jkg_meleeScroll", "1", CVAR_ARCHIVE },
 	{ &jkg_sprintFOV, "jkg_sprintFOV", "100", CVAR_ARCHIVE },
 	// Set by UI, but used in cgame
@@ -4139,6 +4143,8 @@ Ghoul2 Insert Start
 
 	CG_PmoveClientPointerUpdate();
 	
+	///  Jedi Knight Galaxies  ///
+
 	// Yum, ammo
 	BG_InitializeAmmo();
 	
@@ -4146,8 +4152,11 @@ Ghoul2 Insert Start
 	BG_InitializeWeapons();
 
 	JKG_InitializeConstants();
+	JKG_InitializeSaberCrystalData();
 
-	// Jedi Knight Galaxies
+	// Here be stances
+	JKG_InitializeStanceData();
+
 	CinBuild_Init();
 	CG_SetupChatCmds();
 /*

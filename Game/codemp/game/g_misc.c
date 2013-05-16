@@ -217,6 +217,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 
 	// save results of pmove
 	BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
+	BG_NetworkStateToExtraState( &player->client->ns, &player->x );
 	if (isNPC)
 	{
 		player->s.eType = ET_NPC;
@@ -268,6 +269,7 @@ void TeleportPlayer2( gentity_t *player, vec3_t origin, vec3_t angles ) {
 
 	// save results of pmove
 	BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
+	BG_NetworkStateToExtraState( &player->client->ns, &player->x );
 	if (isNPC)
 	{
 		player->s.eType = ET_NPC;

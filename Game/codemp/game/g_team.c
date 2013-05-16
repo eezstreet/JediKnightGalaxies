@@ -1085,7 +1085,7 @@ void TeamplayInfoMessage( gentity_t *ent )
 			mfp	= 100;
 
 			/* Slot, Location, Health, Max Health, Armor, Max Armor, Force, Max Force Weapon */
-			if ( !Q_stratt( buffer, sizeof( buffer ), va( "%i %i %i %i %i %i %i %i %i ", i, player->client->pers.teamState.location, ( h < 0 ) ? 0 : h, player->client->ps.stats[STAT_MAX_HEALTH], ( a < 0 ) ? 0 : a, player->client->ps.stats[STAT_MAX_ARMOR], player->client->ps.fd.forcePower, mfp, player->client->ps.weapon )))
+			if ( !Q_stratt( buffer, sizeof( buffer ), va( "%i %i %i %i %i %i %i %i %i ", i, player->client->pers.teamState.location, ( h < 0 ) ? 0 : h, player->client->ps.stats[STAT_MAX_HEALTH], ( a < 0 ) ? 0 : a, player->client->ps.stats[STAT_MAX_ARMOR], player->client->ns.forcePower, mfp, player->client->ps.weapon )))
 			{
 				trap_SendServerCommand( ent-g_entities, va( "tinfo %s", buffer ));
 				memset( buffer, 0, sizeof( buffer ));

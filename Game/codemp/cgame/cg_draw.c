@@ -7092,7 +7092,7 @@ static void CG_DrawTemporaryStats()
 		return;
 	}
 
-	sprintf(s, "Force: %i", cg.snap->ps.fd.forcePower);
+	sprintf(s, "Force: %i", cg.snap->ns.forcePower);
 
 	CG_DrawBigString(SCREEN_WIDTH-164, SCREEN_HEIGHT-dmgIndicSize, s, 1.0f);
 
@@ -7381,6 +7381,13 @@ void CG_DrawJetpackCloak(menuDef_t *menuHUD) {
 	MAKERGBA( opacity, 1, 1, 1, 1*cg.jkg_HUDOpacity );
 
 
+	// FIXME: what happens if using more than one?
+	if (cg.snap->ps.weapon == WP_SABER)
+	{
+		percent = cg.networkState.blockPoints;
+		pic = trap_R_RegisterShader("gfx/jkghud/ico_cloak.png");
+	}
+
 	if (cg.snap->ps.jetpackFuel < 100)
 	{ // Jetpack is being used or is recharging
 		if (cg.snap->ps.cloakFuel >= 100 || (cg.time >> 10 & 1)) {
@@ -7395,7 +7402,7 @@ void CG_DrawJetpackCloak(menuDef_t *menuHUD) {
 		}
 	}
 
-	if (percent == 100) {
+	if (percent == 100 && cg.snap->ps.weapon != WP_SABER) {
 		return;
 	}
 
@@ -8902,6 +8909,15 @@ static void CG_Draw2D( void ) {
 
 		// Draw this before the text so that any text won't get clipped off
 		CG_DrawZoomMask();
+
+		if( cg.predictedPlayerState.saberActionFlags & ( 1 << SAF_PROJBLOCKING ) )
+		{
+			CG_Text_Paint( 40, 40, 0.6f, colorWhite, "Projectile Blocking Mode", 0, 0, 0, 3 );
+		}
+		else if( cg.predictedPlayerState.saberActionFlags & (1 << SAF_BLOCKING) )
+		{
+			CG_Text_Paint( 40, 40, 0.6f, colorWhite, "Blocking Mode", 0, 0, 0, 3 );
+		}
 
 	/*
 		if (cg.cameraMode) {

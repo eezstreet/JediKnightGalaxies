@@ -24,7 +24,6 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -34,7 +33,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -86,7 +84,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>.;../;../libraries/libcurl/include;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;JK2AWARDS;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -103,13 +101,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <Optimization>Full</Optimization>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDebug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -121,7 +112,7 @@
     </PreLinkEvent>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;libeay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;libcurl.lib;ws2_32.lib;libeay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)jampgamex86.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../libraries/libcurl;../libraries/openssl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -215,12 +206,13 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;../;../libraries/libcurl/include;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;BUILDING_REF_GL;Debug;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;JK2AWARDS;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_REF_GL;Debug;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;JK2AWARDS;CURL_STATICLIB;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>false</OpenMPSupport>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderOutputFile>.\../Debug/JK2game/JK2_game.pch</PrecompiledHeaderOutputFile>
@@ -232,11 +224,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_Debug;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -268,16 +255,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\network\jkg_serversidenetwork.cpp" />
-    <ClCompile Include="..\network\NetworkServices.cpp" />
-    <ClCompile Include="..\network\ServerGame.cpp" />
-    <ClCompile Include="..\network\ServerNetwork.cpp" />
-    <ClCompile Include="..\network\stdafx.cpp" />
-    <ClCompile Include="ai_dominance.c" />
-    <ClCompile Include="ai_dominance_evasion.c" />
-    <ClCompile Include="ai_main.c" />
-    <ClCompile Include="ai_util.c" />
-    <ClCompile Include="ai_wpnav.c" />
     <ClCompile Include="animtable.c" />
     <ClCompile Include="bg_ammo.c" />
     <ClCompile Include="bg_constants.c" />
@@ -334,14 +311,12 @@
     <ClCompile Include="g_vehicleTurret.c" />
     <ClCompile Include="g_weapon.c" />
     <ClCompile Include="jkg_admin.c" />
-    <ClCompile Include="ai_dominance_astar.cpp" />
     <ClCompile Include="jkg_auxlib.c" />
     <ClCompile Include="jkg_bans.c" />
     <ClCompile Include="jkg_chatcmds.c" />
     <ClCompile Include="jkg_crafting.c" />
     <ClCompile Include="jkg_custombounds.c" />
     <ClCompile Include="jkg_damagetypes.c" />
-    <ClCompile Include="ai_dominance_bot.c" />
     <ClCompile Include="jkg_dynarrays.c" />
     <ClCompile Include="jkg_equip.c" />
     <ClCompile Include="jkg_gangwars.c" />
@@ -349,36 +324,14 @@
     <ClCompile Include="jkg_items.c" />
     <ClCompile Include="jkg_items_easy.c" />
     <ClCompile Include="jkg_keypairs.c" />
-    <ClCompile Include="ai_navmesh_creator.cpp" />
     <ClCompile Include="jkg_playerisolation.c" />
     <ClCompile Include="jkg_primetable.c" />
     <ClCompile Include="jkg_rconbans.c" />
-    <ClCompile Include="jkg_supremacy_flags.c" />
-    <ClCompile Include="jkg_supremacy_flagsys.c" />
-    <ClCompile Include="jkg_supremacy_spawnsys.c" />
     <ClCompile Include="jkg_team.c" />
     <ClCompile Include="jkg_threading.c" />
     <ClCompile Include="jkg_threadingsq.c" />
     <ClCompile Include="jkg_utilityfunc.c" />
     <ClCompile Include="networkstate.c" />
-    <ClCompile Include="NPC_Animal.c" />
-    <ClCompile Include="NPC_Behavior.c" />
-    <ClCompile Include="NPC_Combat.c" />
-    <ClCompile Include="NPC_Conversations.c" />
-    <ClCompile Include="NPC_CoverPoints.c" />
-    <ClCompile Include="NPC_Fighter.c" />
-    <ClCompile Include="NPC_Goal.c" />
-    <ClCompile Include="NPC_Misc.c" />
-    <ClCompile Include="NPC_Move.c" />
-    <ClCompile Include="NPC_Reactions.c" />
-    <ClCompile Include="NPC_Senses.c" />
-    <ClCompile Include="NPC_Sounds.c" />
-    <ClCompile Include="NPC_Spawn.c" />
-    <ClCompile Include="NPC_Speeder.c" />
-    <ClCompile Include="NPC_Stats.c" />
-    <ClCompile Include="NPC_Utils.c" />
-    <ClCompile Include="NPC_Walker.c" />
-    <ClCompile Include="NPC_Waypointing.c" />
     <ClCompile Include="q_math.c" />
     <ClCompile Include="q_shared.c" />
     <ClCompile Include="tri_coll_test.c" />
@@ -398,6 +351,17 @@
     <ClCompile Include="..\GLua\glua_prng.c" />
     <ClCompile Include="..\GLua\glua_sys.c" />
     <ClCompile Include="..\GLua\glua_vector.c" />
+    <ClCompile Include="ai_dominance.c" />
+    <ClCompile Include="ai_dominance_astar.cpp" />
+    <ClCompile Include="ai_dominance_bot.c" />
+    <ClCompile Include="ai_dominance_evasion.c" />
+    <ClCompile Include="ai_main.c" />
+    <ClCompile Include="ai_navmesh_creator.cpp" />
+    <ClCompile Include="ai_util.c" />
+    <ClCompile Include="ai_wpnav.c" />
+    <ClCompile Include="jkg_supremacy_flags.c" />
+    <ClCompile Include="jkg_supremacy_flagsys.c" />
+    <ClCompile Include="jkg_supremacy_spawnsys.c" />
     <ClCompile Include="NPC.c" />
     <ClCompile Include="NPC_AI_Atst.c" />
     <ClCompile Include="NPC_AI_Default.c" />
@@ -405,9 +369,9 @@
     <ClCompile Include="NPC_AI_GalakMech.c" />
     <ClCompile Include="NPC_AI_Grenadier.c" />
     <ClCompile Include="NPC_AI_Howler.c" />
+    <ClCompile Include="NPC_AI_Humanoid.c" />
     <ClCompile Include="NPC_AI_ImperialProbe.c" />
     <ClCompile Include="NPC_AI_Interrogator.c" />
-    <ClCompile Include="NPC_AI_Humanoid.c" />
     <ClCompile Include="NPC_AI_Mark1.c" />
     <ClCompile Include="NPC_AI_Mark2.c" />
     <ClCompile Include="NPC_AI_MineMonster.c" />
@@ -419,6 +383,26 @@
     <ClCompile Include="NPC_AI_Stormtrooper.c" />
     <ClCompile Include="NPC_AI_Utils.c" />
     <ClCompile Include="NPC_AI_Wampa.c" />
+    <ClCompile Include="NPC_Animal.c" />
+    <ClCompile Include="NPC_Behavior.c" />
+    <ClCompile Include="NPC_Combat.c" />
+    <ClCompile Include="NPC_Conversations.c" />
+    <ClCompile Include="NPC_CoverPoints.c" />
+    <ClCompile Include="NPC_Fighter.c" />
+    <ClCompile Include="NPC_goal.c" />
+    <ClCompile Include="NPC_Misc.c" />
+    <ClCompile Include="NPC_Reactions.c" />
+    <ClCompile Include="NPC_Senses.c" />
+    <ClCompile Include="NPC_Sounds.c" />
+    <ClCompile Include="NPC_Speeder.c" />
+    <ClCompile Include="NPC_Utils.c" />
+    <ClCompile Include="NPC_Walker.c" />
+    <ClCompile Include="NPC_Waypointing.c" />
+    <ClCompile Include="..\network\jkg_serversidenetwork.cpp" />
+    <ClCompile Include="..\network\NetworkServices.cpp" />
+    <ClCompile Include="..\network\ServerGame.cpp" />
+    <ClCompile Include="..\network\ServerNetwork.cpp" />
+    <ClCompile Include="..\network\stdafx.cpp" />
     <ClCompile Include="..\libraries\libudis86\decode.c" />
     <ClCompile Include="..\libraries\libudis86\input.c" />
     <ClCompile Include="..\libraries\libudis86\itab.c" />
@@ -483,14 +467,6 @@
     <None Include="authdb.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\network\ByteBuffer.h" />
-    <ClInclude Include="..\network\Common.h" />
-    <ClInclude Include="..\network\NetworkData.h" />
-    <ClInclude Include="..\network\NetworkServices.h" />
-    <ClInclude Include="..\network\ServerGame.h" />
-    <ClInclude Include="..\network\ServerNetwork.h" />
-    <ClInclude Include="..\network\stdafx.h" />
-    <ClInclude Include="..\network\targetver.h" />
     <ClInclude Include="ai.h" />
     <ClInclude Include="ai_main.h" />
     <ClInclude Include="anims.h" />
@@ -520,7 +496,6 @@
     <ClInclude Include="chars.h" />
     <ClInclude Include="..\shared\qcommon\disablewarnings.h" />
     <ClInclude Include="..\shared\ghoul2\G2.h" />
-    <ClInclude Include="z_global_defines.h" />
     <ClInclude Include="g_engine.h" />
     <ClInclude Include="g_headers.h" />
     <ClInclude Include="g_ICARUScb.h" />
@@ -542,13 +517,14 @@
     <ClInclude Include="jkg_gangwars.h" />
     <ClInclude Include="jkg_items.h" />
     <ClInclude Include="jkg_keypairs.h" />
+    <ClInclude Include="jkg_libcurl.h" />
     <ClInclude Include="jkg_navmesh_creator.h" />
     <ClInclude Include="jkg_threading.h" />
     <ClInclude Include="jkg_threadingsq.h" />
     <ClInclude Include="jkg_utilityfunc.h" />
     <ClInclude Include="match.h" />
     <ClInclude Include="..\..\ui\menudef.h" />
-    <ClInclude Include="npc_headers.h" />
+    <ClInclude Include="NPC_Headers.h" />
     <ClInclude Include="q_shared.h" />
     <ClInclude Include="..\win32\resource.h" />
     <ClInclude Include="say.h" />
@@ -559,10 +535,19 @@
     <ClInclude Include="teams.h" />
     <ClInclude Include="..\cgame\tr_types.h" />
     <ClInclude Include="w_saber.h" />
+    <ClInclude Include="z_global_defines.h" />
     <ClInclude Include="..\shared\icarus\interpreter.h" />
     <ClInclude Include="..\shared\icarus\Q3_Interface.h" />
     <ClInclude Include="..\shared\icarus\Q3_Registers.h" />
     <ClInclude Include="..\GLua\glua.h" />
+    <ClInclude Include="..\network\ByteBuffer.h" />
+    <ClInclude Include="..\network\Common.h" />
+    <ClInclude Include="..\network\NetworkData.h" />
+    <ClInclude Include="..\network\NetworkServices.h" />
+    <ClInclude Include="..\network\ServerGame.h" />
+    <ClInclude Include="..\network\ServerNetwork.h" />
+    <ClInclude Include="..\network\stdafx.h" />
+    <ClInclude Include="..\network\targetver.h" />
     <ClInclude Include="..\libraries\libudis86\decode.h" />
     <ClInclude Include="..\libraries\libudis86\extern.h" />
     <ClInclude Include="..\libraries\libudis86\input.h" />
@@ -594,6 +579,16 @@
     <ClInclude Include="..\libraries\Lua\lundump.h" />
     <ClInclude Include="..\libraries\Lua\lvm.h" />
     <ClInclude Include="..\libraries\Lua\lzio.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\curl.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\curlbuild.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\curlrules.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\curlver.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\easy.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\mprintf.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\multi.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\stdcheaders.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\typecheck-gcc.h" />
+    <ClInclude Include="..\libraries\libcurl\include\curl\types.h" />
     <ClInclude Include="..\libraries\encoding\base128.h" />
     <ClInclude Include="..\libraries\encoding\base64.h" />
     <ClInclude Include="..\libraries\encoding\bitstream.h" />

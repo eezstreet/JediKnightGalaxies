@@ -5846,7 +5846,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	{//protect overridden by no_protection
 		if (take && targ->client && (targ->client->ps.fd.forcePowersActive & (1 << FP_PROTECT)))
 		{
-			if (targ->client->ps.fd.forcePower)
+			if (targ->client->ns.forcePower)
 			{
 				int maxtake = take;
 
@@ -5890,17 +5890,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 				if (!targ->client->ps.powerups[PW_FORCE_BOON])
 				{
-					targ->client->ps.fd.forcePower -= maxtake*famt;
+					targ->client->ns.forcePower -= maxtake*famt;
 				}
 				else
 				{
-					targ->client->ps.fd.forcePower -= (maxtake*famt)/2;
+					targ->client->ns.forcePower -= (maxtake*famt)/2;
 				}
 				subamt = (maxtake*hamt)+(take-maxtake);
-				if (targ->client->ps.fd.forcePower < 0)
+				if (targ->client->ns.forcePower < 0)
 				{
-					subamt += targ->client->ps.fd.forcePower;
-					targ->client->ps.fd.forcePower = 0;
+					subamt += targ->client->ns.forcePower;
+					targ->client->ns.forcePower = 0;
 				}
 				if (subamt)
 				{

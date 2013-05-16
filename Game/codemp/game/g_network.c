@@ -39,6 +39,9 @@ void N_WriteDeltaNetworkstate( msg_t *msg, int *client, clientSnapshot_t *fromFr
 	networkState_t *to = &level.clients[clientNum].ns;
 	networkState_t *from = &old_networkStates[clientNum];
 
+	// this is not C++ --eez
+	static int counter = 0;
+
 	//Com_Printf("Writing new to: %i", clientNum);
 
 
@@ -100,6 +103,7 @@ void N_WriteDeltaNetworkstate( msg_t *msg, int *client, clientSnapshot_t *fromFr
 
 	if(counter == level.numConnectedClients)
 		counter = 0;
+
 }
 
 
@@ -176,6 +180,7 @@ void N_EmitExtraStates(msg_t *msg, clientSnapshot_t *from, clientSnapshot_t *to,
 	// for <ents>
 	// if active
 	//N_WriteDeltaExtrastate(msg, old, new, qfalse(iguess)); No change needed on clientside.
+
 	for(i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(level.clients[i].pers.connected != CON_CONNECTED)
@@ -312,6 +317,7 @@ void N_WriteDeltaExtrastate( msg_t *msg, extraState_t *from, extraState_t *to, q
 		if ( *fromF == *toF ) {
 			MSG_WriteBits( msg, 0, 1 );	// no change
 			*fromF = *toF;
+
 			continue;
 		}
 

@@ -47,9 +47,11 @@ float CG_GetValue(int ownerDraw) {
 	centity_t	*cent;
  	clientInfo_t *ci;
 	playerState_t	*ps;
+	networkState_t *ns;
 
   cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
+	ns = &cg.networkState;
 
   switch (ownerDraw) {
   case CG_SELECTEDPLAYER_ARMOR:
@@ -82,7 +84,7 @@ float CG_GetValue(int ownerDraw) {
 		return cgs.scores2;
     break;
   case CG_PLAYER_FORCE_VALUE:
-		return ps->fd.forcePower;
+		return ns->forcePower;
     break;
   default:
     break;

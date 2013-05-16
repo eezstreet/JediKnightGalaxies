@@ -604,6 +604,7 @@ typedef	int	fixed16_t;
 #endif
 
 
+// SABERFIXME: wtf is this doing here. bg_public.h NOW, MISTER --eez
 typedef enum {
 	BLK_NO,
 	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
@@ -624,7 +625,8 @@ typedef enum {
 	BLOCKED_UPPER_LEFT_PROJ,
 	BLOCKED_LOWER_RIGHT_PROJ,
 	BLOCKED_LOWER_LEFT_PROJ,
-	BLOCKED_TOP_PROJ
+	BLOCKED_TOP_PROJ,
+	BLOCKED_NORMAL_STANCE
 } saberBlockedType_t;
 
 
@@ -736,16 +738,32 @@ typedef struct
 } bladeInfo_t;
 #define MAX_BLADES 8
 
+#define MAX_STANCES	16
+
 typedef enum
 {
 	SS_NONE = 0,
-	SS_FAST,
-	SS_MEDIUM,
-	SS_STRONG,
-	SS_DESANN,
-	SS_TAVION,
-	SS_DUAL,
-	SS_STAFF,
+	SS_MAKASHI,							// Blue
+	SS_SHII_CHO,						// Cyan
+	SS_SORESU,							// Yellow
+	SS_JUYO,							// Orange
+	SS_ATARU,							// Red
+	SS_DUAL,							// Dark Green / Light Green
+	SS_STAFF,							// Dark Purple / Light Purple
+#ifdef __BACKHANDSABERS
+	SS_BACKHAND,						// White
+	SS_BACKHAND_DUALS,					// Black
+#endif
+#ifdef __DJEM_SO_SABERS
+	SS_DJEM_SO,							// White
+	SS_DJEM_SO_DUALS,					// Black
+#endif
+#ifdef __POLEARMS
+	SS_POLEARM,							// Vibroblade-only --eez
+#endif
+#ifdef __SPEARS
+	SS_SPEAR,							// Vibroblade-only --eez
+#endif
 	SS_NUM_SABER_STYLES
 } saber_styles_t;
 
@@ -2396,6 +2414,19 @@ typedef struct playerState_s {
 	int			ammo;					// Total ammo available for reloading (like an ammo pool)	//FIXME: remove?
 
 	int		unused[18];				// Unused fields	(see what I did here?)		
+	// okay so basically, i did a bad here
+	// i took only the first ammo fiel
+	// wait this is unrelated
+
+	// but still i know i've seen issues like this before where breaking an int into 2 shorts causes a conflict like the one you described
+	// and if you're correct, then this totally makes sense I think i am. We could always test it.
+	// right. Pande wouldn't need any new binaries for a server change unless you made some client changes too
+	// We won't need pande for this one. And we will need to change some stuff to make a test, but we can remove it afterwards. So he won't need anything new yet.
+	// what did you have in mind
+	// At the end of one of the extra states, playerstate or entitystate, doesn't matter i think. But we'll do it with extrastate
+	// we'll add 2 new fields. 1 byte field, and an int.
+	// Then we'll change the int field, and see if it detects the byte field as changed.
+	// first things first though, remove that line in g_network to be sure? yes
 
 	int			generic1;
 	int			loopSound;
@@ -2462,10 +2493,15 @@ typedef struct playerState_s {
 
 	int			electrifyTime;
 
-	int			saberAttackSequence;
-	int			saberIdleWound;
-	int			saberAttackWound;
-	int			saberBlockTime;
+	//int			saberAttackSequence;
+	//int			saberIdleWound;
+	//int			saberAttackWound;
+	//int			saberBlockTime;			// doesn't need to be networked --eez
+	short			userShort1;
+	short			userShort2;
+	int			userInt1;
+	int			userInt2;
+	int			userInt3;
 
 	int			otherKiller;
 	int			otherKillerTime;
@@ -2577,15 +2613,15 @@ typedef struct playerState_s {
 	unsigned char   shotsRemaining;
 	unsigned char	sprintMustWait;
 	
-	int				unused1;			// Unused
-	unsigned int    unused2;			// Unused; this used to be the iron sights stuff.
-	unsigned int	unused3;			// Unused; this used to be the sprint stuff. got migrated to second playerstate.
+	int				saberActionFlags;			// Unused
+	unsigned int    userInt4;			// Unused; this used to be the iron sights stuff.
+	unsigned int	userInt5;			// Unused; this used to be the sprint stuff. got migrated to second playerstate.
 
 	int 			damageTypeFlags;
 	int 			freezeTorsoAnim;
 	int 			freezeLegsAnim;
 
-	int				userInt1;
+	int				userInt6;
 	unsigned char	firingMode;
 	unsigned char	userByte1;
 	unsigned char	userByte2;
@@ -3014,10 +3050,11 @@ typedef struct entityState_s {
 	int 			freezeTorsoAnim;
 	int 			freezeLegsAnim;
 
-	unsigned int			userInt1;
-	unsigned int	userInt2;
-	unsigned int    userInt3;
-	unsigned int	userInt4;
+	short			userShort2;
+	short			userShort3;
+	unsigned int			saberActionFlags;
+	unsigned int    userInt2;
+	unsigned int	userInt3;
 	vec3_t			userVec2;
 } entityState_t;
 
@@ -3445,6 +3482,15 @@ typedef struct {
 // align 4 for these two structs and for the structs below them, regardless of whether this is a debug build or not
 
 // Be sure to change networkStateFields in networkstate.c
+typedef enum {
+	SAF_BLOCKING,
+	SAF_PROJBLOCKING,
+	SAF_FEINT,
+	SAF_KICK,
+	SAF_ENDBLOCK,
+} saberActionFlag_e;
+
+#pragma pack(4)
 typedef struct networkState_s
 {
 	int start;
@@ -3454,6 +3500,16 @@ typedef struct networkState_s
 	unsigned int	sprintTime;		// The MSB is used to determine whether we're starting or ending sprinting
 	int sprintDebounceTime;
 
+	signed short	forcePower;
+	float			saberSwingSpeed;
+	float			saberMoveSwingSpeed;
+
+	int saberPommel[2];
+	int saberShaft[2];
+	int saberEmitter[2];
+	int saberCrystal[2];
+
+	// however, this stuff gets networked fine
 	unsigned int ironsightsDebounceStart;	// Just the next time we can bring ironsights back up.
 											// brought this up because people were going into ironsights
 											// at really tacky/awkward times (such as while reloading)
@@ -3461,6 +3517,7 @@ typedef struct networkState_s
 	qboolean		isSprinting;			// Only used for spectators.
 	qboolean		isInSights;				// Only used for spectators.
 
+	signed short	blockPoints;
 	// This code always exists on at least one gametype --eez
 	// Put this in the second playerstate (networkstate) so that clients can see their lives display
 #ifdef __JKG_NINELIVES__
@@ -3480,7 +3537,29 @@ typedef struct extraState_s
 	int		number;
 	int		testInt;
 	float	testFloat;
+
+	signed short forcePower;
+	float saberSwingSpeed;
+	float saberMoveSwingSpeed;
+
+	int saberPommel[2];
+	int saberShaft[2];
+	int saberEmitter[2];
+	int saberCrystal[2];
+
+	// This crap only gets networked to one client, should be networked to all, what above above this line?
+	// i meant this whole struct kk
+	// Kinda looks like it should work, can you show me that it fails?
+
+	// OH
+	// before i forget
+	// there's a rare client crash that occurs that might be related
+	// my thought process is that maybe it fails in the clinet end
+	// lemme fetch that code for you
+	// Nop, can't find the mistake by just looking at code. Can you make it happen?
+	// Maybe. lemme start up the server.
 }extraState_t;
+#pragma pack()
 
 #pragma pack()
 
@@ -3525,16 +3604,17 @@ typedef struct {
 // using the stringizing operator to save typing...
 #define	NSF(x) #x,(int)&((networkState_t*)0)->x
 
-#ifdef __JKG_NINELIVES__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
+#ifdef __JKG_NINELIVES
+extern netField_t	networkStateFields[19];
 #elif defined __JKG_TICKETING__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_ROUNDBASED__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
+extern netField_t	networkStateFields[19];
+#elif defined __JKG_ROUNDBASED
+extern netField_t	networkStateFields[19];
 #else
-extern netField_t	networkStateFields[7];		// increment count whenever you change the number of fields.
+extern netField_t	networkStateFields[18];		// increment count whenever you change the number of fields.
 #endif
-extern netField_t	extraStateFields[3];		// increment count whenever you change the number of fields.
+extern netField_t	extraStateFields[14];		// increment count whenever you change the number of fields.
+
 extern int numNetworkStateFields;
 extern int numExtraStateFields;
 

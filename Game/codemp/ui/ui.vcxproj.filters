@@ -2,66 +2,72 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{4021a210-8a38-477f-8b35-2f8c65ca90b7}</UniqueIdentifier>
+      <UniqueIdentifier>{e43a6b61-142d-4951-ad7a-599a258b245c}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
     </Filter>
     <Filter Include="Source Files\Modules">
-      <UniqueIdentifier>{e909ddc4-2a59-4f0d-a4da-3e8cfe0658f9}</UniqueIdentifier>
+      <UniqueIdentifier>{076d2b8e-0baa-40aa-8fa6-b2b5745f0d14}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{32c75e7d-bef5-40fa-837e-ed9f99db7a80}</UniqueIdentifier>
+      <UniqueIdentifier>{523f6ceb-e7f3-434f-88a7-8be888147ee7}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
     <Filter Include="Header Files\Modules">
-      <UniqueIdentifier>{a9ec7d8f-3d78-4d5a-9ed4-92569d1a48ee}</UniqueIdentifier>
+      <UniqueIdentifier>{ce740250-3698-4015-908b-2deb3500f9dc}</UniqueIdentifier>
     </Filter>
     <Filter Include="win32">
-      <UniqueIdentifier>{6af537bb-9724-4d9b-a9d2-01319b7b88f6}</UniqueIdentifier>
+      <UniqueIdentifier>{4a905d76-32a4-4056-a9fe-68adf745dd82}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries">
-      <UniqueIdentifier>{78404e41-14b2-4e08-a1f6-8dae5b2dd878}</UniqueIdentifier>
+      <UniqueIdentifier>{be0b75a2-85a7-40e7-8409-d29d102847fd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86">
-      <UniqueIdentifier>{7481f1f8-a74e-4d99-8d72-0c9599b6b4fa}</UniqueIdentifier>
+      <UniqueIdentifier>{413bd5bc-d36b-47eb-bb35-737120b0625a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86\Source Files">
-      <UniqueIdentifier>{fa1027b5-c35a-4634-a9ae-8d7590a3ec48}</UniqueIdentifier>
+      <UniqueIdentifier>{b9e99292-d265-44da-b79f-e76d19eaccb9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86\Header Files">
-      <UniqueIdentifier>{78029cd9-9bac-4891-bd5f-4b568d309af6}</UniqueIdentifier>
+      <UniqueIdentifier>{d74a7ce1-f856-4568-9688-1f5ac23f0f33}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json">
-      <UniqueIdentifier>{125548d8-32dc-42a8-98c1-9fb1c0012746}</UniqueIdentifier>
+      <UniqueIdentifier>{1dcfccc5-9653-46a4-b6a6-fb4bc3f5b9a6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json\Header Files">
-      <UniqueIdentifier>{422eecf0-003a-4dad-999d-68762cbf87ed}</UniqueIdentifier>
+      <UniqueIdentifier>{d9867f12-cb73-48a7-b579-57480f85f707}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json\Source Files">
-      <UniqueIdentifier>{23f42b47-29f7-49c1-a60a-0652af566f16}</UniqueIdentifier>
+      <UniqueIdentifier>{6bfc0f29-ae42-403f-82eb-62f0e64f589f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128">
-      <UniqueIdentifier>{fb397565-6fd0-449f-83a1-89ef47d50106}</UniqueIdentifier>
+      <UniqueIdentifier>{94dcde5a-3484-4ed9-9823-acf62829dfc8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128\Source Files">
-      <UniqueIdentifier>{81891982-8cf7-48f2-a984-160d61e0763d}</UniqueIdentifier>
+      <UniqueIdentifier>{ba25b6c0-84ed-4ff2-8a7b-de0882f56fab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128\Header Files">
-      <UniqueIdentifier>{577e2603-f897-4bcc-9f37-748db0842f7f}</UniqueIdentifier>
+      <UniqueIdentifier>{be8b992e-5017-4978-8261-ac147afcb542}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\BitStream">
-      <UniqueIdentifier>{be4a815f-b461-4256-aebc-d32f29795c83}</UniqueIdentifier>
+      <UniqueIdentifier>{1ae31288-1baa-433f-a719-14bef8b8b620}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\BitStream\Header Files">
-      <UniqueIdentifier>{f5782211-5756-4243-95d0-91d203e28bd7}</UniqueIdentifier>
+      <UniqueIdentifier>{adcab440-96a4-4222-af99-64254fd7e93d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\BitStream\Source Files">
-      <UniqueIdentifier>{735b040e-3cc2-419f-b55a-10596c99a4ff}</UniqueIdentifier>
+      <UniqueIdentifier>{9cf66e14-a3a9-4b63-9646-66ebf94900c9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Expat">
-      <UniqueIdentifier>{36c54ef2-cd07-4cc8-aaf4-ce9080dd2918}</UniqueIdentifier>
+      <UniqueIdentifier>{168ba7c8-98c0-483f-a9cf-cd1efe196f14}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Expat\Header Files">
-      <UniqueIdentifier>{5c6f0b9a-8eb0-4815-a349-6422ccc2aaec}</UniqueIdentifier>
+      <UniqueIdentifier>{2b1cdefd-8be0-478b-8ecf-d2736966c1ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Bass">
+      <UniqueIdentifier>{5dd5e049-04f4-407e-9397-05615ea961a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{c59fe1c5-6e88-423f-88ca-968a9195247a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +96,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\game\jkg_gangwars.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cgame\jkg_musicengine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jkg_ui_auxlib.c">
@@ -203,9 +212,6 @@
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\cgame\jkg_musicengine.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h">
@@ -281,6 +287,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ui_shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\z_global_defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="jkg_conversations.h">
@@ -383,7 +392,10 @@
       <Filter>Libraries\Expat\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\cgame\bass.h">
-      <Filter>Header Files</Filter>
+      <Filter>Libraries\Bass</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cgame\basstest.h">
+      <Filter>Libraries\Bass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -394,6 +406,9 @@
   <ItemGroup>
     <ResourceCompile Include="..\win32\ui.rc">
       <Filter>win32</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="..\cgame\loadnget.rc">
+      <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

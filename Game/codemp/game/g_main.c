@@ -1328,6 +1328,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	
 	/* Initialize the weapon data table */
 	BG_InitializeWeapons();
+
+	/* Here be crystals */
+	JKG_InitializeSaberCrystalData();
+
+	// and here is some stance data too
+	JKG_InitializeStanceData();
 	
 	// setup master item table
 	JKG_InitItems();
@@ -4308,6 +4314,25 @@ void G_RunFrame( int levelTime ) {
 				{
 					ent->client->ps.jetpackFuel++;
 					ent->client->jetPackDebRecharge = level.time + JETPACK_REFUEL_RATE;
+				}
+			}
+#define JKG_BLOCK_POINT_REGENERATION_RATE	200
+			if( ent->client->ns.blockPoints < 100 )
+			{
+				if(ent->client->ps.weapon == WP_SABER)
+				{
+					if(ent->client->saberBPDebRecharge < level.time)
+					{
+						ent->client->ns.blockPoints++;
+						if( ent->client->ps.saberActionFlags & (1 << SAF_BLOCKING) )
+						{
+							ent->client->saberBPDebRecharge = level.time + 175;
+						}
+						else
+						{
+							ent->client->saberBPDebRecharge = level.time + 325;
+						}
+					}
 				}
 			}
 

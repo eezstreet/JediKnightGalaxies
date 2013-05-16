@@ -1,0 +1,69 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60CEBCB0-CED6-4272-B801-AAC5DDED89D4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Side Module (cgame)", "cgame\JK2_cgame.vcxproj", "{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Side Module (game)", "game\JK2_game.vcxproj", "{5B587283-8429-4F8B-AECA-C09BF364B617}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bot Library (botlib)", "botlib\botlib.vcxproj", "{07CCC82A-B905-4384-8AC5-E8A8E352B14C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "User Interface Module (ui)", "ui\ui.vcxproj", "{2DDA2041-6A68-4754-B342-14039CC91695}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Auxiliary Library (galaxieslib)", "galaxieslib\galaxieslib.vcxproj", "{13EE074D-17E3-48AE-A7F5-64248369F986}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Auxiliary Library (galaxieslibsv)", "galaxieslibsv\galaxieslibsv.vcxproj", "{49025D66-F014-4493-9A4C-12B9A0D0A99D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Final|Win32 = Final|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}.Debug|Win32.Build.0 = Debug|Win32
+		{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}.Final|Win32.ActiveCfg = Final|Win32
+		{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}.Final|Win32.Build.0 = Final|Win32
+		{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}.Release|Win32.ActiveCfg = Release|Win32
+		{4DC69D68-9DB8-4DEB-AC63-481153B1F41D}.Release|Win32.Build.0 = Release|Win32
+		{5B587283-8429-4F8B-AECA-C09BF364B617}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B587283-8429-4F8B-AECA-C09BF364B617}.Debug|Win32.Build.0 = Debug|Win32
+		{5B587283-8429-4F8B-AECA-C09BF364B617}.Final|Win32.ActiveCfg = Final|Win32
+		{5B587283-8429-4F8B-AECA-C09BF364B617}.Final|Win32.Build.0 = Final|Win32
+		{5B587283-8429-4F8B-AECA-C09BF364B617}.Release|Win32.ActiveCfg = Release|Win32
+		{5B587283-8429-4F8B-AECA-C09BF364B617}.Release|Win32.Build.0 = Release|Win32
+		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Final|Win32.ActiveCfg = Final|Win32
+		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Final|Win32.Build.0 = Final|Win32
+		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Release|Win32.ActiveCfg = Release|Win32
+		{07CCC82A-B905-4384-8AC5-E8A8E352B14C}.Release|Win32.Build.0 = Release|Win32
+		{2DDA2041-6A68-4754-B342-14039CC91695}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2DDA2041-6A68-4754-B342-14039CC91695}.Debug|Win32.Build.0 = Debug|Win32
+		{2DDA2041-6A68-4754-B342-14039CC91695}.Final|Win32.ActiveCfg = Final|Win32
+		{2DDA2041-6A68-4754-B342-14039CC91695}.Final|Win32.Build.0 = Final|Win32
+		{2DDA2041-6A68-4754-B342-14039CC91695}.Release|Win32.ActiveCfg = Release|Win32
+		{2DDA2041-6A68-4754-B342-14039CC91695}.Release|Win32.Build.0 = Release|Win32
+		{13EE074D-17E3-48AE-A7F5-64248369F986}.Debug|Win32.ActiveCfg = Debug|Win32
+		{13EE074D-17E3-48AE-A7F5-64248369F986}.Debug|Win32.Build.0 = Debug|Win32
+		{13EE074D-17E3-48AE-A7F5-64248369F986}.Final|Win32.ActiveCfg = Final|Win32
+		{13EE074D-17E3-48AE-A7F5-64248369F986}.Final|Win32.Build.0 = Final|Win32
+		{13EE074D-17E3-48AE-A7F5-64248369F986}.Release|Win32.ActiveCfg = Release|Win32
+		{13EE074D-17E3-48AE-A7F5-64248369F986}.Release|Win32.Build.0 = Release|Win32
+		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Debug|Win32.Build.0 = Debug|Win32
+		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Final|Win32.ActiveCfg = Final|Win32
+		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Final|Win32.Build.0 = Final|Win32
+		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Release|Win32.ActiveCfg = Release|Win32
+		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(DevPartner Solution Properties) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner) = postSolution
+	EndGlobalSection
+EndGlobal

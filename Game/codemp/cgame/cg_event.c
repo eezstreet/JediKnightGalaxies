@@ -2015,7 +2015,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		    int param = es->eventParm;
 			int weapon;
 			int variation;
-			weaponInfo_t *weaponInfo;
+//			weaponInfo_t *weaponInfo;
 			weaponData_t *weaponData;
 			qboolean result;
 
@@ -2032,11 +2032,27 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			//CG_Printf ("Client-side received change weapon event: weapon %d, variation %d\n", weapon, variation);
 			#endif
 
-			weaponInfo = CG_WeaponInfo (weapon, variation);
+			//weaponInfo = CG_WeaponInfo (weapon, variation);
 
-			assert(weaponInfo);
+			//assert(weaponInfo);
 
-			if(weaponData->visuals.selectSound && weaponData->visuals.selectSound[0])
+			if (weapon == WP_SABER)
+			{
+				int random = Q_irand(1, 3);
+				if(random == 1)
+				{
+					trap_S_StartSound (NULL, es->number, CHAN_AUTO, trap_S_RegisterSound("sound/weapons/saber/saberon.wav"));
+				}
+				else
+				{
+					trap_S_StartSound (NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(va("sound/weapons/saber/saberon%i.wav", random)));
+				}
+			}
+			/*if (weaponInfo->selectSound)
+			{
+				trap_S_StartSound (NULL, es->number, CHAN_AUTO, weaponInfo->selectSound );
+			}*/
+			else if(weaponData->visuals.selectSound && weaponData->visuals.selectSound[0])
 			{
 				trap_S_StartSound( NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(weaponData->visuals.selectSound) );
 			}

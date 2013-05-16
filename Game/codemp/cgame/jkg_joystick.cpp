@@ -514,7 +514,7 @@ void __cdecl JKG_ControllerUpdate(void)
 	}
 }
 
-void __cdecl JKG_CL_JoystickMovement( usercmd_t *cmd )
+void __cdecl JKG_CL_JoystickMovement( usercmd_t *cmd ) // you can't hook like this, is what i tried to write. so i need to intercept the address then, or use a naked func, or? naked func with asm bridge :p k lemme write one which should work
 {
 	cvar_t *in_joystick = Cvar_Get("in_joystick", "0", 0);
 	int joyNum = in_joystick->integer;

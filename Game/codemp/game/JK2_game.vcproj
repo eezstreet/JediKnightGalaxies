@@ -350,26 +350,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 			>
 			<File
-				RelativePath=".\ai_dominance.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ai_dominance_evasion.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ai_main.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ai_util.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ai_wpnav.c"
-				>
-			</File>
-			<File
 				RelativePath=".\animtable.c"
 				>
 			</File>
@@ -773,6 +753,50 @@
 				Name="NPCs"
 				>
 				<File
+					RelativePath=".\ai_dominance.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ai_dominance_astar.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ai_dominance_bot.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ai_dominance_evasion.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ai_main.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ai_navmesh_creator.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ai_util.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ai_wpnav.c"
+					>
+				</File>
+				<File
+					RelativePath=".\jkg_supremacy_flags.c"
+					>
+				</File>
+				<File
+					RelativePath=".\jkg_supremacy_flagsys.c"
+					>
+				</File>
+				<File
+					RelativePath=".\jkg_supremacy_spawnsys.c"
+					>
+				</File>
+				<File
 					RelativePath=".\NPC.c"
 					>
 				</File>
@@ -801,6 +825,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\NPC_AI_Humanoid.c"
+					>
+				</File>
+				<File
 					RelativePath=".\NPC_AI_ImperialProbe.c"
 					>
 				</File>
@@ -821,7 +849,7 @@
 					>
 				</File>
 				<File
-					RelativePath="NPC_AI_Rancor.c"
+					RelativePath=".\NPC_AI_Rancor.c"
 					>
 				</File>
 				<File
@@ -849,15 +877,31 @@
 					>
 				</File>
 				<File
-					RelativePath="NPC_AI_Wampa.c"
+					RelativePath=".\NPC_AI_Wampa.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_behavior.c"
+					RelativePath=".\NPC_Animal.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_combat.c"
+					RelativePath=".\NPC_Behavior.c"
+					>
+				</File>
+				<File
+					RelativePath=".\NPC_Combat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\NPC_Conversations.c"
+					>
+				</File>
+				<File
+					RelativePath=".\NPC_CoverPoints.c"
+					>
+				</File>
+				<File
+					RelativePath=".\NPC_Fighter.c"
 					>
 				</File>
 				<File
@@ -865,35 +909,35 @@
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_misc.c"
+					RelativePath=".\NPC_Misc.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_move.c"
+					RelativePath=".\NPC_Reactions.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_reactions.c"
+					RelativePath=".\NPC_Senses.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_senses.c"
+					RelativePath=".\NPC_Sounds.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_sounds.c"
+					RelativePath=".\NPC_Speeder.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_spawn.c"
+					RelativePath=".\NPC_Utils.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_stats.c"
+					RelativePath=".\NPC_Walker.c"
 					>
 				</File>
 				<File
-					RelativePath=".\NPC_utils.c"
+					RelativePath=".\NPC_Waypointing.c"
 					>
 				</File>
 			</Filter>
@@ -1159,7 +1203,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\npc_headers.h"
+				RelativePath=".\NPC_Headers.h"
 				>
 			</File>
 			<File

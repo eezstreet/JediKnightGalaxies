@@ -2841,6 +2841,10 @@ void FinishSpawningItem( gentity_t *ent ) {
 	{
 		if (HasSetSaberOnly())
 		{
+			if(!ent->item)
+			{
+				return;
+			}
 			if (ent->item->giType == IT_AMMO)
 			{
 				G_FreeEntity( ent );

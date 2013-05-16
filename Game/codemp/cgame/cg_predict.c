@@ -1383,7 +1383,7 @@ void CG_PredictPlayerState( void ) {
 
 		//THIS is pretty much bad, but...
 		cg_pmove.ps->fd.saberAnimLevelBase = cg_pmove.ps->fd.saberAnimLevel;
-		if ( cg_pmove.ps->saberHolstered == 1 )
+		/*if ( cg_pmove.ps->saberHolstered == 1 )
 		{
 			if ( ci->saber[0].numBlades > 0 )
 			{
@@ -1393,7 +1393,8 @@ void CG_PredictPlayerState( void ) {
 			{
 				cg_pmove.ps->fd.saberAnimLevelBase = SS_DUAL;
 			}
-		}
+		}*/
+		// ^ = ?
 	
 		Pmove (&cg_pmove);
 		if (cg.deathcamTime) {

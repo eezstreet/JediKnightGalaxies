@@ -36,8 +36,6 @@ void N_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, qboolean unchan
 void N_ReadDeltaExtrastate( msg_t *msg, extraState_t *from, extraState_t *to, int number);
 void N_ParseExtraStates( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe);
 
-networkState_t dummy;
-
 void N_ReadDeltaNetworkstate( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe )
 {
 	int			i, lc;
@@ -46,12 +44,6 @@ void N_ReadDeltaNetworkstate( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *
 	int			numFields;
 	int			trunc;
 	networkState_t *targetState = CO_GetNetworkState();
-
-	if(targetState == NULL)
-	{
-		targetState = &dummy;
-	}
-
 
 	numFields = sizeof( networkStateFields ) / sizeof( networkStateFields[0] );
 	lc = MSG_ReadBits(msg, 8);
@@ -62,11 +54,6 @@ void N_ReadDeltaNetworkstate( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *
 		if ( ! MSG_ReadBits( msg, 1 ) ) {
 			// Do nothing
 		} else {
-			if(!field->name)
-			{
-				//UHHHH
-				break;
-			}
 			if ( field->bits == 0 ) {
 				// float
 				if ( MSG_ReadBits( msg, 1 ) == 0 ) {
@@ -287,7 +274,7 @@ void N_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, qboolean unchan
 		//*state = *old;
 		//new_parseExtras[newnum] = old_parseExtras[newnum];
 		extraState_t *state = CO_GetExtraState(newnum);
-		if(state != NULL)
+		if(state != NULL) // well this here kinda makes it not get used i assume. mostly it will use CO_Get... at least
 		{
 			memcpy(state, &old_parseExtras[newnum], sizeof(extraState_t));
 		}
@@ -416,7 +403,7 @@ void N_ReadDeltaExtrastate( msg_t *msg, extraState_t *from, extraState_t *to, in
 			}
 //			pcount[i]++;
 			// At this point toF is now set so
-			*fromF = *toF;
+			*fromF = *toF; // this the point it crashed on? // i think so, lemme see if i can pull up a log
 		}
 	}
 	for ( i = lc, field = &extraStateFields[lc] ; i < numFields ; i++, field++ ) {

@@ -587,7 +587,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 
 	ent->client->ps.fd.forceDeactivateAll = 0;
 
-	ent->client->ps.fd.forcePower = ent->client->ps.fd.forcePowerMax = FORCE_POWER_MAX;
+	ent->client->ns.forcePower = ent->client->ps.fd.forcePowerMax = FORCE_POWER_MAX;
 	ent->client->ps.fd.forcePowerRegenDebounceTime = 0;
 	ent->client->ps.fd.forceGripEntityNum = ENTITYNUM_NONE;
 	ent->client->ps.fd.forceMindtrickTargetIndex = 0;
@@ -758,11 +758,11 @@ qboolean WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int 
 		return qtrue;
 	}
 	if ((forcePower == FP_DRAIN || forcePower == FP_LIGHTNING) &&
-		self->client->ps.fd.forcePower >= 25)
+		self->client->ns.forcePower >= 25)
 	{ //it's ok then, drain/lightning are actually duration
 		return qtrue;
 	}
-	if ( self->client->ps.fd.forcePower < drain )
+	if ( self->client->ns.forcePower < drain )
 	{
 		return qfalse;
 	}
@@ -947,10 +947,11 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 	{
 		addTot = 1;
 	}
-	attacked->client->ps.fd.forcePower += addTot;
-	if (attacked->client->ps.fd.forcePower > 100)
+	attacked->client->ns.forcePower += addTot;
+	if (attacked->client->ns.forcePower > attacked->client->ps.fd.forcePowerMax)
 	{
-		attacked->client->ps.fd.forcePower = 100;
+		// Fixed this. Raven didn't correctly give force points after 100 force. --eez
+		attacked->client->ns.forcePower = attacked->client->ps.fd.forcePowerMax;
 	}
 
 	//play sound indicating that attack was absorbed
@@ -973,24 +974,31 @@ void WP_ForcePowerRegenerate( gentity_t *self, int overrideAmt )
 	}
 	
 	// Xy: no regenerating while we're sprinting please!
-	if ( BG_IsSprinting (&self->client->ps, &self->client->pers.cmd, &self->client->ns) )
+	if ( BG_IsSprinting (&self->client->ps, &self->client->pers.cmd, &self->client->ns, qfalse) )
 	{
 	    return;
 	}
 
 	if ( overrideAmt )
 	{ //custom regen amount
-		self->client->ps.fd.forcePower += overrideAmt;
+		self->client->ns.forcePower += overrideAmt;
 	}
 	else
 	{ //otherwise, just 1
-		self->client->ps.fd.forcePower++;
+		self->client->ns.forcePower++;
 	}
 
-	if ( self->client->ps.fd.forcePower > self->client->ps.fd.forcePowerMax )
+	if ( self->client->ns.forcePower > 100 )
 	{ //cap it off at the max (default 100)
-		self->client->ps.fd.forcePower = self->client->ps.fd.forcePowerMax;
+		self->client->ns.forcePower = 100;
 	}
+	else
+	{
+		int x = 0;
+	}
+	//self->x.forcePower = self->client->ns.forcePower;
+	self->x.saberSwingSpeed = self->client->ns.saberSwingSpeed;
+	self->x.saberMoveSwingSpeed = self->client->ns.saberMoveSwingSpeed;
 }
 
 void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int overrideAmt )
@@ -1200,11 +1208,11 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 
 	if ((int)forcePower == FP_SPEED && overrideAmt)
 	{
-		BG_ForcePowerDrain( &self->client->ps, forcePower, overrideAmt*0.025 );
+		BG_ForcePowerDrain( &self->client->ps, &self->client->ns, forcePower, overrideAmt*0.025 );
 	}
 	else if ((int)forcePower != FP_GRIP && (int)forcePower != FP_DRAIN)
 	{ //grip and drain drain as damage is done
-		BG_ForcePowerDrain( &self->client->ps, forcePower, overrideAmt );
+		BG_ForcePowerDrain( &self->client->ps, &self->client->ns, forcePower, overrideAmt );
 	}
 }
 
@@ -1236,7 +1244,7 @@ void ForceHeal( gentity_t *self )
 		{
 			self->health = self->client->ps.stats[STAT_MAX_HEALTH];
 		}
-		BG_ForcePowerDrain( &self->client->ps, FP_HEAL, 0 );
+		BG_ForcePowerDrain( &self->client->ps, &self->client->ns, FP_HEAL, 0 );
 	}
 	else if (self->client->ps.fd.forcePowerLevel[FP_HEAL] == FORCE_LEVEL_2)
 	{
@@ -1247,7 +1255,7 @@ void ForceHeal( gentity_t *self )
 		{
 			self->health = self->client->ps.stats[STAT_MAX_HEALTH];
 		}
-		BG_ForcePowerDrain( &self->client->ps, FP_HEAL, 0 );
+		BG_ForcePowerDrain( &self->client->ps, &self->client->ns, FP_HEAL, 0 );
 	}
 	else
 	{
@@ -1258,7 +1266,7 @@ void ForceHeal( gentity_t *self )
 		{
 			self->health = self->client->ps.stats[STAT_MAX_HEALTH];
 		}
-		BG_ForcePowerDrain( &self->client->ps, FP_HEAL, 0 );
+		BG_ForcePowerDrain( &self->client->ps, &self->client->ns, FP_HEAL, 0 );
 	}
 	/*
 	else
@@ -1392,7 +1400,7 @@ void ForceTeamHeal( gentity_t *self )
 				te->s.eventParm = 1; //eventParm 1 is heal, eventParm 2 is force regen
 
 				//since we had an extra check above, do the drain now because we got at least one guy
-				BG_ForcePowerDrain( &self->client->ps, FP_TEAM_HEAL, forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL] );
+				BG_ForcePowerDrain( &self->client->ps, &self->client->ns, FP_TEAM_HEAL, forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL] );
 			}
 
 			WP_AddToClientBitflags(te, pl[i]);
@@ -1441,7 +1449,8 @@ void ForceTeamForceReplenish( gentity_t *self )
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client && self != ent && OnSameTeam(self, ent) && ent->client->ps.fd.forcePower < 100 && ForcePowerUsableOn(self, ent, FP_TEAM_FORCE) &&
+		if (ent && ent->client && self != ent && OnSameTeam(self, ent) && ent->client->ns.forcePower < ent->client->ps.fd.forcePowerMax 
+			&& ForcePowerUsableOn(self, ent, FP_TEAM_FORCE) &&
 			trap_InPVS(self->client->ps.origin, ent->client->ps.origin))
 		{
 			VectorSubtract(self->client->ps.origin, ent->client->ps.origin, a);
@@ -1475,16 +1484,16 @@ void ForceTeamForceReplenish( gentity_t *self )
 	}
 	self->client->ps.fd.forcePowerDebounce[FP_TEAM_FORCE] = level.time + 2000;
 
-	BG_ForcePowerDrain( &self->client->ps, FP_TEAM_FORCE, forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE] );
+	BG_ForcePowerDrain( &self->client->ps, &self->client->ns, FP_TEAM_FORCE, forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_TEAM_FORCE]][FP_TEAM_FORCE] );
 
 	i = 0;
 
 	while (i < numpl)
 	{
-		g_entities[pl[i]].client->ps.fd.forcePower += poweradd;
-		if (g_entities[pl[i]].client->ps.fd.forcePower > 100)
+		g_entities[pl[i]].client->ns.forcePower += poweradd;
+		if (g_entities[pl[i]].client->ns.forcePower > g_entities[pl[i]].client->ps.fd.forcePowerMax)
 		{
-			g_entities[pl[i]].client->ps.fd.forcePower = 100;
+			g_entities[pl[i]].client->ns.forcePower = g_entities[pl[i]].client->ps.fd.forcePowerMax;
 		}
 
 		//At this point we know we got one, so add him into the collective event client bitflag
@@ -1761,7 +1770,7 @@ void ForceLightning( gentity_t *self )
 	{
 		return;
 	}
-	if ( self->client->ps.fd.forcePower < 25 || !WP_ForcePowerUsable( self, FP_LIGHTNING ) )
+	if ( self->client->ns.forcePower < 25 || !WP_ForcePowerUsable( self, FP_LIGHTNING ) )
 	{
 		return;
 	}
@@ -1809,10 +1818,10 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 		{//an enemy or object
 			if (traceEnt->client->noLightningTime >= level.time)
 			{ //give them power and don't hurt them.
-				traceEnt->client->ps.fd.forcePower++;
-				if (traceEnt->client->ps.fd.forcePower > 100)
+				traceEnt->client->ns.forcePower++;
+				if (traceEnt->client->ns.forcePower > traceEnt->client->ps.fd.forcePowerMax)
 				{
-					traceEnt->client->ps.fd.forcePower = 100;
+					traceEnt->client->ns.forcePower = traceEnt->client->ps.fd.forcePowerMax;
 				}
 				return;
 			}
@@ -2017,7 +2026,7 @@ void ForceDrain( gentity_t *self )
 		return;
 	}
 
-	if ( self->client->ps.fd.forcePower < 25 || !WP_ForcePowerUsable( self, FP_DRAIN ) )
+	if ( self->client->ns.forcePower < 25 || !WP_ForcePowerUsable( self, FP_DRAIN ) )
 	{
 		return;
 	}
@@ -2046,7 +2055,7 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 
 	if ( traceEnt && traceEnt->takedamage )
 	{
-		if ( traceEnt->client && (!OnSameTeam(self, traceEnt) || g_friendlyFire.integer) && self->client->ps.fd.forceDrainTime < level.time && traceEnt->client->ps.fd.forcePower )
+		if ( traceEnt->client && (!OnSameTeam(self, traceEnt) || g_friendlyFire.integer) && self->client->ps.fd.forceDrainTime < level.time && traceEnt->client->ns.forcePower )
 		{//an enemy or object
 			if (!traceEnt->client && traceEnt->s.eType == ET_NPC)
 			{ //g2animent
@@ -2096,11 +2105,11 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 
 				if (dmg)
 				{
-					traceEnt->client->ps.fd.forcePower -= (dmg);
+					traceEnt->client->ns.forcePower -= (dmg);
 				}
-				if (traceEnt->client->ps.fd.forcePower < 0)
+				if (traceEnt->client->ns.forcePower < 0)
 				{
-					traceEnt->client->ps.fd.forcePower = 0;
+					traceEnt->client->ns.forcePower = 0;
 				}
 
 				if (self->client->ps.stats[STAT_HEALTH] < self->client->ps.stats[STAT_MAX_HEALTH] &&
@@ -2216,7 +2225,7 @@ int ForceShootDrain( gentity_t *self )
 				continue;
 			if ( !traceEnt->client )
 				continue;
-			if ( !traceEnt->client->ps.fd.forcePower )
+			if ( !traceEnt->client->ns.forcePower )
 				continue;
 			if (OnSameTeam(self, traceEnt) && !g_friendlyFire.integer)
 				continue;
@@ -2288,7 +2297,7 @@ int ForceShootDrain( gentity_t *self )
 
 	self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_DRAIN] + FORCE_LEVEL_3;
 
-	BG_ForcePowerDrain( &self->client->ps, FP_DRAIN, 5 ); //used to be 1, but this did, too, anger the God of Balance.
+	BG_ForcePowerDrain( &self->client->ps, &self->client->ns, FP_DRAIN, 5 ); //used to be 1, but this did, too, anger the God of Balance.
 
 	self->client->ps.fd.forcePowerRegenDebounceTime = level.time + 500;
 
@@ -2309,7 +2318,7 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 		return;
 	}
 
-	if (self->client->ps.fd.forcePower < forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]][FP_LEVITATION])
+	if (self->client->ns.forcePower < forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]][FP_LEVITATION])
 	{
 		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
 		return;
@@ -2346,10 +2355,10 @@ void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 	}
 
 	//clamp to max available force power
-	if ( self->client->ps.fd.forceJumpCharge/forceJumpChargeInterval/(FORCE_JUMP_CHARGE_TIME/FRAMETIME)*forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]][FP_LEVITATION] > self->client->ps.fd.forcePower )
+	if ( self->client->ps.fd.forceJumpCharge/forceJumpChargeInterval/(FORCE_JUMP_CHARGE_TIME/FRAMETIME)*forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_LEVITATION]][FP_LEVITATION] > self->client->ns.forcePower )
 	{//can't use more than you have
 		G_MuteSound(self->client->ps.fd.killSoundEntIndex[TRACK_CHANNEL_1-50], CHAN_VOICE);
-		self->client->ps.fd.forceJumpCharge = self->client->ps.fd.forcePower*forceJumpChargeInterval/(FORCE_JUMP_CHARGE_TIME/FRAMETIME);
+		self->client->ps.fd.forceJumpCharge = self->client->ns.forcePower*forceJumpChargeInterval/(FORCE_JUMP_CHARGE_TIME/FRAMETIME);
 	}
 	
 	//G_Printf("%f\n", self->client->ps.fd.forceJumpCharge);
@@ -4309,11 +4318,11 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 
 		if (self->client->ps.fd.forcePowerDebounce[FP_PULL] < level.time)
 		{ //This is sort of not ideal. Using the debounce value reserved for pull for this because pull doesn't need it.
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
+			BG_ForcePowerDrain( &self->client->ps, &self->client->ns, forcePower, 1 );
 			self->client->ps.fd.forcePowerDebounce[FP_PULL] = level.time + 100;
 		}
 
-		if (self->client->ps.fd.forcePower < 1)
+		if (self->client->ns.forcePower < 1)
 		{
 			WP_ForcePowerStop(self, FP_GRIP);
 			break;
@@ -4378,7 +4387,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		}
 		// OVERRIDEFIXME
 		if ( !WP_ForcePowerAvailable( self, forcePower, 0 ) || self->client->ps.fd.forcePowerDuration[FP_DRAIN] < level.time ||
-			self->client->ps.fd.forcePower < 25)
+			self->client->ns.forcePower < 25)
 		{
 			WP_ForcePowerStop( self, forcePower );
 		}
@@ -4403,14 +4412,14 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		}
 		// OVERRIDEFIXME
 		if ( !WP_ForcePowerAvailable( self, forcePower, 0 ) || self->client->ps.fd.forcePowerDuration[FP_LIGHTNING] < level.time ||
-			self->client->ps.fd.forcePower < 25)
+			self->client->ns.forcePower < 25)
 		{
 			WP_ForcePowerStop( self, forcePower );
 		}
 		else
 		{
 			ForceShootLightning( self );
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 0 );
+			BG_ForcePowerDrain( &self->client->ps, &self->client->ns, forcePower, 0 );
 		}
 		break;
 	case FP_TELEPATHY:
@@ -4434,8 +4443,8 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 	case FP_PROTECT:
 		if (self->client->ps.fd.forcePowerDebounce[forcePower] < level.time)
 		{
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
-			if (self->client->ps.fd.forcePower < 1)
+			BG_ForcePowerDrain( &self->client->ps, &self->client->ns, forcePower, 1 );
+			if (self->client->ns.forcePower < 1)
 			{
 				WP_ForcePowerStop(self, forcePower);
 			}
@@ -4446,8 +4455,8 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 	case FP_ABSORB:
 		if (self->client->ps.fd.forcePowerDebounce[forcePower] < level.time)
 		{
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
-			if (self->client->ps.fd.forcePower < 1)
+			BG_ForcePowerDrain( &self->client->ps, &self->client->ns, forcePower, 1 );
+			if (self->client->ns.forcePower < 1)
 			{
 				WP_ForcePowerStop(self, forcePower);
 			}
@@ -4517,7 +4526,7 @@ int WP_DoSpecificPower( gentity_t *self, usercmd_t *ucmd, forcePowers_t forcepow
 			if (!(self->client->ps.fd.forcePowersActive & (1 << FP_GRIP)))
 			{
 				WP_ForcePowerStart( self, FP_GRIP, 0 );
-				BG_ForcePowerDrain( &self->client->ps, FP_GRIP, GRIP_DRAIN_AMOUNT );
+				BG_ForcePowerDrain( &self->client->ps, &self->client->ns, FP_GRIP, GRIP_DRAIN_AMOUNT );
 			}
 		}
 		else
@@ -5087,6 +5096,8 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		return;
 	}
 
+	self->x.forcePower = self->client->ns.forcePower;
+
 	/*
 	if (self->client->ps.fd.saberAnimLevel > self->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 	{
@@ -5098,10 +5109,10 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 	*/
 	//The stance in relation to power level is no longer applicable with the crazy new akimbo/staff stances.
-	if (!self->client->ps.fd.saberAnimLevel)
-	{
-		self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;
-	}
+	//if (!self->client->ps.fd.saberAnimLevel)
+	//{
+	//	self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;
+	//}
 
 	// Jedi Knight Galaxies: no more of this nonsense
 	/*if (g_gametype.integer != GT_SIEGE)
@@ -5240,7 +5251,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	if (self->client->ps.powerups[PW_FORCE_BOON])
 	{
-		prepower = self->client->ps.fd.forcePower;
+		prepower = self->client->ns.forcePower;
 	}
 
 	if (self && self->client && (BG_HasYsalamiri(g_gametype.integer, &self->client->ps) ||
@@ -5260,7 +5271,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 		if (self->client->tempSpectate >= level.time)
 		{
-			self->client->ps.fd.forcePower = 100;
+			self->client->ns.forcePower = 100;
 			self->client->ps.fd.forceRageRecoveryTime = 0;
 		}
 
@@ -5607,16 +5618,17 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 
 powersetcheck:
+	self->x.forcePower = self->client->ns.forcePower;
 
-	if (prepower && self->client->ps.fd.forcePower < prepower)
+	if (prepower && self->client->ns.forcePower < prepower)
 	{
-		int dif = ((prepower - self->client->ps.fd.forcePower)/2);
+		int dif = ((prepower - self->client->ns.forcePower)/2);
 		if (dif < 1)
 		{
 			dif = 1;
 		}
 
-		self->client->ps.fd.forcePower = (prepower-dif);
+		self->client->ns.forcePower = (prepower-dif);
 	}
 }
 

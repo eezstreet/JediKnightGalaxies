@@ -835,6 +835,8 @@ struct gclient_s {
 	int			cloakDebRecharge;
 	int			cloakDebReduce;
 
+	int			saberBPDebRecharge;
+
 	int			saberStoredIndex; //stores saberEntityNum from playerstate for when it's set to 0 (indicating saber was knocked out of the air)
 
 	int			saberKnockedTime; //if saber gets knocked away, can't pull it back until this value is < level.time
@@ -967,6 +969,15 @@ struct gclient_s {
 	unsigned int storedCredits;				// hack a doodle doo to prevent the credits from spectators from carrying over to people that join
 	unsigned int saberStanceDebounce;		// prevent people from spamming style change and causing issues
 
+	unsigned int saberBlockTime;			// last time that we initiated manual blocking --eez
+	unsigned int saberProjBlockTime;
+
+	// all of the below was migrated from the playerState. None of it belonged there. --eez
+	int saberBlockDebounce;
+	int saberAttackWound;
+	int saberIdleWound;
+	int saberAttackSequence;				// FIXME: not used? --eez
+	int saberSaberBlockDebounce;
 #ifndef __MMO__
 	unsigned int numKillsThisLife;			// Killstreaks!
 #endif

@@ -14,49 +14,49 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
     <Filter Include="Libraries">
-      <UniqueIdentifier>{437595a6-f6a1-41c0-8a7c-27a7d96669c0}</UniqueIdentifier>
+      <UniqueIdentifier>{ea0437b0-5e36-4d6e-8cf8-27949d8b2f8b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json">
-      <UniqueIdentifier>{5291f07f-c1b4-43c2-9ee4-464f23768971}</UniqueIdentifier>
+      <UniqueIdentifier>{468a0cd8-97c7-4644-9bde-f09133af1c52}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json\Source Files">
-      <UniqueIdentifier>{70dc585f-e0bd-4f3c-af1a-344bed8b3cc4}</UniqueIdentifier>
+      <UniqueIdentifier>{152ca0dc-695d-47f1-b2c4-a3366ed57f1a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json\Header Files">
-      <UniqueIdentifier>{f91abf17-524d-4510-b0e4-3483374ed806}</UniqueIdentifier>
+      <UniqueIdentifier>{68561662-920c-4b28-afd0-31c0417f1606}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\OpenSSL">
-      <UniqueIdentifier>{e1d81028-297e-41a8-836d-2f7ad6bb8d7a}</UniqueIdentifier>
+      <UniqueIdentifier>{6262c085-0815-4717-82b4-cf46c3d86724}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\OpenSSL\Header Files">
-      <UniqueIdentifier>{95320aa6-0001-4201-b1bd-abd5bb65f46d}</UniqueIdentifier>
+      <UniqueIdentifier>{60cfa24f-a3fa-41df-869d-fcb7a58bb0cf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128">
-      <UniqueIdentifier>{5c6695ed-dc3b-4cdc-b343-6a5f4018e543}</UniqueIdentifier>
+      <UniqueIdentifier>{dcccd823-6252-4e4d-abea-2a86531cbbd1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128\Source Files">
-      <UniqueIdentifier>{06e101d0-9612-4227-87c4-ca71ddc6a5c1}</UniqueIdentifier>
+      <UniqueIdentifier>{76929b9e-bcd9-4d64-9d3c-71b28cc835ac}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Base128\Header Files">
-      <UniqueIdentifier>{0950d499-d1d7-4257-b599-fa4523c99de1}</UniqueIdentifier>
+      <UniqueIdentifier>{73aa7ba5-314c-42e3-8ef6-e4b5940a7691}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Bitstream">
-      <UniqueIdentifier>{92691ac0-e0fe-484f-b5f0-55decf203610}</UniqueIdentifier>
+      <UniqueIdentifier>{179939ac-47cc-47bb-8780-bbd08f65fb04}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Bitstream\Source Files">
-      <UniqueIdentifier>{995bed90-1711-4500-b21f-3b037cfc9e0a}</UniqueIdentifier>
+      <UniqueIdentifier>{53252270-858f-48cc-818c-4d4d37429483}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Bitstream\Header Files">
-      <UniqueIdentifier>{773ea924-8fe8-41d3-8b66-335c0f370274}</UniqueIdentifier>
+      <UniqueIdentifier>{65092a15-ef43-4b77-94f5-24afb6896a2f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86">
-      <UniqueIdentifier>{f17b4d37-de85-4507-8c7f-f67cc7602b0e}</UniqueIdentifier>
+      <UniqueIdentifier>{c936882c-7eff-4521-98ab-1a26239c3eec}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86\Source Files">
-      <UniqueIdentifier>{60b7e21e-6898-449d-a73b-01a1f7faca17}</UniqueIdentifier>
+      <UniqueIdentifier>{bbebc3a3-35d9-47ea-8134-52884339e57b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\LibUDis86\Header Files">
-      <UniqueIdentifier>{18dc898d-949b-42cd-97f6-4980cd19894b}</UniqueIdentifier>
+      <UniqueIdentifier>{168bb85d-d4b7-4510-b00e-67fe84a472ce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\z_global_defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\json\cJSON.h">

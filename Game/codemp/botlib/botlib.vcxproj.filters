@@ -2,11 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{fca01153-a90b-4c7c-9aa0-e812a8a2cc5a}</UniqueIdentifier>
+      <UniqueIdentifier>{ad1783f7-9571-425d-b701-9f30c8d07339}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{d2e7a8e5-a885-46c5-a13a-8a31bc451849}</UniqueIdentifier>
+      <UniqueIdentifier>{41725fa2-69b1-49ef-a82a-42f7f5fd976a}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
   </ItemGroup>
@@ -221,9 +221,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\qcommon\tags.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\z_global_defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

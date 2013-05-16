@@ -1480,6 +1480,7 @@ typedef struct {
 
 	// sounds
 	sfxHandle_t	selectSound;
+
 	sfxHandle_t	footsteps[FOOTSTEP_TOTAL][4];
 
 	sfxHandle_t	winnerSound;
@@ -2105,6 +2106,7 @@ extern  vmCvar_t		cg_scorePlum;
 extern	vmCvar_t		cg_hudFiles;
 // JKG
 extern	vmCvar_t		cg_drawHUD;
+extern	vmCvar_t		jkg_simpleHUD;
 
 extern	vmCvar_t		cg_smoothClients;
 

@@ -65,7 +65,7 @@
 			Name="Debug|Win32"
 			>
 			<DebugSettings
-				Command="C:\Program Files (x86)\LucasArts\Star Wars Jedi Knight Jedi Academy\GameData\jampDedMulti.exe"
+				Command="C:\Program Files (x86)\LucasArts\Star Wars Jedi Knight Jedi Academy\GameData\jampDed.exe"
 				WorkingDirectory="../Debug/DLLs"
 				CommandArguments="+set fs_cdpath &quot;C:\progra~2\LucasArts\starwa~1\GameData&quot; +set fs_game &quot;JKG&quot; +set viewlog 1 +set net_port 29001 +exec server.cfg +seta g_password waffle"
 				Attach="false"
