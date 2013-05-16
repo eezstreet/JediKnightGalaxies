@@ -1,9 +1,0 @@
-{
-	"name":             "BlasTech E-11 Blaster Carbine",
-	"internal":             "E-11 Carbine",
-	"id":             "8",
-	"itemtype":             "weapon",
-	"weapon":		"5",
-	"variation":		"2",
-	"weight":		"3"
-}

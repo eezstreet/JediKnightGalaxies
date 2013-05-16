@@ -1,9 +1,0 @@
-{
-	"name":             "Lightsaber",
-	"internal":             "Lightsaber",
-	"id":             "9",
-	"itemtype":             "weapon",
-	"weapon":		"3",
-	"variation":		"0",
-	"weight":		"1"
-}

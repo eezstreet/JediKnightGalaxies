@@ -1,8 +1,0 @@
-{
-	"name":             "Cryoban Grenade",
-	"internal":             "Cryoban",
-	"id":             "10",
-	"itemtype":             "weapon",
-	"weapon":		"13",
-	"variation":		"1"
-}
