@@ -297,10 +297,10 @@
     <ClCompile Include="..\libraries\libudis86\udis86.c">
       <Filter>Libraries\UDis86\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl_bspdecrypter.cpp">
+    <ClCompile Include="gl_bspdecrypter.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl_challenge.cpp">
+    <ClCompile Include="gl_challenge.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

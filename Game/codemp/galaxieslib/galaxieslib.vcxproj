@@ -84,7 +84,7 @@
       <WarningLevel>Level3</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <PreLinkEvent>
@@ -212,8 +212,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gl_bspdecrypter.cpp" />
-    <ClCompile Include="gl_challenge.cpp" />
+    <ClCompile Include="gl_bspdecrypter.c" />
+    <ClCompile Include="gl_challenge.c" />
     <ClCompile Include="gl_cin.c" />
     <ClCompile Include="gl_console.c" />
     <ClCompile Include="gl_crashreport.c" />
