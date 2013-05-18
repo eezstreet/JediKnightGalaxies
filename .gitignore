@@ -3,6 +3,7 @@
 *.sdf
 Game/codemp/ipch/*
 /Game/codemp/[Dd]ebug/*
+*.user
 
 # Object files
 *.o
