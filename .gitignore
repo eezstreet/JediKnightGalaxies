@@ -3,7 +3,7 @@
 *.sdf
 Game/codemp/ipch/*
 /Game/codemp/[Dd]ebug/*
-*.vcxproj.user
+*.user
 
 # Object files
 *.o
