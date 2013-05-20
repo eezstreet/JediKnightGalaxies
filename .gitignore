@@ -3,16 +3,17 @@
 *.sdf
 Game/codemp/ipch/*
 /Game/codemp/[Dd]ebug/*
+*.vcxproj.user
 
 # Object files
 *.o
 
 # Libraries
-*.lib
+#*.lib
 *.a
 
 # Shared objects (inc. Windows DLLs)
-*.dll
+#*.dll
 *.so
 *.so.*
 *.dylib

@@ -9532,6 +9532,11 @@ void _UI_Init( qboolean inGameLoad ) {
 	vmCvar_t siegeTeamSwitch;
 	trap_Cvar_Register(&siegeTeamSwitch, "g_siegeTeamSwitch", "1", CVAR_SERVERINFO|CVAR_ARCHIVE);
 
+	// Some knucklehead decided to update client version once we got to the client aux lib,
+	// which is kinda stupid since we can't get there unless we actually connect to a server.
+	// DERP. --eez
+	trap_Cvar_Set("clver", JKG_VERSION);
+
 	// No-cd patch
 	ApplyNoCD();
 	ClearSelfSabotage();

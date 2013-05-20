@@ -3208,10 +3208,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_VOICECMD_SOUND:
 		DEBUGNAME("EV_VOICECMD_SOUND");
-		if (es->groundEntityNum >= MAX_CLIENTS)
-		{ //don't ever use this unless it is being used on a real client
-			break;
-		}
+		if (es->groundEntityNum < MAX_CLIENTS && es->groundEntityNum >= 0)
 		{
 			sfxHandle_t sfx = cgs.gameSounds[ es->eventParm ];
 			clientInfo_t *ci = &cgs.clientinfo[es->groundEntityNum];

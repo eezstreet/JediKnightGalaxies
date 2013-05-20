@@ -79,9 +79,6 @@ void GL_PatchEngine(void)
 	cvar = Cvar_FindVar("r_logFile");
 	cvar->flags &= ~CVAR_CHEAT;
 #endif
-
-	// Register the JKG version
-	Cvar_Get("clver", JKG_VERSION, CVAR_ROM|CVAR_USERINFO);
 }
 
 void GL_UI_BreakLinkup(void)

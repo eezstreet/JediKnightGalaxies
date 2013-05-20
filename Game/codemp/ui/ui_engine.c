@@ -609,6 +609,8 @@ void JKG_RemovePAKPatches()
 	JKG_RemovePatch(&CGPAKP[2]);
 }
 
+extern void trap_Cvar_Set( const char *var_name, const char *value );
+#include "../shared/qcommon/game_version.h"
 void UI_PatchEngine() {
 	// Change the JA window title XD
 	HWND *JAWnd = (HWND *)0xB8F038;
@@ -658,6 +660,8 @@ void UI_PatchEngine() {
 
 	// Extended colorcodes
 	pExtColorCodes = JKG_PlacePatch(PATCH_JUMP, 0x4959A3, (unsigned int)_Hook_ExtColorCodes);
+
+	trap_Cvar_Set("clver", JKG_VERSION);
 
 }
 
