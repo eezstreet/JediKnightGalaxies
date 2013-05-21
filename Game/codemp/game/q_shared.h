@@ -16,6 +16,16 @@
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
+// PLEASE DO NOT EDIT THESE NEXT FEW LINES, THESE ARE AUTOMATICALLY INCREMENTED BY VISUAL STUDIO, THANKS.
+#define INCREMENT_BUILD_NUMBERS	0
+#define BUILDNUM_CGAME 0
+#define BUILDNUM_GAME 0
+#define BUILDNUM_UI 0
+#define BUILDNUM_AUX 0
+#define BUILDNUM_AUXSV 0
+// Turning on INCREMENT_BUILD_NUMBERS increases the build number with each compile..be careful, as it will increment
+// for EVERY build, regardless of whether they are all up to date. This is pretty volatile stuff.
+
 // Include Global Definitions Header...
 #include "../game/z_global_defines.h"
 
