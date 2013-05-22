@@ -2754,88 +2754,6 @@ int PM_KickMoveForConditions(void)
 qboolean BG_InSlopeAnim( int anim );
 qboolean PM_RunningAnim( int anim );
 
-qboolean PM_SaberMoveOkayForKata( void )
-{
-	if ( pm->ps->saberMove == LS_READY
-		|| PM_SaberInStart( pm->ps->saberMove ) )
-	{
-		return qtrue;
-	}
-	else
-	{
-		return qfalse;
-	}
-}
-
-qboolean PM_CanDoKata( void )
-{
-	if ( PM_InSecondaryStyle() )
-	{
-		return qfalse;
-	}
-
-	if ( !pm->ps->saberInFlight//not throwing saber
-		&& PM_SaberMoveOkayForKata()
-		&& !BG_SaberInKata(pm->ps->saberMove)
-		&& !BG_InKataAnim(pm->ps->legsAnim)
-		&& !BG_InKataAnim(pm->ps->torsoAnim)
-		/*
-		&& pm->ps->saberAnimLevel >= SS_MAKASHI//fast, med or strong style
-		&& pm->ps->saberAnimLevel <= SS_SORESU//FIXME: Tavion, too?
-		*/
-		&& pm->ps->groundEntityNum != ENTITYNUM_NONE//not in the air
-		&& (pm->cmd.buttons&BUTTON_ATTACK)//pressing attack
-		&& (pm->cmd.buttons&BUTTON_ALT_ATTACK)//pressing alt attack
-		&& !pm->cmd.forwardmove//not moving f/b
-		&& !pm->cmd.rightmove//not moving r/l
-		&& pm->cmd.upmove <= 0//not jumping...?
-		&& BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER) )// have enough power
-	{//FIXME: check rage, etc...
-		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
-		if ( saber
-			&& saber->kataMove == LS_NONE )
-		{//kata move has been overridden in a way that should stop you from doing it at all
-			return qfalse;
-		}
-		saber = BG_MySaber( pm->ps->clientNum, 1 );
-		if ( saber
-			&& saber->kataMove == LS_NONE )
-		{//kata move has been overridden in a way that should stop you from doing it at all
-			return qfalse;
-		}
-		return qtrue;
-	}
-	return qfalse;
-}
-
-qboolean PM_CheckAltKickAttack( void )
-{
-	if ( pm->ps->weapon == WP_SABER )
-	{
-		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_KICKS) )
-		{
-			return qfalse;
-		}
-		saber = BG_MySaber( pm->ps->clientNum, 1 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_KICKS) )
-		{
-			return qfalse;
-		}
-	}
-	if ( (pm->cmd.buttons&BUTTON_ALT_ATTACK || (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK )) ) 
-		//&& (!(pm->ps->pm_flags&PMF_ALT_ATTACK_HELD)||PM_SaberInReturn(pm->ps->saberMove))
-		&& (!BG_FlippingAnim(pm->ps->legsAnim)||pm->ps->legsTimer<=250||
-		(pm->cmd.forwardmove == 0 && pm->cmd.rightmove == 0))
-		&& (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK ) ) && pm->ps->saberHolstered < 2)
-	{
-		return qtrue;
-	}
-	return qfalse;
-}
-
 int bg_parryDebounce[NUM_FORCE_POWER_LEVELS] =
 {
 	500,//if don't even have defense, can't use defense!
@@ -3188,7 +3106,7 @@ void PM_WeaponLightsaber(void)
 			PM_SetAnim(SETANIM_TORSO,PM_GetSaberStance(),SETANIM_FLAG_OVERRIDE, 100);
 		}
 
-		if (pm->ps->weaponTime < 1 && ((pm->cmd.buttons & BUTTON_ALT_ATTACK) || (pm->cmd.buttons & BUTTON_ATTACK)))
+		if (pm->ps->weaponTime < 1 && (pm->cmd.buttons & BUTTON_ATTACK))
 		{
 			if (pm->ps->duelTime < pm->cmd.serverTime)
 			{
@@ -3199,7 +3117,6 @@ void PM_WeaponLightsaber(void)
 				}
 				else
 				{
-					pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 					pm->cmd.buttons &= ~BUTTON_ATTACK;
 				}
 			}
@@ -3248,10 +3165,9 @@ void PM_WeaponLightsaber(void)
 		{
 			pm->cmd.buttons &= ~BUTTON_ATTACK;
 		}
-		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 	}
 
-	if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) || (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK )) )
+	if ( (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK )) )
 	{ //might as well just check for a saber throw right here
 		if ( (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK )) )
 		{ //kick instead of doing a throw 
@@ -3263,20 +3179,17 @@ void PM_WeaponLightsaber(void)
 				&& pm->ps->saberBlocked == BLOCKED_NONE//not interacting with any other saber
 				&& !(pm->cmd.buttons&BUTTON_ATTACK) )//not trying to swing the saber
 			{
-				if ( /*(pm->cmd.forwardmove||pm->cmd.rightmove)//trying to kick in a specific direction
-					&& */PM_CheckAltKickAttack() )//trying to do a kick
-				{//allow them to do the kick now!
-					int kickMove = PM_KickMoveForConditions();
-					if (kickMove != -1)
+				//allow them to do the kick now!
+				int kickMove = PM_KickMoveForConditions();
+				if (kickMove != -1)
 					{
-						pm->ps->weaponTime = 0;
-						if(pm->ns)
-						{
-							pm->ps->saberActionFlags &= ~(1 << SAF_KICK);
-						}
-						PM_SetSaberMove( kickMove );
-						return;
+					pm->ps->weaponTime = 0;
+					if(pm->ns)
+					{
+						pm->ps->saberActionFlags &= ~(1 << SAF_KICK);
 					}
+					PM_SetSaberMove( kickMove );
+					return;
 				}
 			}
 		}
@@ -3575,83 +3488,6 @@ weapChecks:
 		}
 	}
 
-	if ( PM_CanDoKata() )
-	{
-		saberMoveName_t overrideMove = LS_INVALID;
-		saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
-		saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
-		//see if we have an overridden (or cancelled) kata move
-		if ( saber1 && saber1->kataMove != LS_INVALID )
-		{
-			if ( saber1->kataMove != LS_NONE )
-			{
-				overrideMove = (saberMoveName_t)saber1->kataMove;
-			}
-		}
-		if ( overrideMove == LS_INVALID )
-		{//not overridden by first saber, check second
-			if ( saber2
-				&& saber2->kataMove != LS_INVALID )
-			{
-				if ( saber2->kataMove != LS_NONE )
-				{
-					overrideMove = (saberMoveName_t)saber2->kataMove;
-				}
-			}
-		}
-		//no overrides, cancelled?
-		if ( overrideMove == LS_INVALID )
-		{
-			if ( saber2
-				&& saber2->kataMove == LS_NONE )
-			{
-				overrideMove = LS_NONE;
-			}
-			else if ( saber2
-				&& saber2->kataMove == LS_NONE )
-			{
-				overrideMove = LS_NONE;
-			}
-		}
-		/*if ( overrideMove == LS_INVALID )
-		{//not overridden
-			//FIXME: make sure to turn on saber(s)!
-			switch ( pm->ps->fd.saberAnimLevel )
-			{
-			case SS_MAKASHI:
-			case SS_JUYO:
-				PM_SetSaberMove( LS_A1_SPECIAL );
-				break;
-			case SS_SHII_CHO:
-				PM_SetSaberMove( LS_A2_SPECIAL );
-				break;
-			case SS_SORESU:
-			case SS_ATARU:
-				PM_SetSaberMove( LS_A3_SPECIAL );
-				break;
-			case SS_DUAL:
-				PM_SetSaberMove( LS_DUAL_SPIN_PROTECT );//PM_CheckDualSpinProtect();
-				break;
-			case SS_STAFF:
-				PM_SetSaberMove( LS_STAFF_SOULCAL );
-				break;
-			}
-			pm->ps->weaponstate = WEAPON_FIRING;
-			//G_DrainPowerForSpecialMove( pm->gent, FP_SABER_OFFENSE, SABER_ALT_ATTACK_POWER );//FP_SPEED, SINGLE_SPECIAL_POWER );
-			BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER);
-		}
-		else if ( overrideMove != LS_NONE )
-		{
-			PM_SetSaberMove( overrideMove );
-			pm->ps->weaponstate = WEAPON_FIRING;
-			BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER);
-		}*/
-		if ( overrideMove != LS_NONE )
-		{//not cancelled
-			return;
-		}
-	}
-
 	if ( pm->ps->weaponTime > 0 ) 
 	{
 		return;
@@ -3799,7 +3635,6 @@ weapChecks:
 	}
 
 	//this is never a valid regular saber attack button
-	//pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 
 	if(!delayed_fire)
 	{
@@ -3818,8 +3653,7 @@ weapChecks:
 			newmove = LS_R_T2B;
 		}
 		// check for fire
-		else if ( !(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) ||
-			(pm->cmd.buttons & BUTTON_IRONSIGHTS))
+		else if ( !(pm->cmd.buttons & BUTTON_ATTACK) || (pm->cmd.buttons & BUTTON_IRONSIGHTS))
 		{//not attacking
 			pm->ps->weaponTime = 0;
 			

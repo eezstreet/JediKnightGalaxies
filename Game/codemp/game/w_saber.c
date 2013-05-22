@@ -2357,7 +2357,7 @@ static GAME_INLINE qboolean G_ClientIdleInWorld(gentity_t *ent)
 		!ent->client->pers.cmd.rightmove &&
 		!(ent->client->pers.cmd.buttons & BUTTON_GESTURE) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCEGRIP) &&
-		!(ent->client->pers.cmd.buttons & BUTTON_ALT_ATTACK) &&
+		!(ent->client->pers.cmd.buttons & BUTTON_IRONSIGHTS) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCEPOWER) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCE_LIGHTNING) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCE_DRAIN) &&
@@ -7847,12 +7847,7 @@ void saberFirstThrown(gentity_t *saberent)
 
 	if ((level.time - saberOwn->client->ps.saberDidThrowTime) > 500)
 	{
-		if (!(saberOwn->client->buttons & BUTTON_ALT_ATTACK))
-		{ //If owner releases altattack 500ms or later after throwing saber, it autoreturns
-			thrownSaberTouch(saberent, saberent, NULL);
-			goto runMin;
-		}
-		else if ((level.time - saberOwn->client->ps.saberDidThrowTime) > 6000)
+		if ((level.time - saberOwn->client->ps.saberDidThrowTime) > 6000)
 		{ //if it's out longer than 6 seconds, return it
 			thrownSaberTouch(saberent, saberent, NULL);
 			goto runMin;
@@ -10413,7 +10408,8 @@ void SaberBallisticsThink(gentity_t *saberEnt)
 			saberOwner->client->ps.saberEntityNum = saberOwner->client->saberStoredIndex;
 			return;
 		}
-		else if ( saberOwner->client->saberKnockedTime < level.time && 
+		// Commenting out for now until I figure out what to do about saber throw --eez
+		/*else if ( saberOwner->client->saberKnockedTime < level.time && 
 			((saberOwner->client->buttons & BUTTON_ALT_ATTACK && 
 			saberOwner->client->ps.fd.forcePowerSelected == FP_SABERTHROW) 
 			|| saberOwner->client->buttons & BUTTON_ATTACK
@@ -10434,7 +10430,7 @@ void SaberBallisticsThink(gentity_t *saberEnt)
 			saberEnt->nextthink = level.time;
 
 			saberEnt->r.contents = CONTENTS_LIGHTSABER;
-		}
+		}*/
 		else if ((level.time - saberOwner->client->saberKnockedTime) > MAX_LEAVE_TIME)
 		{//We left it too long.  Just have it turn off and fall to the ground. 
 			VectorClear(saberEnt->s.pos.trDelta);
