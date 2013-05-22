@@ -10,27 +10,22 @@
 //                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
 //                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
 //                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// q_shared.h
+// q_shared.h -- included first by ALL program modules.
+// A user mod should never modify this file
 // Copyright (C) 1999-2000 Id Software, Inc., Copyright (c) 2013 Jedi Knight Galaxies
+
 
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
-// PLEASE DO NOT EDIT THESE NEXT FEW LINES, THESE ARE AUTOMATICALLY INCREMENTED BY VISUAL STUDIO, THANKS.
-#define INCREMENT_BUILD_NUMBERS	0
-#define BUILDNUM_CGAME 0
-#define BUILDNUM_GAME 0
-#define BUILDNUM_UI 0
-#define BUILDNUM_AUX 0
-#define BUILDNUM_AUXSV 0
-// Turning on INCREMENT_BUILD_NUMBERS increases the build number with each compile..be careful, as it will increment
-// for EVERY build, regardless of whether they are all up to date. This is pretty volatile stuff.
-
 // Include Global Definitions Header...
 #include "../game/z_global_defines.h"
 
-// q_shared.h -- included first by ALL program modules.
-// A user mod should never modify this file
+// Use build numbers?
+//#define USE_BUILD_NUMBERS
+#ifdef USE_BUILD_NUMBERS
+#include "../shared/buildnum.h"
+#endif
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"

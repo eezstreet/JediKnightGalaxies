@@ -254,6 +254,9 @@
       <ImportLibrary>.\../Debug/jampgamex86.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PostBuildEvent>
+      <Command>"$(SolutionDir)\BuildMan.exe" game</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ai_dominance.c" />

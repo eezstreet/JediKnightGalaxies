@@ -27,7 +27,7 @@
 #include <vector>
 #include <sstream>
 
-#define FILE_WE_NEED "game\\q_shared.h"
+#define FILE_WE_NEED "..\\shared\\buildnum.h"
 
 enum DesiredProjects_e
 {

@@ -107,6 +107,9 @@
       <ImportLibrary>.\../Debug/galaxiessvx86.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PostBuildEvent>
+      <Command>"$(SolutionDir)\BuildMan.exe" auxsv</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

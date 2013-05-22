@@ -252,8 +252,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>"$(SolutionDir)\BuildMan.exe" cgame</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
