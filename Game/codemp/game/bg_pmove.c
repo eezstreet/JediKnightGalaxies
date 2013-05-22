@@ -11504,7 +11504,7 @@ void PmoveSingle (pmove_t *pmove) {
 		{ //flipover medium stance attack
 			if (pm->ps->legsTimer < 1600 && pm->ps->legsTimer > 900)
 			{
-				pm->ps->viewangles[YAW] += pml.frametime*240.0f;
+				pm->ps->viewangles[YAW] += pml.frametime*90.0f;
 				PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
 			}
 		}
