@@ -7610,7 +7610,6 @@ static void CG_Draw2D( void ) {
 	float			inTime = cg.invenSelectTime+WEAPON_SELECT_TIME;
 	float			wpTime = cg.weaponSelectTime+WEAPON_SELECT_TIME;
 	float			fallTime; 
-	float			bestTime;
 	int				drawSelect = 0;
 	int				drawHUD	= cg_drawHUD.integer;
 
@@ -7784,13 +7783,12 @@ static void CG_Draw2D( void ) {
 					CG_DrawIconBackground();
 				}
 
-				if (inTime > wpTime)
+				if (cg.forceSelectTime+5000 > cg.time)
 				{
-					bestTime = cg.invenSelectTime;
 					CG_DrawInvenSelect();
 
 				}
-				else if (cg.forceSelectTime > bestTime)
+				else if (cg.forceSelectTime+5000 > cg.time)
 				{
 					drawSelect = 2;
 					CG_DrawForceSelect();
