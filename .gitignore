@@ -4,6 +4,7 @@
 Game/codemp/ipch/*
 /Game/codemp/[Dd]ebug/*
 *.user
+*.suo
 
 # Object files
 *.o
