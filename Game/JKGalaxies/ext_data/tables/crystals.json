@@ -1,0 +1,411 @@
+{
+	// STANDARD JSON FORMAT FILE
+	// This defines all of the saber crystals which exist in the game.
+	// They can have multiple unique properties to each one
+
+
+	// %s indicates the place where the value goes
+	// glowEffect = gfx/lightsabers/rgb_glow_%s
+	// bladeEffect = gfx/lightsabers/rgb_blade_%s
+	// trailEffect = gfx/lightsabers/rgb_trail_%s
+	// The above will not have the _%s bit at the end if no effect specified
+
+	"Blue":
+	{
+		// Original Trilogy style blue
+		"name":		"ot-blue",
+		"rgb": 
+		{
+			"r":	26,
+			"g":	71,
+			"b":	255
+		}
+	},
+
+	"Unstable Blue":
+	{
+		// Unstable blade, OT style blue
+		"name":		"ot-blue-unstable",
+		"rgb":
+		{
+			"r":	26,
+			"g":	71,
+			"b":	255
+		},
+
+		"bladeEffect":	"unstable",
+		"trailEffect":	"unstable"
+		
+		
+	},
+	"Sharp Blue":
+	{
+		// Sharp blade, OT style blue
+		"name":		"ot-blue-sharp",
+		"rgb":
+		{
+			"r":	26,
+			"g":	71,
+			"b":	255
+		},
+
+		"bladeEffect":	"sharp"
+		
+	},
+	"Cheap Blue":
+	{
+		// Cheap blade, OT style blue
+		"name":		"ot-blue-cheap",
+		"rgb":
+		{
+			"r":	26,
+			"g":	71,
+			"b":	255
+		},
+
+		"bladeEffect":	"cheap"
+		
+	},
+
+	"Green":
+	{
+		// Original Trilogy style green
+		"name":		"ot-green",
+		"rgb": 
+		{
+			"r":	70,
+			"g":	165,
+			"b":	5
+		}
+	},
+
+	"Unstable Green":
+	{
+		// Unstable blade, OT style green
+		"name":		"ot-green-unstable",
+		"rgb": 
+		{
+			"r":	70,
+			"g":	165,
+			"b":	5
+		},
+
+		"bladeEffect":	"unstable",
+		"trailEffect":	"unstable"
+		
+		
+	},
+	"Sharp Green":
+	{
+		// Sharp blade, OT style green
+		"name":		"ot-green-sharp",
+		"rgb": 
+		{
+			"r":	70,
+			"g":	165,
+			"b":	5
+		},
+
+		"bladeEffect":	"sharp"
+		
+	},
+	"Cheap Green":
+	{
+		// Cheap blade, OT style blue
+		"name":		"ot-green-cheap",
+		"rgb": 
+		{
+			"r":	70,
+			"g":	165,
+			"b":	5
+		},
+
+		"bladeEffect":	"cheap"
+		
+	},
+
+	"Red":
+	{
+		// Original Trilogy style red
+		"name":		"ot-red",
+		"rgb":
+		{
+			"r":	165,
+			"g":	17,
+			"b":	5
+		}
+	},
+
+	"Unstable Red":
+	{
+		// Unstable blade, OT style red
+		"name":		"ot-red-unstable",
+		"rgb":
+		{
+			"r":	165,
+			"g":	17,
+			"b":	5
+		},
+
+		"bladeEffect":	"unstable",
+		"trailEffect":	"unstable"
+		
+		
+	},
+	"Sharp Red":
+	{
+		// Sharp blade, OT style red
+		"name":		"ot-red-sharp",
+		"rgb":
+		{
+			"r":	165,
+			"g":	17,
+			"b":	5
+		},
+
+		"bladeEffect":	"sharp"
+		
+	},
+	"Cheap Red":
+	{
+		// Cheap blade, OT style red
+		"name":		"ot-red-cheap",
+		"rgb":
+		{
+			"r":	165,
+			"g":	17,
+			"b":	5
+		},
+
+		"bladeEffect":	"cheap"
+		
+	},
+
+	"Purple":
+	{
+		// Purple
+		"name":		"purple",
+		"rgb": 
+		{
+			"r":	119,
+			"g":	7,
+			"b":	193
+		}
+	},
+
+	"Unstable Purple":
+	{
+		// Unstable blade, purple
+		"name":		"purple-unstable",
+		"rgb": 
+		{
+			"r":	119,
+			"g":	7,
+			"b":	193
+		},
+
+		"bladeEffect":	"unstable",
+		"trailEffect":	"unstable"
+		
+		
+	},
+	"Sharp Purple":
+	{
+		// Sharp blade, purple
+		"name":		"purple-sharp",
+		"rgb": 
+		{
+			"r":	119,
+			"g":	7,
+			"b":	193
+		},
+
+		"bladeEffect":	"sharp"
+		
+	},
+	"Cheap Purple":
+	{
+		// Cheap blade, purple
+		"name":		"purple-cheap",
+		"rgb": 
+		{
+			"r":	119,
+			"g":	7,
+			"b":	193
+		},
+
+		"bladeEffect":	"cheap"
+		
+	},
+
+	"Orange":
+	{
+		// Orange
+		"name":		"orange",
+		"rgb": 
+		{
+			"r":	214,
+			"g":	105,
+			"b":	8
+		}
+	},
+
+	"Unstable Orange":
+	{
+		// Unstable blade, orange
+		"name":		"orange-unstable",
+		"rgb": 
+		{
+			"r":	214,
+			"g":	105,
+			"b":	8
+		},
+
+		"bladeEffect":	"unstable",
+		"trailEffect":	"unstable"
+		
+		
+	},
+	"Sharp Orange":
+	{
+		// Sharp blade, orange
+		"name":		"orange-sharp",
+		"rgb": 
+		{
+			"r":	214,
+			"g":	105,
+			"b":	8
+		},
+
+		"bladeEffect":	"sharp"
+		
+	},
+	"Cheap Orange":
+	{
+		// Cheap blade, orange
+		"name":		"orange-cheap",
+		"rgb": 
+		{
+			"r":	214,
+			"g":	105,
+			"b":	8
+		},
+
+		"bladeEffect":	"cheap"
+		
+	},
+
+	"Yellow":
+	{
+		// Yellow
+		"name":		"yellow",
+		"rgb": 
+		{
+			"r":	255,
+			"g":	255,
+			"b":	0
+		}
+	},
+
+	"Unstable Yellow":
+	{
+		// Unstable blade, yellow
+		"name":		"yellow-unstable",
+		"rgb": 
+		{
+			"r":	255,
+			"g":	255,
+			"b":	0
+		},
+
+		"bladeEffect":	"unstable",
+		"trailEffect":	"unstable"
+		
+		
+	},
+	"Sharp Yellow":
+	{
+		// Sharp blade, yellow
+		"name":		"yellow-sharp",
+		"rgb": 
+		{
+			"r":	255,
+			"g":	255,
+			"b":	0
+		},
+
+		"bladeEffect":	"sharp"
+		
+	},
+	"Cheap Yellow":
+	{
+		// Cheap blade, yellow
+		"name":		"yellow-cheap",
+		"rgb": 
+		{
+			"r":	255,
+			"g":	255,
+			"b":	0
+		},
+
+		"bladeEffect":	"cheap"
+		
+	},
+
+	"Cyan":
+	{
+		// Cyan
+		"name":		"cyan",
+		"rgb": 
+		{
+			"r":	0,
+			"g":	204,
+			"b":	255
+		}
+	},
+
+	"Unstable Cyan":
+	{
+		// Unstable blade, cyan
+		"name":		"cyan-unstable",
+		"rgb": 
+		{
+			"r":	0,
+			"g":	204,
+			"b":	255
+		},
+
+		"bladeEffect":	"unstable",
+		"trailEffect":	"unstable"
+		
+		
+	},
+	"Sharp Cyan":
+	{
+		// Sharp blade, cyan
+		"name":		"cyan-sharp",
+		"rgb": 
+		{
+			"r":	0,
+			"g":	204,
+			"b":	255
+		},
+
+		"bladeEffect":	"sharp"
+		
+	},
+	"Cheap Cyan":
+	{
+		// Cheap blade, cyan
+		"name":		"cyan-cheap",
+		"rgb": 
+		{
+			"r":	0,
+			"g":	204,
+			"b":	255
+		},
+
+		"bladeEffect":	"cheap"
+		
+	}
+}

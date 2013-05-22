@@ -1,0 +1,382 @@
+{
+	// STANCE DATA
+	// This is basically the equivalent of Yellow stance.
+	"name_technical": "Niman",		// for advanced HUD
+	"name_simple": "Staff",		// for simple HUD
+
+	"offensiveStanceAnim": "BOTH_SABERSTAFF_STANCE",
+	"projectileBlockAnim": "BOTH_P7_S7_TR",
+
+	"isStaffFriendly": "1",		// can be used with staff, durr
+	"isDualsFriendly": "0",		// but not duals
+	"isStaffOnly": "1",			// staff only
+	"isDualsOnly": "0",			// or duals (and does not ignite both blades)
+	"sabSpecific": "0",			// unused --eez
+
+	"maxChainCount": "6",
+	"baseDamageDefault": "35",
+	"baseDamageMin": "6",
+	"baseDamageMax": "40",
+
+	"BPdrain": "9",
+
+	"SpecialMoves": {
+		"allowBackStab": "1", // for silverfang --eez
+		"allowFlipSlash": "1",
+		"allowBackflipAttack": "1",
+		"allowSpeedLunge": "1",
+		"allowStabDown": "1",
+		"allowButterfly": "1"
+	},
+
+
+	// All the moves -- consult wiki for more info on each one --eez
+	// Attacks
+	"LS_A_TL2BR": {
+		"anim": "BOTH_A7_TL_BR",
+		"animspeedscale": "0.90",
+		"fpdrain": "15"
+	},
+
+	"LS_A_L2R": {
+		"anim": "BOTH_A7__L__R",
+		"animspeedscale": "0.90",
+		"fpdrain": "15"
+	},
+
+	"LS_A_BL2TR": {
+		"anim": "BOTH_A7_BL_TR",
+		"animspeedscale": "0.90",
+		"fpdrain": "15"
+	},
+
+	"LS_A_BR2TL": {
+		"anim": "BOTH_A7_BR_TL",
+		"animspeedscale": "0.90",
+		"fpdrain": "15"
+	},
+
+	"LS_A_R2L": {
+		"anim": "BOTH_A7__R__L",
+		"animspeedscale": "0.90",
+		"fpdrain": "15"
+	},
+
+	"LS_A_TR2BL": {
+		"anim": "BOTH_A7_TR_BL",
+		"animspeedscale": "0.90",
+		"fpdrain": "15"
+	},
+
+	"LS_A_T2B": {
+		"anim": "BOTH_A7_T__B_",
+		"animspeedscale": "0.90",
+		"fpdrain": "15"
+	},
+
+	
+	// Starts
+	"LS_S_TL2BR": {
+		"animspeedscale": "0.80",
+		"anim": "BOTH_S7_S7_TL"
+	},
+
+	"LS_S_L2R": {
+		"animspeedscale": "0.80",
+		"anim": "BOTH_S7_S7__L"
+	},
+
+	"LS_S_BL2TR": {
+		"animspeedscale": "0.80",
+		"anim": "BOTH_S7_S7_BL"
+	},
+
+	"LS_S_BR2TL": {
+		"animspeedscale": "0.80",
+		"anim": "BOTH_S7_S7_BR"
+	},
+
+	"LS_S_R2L": {
+		"animspeedscale": "0.80",
+		"anim": "BOTH_S7_S7__R"
+	},
+
+	"LS_S_TR2BL": {
+		"animspeedscale": "0.80",
+		"anim": "BOTH_S7_S7_TR"
+	},
+
+	"LS_S_T2B": {
+		"animspeedscale": "0.80",
+		"anim": "BOTH_S7_S7_T_"
+	},
+	
+
+	// Returns
+	"LS_R_TL2BR": {
+		"animspeedscale": "1.10",
+		"anim": "BOTH_R7_BR_S1"
+	},
+
+	"LS_R_L2R": {
+		"animspeedscale": "1.10",
+		"anim": "BOTH_R7__R_S1"
+	},
+
+	"LS_R_BL2TR": {
+		"animspeedscale": "1.10",
+		"anim": "BOTH_R7_TR_S1"
+	},
+
+	"LS_R_BR2TL": {
+		"animspeedscale": "1.10",
+		"anim": "BOTH_R7_TL_S1"
+	},
+
+	"LS_R_R2L": {
+		"animspeedscale": "1.10",
+		"anim": "BOTH_R7__L_S1"
+	},
+
+	"LS_R_TR2BL": {
+		"animspeedscale": "1.10",
+		"anim": "BOTH_R7_BL_S1"
+	},
+
+	"LS_R_T2B": {
+		"animspeedscale": "1.10",
+		"anim": "BOTH_R7_B__S1"
+	},
+
+
+	// Transitions (just shoot me now...)
+	"LS_T1_BR__R": {
+		"anim": "BOTH_T7_BR__R"
+	},
+
+	"LS_T1_BR_TR": {
+		"anim": "BOTH_T7_BR_TR"
+	},
+
+	"LS_T1_BR_T_": {
+		"anim": "BOTH_T7_BR_T_"
+	},
+
+	"LS_T1_BR_TL": {
+		"anim": "BOTH_T7_BR_TL"
+	},
+
+	"LS_T1_BR__L": {
+		"anim": "BOTH_T7_BR__L"
+	},
+
+	"LS_T1_BR_BL": {
+		"anim": "BOTH_T7_BR_BL"
+	},
+
+	"LS_T1__R_BR": {
+		"anim": "BOTH_T7__R_BR"
+	},
+
+	"LS_T1__R_TR": {
+		"anim": "BOTH_T7__R_TR"
+	},
+
+	"LS_T1__R_T_": {
+		"anim": "BOTH_T7__R_T_"
+	},
+
+	"LS_T1__R_TL": {
+		"anim": "BOTH_T7__R_TL"
+	},
+
+	"LS_T1__R__L": {
+		"anim": "BOTH_T7__R__L"
+	},
+
+	"LS_T1__R_BL": {
+		"anim": "BOTH_T7__R_BL"
+	},
+
+	"LS_T1_TR_BR": {
+		"anim": "BOTH_T7_TR_BR"
+	},
+
+	"LS_T1_TR__R": {
+		"anim": "BOTH_T7_TR__R"
+	},
+
+	"LS_T1_TR_T_": {
+		"anim": "BOTH_T7_TR_T_"
+	},
+
+	"LS_T1_TR_TL": {
+		"anim": "BOTH_T7_TR_TL"
+	},
+
+	"LS_T1_TR__L": {
+		"anim": "BOTH_T7_TR__L"
+	},
+
+	"LS_T1_TR_BL": {
+		"anim": "BOTH_T7_TR_BL"
+	},
+
+	"LS_T1_T__BR": {
+		"anim": "BOTH_T7_T__BR"
+	},
+
+	"LS_T1_T___R": {
+		"anim": "BOTH_T7_T___R"
+	},
+
+	"LS_T1_T__TR": {
+		"anim": "BOTH_T7_T__TR"
+	},
+
+	"LS_T1_T__TL": {
+		"anim": "BOTH_T7_T__TL"
+	},
+
+	"LS_T1_T___L": {
+		"anim": "BOTH_T7_T___L"
+	},
+
+	"LS_T1_T__BL": {
+		"anim": "BOTH_T7_T__BL"
+	},
+
+	"LS_T1_TL_BR": {
+		"anim": "BOTH_T7_TL_BR"
+	},
+
+	"LS_T1_TL__R": {
+		"anim": "BOTH_T7_TL__R"
+	},
+
+	"LS_T1_TL_TR": {
+		"anim": "BOTH_T7_TL_TR"
+	},
+
+	"LS_T1_TL_T_": {
+		"anim": "BOTH_T7_TL_T_"
+	},
+
+	"LS_T1_TL__L": {
+		"anim": "BOTH_T7_TL__L"
+	},
+
+	"LS_T1_TL_BL": {
+		"anim": "BOTH_T7_TL_BL"
+	},
+
+	"LS_T1__L_BR": {
+		"anim": "BOTH_T7__L_BR"
+	},
+
+	"LS_T1__L__R": {
+		"anim": "BOTH_T7__L__R"
+	},
+
+	"LS_T1__L_TR": {
+		"anim": "BOTH_T7__L_TR"
+	},
+
+	"LS_T1__L_T_": {
+		"anim": "BOTH_T7__L_T_"
+	},
+
+	"LS_T1__L_TL": {
+		"anim": "BOTH_T7__L_TL"
+	},
+
+	"LS_T1__L_BL": {
+		"anim": "BOTH_T7__L_BL"
+	},
+
+	"LS_T1_BL_BR": {
+		"anim": "BOTH_T7_BL_BR"
+	},
+
+	"LS_T1_BL__R": {
+		"anim": "BOTH_T7_BL__R"
+	},
+
+	"LS_T1_BL_TR": {
+		"anim": "BOTH_T7_BL_TR"
+	},
+
+	"LS_T1_BL_T_": {
+		"anim": "BOTH_T7_BL_T_"
+	},
+
+	"LS_T1_BL_TL": {
+		"anim": "BOTH_T7_BL_TL"
+	},
+
+	"LS_T1_BL__L": {
+		"anim": "BOTH_T7_BL__L"
+	},
+
+	// Bounces
+	"LS_B1_BR": {
+		"anim": "BOTH_B7_BR___"
+	},
+
+	"LS_B1__R": {
+		"anim": "BOTH_B7__R___"
+	},
+
+	"LS_B1_TR": {
+		"anim": "BOTH_B7_TR___"
+	},
+
+	"LS_B1_T_": {
+		"anim": "BOTH_B7_T____"
+	},
+
+	"LS_B1_TL": {
+		"anim": "BOTH_B7_TL___"
+	},
+
+	"LS_B1__L": {
+		"anim": "BOTH_B7__L___"
+	},
+
+	"LS_B1_BL": {
+		"anim": "BOTH_B7_BL___"
+	},
+
+	// Deflected Attacks
+	"LS_D1_BR": {
+		"anim": "BOTH_D7_BR___"
+	},
+
+	"LS_D1__R": {
+		"anim": "BOTH_D7__R___"
+	},
+
+	"LS_D1_TR": {
+		"anim": "BOTH_D7_TR___"
+	},
+
+	"LS_D1_T_": {
+		"anim": "BOTH_B7_T____"
+	},
+
+	"LS_D1_TL": {
+		"anim": "BOTH_D7_TL___"
+	},
+
+	"LS_D1__L": {
+		"anim": "BOTH_D7__L___"
+	},
+
+	"LS_D1_BL": {
+		"anim": "BOTH_D7_BL___"
+	},
+
+	"LS_D1_B_": {
+		"anim": "BOTH_D7_B____"
+	}
+}
