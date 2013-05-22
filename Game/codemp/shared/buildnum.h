@@ -7,7 +7,7 @@
 // BUILDNUM_GAME looks to be technically incorrect. Since the game rebuilds itself a lot of the
 // time using the game project, I've come to the conclusion that really we need to be doing this
 // to all the projects quite frankly, or taking a closer look as to what's going on.
-#define BUILDNUM_GAME 21
+#define BUILDNUM_GAME 22
 #define BUILDNUM_UI 5
 #define BUILDNUM_AUX 2
 #define BUILDNUM_AUXSV 2

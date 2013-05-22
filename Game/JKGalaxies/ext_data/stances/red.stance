@@ -1,0 +1,408 @@
+{
+	// STANCE DATA
+	// This is basically the equivalent of Yellow stance.
+	"name_technical": "Juyo",		// for advanced HUD
+	"name_simple": "Strong",		// for simple HUD -- unused atm
+
+	"offensiveStanceAnim": "BOTH_SABERSTRONG_STANCE",
+	"projectileBlockAnim": "BOTH_SABERFAST_STANCE",
+
+	"isStaffFriendly": "0",		// can NOT be used with staff
+	"isDualsFriendly": "0",		// OR duals...
+	"sabSpecific": "0",			// unused --eez
+
+	"maxChainCount": "3",
+	"baseDamageDefault": "60",	// getting hit with this stance hurts like a motherfucker --eez
+	"baseDamageMin": "20",
+	"baseDamageMax": "85",
+	
+	"BPdrain": "15",
+
+	"SpecialMoves": {
+		"allowBackAttack": "1",
+		"allowCrouchedBackAttack": "1",
+		"allowLeapAttack": "1",
+		"allowPullSlash": "1",
+		"allowBackflipAttack": "1",
+		"allowSpeedLunge": "1"
+	},
+
+
+	// All the moves -- consult wiki for more info on each one --eez
+	// Attacks
+	"LS_A_TL2BR": {
+		// Red moves have been slightly sped up --eez
+		"anim": "BOTH_A3_TL_BR",
+		"animspeedscale": "1.15",
+		"fpdrain": "10"
+	},
+
+	"LS_A_L2R": {
+		"anim": "BOTH_A3__L__R",
+		"animspeedscale": "1.15",
+		"fpdrain": "10"
+	},
+
+	"LS_A_BL2TR": {
+		"anim": "BOTH_A3_BL_TR",
+		"animspeedscale": "1.15",
+		"fpdrain": "10"
+	},
+
+	"LS_A_BR2TL": {
+		"anim": "BOTH_A3_BR_TL",
+		"animspeedscale": "1.15",
+		"fpdrain": "10"
+	},
+
+	"LS_A_R2L": {
+		"anim": "BOTH_A3__R__L",
+		"animspeedscale": "1.15",
+		"fpdrain": "10"
+	},
+
+	"LS_A_TR2BL": {
+		"anim": "BOTH_A3_TR_BL",
+		"animspeedscale": "1.15",
+		"fpdrain": "10"
+	},
+
+	"LS_A_T2B": {
+		"anim": "BOTH_A3_T__B_",
+		"animspeedscale": "1.15",
+		"fpdrain": "10"
+	},
+
+
+	// Special attacks
+	"LS_A_BACK": {
+		// Red stance slows these down more --eez
+		"animspeedscale": "0.65"
+	},
+
+	"LS_A_BACK_CR": {
+		// Red stance slows these down more --eez
+		"animspeedscale": "0.65"
+	},
+
+	
+	// Starts
+	"LS_S_TL2BR": {
+		"animspeedscale": "0.9",
+		"anim": "BOTH_S3_S1_TL"
+	},
+
+	"LS_S_L2R": {
+		"animspeedscale": "0.9",
+		"anim": "BOTH_S3_S1__L"
+	},
+
+	"LS_S_BL2TR": {
+		"animspeedscale": "0.9",
+		"anim": "BOTH_S3_S1_BL"
+	},
+
+	"LS_S_BR2TL": {
+		"animspeedscale": "0.9",
+		"anim": "BOTH_S3_S1_BR"
+	},
+
+	"LS_S_R2L": {
+		"animspeedscale": "0.9",
+		"anim": "BOTH_S3_S1__R"
+	},
+
+	"LS_S_TR2BL": {
+		"animspeedscale": "0.9",
+		"anim": "BOTH_S3_S1_TR"
+	},
+
+	"LS_S_T2B": {
+		"animspeedscale": "0.9",
+		"anim": "BOTH_S3_S1_T_"
+	},
+	
+
+	// Returns
+	"LS_R_TL2BR": {
+		"animspeedscale": "1.3",
+		"anim": "BOTH_R3_BR_S1"
+	},
+
+	"LS_R_L2R": {
+		"animspeedscale": "1.3",
+		"anim": "BOTH_R3__R_S1"
+	},
+
+	"LS_R_BL2TR": {
+		"animspeedscale": "1.3",
+		"anim": "BOTH_R3_TR_S1"
+	},
+
+	"LS_R_BR2TL": {
+		"animspeedscale": "1.3",
+		"anim": "BOTH_R3_TL_S1"
+	},
+
+	"LS_R_R2L": {
+		"animspeedscale": "1.3",
+		"anim": "BOTH_R3__L_S1"
+	},
+
+	"LS_R_TR2BL": {
+		"animspeedscale": "1.3",
+		"anim": "BOTH_R3_BL_S1"
+	},
+
+	"LS_R_T2B": {
+		"animspeedscale": "1.3",
+		"anim": "BOTH_R3_B__S1"
+	},
+
+
+	// Transitions (just shoot me now...)
+	"LS_T1_BR__R": {
+		"anim": "BOTH_T3_BR__R"
+	},
+
+	"LS_T1_BR_TR": {
+		"anim": "BOTH_T3_BR_TR"
+	},
+
+	"LS_T1_BR_T_": {
+		"anim": "BOTH_T3_BR_T_"
+	},
+
+	"LS_T1_BR_TL": {
+		"anim": "BOTH_T3_BR_TL"
+	},
+
+	"LS_T1_BR__L": {
+		"anim": "BOTH_T3_BR__L"
+	},
+
+	"LS_T1_BR_BL": {
+		"anim": "BOTH_T3_BR_BL"
+	},
+
+	"LS_T1__R_BR": {
+		"anim": "BOTH_T3__R_BR"
+	},
+
+	"LS_T1__R_TR": {
+		"anim": "BOTH_T3__R_TR"
+	},
+
+	"LS_T1__R_T_": {
+		"anim": "BOTH_T3__R_T_"
+	},
+
+	"LS_T1__R_TL": {
+		"anim": "BOTH_T3__R_TL"
+	},
+
+	"LS_T1__R__L": {
+		"anim": "BOTH_T3__R__L"
+	},
+
+	"LS_T1__R_BL": {
+		"anim": "BOTH_T3__R_BL"
+	},
+
+	"LS_T1_TR_BR": {
+		"anim": "BOTH_T3_TR_BR"
+	},
+
+	"LS_T1_TR__R": {
+		"anim": "BOTH_T3_TR__R"
+	},
+
+	"LS_T1_TR_T_": {
+		"anim": "BOTH_T3_TR_T_"
+	},
+
+	"LS_T1_TR_TL": {
+		"anim": "BOTH_T3_TR_TL"
+	},
+
+	"LS_T1_TR__L": {
+		"anim": "BOTH_T3_TR__L"
+	},
+
+	"LS_T1_TR_BL": {
+		"anim": "BOTH_T3_TR_BL"
+	},
+
+	"LS_T1_T__BR": {
+		"anim": "BOTH_T3_T__BR"
+	},
+
+	"LS_T1_T___R": {
+		"anim": "BOTH_T3_T___R"
+	},
+
+	"LS_T1_T__TR": {
+		"anim": "BOTH_T3_T__TR"
+	},
+
+	"LS_T1_T__TL": {
+		"anim": "BOTH_T3_T__TL"
+	},
+
+	"LS_T1_T___L": {
+		"anim": "BOTH_T3_T___L"
+	},
+
+	"LS_T1_T__BL": {
+		"anim": "BOTH_T3_T__BL"
+	},
+
+	"LS_T1_TL_BR": {
+		"anim": "BOTH_T3_TL_BR"
+	},
+
+	"LS_T1_TL__R": {
+		"anim": "BOTH_T3_TL__R"
+	},
+
+	"LS_T1_TL_TR": {
+		"anim": "BOTH_T3_TL_TR"
+	},
+
+	"LS_T1_TL_T_": {
+		"anim": "BOTH_T3_TL_T_"
+	},
+
+	"LS_T1_TL__L": {
+		"anim": "BOTH_T3_TL__L"
+	},
+
+	"LS_T1_TL_BL": {
+		"anim": "BOTH_T3_TL_BL"
+	},
+
+	"LS_T1__L_BR": {
+		"anim": "BOTH_T3__L_BR"
+	},
+
+	"LS_T1__L__R": {
+		"anim": "BOTH_T3__L__R"
+	},
+
+	"LS_T1__L_TR": {
+		"anim": "BOTH_T3__L_TR"
+	},
+
+	"LS_T1__L_T_": {
+		"anim": "BOTH_T3__L_T_"
+	},
+
+	"LS_T1__L_TL": {
+		"anim": "BOTH_T3__L_TL"
+	},
+
+	"LS_T1__L_BL": {
+		"anim": "BOTH_T3__L_BL"
+	},
+
+	"LS_T1_BL_BR": {
+		"anim": "BOTH_T3_BL_BR"
+	},
+
+	"LS_T1_BL__R": {
+		"anim": "BOTH_T3_BL__R"
+	},
+
+	"LS_T1_BL_TR": {
+		"anim": "BOTH_T3_BL_TR"
+	},
+
+	"LS_T1_BL_T_": {
+		"anim": "BOTH_T3_BL_T_"
+	},
+
+	"LS_T1_BL_TL": {
+		"anim": "BOTH_T3_BL_TL"
+	},
+
+	"LS_T1_BL__L": {
+		"anim": "BOTH_T3_BL__L"
+	},
+
+	// Bounces
+	"LS_B1_BR": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_B3_BR___"
+	},
+
+	"LS_B1__R": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_B3__R___"
+	},
+
+	"LS_B1_TR": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_B3_TR___"
+	},
+
+	"LS_B1_T_": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_B3_T____"
+	},
+
+	"LS_B1_TL": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_B3_TL___"
+	},
+
+	"LS_B1__L": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_B3__L___"
+	},
+
+	"LS_B1_BL": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_B3_BL___"
+	},
+
+	// Deflected Attacks
+	"LS_D1_BR": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3_BR___"
+	},
+
+	"LS_D1__R": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3__R___"
+	},
+
+	"LS_D1_TR": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3_TR___"
+	},
+
+	"LS_D1_T_": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3_T____"
+	},
+
+	"LS_D1_TL": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3_TL___"
+	},
+
+	"LS_D1__L": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3__L___"
+	},
+
+	"LS_D1_BL": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3_BL___"
+	},
+
+	"LS_D1_B_": {
+		"animspeedscale": "1.1",
+		"anim": "BOTH_D3_B____"
+	}
+}
