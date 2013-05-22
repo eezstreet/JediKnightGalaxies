@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>C:\Program Files (x86)\Lucasarts\Star Wars Jedi Knight Jedi Academy\Gamedata\jamp.exe</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>+set fs_game "JKG" +set fs_cdpath "C:/PROGRA~2/LUCASA~1/STARWA~1/Gamedata" +set g_password "fuckingpotatoes" +connect localhost:29070</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>+set fs_game "JKG" +set fs_cdpath "C:/PROGRA~2/LUCASA~1/STARWA~1/Gamedata" +set password "fuckingpotatoes" +connect localhost:29070</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>../Debug/DLLs</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

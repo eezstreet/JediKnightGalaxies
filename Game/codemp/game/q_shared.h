@@ -21,12 +21,6 @@
 // Include Global Definitions Header...
 #include "../game/z_global_defines.h"
 
-// Use build numbers?
-//#define USE_BUILD_NUMBERS
-#ifdef USE_BUILD_NUMBERS
-#include "../shared/buildnum.h"
-#endif
-
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
 

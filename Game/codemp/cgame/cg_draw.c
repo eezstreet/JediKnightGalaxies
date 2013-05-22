@@ -3115,7 +3115,22 @@ float CG_DrawRadar ( float y )
 	arrow_w = arrowBaseScale * RADAR_RADIUS / 128;
 	arrow_h = arrowBaseScale * RADAR_RADIUS / 128;
 
-	trap_R_SetColor ( colorWhite );
+	{
+		// CLEANME: rewrite this check later. i didn't mean to rescope, honest to goodness --eez
+		vec4_t newColor = {1, 1, 1, 0};
+		float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
+		VectorCopy4(newColor, color);
+
+		if(ironSightsPhase > 0)
+		{
+			newColor[3] = 1.0f - ironSightsPhase;
+		}
+		else
+		{
+			newColor[3] = 1.0f;
+		}
+		trap_R_SetColor ( newColor );
+	}
 	CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + xOffset, y2 + RADAR_RADIUS, arrow_w, arrow_h, 
 					   0, cgs.media.mAutomapPlayerIcon );
 
