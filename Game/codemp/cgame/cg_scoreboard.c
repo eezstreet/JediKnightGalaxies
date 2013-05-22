@@ -54,7 +54,69 @@
 static qboolean localClient; // true if local client has been displayed
 
 
-							 /*
+/*
+================
+CG_DrawFlagModel
+
+Used for both the status bar and the scoreboard
+JKGFIXME: use an icon instead bro, this is so 1999 --eez
+================
+*/
+void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D ) {
+	qhandle_t		cm;
+	float			len;
+	vec3_t			origin, angles;
+	vec3_t			mins, maxs;
+	qhandle_t		handle;
+
+	if ( !force2D && cg_draw3dIcons.integer ) {
+
+		VectorClear( angles );
+
+		cm = cgs.media.redFlagModel;
+
+		// offset the origin y and z to center the flag
+		trap_R_ModelBounds( cm, mins, maxs );
+
+		origin[2] = -0.5f * ( mins[2] + maxs[2] );
+		origin[1] = 0.5f * ( mins[1] + maxs[1] );
+
+		// calculate distance so the flag nearly fills the box
+		// assume heads are taller than wide
+		len = 0.5f * ( maxs[2] - mins[2] );		
+		origin[0] = len / 0.268f;	// len / tan( fov/2 )
+
+		angles[YAW] = 60 * sin( cg.time / 2000.0f );;
+
+		if( team == TEAM_RED ) {
+			handle = cgs.media.redFlagModel;
+		} else if( team == TEAM_BLUE ) {
+			handle = cgs.media.blueFlagModel;
+		} else if( team == TEAM_FREE ) {
+			handle = 0;//cgs.media.neutralFlagModel;
+		} else {
+			return;
+		}
+		CG_Draw3DModel( x, y, w, h, handle, NULL, 0, 0, origin, angles );
+	} else if ( cg_drawIcons.integer ) {
+		gitem_t *item;
+
+		if( team == TEAM_RED ) {
+			item = BG_FindItemForPowerup( PW_REDFLAG );
+		} else if( team == TEAM_BLUE ) {
+			item = BG_FindItemForPowerup( PW_BLUEFLAG );
+		} else if( team == TEAM_FREE ) {
+			item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
+		} else {
+			return;
+		}
+		if (item) {
+		  CG_DrawPic( x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon );
+		}
+	}
+}
+
+/*
 =================
 CG_DrawScoreboard
 =================
@@ -291,6 +353,36 @@ int CG_GetTeamCount(team_t team, int maxClients)
 	return count;
 
 }
+
+
+
+/*
+================
+CG_DrawTeamBackground
+
+================
+*/
+void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
+{
+	vec4_t		hcolor;
+
+	hcolor[3] = alpha;
+	if ( team == TEAM_RED ) {
+		hcolor[0] = bgGangWarsTeams[cgs.redTeam].teamColor[0];
+		hcolor[1] = bgGangWarsTeams[cgs.redTeam].teamColor[1];
+		hcolor[2] = bgGangWarsTeams[cgs.redTeam].teamColor[2];
+	} else if ( team == TEAM_BLUE ) {
+		hcolor[0] = bgGangWarsTeams[cgs.blueTeam].teamColor[0];
+		hcolor[1] = bgGangWarsTeams[cgs.blueTeam].teamColor[1];
+		hcolor[2] = bgGangWarsTeams[cgs.blueTeam].teamColor[2];
+	} else {
+		return;
+	}
+
+	CG_FillRect ( x, y, w, h, hcolor );
+	trap_R_SetColor( NULL );
+}
+
 /*
 =================
 CG_DrawScoreboard

@@ -17,8 +17,6 @@
 
 extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 extern qboolean CG_VehicleWeaponImpact( centity_t *cent );
-extern qboolean CG_InFighter( void );
-extern qboolean CG_InATST( void );
 extern int cg_saberFlashTime;
 extern vec3_t cg_saberFlashPos;
 extern char *showPowersName[];
