@@ -3837,10 +3837,22 @@ qboolean JKG_ParseSaberStanceFile( char *filename )
 	jsonNode = cJSON_GetObjectItem (json, "offensiveStanceAnim");
     stance = JKG_AnimationForJSON (jsonNode);
     theStance.offensiveStanceAnim = stance;
+	if(stance == -1)
+	{
+		Com_Printf("^3WARNING: %s: invalid Offensive Stance animation (%s)\n", 
+			theStance.saberName_technical,
+			cJSON_ToString(jsonNode));
+	}
 
 	jsonNode = cJSON_GetObjectItem (json, "projectileBlockAnim");
     stance = JKG_AnimationForJSON (jsonNode);
     theStance.projectileBlockAnim = stance;
+	if(stance == -1)
+	{
+		Com_Printf("^3WARNING: %s: invalid Projectile Block Stance animation (%s)\n", 
+			theStance.saberName_technical,
+			cJSON_ToString(jsonNode));
+	}
 
 
 
@@ -3933,6 +3945,13 @@ qboolean JKG_ParseSaberStanceFile( char *filename )
 			if( jsonChild )
 			{
 				theMove.anim = JKG_AnimationForJSON( jsonChild );
+				if(theMove.anim == -1)
+				{
+					// badness, warn that this is invalid
+					Com_Printf("^3WARNING: %s: invalid anim (%s) for move (%s)\n", 
+						theStance.saberName_technical, 
+						cJSON_ToString(jsonChild), SaberMoveTable[i].name);
+				}
 			}
 
 			jsonChild = cJSON_GetObjectItem( jsonNode, "animspeedscale" );
