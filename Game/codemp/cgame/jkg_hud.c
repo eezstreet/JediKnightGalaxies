@@ -283,6 +283,12 @@ static void JKG_DrawFiringMode( menuDef_t *menuHUD )
 	unsigned char firingMode = cg.predictedPlayerState.firingMode;
 	vec4_t opacity;
 
+	if( cg.predictedPlayerState.weapon == WP_SABER )
+	{
+		// Sabers don't have firing modes, loel
+		return;
+	}
+
 	if( cg.jkg_WHUDOpacity  < 1.0f )
 	{
 		MAKERGBA(opacity, 1,1,1, cg.jkg_WHUDOpacity);
@@ -316,6 +322,7 @@ static void JKG_DrawFiringMode( menuDef_t *menuHUD )
 	w = 120.0f;
 
 	// Right. Now let's get the display string.
+	// FIXME: Localize this text --eez
 	text = va("Mode: %s", CG_GetStringEdString2(wp->visuals.visualFireModes[firingMode].displayName));
 	if(!text || !text[0])
 	{	// ok maybe this isn't realistic at all but i'm paranoid
