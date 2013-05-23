@@ -3815,7 +3815,7 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 			else if(!SaberStances[ent->client->ps.fd.saberAnimLevel].isDualsOnly &&
 				!SaberStances[ent->client->ps.fd.saberAnimLevel].isStaffOnly)
 			{
-				ent->client->ps.saberHolstered = 1;
+				ent->client->ps.saberHolstered = 0;
 			}
 			else
 			{
@@ -3824,15 +3824,6 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 			ent->client->ps.saberActionFlags &= ~(1 << SAF_BLOCKING);
 			ent->client->ps.saberActionFlags &= ~( 1 << SAF_PROJBLOCKING );
 			ent->client->blockingLightningAccumulation = 0;
- 
-			/*if (ent->client->saber[0].soundOn)
- 			{
- 				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
- 			}
- 			if (ent->client->saber[1].soundOn)
- 			{
- 				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
-			}*/
 
 			if(previousSaberHolstered == 0)
 			{
@@ -3868,8 +3859,9 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 			{
 				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
 			}
-			//prevent anything from being done for 400ms after holster
-			ent->client->ps.weaponTime = 400;
+
+			//prevent anything from being done for 200ms after holster // cut from 400 --eez
+			ent->client->ps.weaponTime = 200;
 
 			G_SetAnim(ent, NULL, SETANIM_BOTH, BOTH_STAND2TO1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_HOLDLESS, 0);
 
