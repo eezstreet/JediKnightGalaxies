@@ -13,7 +13,6 @@ OM_Flag_Spawn
 
 #include "g_local.h"
 
-extern float VectorDistance(vec3_t v1, vec3_t v2);
 extern int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore);
 extern qboolean CheckAboveOK_Player(vec3_t origin);
 extern qboolean CheckBelowOK(vec3_t origin);

@@ -6,7 +6,6 @@
 extern gNPC_t		*NPCInfo;
 extern int gWPNum;
 extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
-extern float VectorDistance(vec3_t v1, vec3_t v2);
 extern int FindCloseList(int wpNum);
 extern void ClearRoute( int Route[MAX_WPARRAY_SIZE] );
 extern void AddtoRoute( int wpNum, int Route[MAX_WPARRAY_SIZE] );

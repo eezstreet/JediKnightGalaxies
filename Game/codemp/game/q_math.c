@@ -1318,17 +1318,11 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out) {
 
 	if (length)
 	{
-#ifndef Q3_VM // bk0101022 - FPE related
-//	  assert( ((Q_fabs(v[0])!=0.0f) || (Q_fabs(v[1])!=0.0f) || (Q_fabs(v[2])!=0.0f)) );
-#endif
 		ilength = 1/length;
 		out[0] = v[0]*ilength;
 		out[1] = v[1]*ilength;
 		out[2] = v[2]*ilength;
 	} else {
-#ifndef Q3_VM // bk0101022 - FPE related
-//	  assert( ((Q_fabs(v[0])==0.0f) && (Q_fabs(v[1])==0.0f) && (Q_fabs(v[2])==0.0f)) );
-#endif
 		VectorClear( out );
 	}
 		
@@ -1376,6 +1370,14 @@ void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out ) {
 	out[1] = in[1]*scale;
 	out[2] = in[2]*scale;
 	out[3] = in[3]*scale;
+}
+
+// Jedi Knight Galaxies: Extra vector math functions
+float VectorDistance( const vec3_t p1, const vec3_t p2 ) {
+	vec3_t	v;
+
+	VectorSubtract (p2, p1, v);
+	return VectorLength( v );
 }
 
 

@@ -3128,7 +3128,7 @@ Ghoul2 Insert End
 CG_Flag
 ===============
 */
-extern float VectorDistance(vec3_t v1, vec3_t v2);
+
 int capture_start_time = 0;
 qboolean flags_registerred = qfalse;
 

@@ -350,9 +350,6 @@
     <ClCompile Include="jkg_splinepaths.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_unique_autowaypoint.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jkg_wpindicators.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -654,6 +651,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\game\NPC_Walker.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_autowaypoint.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

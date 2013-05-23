@@ -561,16 +561,6 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-#ifdef __UNUSED__
-	if ( Q_stricmp (cmd, "nav_generate") == 0 )
-	{
-		char mapname[MAX_STRING_CHARS] = { 0 };
-		trap_Cvar_VariableStringBuffer ("mapname", mapname, sizeof (mapname));
-		JKG_Nav_CreateNavMesh (va ("maps/%s.bsp", mapname));
-		return qtrue;
-	}
-#endif //__UNUSED__
-
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
 			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(1) ) );

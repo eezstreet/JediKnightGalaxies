@@ -338,7 +338,7 @@
     <ClCompile Include="jkg_patcher.c" />
     <ClCompile Include="jkg_pixelshaders.c" />
     <ClCompile Include="jkg_splinepaths.c" />
-    <ClCompile Include="jkg_unique_autowaypoint.c" />
+    <ClCompile Include="jkg_autowaypoint.c" />
     <ClCompile Include="jkg_wpindicators.c" />
     <ClCompile Include="..\game\networkstate.c" />
     <ClCompile Include="..\game\q_math.c" />

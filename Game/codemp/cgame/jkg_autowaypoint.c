@@ -1,31 +1,4 @@
-/*
-                                                                                                            
-  **    ***    ***            ***   ****                                   *               ***              
-  **    ***    ***            ***  *****                                 ***               ***              
-  ***  *****  ***             ***  ***                                   ***                                
-  ***  *****  ***    *****    *** ******   *****    *** ****    ******  ******    *****    ***  *** ****    
-  ***  *****  ***   *******   *** ******  *******   *********  ***  *** ******   *******   ***  *********   
-  ***  ** **  ***  **** ****  ***  ***   ***   ***  ***   ***  ***       ***    ***   ***  ***  ***   ***   
-  *** *** *** ***  ***   ***  ***  ***   *********  ***   ***  ******    ***    *********  ***  ***   ***   
-   ****** ******   ***   ***  ***  ***   *********  ***   ***   ******   ***    *********  ***  ***   ***   
-   *****   *****   ***   ***  ***  ***   ***        ***   ***    ******  ***    ***        ***  ***   ***   
-   *****   *****   **** ****  ***  ***   ****  ***  ***   ***       ***  ***    ****  ***  ***  ***   ***   
-   ****     ****    *******   ***  ***    *******   ***   ***  ***  ***  *****   *******   ***  ***   ***   
-    ***     ***      *****    ***  ***     *****    ***   ***   ******    ****    *****    ***  ***   ***   
-                                                                                                            
-            ******** **                 ******                        *  **  **                             
-            ******** **                 ******                       **  **  **                             
-               **    **                 **                           **  **                                 
-               **    ** **    ***       **      ** *  ****   ** **  **** **  **  ** **    ***               
-               **    ******  *****      *****   ****  ****   ****** **** **  **  ******  *****              
-               **    **  **  ** **      *****   **   **  **  **  **  **  **  **  **  **  ** **              
-               **    **  **  *****      **      **   **  **  **  **  **  **  **  **  **  *****              
-               **    **  **  **         **      **   **  **  **  **  **  **  **  **  **  **                 
-               **    **  **  ** **      **      **   **  **  **  **  **  **  **  **  **  ** **              
-               **    **  **  *****      **      **    ****   **  **  *** **  **  **  **  *****              
-               **    **  **   ***       **      **    ****   **  **  *** **  **  **  **   ***               
-
-*/
+// FIXME: This needs to be in BG code, since it's shared between both games --eez
 
 #include "../game/q_shared.h"
 #include "../cgame/cg_local.h"
@@ -34,130 +7,31 @@
 
 #ifdef __AUTOWAYPOINT__
 
-#define MOD_DIRECTORY "JKG"
+/*
+=================================
+Global Defines and Variables
+=================================
+*/
 
 #define MAX_MAP_SIZE 16384
 
-
-// ==============================================================================================================================
-//
-//
-//                                                            BEGIN
-//                                                AUTO WAYPOINTER MAIN VARIABLES
-//
-//
-//
-// ==============================================================================================================================
-
-//float waypoint_distance_multiplier = 2.5f;
+// FIXME: cvar these please, thanks. I had to clean up a bunch of recommented code around here --eez
 float waypoint_distance_multiplier = 3.0f;
-//float waypoint_distance_multiplier = 3.5f;
-//float area_distance_multiplier = 2.0f;
 float area_distance_multiplier = 1.5f;
 
-//int waypoint_scatter_distance = 24;
-//int outdoor_waypoint_scatter_distance = 63;
-
-//int waypoint_scatter_distance = 192;
-//int waypoint_scatter_distance = 150;
-int waypoint_scatter_distance = 96;//128;
-//int waypoint_scatter_distance = 32;
+int waypoint_scatter_distance = 96;
 int outdoor_waypoint_scatter_distance = 192;
-
-#define __TEST_CLEANER__ // Experimental New Cleaning Method...
-
-// ==============================================================================================================================
-//
-//
-//                                                             END
-//                                                AUTO WAYPOINTER MAIN VARIABLES
-//
-//
-//
-// ==============================================================================================================================
-
 
 qboolean optimize_again = qfalse;
 qboolean DO_THOROUGH = qfalse;
 
-extern void		CG_Printff ( const char *fmt );
-extern void		trap_UpdateScreen( void );
-
-// warning C4996: 'strcpy' was declared deprecated
-#pragma warning( disable : 4996 )
-
-// warning #1478: function "strcpy" (declared at line XX of "XXX") was declared "deprecated"
-//#pragma warning( disable : 1478 )
-
-//
-// UQ1: Get CPU Info...
-// processor: x86, x64
-// Use the __cpuid intrinsic to get information about a CPU
-//
-
-#include <stdio.h>
-#include <string.h>
-#ifdef _WIN32
-#include <intrin.h>
-#endif //_WIN32
-///*#ifdef __linux__
-//#include <string>
-//#include <vector>
-//#include <Lib/Variable.h>
-//#include <Lib/Expression.h>
-//#include <Lib/ProcessorLexer.h>
-//#include <asm-i386/processor.h>
-//#endif //__linux__*/
-
-float VectorDistance( const vec3_t p1, const vec3_t p2 ) {
-	vec3_t	v;
-
-	VectorSubtract (p2, p1, v);
-	return VectorLength( v );
-}
-
-const char* szFeatures[] =
-{
-    "x87 FPU On Chip",
-    "Virtual-8086 Mode Enhancement",
-    "Debugging Extensions",
-    "Page Size Extensions",
-    "Time Stamp Counter",
-    "RDMSR and WRMSR Support",
-    "Physical Address Extensions",
-    "Machine Check Exception",
-    "CMPXCHG8B Instruction",
-    "APIC On Chip",
-    "Unknown1",
-    "SYSENTER and SYSEXIT",
-    "Memory Type Range Registers",
-    "PTE Global Bit",
-    "Machine Check Architecture",
-    "Conditional Move/Compare Instruction",
-    "Page Attribute Table",
-    "Page Size Extension",
-    "Processor Serial Number",
-    "CFLUSH Extension",
-    "Unknown2",
-    "Debug Store",
-    "Thermal Monitor and Clock Ctrl",
-    "MMX Technology",
-    "FXSAVE/FXRSTOR",
-    "SSE Extensions",
-    "SSE2 Extensions",
-    "Self Snoop",
-    "Hyper-threading Technology",
-    "Thermal Monitor",
-    "Unknown4",
-    "Pend. Brk. EN."
-};
-
-qboolean CPU_CHECKED = qfalse;
-qboolean SSE_CPU = qfalse;
+// end FIXME
 
 float		ENTITY_HEIGHTS[MAX_GENTITIES];
 int			NUM_ENTITY_HEIGHTS = 0;
 qboolean	ENTITY_HIGHTS_INITIALIZED = qfalse;
+
+#define __TEST_CLEANER__ // Experimental New Cleaning Method...
 
 qboolean AlreadyHaveEntityAtHeight( float height )
 {
@@ -240,290 +114,6 @@ qboolean AIMOD_IsWaypointHeightMarkedAsBad( vec3_t org )
 
 	return qfalse;
 }
-
-int UQ_Get_CPU_Info( void )
-{
-#ifdef _WIN32 // UQ1: Hell, I don't know.. Should work in linux but doesnt...
-    char CPUString[0x20];
-    char CPUBrandString[0x40];
-    int CPUInfo[4] = {-1};
-    int nSteppingID = 0;
-    int nModel = 0;
-    int nFamily = 0;
-    int nProcessorType = 0;
-    int nExtendedmodel = 0;
-    int nExtendedfamily = 0;
-    int nBrandIndex = 0;
-    int nCLFLUSHcachelinesize = 0;
-    int nAPICPhysicalID = 0;
-    int nFeatureInfo = 0;
-    int nCacheLineSize = 0;
-    int nL2Associativity = 0;
-    int nCacheSizeK = 0;
-    int nRet = 0;
-    unsigned    nIds, nExIds, i;
-    qboolean    bSSE3NewInstructions = qfalse;
-    qboolean    bMONITOR_MWAIT = qfalse;
-    qboolean    bCPLQualifiedDebugStore = qfalse;
-    qboolean    bThermalMonitor2 = qfalse;
-
-	CG_Printf("^4-------------------------- ^5[^7CPU Information^5] ^4--------------------------\n");
-
-    // __cpuid with an InfoType argument of 0 returns the number of
-    // valid Ids in CPUInfo[0] and the CPU identification string in
-    // the other three array elements. The CPU identification string is
-    // not in linear order. The code below arranges the information 
-    // in a human readable form.
-    __cpuid(CPUInfo, 0);
-    nIds = CPUInfo[0];
-    memset(CPUString, 0, sizeof(CPUString));
-    *((int*)CPUString) = CPUInfo[1];
-    *((int*)(CPUString+4)) = CPUInfo[3];
-    *((int*)(CPUString+8)) = CPUInfo[2];
-
-    // Get the information associated with each valid Id
-    for (i=0; i<=nIds; ++i)
-    {
-        __cpuid(CPUInfo, i);
-        /*CG_Printf("\nFor InfoType %d\n", i); 
-        CG_Printf("CPUInfo[0] = 0x%x\n", CPUInfo[0]);
-        CG_Printf("CPUInfo[1] = 0x%x\n", CPUInfo[1]);
-        CG_Printf("CPUInfo[2] = 0x%x\n", CPUInfo[2]);
-        CG_Printf("CPUInfo[3] = 0x%x\n", CPUInfo[3]);*/
-
-        // Interpret CPU feature information.
-        if  (i == 1)
-        {
-            nSteppingID = CPUInfo[0] & 0xf;
-            nModel = (CPUInfo[0] >> 4) & 0xf;
-            nFamily = (CPUInfo[0] >> 8) & 0xf;
-            nProcessorType = (CPUInfo[0] >> 12) & 0x3;
-            nExtendedmodel = (CPUInfo[0] >> 16) & 0xf;
-            nExtendedfamily = (CPUInfo[0] >> 20) & 0xff;
-            nBrandIndex = CPUInfo[1] & 0xff;
-            nCLFLUSHcachelinesize = ((CPUInfo[1] >> 8) & 0xff) * 8;
-            nAPICPhysicalID = (CPUInfo[1] >> 24) & 0xff;
-            bSSE3NewInstructions = (CPUInfo[2] & 0x1) || qfalse;
-            bMONITOR_MWAIT = (CPUInfo[2] & 0x8) || qfalse;
-            bCPLQualifiedDebugStore = (CPUInfo[2] & 0x10) || qfalse;
-            bThermalMonitor2 = (CPUInfo[2] & 0x100) || qfalse;
-            nFeatureInfo = CPUInfo[3];
-        }
-    }
-
-	if  (nFeatureInfo & 25)
-	{
-		SSE_CPU = qtrue;
-	}
-
-    // Calling __cpuid with 0x80000000 as the InfoType argument
-    // gets the number of valid extended IDs.
-    __cpuid(CPUInfo, 0x80000000);
-    nExIds = CPUInfo[0];
-    memset(CPUBrandString, 0, sizeof(CPUBrandString));
-
-    // Get the information associated with each extended ID.
-    for (i=0x80000000; i<=nExIds; ++i)
-    {
-        __cpuid(CPUInfo, i);
-        //CG_Printf("\nFor InfoType %x\n", i); 
-        //CG_Printf("CPUInfo[0] = 0x%x\n", CPUInfo[0]);
-        //CG_Printf("CPUInfo[1] = 0x%x\n", CPUInfo[1]);
-        //CG_Printf("CPUInfo[2] = 0x%x\n", CPUInfo[2]);
-        //CG_Printf("CPUInfo[3] = 0x%x\n", CPUInfo[3]);
-
-        // Interpret CPU brand string and cache information.
-        if  (i == 0x80000002)
-		{
-			memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-		}
-        else if  (i == 0x80000003)
-		{
-			memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-		}
-        else if  (i == 0x80000004)
-		{
-			memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
-		}
-        else if  (i == 0x80000006)
-        {
-            nCacheLineSize = CPUInfo[2] & 0xff;
-            nL2Associativity = (CPUInfo[2] >> 12) & 0xf;
-            nCacheSizeK = (CPUInfo[2] >> 16) & 0xffff;
-        }
-    }
-
-    // Display all the information in user-friendly format.
-
-    if  (nExIds >= 0x80000004)
-        CG_Printf("^5CPU Brand String: ^3%s\n", CPUBrandString);
-
-	CG_Printf("^5CPU String: ^3%s\n", CPUString);
-
-    if  (nExIds >= 0x80000006)
-    {
-        CG_Printf("^5Cache Line Size = ^7%d\n", nCacheLineSize);
-        CG_Printf("^5L2 Associativity = ^7%d\n", nL2Associativity);
-        CG_Printf("^5Cache Size = ^7%dK\n", nCacheSizeK);
-    }
-
-	if  (nIds >= 1)
-    {
-        if  (nSteppingID)
-            CG_Printf("^5Stepping ID = ^7%d\n", nSteppingID);
-        if  (nModel)
-            CG_Printf("^5Model = ^7%d\n", nModel);
-        if  (nFamily)
-            CG_Printf("^5Family = ^7%d\n", nFamily);
-        if  (nProcessorType)
-            CG_Printf("^5Processor Type = ^7%d\n", nProcessorType);
-        if  (nExtendedmodel)
-            CG_Printf("^5Extended model = ^7%d\n", nExtendedmodel);
-        if  (nExtendedfamily)
-            CG_Printf("^5Extended family = ^7%d\n", nExtendedfamily);
-        if  (nBrandIndex)
-            CG_Printf("^5Brand Index = ^7%d\n", nBrandIndex);
-        if  (nCLFLUSHcachelinesize)
-            CG_Printf("^5CLFLUSH cache line size = ^7%d\n",
-                     nCLFLUSHcachelinesize);
-        if  (nAPICPhysicalID)
-            CG_Printf("^5APIC Physical ID = ^7%d\n", nAPICPhysicalID);
-
-		if  (nFeatureInfo || bSSE3NewInstructions ||
-             bMONITOR_MWAIT || bCPLQualifiedDebugStore ||
-             bThermalMonitor2)
-        {
-            CG_Printf("\n^7The following features are supported:\n");
-
-			if  (bSSE3NewInstructions)
-				CG_Printf("^5* ^4SSE3 New Instructions\n");
-			if  (bMONITOR_MWAIT)
-				CG_Printf("^5* ^4MONITOR/MWAIT\n");
-			if  (bCPLQualifiedDebugStore)
-				CG_Printf("^5* ^4CPL Qualified Debug Store\n");
-			if  (bThermalMonitor2)
-				CG_Printf("^5* ^4Thermal Monitor 2\n");
-
-            i = 0;
-            nIds = 1;
-
-#ifdef __SHOW_FULL_CPU_INFO__
-            while (i < (sizeof(szFeatures)/sizeof(const char*)))
-            {
-                if  (nFeatureInfo & nIds)
-                {
-                    CG_Printf("^5* ^4");
-                    CG_Printf(szFeatures[i]);
-                    CG_Printf("\n");
-                }
-
-                nIds <<= 1;
-                ++i;
-            }
-#endif //__SHOW_FULL_CPU_INFO__
-        }
-    }
-
-	CG_Printf("^4-----------------------------------------------------------------------\n");
-
-	CPU_CHECKED = qtrue;
-	return  nRet;
-#else //_WIN32
-	//SSE_CPU = qtrue; // UQ1: Assume because the code doesnt support linux!
-	return -1;
-#endif //_WIN32
-}
-
-//
-// UQ1: The following is memcpy that uses SSE/SSE2 instructions for speed...
-//
-
-#ifdef _WIN32
-
-#pragma warning(push)
-#pragma warning(disable:4018 4102)
-
-int sse_memcpy(int* piDst, int* piSrc, unsigned long SizeInBytes)
-{
-//	unsigned long dwNumElements = SizeInBytes / sizeof(int);
-	// not really using it, just for debuging. it keeps number of looping. 
-	// it also means number of packed data.
-	//unsigned long dwNumPacks = dwNumElements / (128/(sizeof(int)*8));
-
-	_asm
-	{
-	// remember for cleanup
-	pusha;
-begin:
-	// init counter to SizeInBytes
-	mov  ecx,SizeInBytes;
-	// get destination pointer
-	mov  edi,piDst;
-	// get source pointer
-	mov  esi,piSrc;
-begina:
-	// check if counter is 0, yes end loop.
-	cmp  ecx,0;
-	jz  end;
-body:
-	// calculate offset
-	mov  ebx,SizeInBytes;
-	sub  ebx,ecx;
-	// copy source's content to 128 bits registers
-	movdqa xmm1,[esi+ebx];
-	// copy 128 bits registers to destination
-	movdqa [edi+ebx],xmm1;
-
-bodya:
-	// we've done "1 packed == 4 * sizeof(int)" already.
-	sub  ecx,16;
-	jmp  begina;
-end:
-	// cleanup
-	popa;
- }
-
- return 0;
-}
-
-void sse_memset(void *dst, int n32, unsigned long i)
-{
-	__asm {
-		movq mm0, n32
-		punpckldq mm0, mm0
-		mov edi, dst
-
-loopwrite:
-
-		movntq 0[edi], mm0
-		movntq 8[edi], mm0
-		//movntq 16[edi], mm0
-		//movntq 24[edi], mm0
-		//movntq 32[edi], mm0
-		//movntq 40[edi], mm0
-		//movntq 48[edi], mm0
-		//movntq 56[edi], mm0
-
-		add edi, 16
-		sub i, 2
-		jg loopwrite
-
-		emms
-	}
-}
-#else //!_WIN32
-int sse_memcpy(int* piDst, int* piSrc, unsigned long SizeInBytes)
-{
-	memcpy(piDst, piSrc, SizeInBytes*8);
-	return 0;
-}
-
-void sse_memset(void *dst, int n32, unsigned long i)
-{
-	memset (dst, n32, i*8);
-}
-
-#endif //_WIN32
 
 #define	G_MAX_SCRIPT_ACCUM_BUFFERS 10
 #define MAX_NODELINKS       32              // Maximum Node Links (12)
@@ -1078,15 +668,8 @@ qboolean AW_Map_Has_Waypoints ( void )
 		
 	if( len <= 0 )
 	{
-		FILE *file;
-		file = fopen( va( "%s/nodes/%s.bwp", MOD_DIRECTORY, filename), "r" );
-
-		if ( !file )
-		{
-			return qfalse;
-		}
-
-		fclose(file);
+		Com_Printf("^1ERROR: Could not load AWP node file nodes/%s.bwp\n", filename);
+		return qfalse;
 	}
 
 	return qtrue;
@@ -1692,16 +1275,13 @@ NodeVisibleCrouch ( vec3_t org1, vec3_t org2, int ignore )
 //2 = useable door in the way.
 
 //3 = team door entity in the way.
-int
-TankNodeVisible ( vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs, int ignore )
+int TankNodeVisible ( vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs, int ignore )
 {
 	trace_t tr;
 	vec3_t	newOrg, newOrg2;
 	VectorCopy( org1, newOrg2 );
 	VectorCopy( org2, newOrg );
 
-	//newOrg[2] += 4;		// Look from up a little...
-	//newOrg2[2] += 4;	// Look from up a little...
 	newOrg[2] += 32;		// Look from up a little...
 	newOrg2[2] += 32;	// Look from up a little...
 
@@ -1709,66 +1289,15 @@ TankNodeVisible ( vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs, int ignore
 	
 	if ( tr.startsolid )
 	{
-		return ( 0 );
+		return 0;
 	}
 
 	if ( tr.fraction == 1 /*&& !(tr.contents & CONTENTS_LAVA)*/ || HasPortalFlags(tr.surfaceFlags, tr.contents) )
 	{
-		return ( 1 );
+		return 1;
 	}
 
-	/*if ( tr.fraction != 1 
-		&& tr.entityNum != ENTITYNUM_NONE 
-		&& tr.entityNum < ENTITYNUM_MAX_NORMAL )
-	{
-		switch (cg_entities[tr.entityNum].currentState.eType)
-		{
-		case ET_MOVER:
-		case ET_ITEM:
-		case ET_PORTAL:
-//		case ET_PUSH_TRIGGER:
-		case ET_TELEPORT_TRIGGER:
-		case ET_INVISIBLE:
-		case ET_OID_TRIGGER:
-		case ET_EXPLOSIVE_INDICATOR:
-		case ET_EXPLOSIVE:
-//		case ET_EF_SPOTLIGHT:
-//		case ET_ALARMBOX:
-		case ET_MOVERSCALED:
-		case ET_CONSTRUCTIBLE_INDICATOR:
-		case ET_CONSTRUCTIBLE:
-		case ET_CONSTRUCTIBLE_MARKER:
-		case ET_WAYPOINT:
-		case ET_TANK_INDICATOR:
-		case ET_TANK_INDICATOR_DEAD:
-		case ET_BOTGOAL_INDICATOR:
-		case ET_CORPSE:
-		case ET_SMOKER:
-		case ET_TRIGGER_MULTIPLE:
-		case ET_TRIGGER_FLAGONLY:
-		case ET_TRIGGER_FLAGONLY_MULTIPLE:
-//		case ET_CABINET_H:
-//		case ET_CABINET_A:
-		case ET_HEALER:
-		case ET_SUPPLIER:
-		case ET_COMMANDMAP_MARKER:
-		case ET_WOLF_OBJECTIVE:
-		case ET_SECONDARY:
-		case ET_FLAG:
-		case ET_ASSOCIATED_SPAWNAREA:
-		case ET_UNASSOCIATED_SPAWNAREA:
-//		case ET_AMMO_CRATE:
-//		case ET_HEALTH_CRATE:
-		case ET_CONSTRUCTIBLE_SANDBAGS:
-		case ET_VEHICLE:
-		case ET_PARTICLE_SYSTEM:
-			return ( 1 );
-		default:
-			break;
-		}
-	}*/
-
-	return ( 0 );
+	return 0;
 }
 
 int			num_cover_spots = 0;
@@ -1788,20 +1317,19 @@ OrgVisible ( vec3_t org1, vec3_t org2, int ignore )
 	return ( 0 );
 }
 
-void
-AIMOD_SaveCoverPoints ( void )
+void AIMOD_SaveCoverPoints ( void )
 {
 	fileHandle_t	f;
 	int				i;
 
-	CG_Printf( "^3*** ^3%s: ^7Saving cover point table.\n", "AUTO-WAYPOINTER" );
+	CG_Printf( "AWP: Saving cover-point file\n", "AUTO-WAYPOINTER" );
 
 	///////////////////
 	//try to open the output file, return if it failed
 	trap_FS_FOpenFile( va( "nodes/%s.cpw", cgs.rawmapname), &f, FS_WRITE );
 	if ( !f )
 	{
-		CG_Printf( "^1*** ^3ERROR^5: Error opening cover point file ^7/nodes/%s.cpw^5!!!\n", "AUTO-WAYPOINTER", cgs.rawmapname );
+		CG_Printf( "^1AWP ERROR: Error opening cover point file /nodes/%s.cpw for writing\n", "AUTO-WAYPOINTER", cgs.rawmapname );
 		return;
 	}
 
@@ -1832,71 +1360,7 @@ AIMOD_SaveCoverPoints ( void )
 	CG_Printf( "^3*** ^3%s: ^5Cover point table saved to file ^7/nodes/%s.cpw^5.\n", "AUTO-WAYPOINTER", cgs.rawmapname );
 }
 
-qboolean
-AIMOD_LoadCoverPoints2 ( void )
-{
-	FILE			*f;
-	vmCvar_t		fs_homepath, fs_game;
-	int				i = 0;
-	int				num_map_waypoints = 0;
-
-	// Init...
-	num_cover_spots = 0;
-
-	trap_Cvar_Register( &fs_homepath, "fs_homepath", "", CVAR_SERVERINFO | CVAR_ROM );
-	trap_Cvar_Register( &fs_game, "fs_game", "", CVAR_SERVERINFO | CVAR_ROM );
-	
-	f = fopen( va("%s/%s/nodes/%s.cpw", fs_homepath.string, fs_game.string, cgs.rawmapname), "rb" );
-
-	if ( !f )
-	{
-		CG_Printf( "^1*** ^3%s^5: Reading coverpoints from ^7/nodes/%s.cpw^3 failed^5!!!\n", GAME_VERSION, cgs.rawmapname );
-		return qfalse;
-	}
-
-	fread( &num_map_waypoints, sizeof(int), 1, f );
-
-	if (num_map_waypoints != number_of_nodes)
-	{// Is an old file! We need to make a new one!
-		CG_Printf( "^1*** ^3%s^5: Reading coverpoints from ^7/nodes/%s.cpw^3 failed ^5(old coverpoint file: map wpNum %i - cpw wpNum: %i)^5!!!\n", GAME_VERSION, cgs.rawmapname, number_of_nodes, num_map_waypoints );
-		fclose( f );
-		return qfalse;
-	}
-
-	fread( &num_cover_spots, sizeof(int), 1, f );
-
-	for ( i = 0; i < num_cover_spots; i++ )
-	{
-		int j = 0;
-
-		fread( &cover_nodes[i], sizeof(int), 1, f );
-
-		/*
-		// UQ1: Now read the spots this is a coverpoint for...
-		fread( &nodes[cover_nodes[i]].coverpointNum, sizeof(int), 1, f );
-
-		// And then read each one...
-		for ( j = 0; j < nodes[cover_nodes[i]].coverpointNum; j++)
-		{
-			fread( &nodes[cover_nodes[i]].coverpointFor[j], sizeof(int), 1, f );
-		}
-		*/
-
-		if (!(nodes[cover_nodes[i]].type & NODE_COVER))
-			nodes[cover_nodes[i]].type |= NODE_COVER;
-
-		//CG_Printf("Cover spot #%i (node %i) is at %f %f %f.\n", i, cover_nodes[i], nodes[cover_nodes[i]].origin[0], nodes[cover_nodes[i]].origin[1], nodes[cover_nodes[i]].origin[2]);
-	}
-
-	fclose( f );
-
-	CG_Printf( "^1*** ^3%s^5: Successfully loaded %i cover points from file ^7/nodes/%s.cpw^5.\n", GAME_VERSION, num_cover_spots, cgs.rawmapname);
-
-	return qtrue;
-}
-
-qboolean
-AIMOD_LoadCoverPoints ( void )
+qboolean AIMOD_LoadCoverPoints ( void )
 {
 	//FILE			*pIn;
 	int				i = 0;
@@ -1910,14 +1374,15 @@ AIMOD_LoadCoverPoints ( void )
 
 	if (!f)
 	{
-		return AIMOD_LoadCoverPoints2();
+		CG_Printf( "^1ERROR: Failed to load coverpoint file /nodes/%s.cpw\n", cgs.rawmapname );
+		return qfalse;
 	}
 
 	trap_FS_Read( &num_map_waypoints, sizeof(int), f );
 
 	if (num_map_waypoints != number_of_nodes)
 	{// Is an old file! We need to make a new one!
-		CG_Printf( "^1*** ^3%s^5: Reading coverpoints from ^7/nodes/%s.cpw^3 failed ^5(old coverpoint file)^5!!!\n", GAME_VERSION, cgs.rawmapname );
+		CG_Printf( "^1ERROR: /nodes/%s.cpw uses incorrect file version, suggest recreate using /awp..\n", cgs.rawmapname );
 		trap_FS_FCloseFile( f );
 		return qfalse;
 	}
@@ -1929,17 +1394,6 @@ AIMOD_LoadCoverPoints ( void )
 		int j = 0;
 
 		trap_FS_Read( &(cover_nodes[i]), sizeof(int), f );
-
-		/*
-		// UQ1: Now read the spots this is a coverpoint for...
-		trap_FS_Read( &(nodes[cover_nodes[i]].coverpointNum), sizeof(int), f );
-
-		// And then read each one...
-		for ( j = 0; j < nodes[cover_nodes[i]].coverpointNum; j++)
-		{
-			trap_FS_Read( &(nodes[cover_nodes[i]].coverpointFor[j]), sizeof(int), f );
-		}
-		*/
 
 		if (!(nodes[cover_nodes[i]].type & NODE_COVER))
 			nodes[cover_nodes[i]].type |= NODE_COVER;
@@ -2095,8 +1549,7 @@ qboolean AIMod_Check_Slope_Between ( vec3_t org1, vec3_t org2 ) {
 }
 
 /* */
-int
-AIMOD_MAPPING_CreateNodeLinks ( int node )
+int AIMOD_MAPPING_CreateNodeLinks ( int node )
 {
 	vec3_t	tmp;
 	int		loop = 0;
@@ -2180,7 +1633,8 @@ AIMOD_MAPPING_CreateNodeLinks ( int node )
 		}
 	}
 
-#ifdef __VEHICLES__
+	/*
+#ifdef __VEHICLES__	// way too generic of a name, just remove the code for now --eez
 	// UQ1: If not too many links, add extra vehicle links...
 	if (linknum < MAX_NODELINKS && (nodes[node].type & NODE_LAND_VEHICLE) )
 	for ( loop = 0; loop < number_of_nodes; loop++ )
@@ -2266,6 +1720,7 @@ AIMOD_MAPPING_CreateNodeLinks ( int node )
 		}
 	}
 #endif //__VEHICLES__
+	*/
 
 	nodes[node].enodenum = linknum;
 
@@ -2276,8 +1731,7 @@ AIMOD_MAPPING_CreateNodeLinks ( int node )
 }
 
 /* */
-qboolean
-AI_PM_SlickTrace ( vec3_t point, int clientNum )
+qboolean AI_PM_SlickTrace ( vec3_t point, int clientNum )
 {
 	/*trace_t trace;
 	vec3_t	point2;
@@ -2367,10 +1821,7 @@ AIMOD_MAPPING_MakeLinks ( void )
 	update_timer = 0;
 	aw_percent_complete = 0.0f;
 	trap_UpdateScreen();
-
-	//number_of_nodes = total_good_count;
 	
-//#pragma omp parallel for
 	for ( loop = 0; loop < number_of_nodes; loop++ )
 	{// Do links...
 		nodes[loop].enodenum = 0;
@@ -2494,134 +1945,7 @@ Load_AddNode ( vec3_t origin, int fl, short int *ents, int objFl )
 	return ( qtrue );
 }
 
-static char * FS_BuildOSPath( const char *base, const char *game, const char *qpath )  {
-	__asm {
-		mov		eax, game
-		mov		edx, qpath
-		push	base
-		mov		ebx, 0x43A550
-		call	ebx
-		add		esp, 4
-	}
-}
-
-/* */
-void
-AIMOD_NODES_LoadNodes2 ( void )
-{
-	FILE			*f;
-	int				i, j;
-	vmCvar_t		fs_homepath, fs_game;
-	short int		objNum[3] = { 0, 0, 0 },
-	objFlags, numLinks;
-	int				flags;
-	vec3_t			vec;
-	short int		fl2;
-	int				target;
-	char			name[] = BOT_MOD_NAME;
-	char			nm[64] = "";
-	float			version;
-	char			map[64] = "";
-	char			mp[64] = "";
-	/*short*/ int		numberNodes;
-	short int		temp, fix_aas_nodes;
-
-	i = 0;
-
-	trap_Cvar_Register( &fs_homepath, "fs_homepath", "", CVAR_SERVERINFO | CVAR_ROM );
-	trap_Cvar_Register( &fs_game, "fs_game", "", CVAR_SERVERINFO | CVAR_ROM );
-	
-	f = fopen( va("%s/%s/nodes/%s.bwp", fs_homepath.string, fs_game.string, cgs.rawmapname), "rb" );
-
-	if ( !f )
-	{
-		CG_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", cgs.rawmapname );
-		CG_Printf( "^1*** ^3       ^5  You need to make bot routes for this map.\n" );
-		CG_Printf( "^1*** ^3       ^5  Bots will move randomly for this map.\n" );
-		return;
-	}
-
-	strcpy( mp, cgs.rawmapname );
-
-	fread( &nm, strlen( name) + 1, 1, f);
-
-	fread( &version, sizeof(float), 1, f);
-
-	if ( version != NOD_VERSION && version != 1.0f)
-	{
-		CG_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", cgs.rawmapname );
-		CG_Printf( "^1*** ^3       ^5  Old node file detected.\n" );
-		fclose(f);
-		return;
-	}
-
-	fread( &map, strlen( mp) + 1, 1, f);
-	if ( Q_stricmp( map, cgs.rawmapname) != 0 )
-	{
-		CG_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", cgs.rawmapname );
-		CG_Printf( "^1*** ^3       ^5  Node file is not for this map!\n" );
-		fclose(f);
-		return;
-	}
-
-	if (version == NOD_VERSION)
-	{
-		fread( &numberNodes, sizeof(/*short*/ int), 1, f);
-	}
-	else
-	{
-		fread( &temp, sizeof(short int), 1, f);
-		numberNodes = temp;
-	}
-
-	for ( i = 0; i < numberNodes; i++ )					//loop through all the nodes
-	{
-		nodes[i].enodenum = 0;
-
-		//read in all the node info stored in the file
-		fread( &vec, sizeof(vec3_t), 1, f);
-		fread( &flags, sizeof(int), 1, f);
-		fread( objNum, (sizeof(short int) * 3), 1, f);
-		fread( &objFlags, sizeof(short int), 1, f);
-		fread( &numLinks, sizeof(short int), 1, f);
-
-		Load_AddNode( vec, flags, objNum, objFlags );	//add the node
-
-		//loop through all of the links and read the data
-		for ( j = 0; j < numLinks; j++ )
-		{
-			if (version == NOD_VERSION)
-			{
-				fread( &target, sizeof(/*short*/ int), 1, f);
-			}
-			else
-			{
-				fread( &temp, sizeof(short int), 1, f);
-				target = temp;
-			}
-
-			fread( &fl2, sizeof(short int), 1, f);
-			ConnectNodes( i, target, fl2 );				//add any links
-		}
-
-		// Set node objective flags..
-		AIMOD_NODES_SetObjectiveFlags( i );
-	}
-
-	fread( &fix_aas_nodes, sizeof(short int), 1, f);
-
-	fclose(f);
-	CG_Printf( "^1*** ^3%s^5: Successfully loaded %i waypoints from waypoint file ^7nodes/%s.bwp^5.\n", GAME_VERSION,
-			  number_of_nodes, cgs.rawmapname );
-
-	nodes_loaded = qtrue;
-
-	return;
-}
-
-/* */
-void
-AIMOD_NODES_LoadNodes ( void )
+void AIMOD_NODES_LoadNodes ( void )
 {
 	fileHandle_t	f;
 	int				i, j;
@@ -2648,7 +1972,7 @@ AIMOD_NODES_LoadNodes ( void )
 	trap_FS_FOpenFile( va( "nodes/%s.bwp", cgs.rawmapname), &f, FS_READ );
 	if ( !f )
 	{
-		AIMOD_NODES_LoadNodes2();
+		Com_Printf("^1AWP ERROR: Failed to load nodes/%s.bwp\n", cgs.rawmapname);
 		return;
 	}
 
@@ -2658,8 +1982,8 @@ AIMOD_NODES_LoadNodes ( void )
 
 	if ( version != NOD_VERSION && version != 1.0f )
 	{
-		CG_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", filename );
-		CG_Printf( "^1*** ^3       ^5  Old node file detected.\n" );
+		CG_Printf( "^3WARNING: Reading from nodes/%s.bwp failed:\n", filename );
+		CG_Printf( "^3         Old node file detected.\n" );
 		trap_FS_FCloseFile( f );
 		return;
 	}
@@ -2667,8 +1991,8 @@ AIMOD_NODES_LoadNodes ( void )
 	trap_FS_Read( &map, strlen( mp) + 1, f );			//make sure the file is for the current map
 	if ( Q_stricmp( map, mp) != 0 )
 	{
-		CG_Printf( "^1*** ^3WARNING^5: Reading from ^7nodes/%s.bwp^3 failed^5!!!\n", filename );
-		CG_Printf( "^1*** ^3       ^5  Node file is not for this map!\n" );
+		CG_Printf( "^3WARNING: Reading from nodes/%s.bwp failed:\n", filename );
+		CG_Printf( "^3         Node file is not for this map!\n" );
 		trap_FS_FCloseFile( f );
 		return;
 	}
@@ -2719,7 +2043,7 @@ AIMOD_NODES_LoadNodes ( void )
 
 	trap_FS_Read( &fix_aas_nodes, sizeof(short int), f );
 	trap_FS_FCloseFile( f );							//close the file
-	CG_Printf( "^1*** ^3%s^5: Successfully loaded %i waypoints from waypoint file ^7nodes/%s.bwp^5.\n", GAME_VERSION,
+	CG_Printf( "AWP: Successfully loaded %i waypoints from waypoint file nodes/%s.bwp.\n",
 			  number_of_nodes, filename );
 	nodes_loaded = qtrue;
 
@@ -2727,8 +2051,7 @@ AIMOD_NODES_LoadNodes ( void )
 }
 
 /* */
-void
-AIMOD_NODES_SaveNodes_Autowaypointed ( void )
+void AIMOD_NODES_SaveNodes_Autowaypointed ( void )
 {
 	fileHandle_t	f;
 	int				i;
@@ -5531,16 +4854,8 @@ void AIMod_AutoWaypoint_Clean ( void )
 			number_of_nodes = 0; 
 			optimized_number_of_nodes = 0;
 
-			if (SSE_CPU)
-			{
-				sse_memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-				sse_memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-			}
-			else
-			{
-				memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-				memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-			}
+			memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
+			memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
 		}
 
 		AIMOD_NODES_LoadNodes();
@@ -5563,10 +4878,6 @@ AIMod_AutoWaypoint ( void )
 {
 	char	str[MAX_TOKEN_CHARS];
 	int		original_wp_scatter_dist = waypoint_scatter_distance;
-
-	// UQ1: Check if we have an SSE CPU.. It can speed up our memory allocation by a lot!
-	if (!CPU_CHECKED)
-		UQ_Get_CPU_Info();
 
 	if ( trap_Argc() < 2 )
 	{
@@ -5767,22 +5078,11 @@ CreatePathAStar ( centity_t *bot, int from, int to, int *pathlist )
 	}*/
 
 	//clear out all the arrays - UQ1: Added - only allocate total nodes for map for speed...
-	if (SSE_CPU)
-	{
-		sse_memset( openlist, 0, ((sizeof(int)) * (number_of_nodes + 1))/8 );
-		sse_memset( fcost, 0, ((sizeof(int)) * number_of_nodes)/8 );
-		sse_memset( list, 0, ((sizeof(char)) * number_of_nodes)/8 );
-		sse_memset( parent, 0, ((sizeof(int)) * number_of_nodes)/8 );
-		sse_memset( gcost, 0, ((sizeof(float)) * number_of_nodes)/8 );
-	}
-	else
-	{
-		memset( openlist, 0, ((sizeof(int)) * (number_of_nodes + 1)) );
-		memset( fcost, 0, ((sizeof(int)) * number_of_nodes) );
-		memset( list, 0, ((sizeof(char)) * number_of_nodes) );
-		memset( parent, 0, ((sizeof(int)) * number_of_nodes) );
-		memset( gcost, 0, ((sizeof(float)) * number_of_nodes) );
-	}
+	memset( openlist, 0, ((sizeof(int)) * (number_of_nodes + 1)) );
+	memset( fcost, 0, ((sizeof(int)) * number_of_nodes) );
+	memset( list, 0, ((sizeof(char)) * number_of_nodes) );
+	memset( parent, 0, ((sizeof(int)) * number_of_nodes) );
+	memset( gcost, 0, ((sizeof(float)) * number_of_nodes) );
 
 	openlist[MAX_NODES+1] = 0;
 
@@ -6181,6 +5481,8 @@ int FileLength(FILE *fp)
 
 qboolean IsPathDataTooLarge(const char *mapname)
 {
+	// facepalm...really? --eez
+	/*
 	fileHandle_t f;
 	int len;
 
@@ -6217,6 +5519,7 @@ qboolean IsPathDataTooLarge(const char *mapname)
 	trap_FS_FCloseFile(f);
 
 	return qfalse;
+*/
 }
 
 /* */
@@ -6358,10 +5661,6 @@ AIMod_AutoWaypoint_Optimizer ( void )
 	}
 	// UQ1: end - First handle the command line options...
 
-	// UQ1: Check if we have an SSE CPU.. It can speed up our memory allocation by a lot!
-	if (!CPU_CHECKED)
-		UQ_Get_CPU_Info();
-
 	AIMod_AutoWaypoint_Init_Memory();
 	AIMod_AutoWaypoint_Optimize_Init_Memory();
 
@@ -6370,16 +5669,8 @@ AIMod_AutoWaypoint_Optimizer ( void )
 		number_of_nodes = 0; 
 		optimized_number_of_nodes = 0;
 		
-		if (SSE_CPU)
-		{
-			sse_memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-			sse_memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-		}
-		else
-		{
-			memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-			memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-		}
+		memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
+		memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
 	}
 
 	AIMOD_NODES_LoadNodes();
@@ -6924,10 +6215,6 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 
 	trap_Cvar_Set("jkg_waypoint_render", "0");
 
-	// UQ1: Check if we have an SSE CPU.. It can speed up our memory allocation by a lot!
-	if (!CPU_CHECKED)
-		UQ_Get_CPU_Info();
-
 	AIMod_AutoWaypoint_Init_Memory();
 	AIMod_AutoWaypoint_Optimize_Init_Memory();
 
@@ -6936,16 +6223,8 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 		number_of_nodes = 0; 
 		optimized_number_of_nodes = 0;
 		
-		if (SSE_CPU)
-		{
-			sse_memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-			sse_memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-		}
-		else
-		{
-			memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-			memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-		}
+		memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
+		memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
 	}
 
 	AIMOD_NODES_LoadNodes();
@@ -7398,10 +6677,6 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 	aw_num_bad_surfaces = 0;
 	num_dupe_nodes = 0;
 
-	// UQ1: Check if we have an SSE CPU.. It can speed up our memory allocation by a lot!
-	if (!CPU_CHECKED)
-		UQ_Get_CPU_Info();
-
 	AIMod_AutoWaypoint_Init_Memory();
 	AIMod_AutoWaypoint_Optimize_Init_Memory();
 
@@ -7410,16 +6685,8 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		number_of_nodes = 0; 
 		optimized_number_of_nodes = 0;
 		
-		if (SSE_CPU)
-		{
-			sse_memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-			sse_memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES)/8 );
-		}
-		else
-		{
-			memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-			memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
-		}
+		memset( nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
+		memset( optimized_nodes, 0, ((sizeof(node_t)+1)*MAX_NODES) );
 	}
 
 	AIMOD_NODES_LoadNodes();

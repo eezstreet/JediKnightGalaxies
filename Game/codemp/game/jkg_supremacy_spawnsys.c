@@ -16,7 +16,6 @@ extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
 extern int gWPNum;
 #include "../namespace_end.h"
 
-extern float VectorDistance(vec3_t v1, vec3_t v2);
 extern int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore);
 void NPC_SelectWarzoneSpawnpoint ( int TEAM ); // below...
 extern gentity_t *SelectRandomDeathmatchSpawnPoint( void );

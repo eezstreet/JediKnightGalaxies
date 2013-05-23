@@ -750,13 +750,6 @@ void Update_DOM_Goal_Lists ( void );
 extern int DOMObjectives[MAX_GENTITIES];
 extern int num_DOM_objectives;
 
-float VectorDistance( const vec3_t p1, const vec3_t p2 ) {
-	vec3_t	v;
-
-	VectorSubtract (p2, p1, v);
-	return VectorLength( v );
-}
-
 void ShowLinkInfo ( int wp, gentity_t *ent )
 {
 	int i = 0, unreachable = 0;

@@ -18,7 +18,6 @@
 #include "inv.h"
 #include "syn.h"
 
-extern float VectorDistance(vec3_t v1, vec3_t v2);
 extern void DOM_StandardBotAI(bot_state_t *bs, float thinktime);
 extern int PassLovedOneCheck(bot_state_t *bs, gentity_t *ent);
 

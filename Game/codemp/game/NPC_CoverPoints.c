@@ -6,7 +6,6 @@
 extern gNPC_t		*NPCInfo;
 extern int gWPNum;
 extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
-extern float VectorDistance(vec3_t v1, vec3_t v2);
 extern int FindCloseList(int wpNum);
 extern void ClearRoute( int Route[MAX_WPARRAY_SIZE] );
 extern void AddtoRoute( int wpNum, int Route[MAX_WPARRAY_SIZE] );
@@ -55,72 +54,7 @@ extern usercmd_t ucmd;
 int			num_cover_spots = 0;
 int			cover_nodes[MAX_WPARRAY_SIZE];
 
-qboolean
-AIMOD_LoadCoverPoints2 ( void )
-{
-	FILE			*f;
-	vmCvar_t		fs_homepath, fs_game;
-	vmCvar_t		mapname;
-	int				i = 0;
-	int				num_map_waypoints = 0;
-
-	// Init...
-	num_cover_spots = 0;
-
-	trap_Cvar_Register( &fs_homepath, "fs_homepath", "", CVAR_SERVERINFO | CVAR_ROM );
-	trap_Cvar_Register( &fs_game, "fs_game", "", CVAR_SERVERINFO | CVAR_ROM );
-
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-	
-	f = fopen( va("%s/%s/nodes/%s.cpw", fs_homepath.string, fs_game.string, mapname.string), "rb" );
-
-	if ( !f )
-	{
-		return qfalse;
-	}
-
-	fread( &num_map_waypoints, sizeof(int), 1, f );
-
-	if (num_map_waypoints != gWPNum)
-	{// Is an old file! We need to make a new one!
-		fclose( f );
-		return qfalse;
-	}
-
-	fread( &num_cover_spots, sizeof(int), 1, f );
-
-	for ( i = 0; i < num_cover_spots; i++ )
-	{
-		int j = 0;
-
-		fread( &cover_nodes[i], sizeof(int), 1, f );
-
-		/*
-		// UQ1: Now read the spots this is a coverpoint for...
-		fread( &gWPArray[cover_nodes[i]]->coverpointNum, sizeof(int), 1, f );
-
-		// And then read each one...
-		for ( j = 0; j < gWPArray[cover_nodes[i]]->coverpointNum; j++)
-		{
-			fread( &gWPArray[cover_nodes[i]]->coverpointFor[j], sizeof(int), 1, f );
-		}
-		*/
-
-		if (!(gWPArray[cover_nodes[i]]->flags & WPFLAG_COVER))
-			gWPArray[cover_nodes[i]]->flags |= WPFLAG_COVER;
-
-		//G_Printf("Cover spot #%i (node %i) is at %f %f %f.\n", i, cover_nodes[i], nodes[cover_nodes[i]].origin[0], nodes[cover_nodes[i]].origin[1], nodes[cover_nodes[i]].origin[2]);
-	}
-
-	fclose( f );
-
-	G_Printf( "^1*** ^3%s^5: Successfully loaded %i cover points from file ^7/nodes/%s.cpw^5.\n", GAME_VERSION, num_cover_spots, mapname.string);
-
-	return qtrue;
-}
-
-qboolean
-AIMOD_LoadCoverPoints ( void )
+qboolean AIMOD_LoadCoverPoints ( void )
 {
 	//FILE			*pIn;
 	int				i = 0;
@@ -137,15 +71,8 @@ AIMOD_LoadCoverPoints ( void )
 
 	if (!f)
 	{
-		if (!AIMOD_LoadCoverPoints2())
-		{
-			G_Printf( "^1*** ^3%s^5: Reading coverpoints from ^7/nodes/%s.cpw^3 failed^5!!!\n", GAME_VERSION, mapname.string );
-			return qfalse;
-		}
-		else
-		{
-			return qtrue;
-		}
+		G_Printf( "^1ERROR: Reading coverpoints from /nodes/%s.cpw failed\n", mapname.string );
+		return qfalse;
 	}
 
 	trap_FS_Read( &num_map_waypoints, sizeof(int), f );
@@ -165,17 +92,6 @@ AIMOD_LoadCoverPoints ( void )
 
 		trap_FS_Read( &(cover_nodes[i]), sizeof(int), f );
 
-		/*
-		// UQ1: Now read the spots this is a coverpoint for...
-		trap_FS_Read( &(gWPArray[cover_nodes[i]]->coverpointNum), sizeof(int), f );
-
-		// And then read each one...
-		for ( j = 0; j < gWPArray[cover_nodes[i]]->coverpointNum; j++)
-		{
-			trap_FS_Read( &(gWPArray[cover_nodes[i]]->coverpointFor[j]), sizeof(int), f );
-		}
-		*/
-
 		if (!(gWPArray[cover_nodes[i]]->flags & WPFLAG_COVER))
 			gWPArray[cover_nodes[i]]->flags |= WPFLAG_COVER;
 
@@ -188,21 +104,6 @@ AIMOD_LoadCoverPoints ( void )
 
 	return qtrue;
 }
-
-/*
-qboolean NPC_IsCoverpointFor ( int thisWP, int forWP )
-{
-	int i = 0;
-
-	for (i = 0; i < gWPArray[forWP]->coverpointNum; i++)
-	{
-		if (gWPArray[forWP]->coverpointFor[i] == thisWP)
-			return qtrue;
-	}
-
-	return qfalse;
-}
-*/
 
 int
 CoverOrgVisible ( vec3_t org1, vec3_t org2, int ignore )

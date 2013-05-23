@@ -4967,14 +4967,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_SetViewpos_f( ent );
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
-#ifdef __UNUSED__
-	else if ( Q_stricmp (cmd, "nav_generate") == 0 )
-	{
-	    char mapname[MAX_STRING_CHARS] = { 0 };
-	    trap_Cvar_VariableStringBuffer ("mapname", mapname, sizeof (mapname));
-	    JKG_Nav_CreateNavMesh (va ("maps/%s.bsp", mapname));
-	}
-#endif //__UNUSED__
 #ifdef __AUTOWAYPOINT__ // __DOMINANCE_NPC__
 	else if (Q_stricmp (cmd, "checkbotreach") == 0 && !Q_strncmp(ent->client->sess.IP, "127.0.0.1:",10))	{
 		AIMod_CheckMapPaths( ent );
