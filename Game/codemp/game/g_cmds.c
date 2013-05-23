@@ -3938,7 +3938,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 			return;
 		}
 
-		ent->client->saberStanceDebounce = level.time + 1000;
+		ent->client->saberStanceDebounce = level.time + 400;	// cut down severely, this was like a whole second before, now it's around half that --eez
 
 		if ( BG_SaberInAttack(ent->client->ps.saberMove) )
 		{// Jedi Knight Galaxies: cannot change saber style in mid-attack (todo: fancy chaining shizz)
@@ -3949,40 +3949,6 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		{ //no cycling for akimbo
 			if ( WP_SaberCanTurnOffSomeBlades( &ent->client->saber[1] ) )
 			{//can turn second saber off 
-				/*
-				if ( ent->client->ps.saberHolstered == 1 )
-				{//have one holstered
-				//unholster it
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOn);
-				ent->client->ps.saberHolstered = 0;
-				//g_active should take care of this, but...
-				ent->client->ps.fd.saberAnimLevel = SS_DUAL;
-				}
-				else if ( ent->client->ps.saberHolstered == 0 )
-				{//have none holstered
-				if ( (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
-				{//can't turn it off manually
-				}
-				else if ( ent->client->saber[1].bladeStyle2Start > 0
-				&& (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
-				{//can't turn it off manually
-				}
-				else
-				{
-				//turn it off
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
-				ent->client->ps.saberHolstered = 1;
-				//g_active should take care of this, but...
-				ent->client->ps.fd.saberAnimLevel = SS_MAKASHI;
-				}
-				}
-
-				if (d_saberStanceDebug.integer)
-				{
-				trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle dual saber blade.\n\"") );
-				}
-				return;
-				*/
 
 				int i = 0;
 				int j = 0;
@@ -4037,67 +4003,6 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		else if (ent->client->saber[0].numBlades > 1
 			&& WP_SaberCanTurnOffSomeBlades( &ent->client->saber[0] ) )
 		{ //use staff stance then.
-			/*if ( ent->client->ps.saberHolstered == 1 )
-			{//second blade off
-				if ( ent->client->ps.saberInFlight )
-				{//can't turn second blade back on if it's in the air, you naughty boy!
-					if (d_saberStanceDebug.integer)
-					{
-						trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle staff blade in air.\n\"") );
-					}
-					return;
-				}
-				//turn it on
-				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
-				ent->client->ps.saberHolstered = 0;
-				//g_active should take care of this, but...
-				if ( ent->client->saber[0].stylesForbidden )
-				{//have a style we have to use
-					WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &selectLevel );
-					if ( ent->client->ps.weaponTime <= 0 )
-					{ //not busy, set it now
-						ent->client->ps.fd.saberAnimLevel = selectLevel;
-					}
-					else
-					{ //can't set it now or we might cause unexpected chaining, so queue it
-						ent->client->saberCycleQueue = selectLevel;
-					}
-				}
-			}
-			else if ( ent->client->ps.saberHolstered == 0 )
-			{//both blades on
-				if ( (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
-				{//can't turn it off manually
-				}
-				else if ( ent->client->saber[0].bladeStyle2Start > 0
-					&& (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
-				{//can't turn it off manually
-				}
-				else
-				{
-					//turn second one off
-					G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
-					ent->client->ps.saberHolstered = 1;
-					//g_active should take care of this, but...
-					if ( ent->client->saber[0].singleBladeStyle != SS_NONE )
-					{
-						if ( ent->client->ps.weaponTime <= 0 )
-						{ //not busy, set it now
-							ent->client->ps.fd.saberAnimLevel = ent->client->saber[0].singleBladeStyle;
-						}
-						else
-						{ //can't set it now or we might cause unexpected chaining, so queue it
-							ent->client->saberCycleQueue = ent->client->saber[0].singleBladeStyle;
-						}
-					}
-				}
-			}
-			if (d_saberStanceDebug.integer)
-			{
-				trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to toggle staff blade.\n\"") );
-			}
-			return;
-			*/
 
 			for(i = ent->client->ps.fd.saberAnimLevel+1, j = 0; j < MAX_STANCES+1; j++)
 			{
@@ -4153,7 +4058,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 				{
 					i = 0;
 				}
-				if(SaberStances[i].saberName_simple &&
+				if(SaberStances[i].saberName_simple[0] &&
 					!SaberStances[i].isDualsOnly &&
 					!SaberStances[i].isStaffOnly)
 				{
