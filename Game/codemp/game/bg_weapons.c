@@ -180,7 +180,7 @@ weaponData_t *GetWeaponData( unsigned char baseIndex, unsigned char modIndex )
 	}
 
 	/* This is a serious error, this is a weapon we don't know! */
-	Com_Error( ERR_DISCONNECT, va( "No weapon with base %i and variation %i could be found.", baseIndex, modIndex ));
+	Com_Error( ERR_DISCONNECT, "No weapon with base %i and variation %i could be found.", baseIndex, modIndex );
 	return NULL;
 }
 
@@ -274,7 +274,7 @@ qboolean BG_DumpWeaponList ( const char *filename )
     int i;
     fileHandle_t f;
     
-    Com_sprintf (buffer, sizeof (buffer), va ("%-64s | %s\n", "Display Name", "Class Name"));
+    Com_sprintf (buffer, sizeof (buffer), "%-64s | %s\n", "Display Name", "Class Name");
     Q_strcat (buffer, sizeof (buffer), "-----------------------------------------------------------------+----------------------------------\n");
     for ( i = 0; i < numLoadedWeapons; i++ )
     {

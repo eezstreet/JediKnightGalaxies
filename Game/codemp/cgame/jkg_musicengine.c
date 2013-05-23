@@ -625,9 +625,9 @@ CG_LoadMyMusic ( void )
 	int		num = 0;
 	trap_Cvar_Register( &fs_game, "fs_game", "", CVAR_SERVERINFO | CVAR_ROM );
 #ifdef __FULL_VERSION__
-	loadPath = va( "etmain/MyMusic/MyMusic.list\0" );
+	loadPath = va( "etmain/MyMusic/MyMusic.list" );
 #else //!__FULL_VERSION__
-	loadPath = va( "%s/MyMusic/MyMusic.list\0", fs_game.string );
+	loadPath = va( "%s/MyMusic/MyMusic.list", fs_game.string );
 #endif //__FULL_VERSION__
 	f = fopen( va( "%s", loadPath), "r" );
 	if ( !f )
@@ -970,7 +970,7 @@ CG_MyMusicPlay ( void )
 		{// Has changed! Need to switch to a new station!
 			change_station = qtrue;
 
-			//CG_Printf("%s does not equal %s!\n", va("%s", s_radioStationOverride.string), va("%s", MyMusic_Current));
+			//CG_Printf("%s does not equal %s!\n", va("%s", s_radioStationOverride.string), va("%s", MyMusic_Current));	// LOL WAT --eez
 
 			if ( cthread )
 			{
@@ -1169,7 +1169,7 @@ CG_DoMusic ( void )
 		CG_SoundEngineInfo();
 		if ( !BASS_Init( 1, 44100, 0, 0, NULL) )
 		{
-			//Error( va( "MUSIC ENGINE: Can't initialize autio device." ) );
+			//Error( "MUSIC ENGINE: Can't initialize autio device." );
 			return;
 		}
 		else
@@ -1240,7 +1240,7 @@ CG_DoMusic ( void )
 
 	if (Playing_Radio && (Q_stricmp( s_radioStationOverride.string, "") || (!Q_stricmp( s_radioStationOverride.string, "") && Q_stricmp( MyMusic_Current, ""))))
 	{
-		if (Q_stricmp( va("%s", s_radioStationOverride.string), va("%s", MyMusic_Current)))
+		if (Q_stricmp( s_radioStationOverride.string, MyMusic_Current))
 		{// Has changed! Need to switch to a new station!
 			change_station = qtrue;
 
@@ -1385,9 +1385,6 @@ int			current_description_text_scroll_position = 0;
 qboolean	current_description_text_scroll_back = qfalse;
 int			next_description_text_scroll_change = 0;
 
-//void	COM_StripFilename(char *in, char *out);
-//void	COM_StripExtension( const char *in, char *out );
-
 void CG_RealDrawMusicInformation( char *music_title, char *music_description ) {
 	int			w;
 	vec4_t		tclr			=	{ 0.625f,	0.625f,	0.6f,	1.0f	};
@@ -1451,13 +1448,10 @@ void CG_RealDrawMusicInformation( char *music_title, char *music_description ) {
 	}
 	
 	// STATION TITLE
-	w = CG_Text_Width(va("%s", music_title_short), title_size, FONT_SMALL3/*cgs.media.hudfont1*/);
-	//w = CG_Text_Width_Ext( va("%s", music_title_short), title_size, 0, &cgs.media.hudfont1 );
+	w = CG_Text_Width(music_title_short, title_size, FONT_SMALL3);
 	pos_x += (32 - (w * 0.5f));
 
-	//CG_Text_Paint_Ext( pos_x, pos_y + 11, title_size, title_size, tclr, va("^3%s", music_title_short), 0, 0, 0, &cgs.media.hudfont1 );
-	//CG_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont);
-	CG_Text_Paint( pos_x-2, pos_y /*+ 11*/ + 8, title_size, tclr, va("^3%s", music_title_short), 0, 0, 0, FONT_SMALL3/*cgs.media.hudfont1*/ );
+	CG_Text_Paint( pos_x-2, pos_y  + 8, title_size, tclr, music_title_short, 0, 0, 0, FONT_SMALL3 );
 
 	//
 	// Display/Scroll the Description Text...
@@ -1502,28 +1496,15 @@ void CG_RealDrawMusicInformation( char *music_title, char *music_description ) {
 	{// No scrolling, all characters of the name fit on the display...
 		Q_strncpyz( music_description_short, music_description, MAX_RADIO_DESCRIPTION_SCROLL_CHARACTERS );
 	}
-	
-	/*
-	w = CG_Text_Width(va("%s", music_title_short), title_size, cgs.media.hudfont1);
-	//w = CG_Text_Width_Ext( va("%s", music_title_short), title_size, 0, &cgs.media.hudfont1 );
-	pos_x += (32 - (w * 0.5f));
-
-	//CG_Text_Paint_Ext( pos_x, pos_y + 11, title_size, title_size, tclr, va("^3%s", music_title_short), 0, 0, 0, &cgs.media.hudfont1 );
-	//CG_Text_Paint(float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont);
-	CG_Text_Paint( pos_x, pos_y + 11, title_size, tclr, va("^3%s", music_title_short), 0, 0, 0, cgs.media.hudfont1 );
-	*/
 
 	pos_x = RADIO_POSITION_X;
 
 	// STATION TITLE
-	//w = CG_Text_Width_Ext( va("%s", music_description_short), description_size/*title_size*/, 0, &cgs.media.hudfont1 );
-	w = CG_Text_Width(va("%s", music_description_short), description_size, FONT_SMALL3/*cgs.media.hudfont1*/);
-	//w *= (title_size/description_size);//(description_size/title_size) + 8;
+	w = CG_Text_Width(music_description_short, description_size, FONT_SMALL3);
 	w *= ((description_size/title_size) * 2);
 	pos_x += (32 - (w * 0.5f));
 
-	//CG_Text_Paint_Ext( pos_x, pos_y + 11 + 6, description_size, description_size, tclr, va("^7%s", music_description_short), 0, 0, 0, &cgs.media.hudfont1 );
-	CG_Text_Paint( pos_x-2, pos_y + 11 + 6, description_size, tclr, va("^7%s", music_description_short), 0, 0, 0, FONT_SMALL3/*cgs.media.hudfont1*/ );
+	CG_Text_Paint( pos_x-2, pos_y + 11 + 6, description_size, tclr, va("^7%s", music_description_short), 0, 0, 0, FONT_SMALL3 );
 }
 
 void CG_DrawMusicInformation( void ) 
@@ -1572,7 +1553,7 @@ void CG_DrawMusicInformation( void )
 
 		if (!meta2)
 		{
-			CG_RealDrawMusicInformation( va("Unknown Title"), va("Unknown Artist") );
+			CG_RealDrawMusicInformation( "Unknown Title", "Unknown Artist" );
 			return;
 		}
 		else if (meta2->artist) {

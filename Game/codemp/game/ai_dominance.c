@@ -772,9 +772,9 @@ void ShowLinkInfo ( int wp, gentity_t *ent )
 	for (i = 0; i < gWPArray[wp]->neighbornum; i++)
 	{
 		if (i+1 == gWPArray[wp]->neighbornum)
-			G_Printf(va("%i.\n", gWPArray[wp]->neighbors[i].num));
+			G_Printf("%i.\n", gWPArray[wp]->neighbors[i].num);
 		else
-			G_Printf(va("%i, ", gWPArray[wp]->neighbors[i].num));
+			G_Printf("%i, ", gWPArray[wp]->neighbors[i].num);
 	}
 }
 
@@ -796,8 +796,8 @@ AIMod_CreateNewRoute ( gentity_t *ent )
 
 	my_wp = gWPArray[wp];
 
-	G_Printf( va( "Finding bot objectives for %s at node number %i (%f %f %f).\n", ent->client->pers.netname,
-		my_wp->index, my_wp->origin[0], my_wp->origin[1], my_wp->origin[2]) );
+	G_Printf( "Finding bot objectives for %s at node number %i (%f %f %f).\n", ent->client->pers.netname,
+		my_wp->index, my_wp->origin[0], my_wp->origin[1], my_wp->origin[2] );
 
 	ShowLinkInfo(wp, ent);
 
@@ -811,7 +811,7 @@ AIMod_CreateNewRoute ( gentity_t *ent )
 
 		if (tries >= num_DOM_objectives*2)
 		{
-			G_Printf( va( "Failed to find any path!\n" ) );
+			G_Printf(  "Failed to find any path!\n"  );
 			break;
 		}
 
@@ -839,7 +839,7 @@ AIMod_CreateNewRoute ( gentity_t *ent )
 			continue;
 		}
 
-		G_Printf( va( "Objective %i (%s) pathsize is %i.\n", i, goal->classname, ent->pathsize) );
+		G_Printf( "Objective %i (%s) pathsize is %i.\n", i, goal->classname, ent->pathsize );
 		break;
 	}
 
@@ -6915,8 +6915,8 @@ AIMod_CheckObjectivePaths ( gentity_t *ent )
 
 	my_wp = gWPArray[wp];
 
-	G_Printf( va( "Finding bot objectives for %s at node number %i (%f %f %f).\n", ent->client->pers.netname,
-		my_wp->index, my_wp->origin[0], my_wp->origin[1], my_wp->origin[2]) );
+	G_Printf( "Finding bot objectives for %s at node number %i (%f %f %f).\n", ent->client->pers.netname,
+		my_wp->index, my_wp->origin[0], my_wp->origin[1], my_wp->origin[2] );
 
 	ShowLinkInfo(wp, ent);
 
@@ -6939,10 +6939,10 @@ AIMod_CheckObjectivePaths ( gentity_t *ent )
 		//if (pathsize <= 0) // Alt A* Pathing...
 		//	pathsize = DOM_FindIdealPathtoWP(NULL, wp, goal_wp, -1, pathlist);
 
-		G_Printf( va( "Objective %i (%s) pathsize is %i.\n", i, goal->classname, pathsize) );
+		G_Printf( "Objective %i (%s) pathsize is %i.\n", i, goal->classname, pathsize );
 	}
 
-	G_Printf( va( "Complete.\n") );
+	G_Printf( "Complete.\n" );
 
 	PATHING_IGNORE_FRAME_TIME = qfalse;
 }
@@ -6965,9 +6965,9 @@ AIMod_CheckMapPaths ( gentity_t *ent )
 
 	PATHING_IGNORE_FRAME_TIME = qtrue;
 
-	G_Printf( va( "Finding bot objectives for %s at node number %i (%f %f %f).\n", ent->client->pers.netname,
+	G_Printf( "Finding bot objectives for %s at node number %i (%f %f %f).\n", ent->client->pers.netname,
 				 current_wp, gWPArray[current_wp]->origin[0], gWPArray[current_wp]->origin[1],
-				 gWPArray[current_wp]->origin[2]) );
+				 gWPArray[current_wp]->origin[2] );
 
 	ShowLinkInfo(current_wp, ent);
 
@@ -6992,10 +6992,10 @@ AIMod_CheckMapPaths ( gentity_t *ent )
 		//if (pathsize <= 0) // Alt A* Pathing...
 		//	pathsize = DOM_FindIdealPathtoWP(NULL, current_wp, longTermGoal, -1, pathlist);
 
-		G_Printf( va( "Objective %i (%s) pathsize is %i.\n", i, goal->classname, pathsize) );
+		G_Printf( "Objective %i (%s) pathsize is %i.\n", i, goal->classname, pathsize );
 	}
 
-	G_Printf( va( "Complete.\n") );
+	G_Printf( "Complete.\n" );
 
 	PATHING_IGNORE_FRAME_TIME = qfalse;
 }

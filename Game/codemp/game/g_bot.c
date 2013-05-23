@@ -907,7 +907,7 @@ void G_CheckVendorNPCs( void )
 		npc->s.angles[YAW] = irand(0,359);
 		npc->s.angles[ROLL] = 0;
 
-		G_Printf(va("[%i/%i] Spawning (travelling vendor NPC) %s at waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint));
+		G_Printf("[%i/%i] Spawning (travelling vendor NPC) %s at waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint);
 
 		npc->s.eFlags |= EF_RADAROBJECT;
 		SP_NPC_spawner( npc );
@@ -1087,7 +1087,7 @@ void G_CheckCivilianNPCs( void )
 		npc->s.angles[YAW] = irand(0,359);
 		npc->s.angles[ROLL] = 0;
 
-		G_Printf(va("[%i/%i] Spawning (civilian NPC) %s at waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint));
+		G_Printf("[%i/%i] Spawning (civilian NPC) %s at waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint);
 
 		SP_NPC_spawner( npc );
 	}
@@ -1468,14 +1468,14 @@ void G_CheckMinimumNpcs( void ) {
 				VectorCopy(gWPArray[waypoint]->origin, npc->s.origin);
 				npc->s.origin[2]+=32; // Drop down...
 
-				G_Printf(va("[%i/%i] Spawning (warzone NPC) %s at (fallback) waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint));
+				G_Printf("[%i/%i] Spawning (warzone NPC) %s at (fallback) waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint);
 			}
 			else
 			{// Found a good warzone spawnpoint... Using it...
 				VectorCopy(NPC_SPAWNPOINT, npc->s.origin);
 				npc->s.origin[2]+=32; // Drop down...
 
-				G_Printf(va("[%i/%i] Spawning (warzone NPC) %s at flag %i.\n", botplayers+1, minplayers, npc->NPC_type, NPC_SPAWNFLAG));
+				G_Printf("[%i/%i] Spawning (warzone NPC) %s at flag %i.\n", botplayers+1, minplayers, npc->NPC_type, NPC_SPAWNFLAG);
 			}
 
 			// Update ticket counts...
@@ -1505,7 +1505,7 @@ void G_CheckMinimumNpcs( void ) {
 			VectorCopy(gWPArray[waypoint]->origin, npc->s.origin);
 			npc->s.origin[2]+=32; // Drop down...
 
-			G_Printf(va("[%i/%i] Spawning (enemy NPC) %s at waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint));
+			G_Printf("[%i/%i] Spawning (enemy NPC) %s at waypoint %i.\n", botplayers+1, minplayers, npc->NPC_type, waypoint);
 		}
 
 		npc->s.angles[PITCH] = 0;

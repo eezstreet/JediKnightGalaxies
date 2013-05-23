@@ -4740,7 +4740,6 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 
 		if (hitSurface[0])
 		{
-		    //trap_SendServerCommand (-1, va ("print \"%s\n\"", hitSurface));
 			G_GetHitLocFromSurfName(ent, hitSurface, &hitLoc, point, vec3_origin, vec3_origin, MOD_UNKNOWN);
 		}
 	}

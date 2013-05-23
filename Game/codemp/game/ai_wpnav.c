@@ -2754,7 +2754,7 @@ int SavePathData(const char *filename)
 
 	if (!f)
 	{
-		G_Printf(va("^1ERROR: Could not open file %s to write path data\n", filename));
+		G_Printf("^1ERROR: Could not open file %s to write path data\n", filename);
 		return 0;
 	}
 

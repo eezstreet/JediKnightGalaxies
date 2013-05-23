@@ -198,7 +198,7 @@ void JKG_Items_LoadCraftingSection( const char * const bench, const char * const
 	int failed = 0;
 	qboolean freestyle = (Q_stricmp(section, "freestyle") == 0) ? qtrue : qfalse;
 
-	Com_Printf(va("Loading %s recipes for %s\n", bench, section));
+	Com_Printf("Loading %s recipes for %s\n", bench, section);
 
 	for( ; i < numFiles; i++ )
 	{

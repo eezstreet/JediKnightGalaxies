@@ -215,7 +215,7 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 				if (!CG_SnapRefEntToBone(cent, &holsterRefEnt, bone_name))
 				{
 					#ifdef _DEBUG 
-					CG_Printf(va("Holster point %i NOT drawn (snap to bone issue)...\n", HOLSTER_POINT));
+					CG_Printf("Holster point %i NOT drawn (snap to bone issue)...\n", HOLSTER_POINT);
 					assert(0);
 					#endif //
 						
@@ -376,13 +376,13 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 
 				CG_AddWeaponWithPowerups( &holsterRefEnt, cent->currentState.powerups );
 				#ifdef _DEBUG 
-				//CG_Printf(va("Holster point %i drawn at %f %f %f (P.ORG %f %f %f)...\n", HOLSTER_POINT, holsterRefEnt.origin[0], holsterRefEnt.origin[1], holsterRefEnt.origin[2], cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2]));
+				//CG_Printf("Holster point %i drawn at %f %f %f (P.ORG %f %f %f)...\n", HOLSTER_POINT, holsterRefEnt.origin[0], holsterRefEnt.origin[1], holsterRefEnt.origin[2], cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2]);
 				#endif //_DEBUG
 			}
 			#ifdef _DEBUG 
 			else
 			{
-				//CG_Printf(va("Holster point %i NOT drawn...\n", HOLSTER_POINT));
+				//CG_Printf("Holster point %i NOT drawn...\n", HOLSTER_POINT);
 				//assert(0);
 			}
 			#endif //_DEBUG
