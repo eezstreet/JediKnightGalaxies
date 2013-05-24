@@ -10530,37 +10530,3 @@ void thrownSaberBallistics(gentity_t *saberEnt, gentity_t *saberOwn, qboolean st
 }
 //[/SaberThrowSys]
 
-
-qboolean HasSetSaberOnly(void)
-{
-	int i = 0;
-	int wDisable = 0;
-
-	if (g_gametype.integer == GT_JEDIMASTER)
-	{ //set to 0 
-		return qfalse;
-	}
-
-	if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL)
-	{
-		wDisable = g_duelWeaponDisable.integer;
-	}
-	else
-	{
-		wDisable = g_weaponDisable.integer;
-	}
-
-	while (i < WP_NUM_WEAPONS)
-	{
-		if (!(wDisable & (1 << i)) &&
-			i != WP_SABER && i != WP_NONE)
-		{
-			return qfalse;
-		}
-
-		i++;
-	}
-
-	return qtrue;
-}
-

@@ -289,20 +289,20 @@ void WP_InitForcePowers( gentity_t *ent )
 	{
 		if (ent->client->sess.sessionTeam == TEAM_RED)
 		{
-			warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, HasSetSaberOnly(), FORCE_DARKSIDE, g_gametype.integer, g_forcePowerDisable.integer));
+			warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, qfalse, FORCE_DARKSIDE, g_gametype.integer, g_forcePowerDisable.integer));
 		}
 		else if (ent->client->sess.sessionTeam == TEAM_BLUE)
 		{
-			warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, HasSetSaberOnly(), FORCE_LIGHTSIDE, g_gametype.integer, g_forcePowerDisable.integer));
+			warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, qfalse, FORCE_LIGHTSIDE, g_gametype.integer, g_forcePowerDisable.integer));
 		}
 		else
 		{
-			warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, HasSetSaberOnly(), 0, g_gametype.integer, g_forcePowerDisable.integer));
+			warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, qfalse, 0, g_gametype.integer, g_forcePowerDisable.integer));
 		}
 	}
 	else
 	{
-		warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, HasSetSaberOnly(), 0, g_gametype.integer, g_forcePowerDisable.integer));
+		warnClient = !(BG_LegalizedForcePowers(forcePowers, maxRank, qfalse, 0, g_gametype.integer, g_forcePowerDisable.integer));
 	}
 
 	i_r = 0;
@@ -416,18 +416,9 @@ void WP_InitForcePowers( gentity_t *ent )
 
 	if (ent->s.eType != ET_NPC)
 	{
-		if (HasSetSaberOnly())
-		{
-			gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FREE_SABER );
-			te->r.svFlags |= SVF_BROADCAST;
-			te->s.eventParm = 1;
-		}
-		else
-		{
-			gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FREE_SABER );
-			te->r.svFlags |= SVF_BROADCAST;
-			te->s.eventParm = 0;
-		}
+		gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FREE_SABER );
+		te->r.svFlags |= SVF_BROADCAST;
+		te->s.eventParm = 0;
 
 		if (g_forcePowerDisable.integer)
 		{
@@ -611,18 +602,6 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 		{
 			ent->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_0;
 			i++;
-		}
-
-		if (HasSetSaberOnly())
-		{
-			if (ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
-			{
-				ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
-			}
-			if (ent->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] < FORCE_LEVEL_1)
-			{
-				ent->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_1;
-			}
 		}
 	}
 
@@ -4964,8 +4943,6 @@ void HolocronUpdate(gentity_t *self)
 		noHRank = FORCE_LEVEL_3;
 	}
 
-	trap_Cvar_Update(&g_MaxHolocronCarry);
-
 	while (i < NUM_FORCE_POWERS)
 	{
 		if (self->client->ps.holocronsCarried[i])
@@ -5024,25 +5001,11 @@ void HolocronUpdate(gentity_t *self)
 
 		i++;
 	}
-
-	if (HasSetSaberOnly())
-	{ //if saberonly, we get these powers no matter what (still need the holocrons for level 3)
-		if (self->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] < FORCE_LEVEL_1)
-		{
-			self->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_1;
-		}
-		if (self->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] < FORCE_LEVEL_1)
-		{
-			self->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_1;
-		}
-	}
 }
 
 void JediMasterUpdate(gentity_t *self)
 { //keep jedi master status updated for JM gametype
 	int i = 0;
-
-	trap_Cvar_Update(&g_MaxHolocronCarry);
 
 	while (i < NUM_FORCE_POWERS)
 	{
@@ -5660,45 +5623,13 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		if ( !self->client->ps.saberInFlight && self->client->ps.fd.forcePowerRegenDebounceTime < level.time &&
 			(self->client->ps.weapon != WP_SABER || !BG_SaberInSpecial(self->client->ps.saberMove)) )
 		{
-			if (g_gametype.integer != GT_HOLOCRON || g_MaxHolocronCarry.value)
+			if (self->client->ps.powerups[PW_FORCE_BOON])
 			{
-				//if (!g_trueJedi.integer || self->client->ps.weapon == WP_SABER)
-				//let non-jedi force regen since we're doing a more strict jedi/non-jedi thing... this gives dark jedi something to drain
-				{
-					if (self->client->ps.powerups[PW_FORCE_BOON])
-					{
-						WP_ForcePowerRegenerate( self, 6 );
-					}
-					else if (self->client->ps.isJediMaster && g_gametype.integer == GT_JEDIMASTER)
-					{
-						WP_ForcePowerRegenerate( self, 4 ); //jedi master regenerates 4 times as fast
-					}
-					else
-					{
-						WP_ForcePowerRegenerate( self, 0 );
-					}
-				}
-				/*
-				else if (g_trueJedi.integer && self->client->ps.weapon != WP_SABER)
-				{
-					self->client->ps.fd.forcePower = 0;
-				}
-				*/
+				WP_ForcePowerRegenerate( self, 6 );
 			}
 			else
-			{ //regenerate based on the number of holocrons carried
-				holoregen = 0;
-				holo = 0;
-				while (holo < NUM_FORCE_POWERS)
-				{
-					if (self->client->ps.holocronsCarried[holo])
-					{
-						holoregen++;
-					}
-					holo++;
-				}
-
-				WP_ForcePowerRegenerate(self, holoregen);
+			{
+				WP_ForcePowerRegenerate( self, 0 );
 			}
 
 			if ( g_gametype.integer == GT_POWERDUEL && self->client->sess.duelTeam == DUELTEAM_LONE )

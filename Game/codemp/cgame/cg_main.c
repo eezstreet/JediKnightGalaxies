@@ -808,7 +808,6 @@ vmCvar_t	cg_drawRadar;
 vmCvar_t	cg_drawVehLeadIndicator;
 vmCvar_t	cg_dynamicCrosshair;
 vmCvar_t	cg_dynamicCrosshairPrecision;
-vmCvar_t	cg_drawRewards;
 vmCvar_t	cg_drawScores;
 vmCvar_t	cg_crosshairSize;
 vmCvar_t	cg_crosshairX;
@@ -819,7 +818,6 @@ vmCvar_t	cg_drawStatus;
 vmCvar_t	cg_animSpeed;
 vmCvar_t	cg_debugAnim;
 vmCvar_t	cg_debugSaber;
-vmCvar_t	cg_debugPosition;
 vmCvar_t	cg_debugEvents;
 vmCvar_t	cg_errorDecay;
 vmCvar_t	cg_nopredict;
@@ -834,8 +832,6 @@ vmCvar_t	cg_gun_frame;
 vmCvar_t	cg_gun_x;
 vmCvar_t	cg_gun_y;
 vmCvar_t	cg_gun_z;
-vmCvar_t	cg_autoswitch;
-vmCvar_t	cg_ignore;
 vmCvar_t	cg_simpleItems;
 vmCvar_t	cg_fov;
 vmCvar_t	cg_zoomFov;
@@ -899,8 +895,6 @@ vmCvar_t	cg_saberDynamicMarkTime;
 vmCvar_t	cg_saberContact;
 vmCvar_t	cg_saberTrail;
 
-vmCvar_t	cg_duelHeadAngles;
-
 vmCvar_t	cg_speedTrail;
 vmCvar_t	cg_auraShell;
 
@@ -931,7 +925,6 @@ vmCvar_t 	cg_stats;
 vmCvar_t 	cg_buildScript;
 vmCvar_t 	cg_forceModel;
 vmCvar_t	cg_paused;
-vmCvar_t	cg_blood;
 vmCvar_t	cg_predictItems;
 vmCvar_t	cg_deferPlayers;
 vmCvar_t	cg_drawTeamOverlay;
@@ -973,8 +966,6 @@ Ghoul2 Insert End
 vmCvar_t	cg_currentSelectedPlayer;
 vmCvar_t	cg_currentSelectedPlayerName;
 //vmCvar_t	cg_singlePlayerActive;
-vmCvar_t	cg_recordSPDemo;
-vmCvar_t	cg_recordSPDemoName;
 vmCvar_t	cg_showVehBounds;
 
 vmCvar_t	ui_myteam;
@@ -1062,8 +1053,6 @@ typedef struct {
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = { // bk001129
-	{ &cg_ignore, "cg_ignore", "0", 0 },	// used for debugging
-	{ &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
 	{ &cg_zoomFov, "cg_zoomfov", "40.0", CVAR_ARCHIVE },
 	{ &cg_fov, "cg_fov", "80", CVAR_ARCHIVE },
@@ -1089,7 +1078,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	//Enables ghoul2 traces for crosshair traces.. more precise when pointing at others, but slower.
 	//And if the server doesn't have g2 col enabled, it won't match up the same.
 	{ &cg_dynamicCrosshairPrecision, "cg_dynamicCrosshairPrecision", "1", CVAR_ARCHIVE },
-	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },
 	{ &cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE },
 	{ &cg_crosshairHealth, "cg_crosshairHealth", "0", CVAR_ARCHIVE },
 	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
@@ -1111,7 +1099,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_animSpeed, "cg_animspeed", "1", CVAR_CHEAT },
 	{ &cg_debugAnim, "cg_debuganim", "0", CVAR_CHEAT },
 	{ &cg_debugSaber, "cg_debugsaber", "0", CVAR_CHEAT },
-	{ &cg_debugPosition, "cg_debugposition", "0", CVAR_CHEAT },
 	{ &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
 	{ &cg_errorDecay, "cg_errordecay", "100", 0 },
 	{ &cg_nopredict, "cg_nopredict", "0", 0 },
@@ -1166,8 +1153,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_saberContact, "cg_saberContact", "1", 0 },
 	{ &cg_saberTrail, "cg_saberTrail", "1", 0 },
 
-	{ &cg_duelHeadAngles, "cg_duelHeadAngles", "0", 0 },
-
 	{ &cg_speedTrail, "cg_speedTrail", "1", 0 },
 	{ &cg_auraShell, "cg_auraShell", "1", 0 },
 
@@ -1219,7 +1204,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	// but we also reference them here
 	{ &cg_buildScript, "com_buildScript", "0", 0 },	// force loading of all possible data amd error on failures
 	{ &cg_paused, "cl_paused", "0", CVAR_ROM },
-	{ &cg_blood, "com_blood", "1", CVAR_ARCHIVE },
 	{ &cg_synchronousClients, "g_synchronousClients", "0", 0 },	// communicated by systeminfo
 
 //	{ &cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
@@ -1227,8 +1211,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_currentSelectedPlayer, "cg_currentSelectedPlayer", "0", CVAR_ARCHIVE},
 	{ &cg_currentSelectedPlayerName, "cg_currentSelectedPlayerName", "", CVAR_ARCHIVE},
 //	{ &cg_singlePlayerActive, "ui_singlePlayerActive", "0", CVAR_USERINFO},
-	{ &cg_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
-	{ &cg_recordSPDemoName, "ui_recordSPDemoName", "", CVAR_ARCHIVE},
 
 	{ &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},
 	{ &cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE},

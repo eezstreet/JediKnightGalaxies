@@ -1046,16 +1046,6 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		return;
 	}
 
-	if ((g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL) &&
-		level.numPlayingClients > 1 && !level.warmupTime)
-	{
-		if (!g_allowDuelSuicide.integer)
-		{
-			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "ATTEMPTDUELKILL")) );
-			return;
-		}
-	}
-
 	ent->flags &= ~FL_GODMODE;
 	ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
 	player_die (ent, ent, ent, 100000, MOD_SUICIDE);

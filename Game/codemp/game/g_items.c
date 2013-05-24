@@ -58,33 +58,7 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 		}
 	}
 
-	if (!g_adaptRespawn.integer)
-	{
-		return((int)respawnTime);
-	}
-
-	if (level.numPlayingClients > 4)
-	{	// Start scaling the respawn times.
-		if (level.numPlayingClients > 32)
-		{	// 1/4 time minimum.
-			respawnTime *= 0.25f;
-		}
-		else if (level.numPlayingClients > 12)
-		{	// From 12-32, scale from 0.5f to 0.25f;
-			respawnTime *= 20.0f / (float)(level.numPlayingClients + 8);
-		}
-		else 
-		{	// From 4-12, scale from 1.0f to 0.5f;
-			respawnTime *= 8.0f / (float)(level.numPlayingClients + 4);
-		}
-	}
-
-	if (respawnTime < 1.0f)
-	{	// No matter what, don't go lower than 1 second, or the pickups become very noisy!
-		respawnTime = 1.0f;
-	}
-
-	return ((int)respawnTime);
+	return((int)respawnTime);
 }
 
 
@@ -1102,7 +1076,7 @@ void ItemUse_Sentry( gentity_t *ent )
 extern gentity_t *NPC_SpawnType( gentity_t *ent, char *npc_type, char *targetname, qboolean isVehicle );
 void ItemUse_Seeker(gentity_t *ent)
 {
-	if ( g_gametype.integer == GT_SIEGE && d_siegeSeekerNPC.integer )
+	if ( d_seekerNPC.integer )
 	{//actualy spawn a remote NPC
 		gentity_t *remote = NPC_SpawnType( ent, "remote", NULL, qfalse );
 		if ( remote && remote->client )
@@ -2290,7 +2264,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		return adjustRespawnTime(RESPAWN_TEAM_WEAPON, ent->item->giType, ent->item->giTag);
 	}
 
-	return adjustRespawnTime(g_weaponRespawn.integer, ent->item->giType, ent->item->giTag);
+	return adjustRespawnTime(5, ent->item->giType, ent->item->giTag);
 }
 
 
@@ -2823,63 +2797,6 @@ free fall from their spawn points
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		dest;
-//	gitem_t		*item;
-
-//	VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
-//	VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
-
-	if (g_gametype.integer == GT_SIEGE)
-	{ //in siege remove all powerups
-		if (ent->item->giType == IT_POWERUP)
-		{
-			G_FreeEntity(ent);
-			return;
-		}
-	}
-
-	if (g_gametype.integer != GT_JEDIMASTER)
-	{
-		if (HasSetSaberOnly())
-		{
-			if (ent->item->giType == IT_AMMO)
-			{
-				G_FreeEntity( ent );
-				return;
-			}
-
-			if (ent->item->giType == IT_HOLDABLE)
-			{
-				if (ent->item->giTag == HI_SEEKER ||
-					ent->item->giTag == HI_SHIELD ||
-					ent->item->giTag == HI_SENTRY_GUN)
-				{
-					G_FreeEntity( ent );
-					return;
-				}
-			}
-		}
-	}
-	else
-	{ //no powerups in jedi master
-		if (ent->item->giType == IT_POWERUP)
-		{
-			G_FreeEntity(ent);
-			return;
-		}
-	}
-
-	if (g_gametype.integer == GT_HOLOCRON)
-	{
-		if (ent->item->giType == IT_POWERUP)
-		{
-			if (ent->item->giTag == PW_FORCE_ENLIGHTENED_LIGHT ||
-				ent->item->giTag == PW_FORCE_ENLIGHTENED_DARK)
-			{
-				G_FreeEntity(ent);
-				return;
-			}
-		}
-	}
 
 	if (g_forcePowerDisable.integer)
 	{ //if force powers disabled, don't add force powerups
@@ -2892,17 +2809,6 @@ void FinishSpawningItem( gentity_t *ent ) {
 				G_FreeEntity(ent);
 				return;
 			}
-		}
-	}
-
-	if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL)
-	{
-		if ( ent->item->giType == IT_ARMOR ||
-			ent->item->giType == IT_HEALTH ||
-			(ent->item->giType == IT_HOLDABLE && (ent->item->giTag == HI_MEDPAC || ent->item->giTag == HI_MEDPAC_BIG)) )
-		{
-			G_FreeEntity(ent);
-			return;
 		}
 	}
 
@@ -2941,19 +2847,11 @@ void FinishSpawningItem( gentity_t *ent ) {
 	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
 	ent->s.modelindex2 = 0; // zero indicates this isn't a dropped item
 
-	ent->r.contents = CONTENTS_ITEM; //CONTENTS_TRIGGER;
+	ent->r.contents = CONTENTS_ITEM;
 	ent->touch = Touch_Item;
-	// useing an item causes it to respawn
+	// using an item causes it to respawn
 	ent->use = Use_Item;
 
-	// create a Ghoul2 model if the world model is a glm
-/*	item = &bg_itemlist[ ent->s.modelindex ];
-	if (!stricmp(&item->world_model[0][strlen(item->world_model[0]) - 4], ".glm"))
-	{
-		trap_G2API_InitGhoul2Model(&ent->s, item->world_model[0], G_ModelIndex(item->world_model[0] ), 0, 0, 0, 0);
-		ent->s.radius = 60;
-	}
-*/
 	if ( ent->spawnflags & ITMSF_SUSPEND ) {
 		// suspended
 		G_SetOrigin( ent, ent->s.origin );
@@ -2988,20 +2886,6 @@ void FinishSpawningItem( gentity_t *ent ) {
 		ent->r.contents = 0;
 		return;
 	}
-
-	// powerups don't spawn in for a while
-	/*
-	if ( ent->item->giType == IT_POWERUP ) {
-		float	respawn;
-
-		respawn = 45 + crandom() * 15;
-		ent->s.eFlags |= EF_NODRAW;
-		ent->r.contents = 0;
-		ent->nextthink = level.time + respawn * 1000;
-		ent->think = RespawnItem;
-		return;
-	}
-	*/
 
 	trap_LinkEntity (ent);
 }
@@ -3121,30 +3005,8 @@ be on an entity that hasn't spawned yet.
 ============
 */
 void G_SpawnItem (gentity_t *ent, gitem_t *item) {
-	int wDisable = 0;
-
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
-
-	if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL)
-	{
-		wDisable = g_duelWeaponDisable.integer;
-	}
-	else
-	{
-		wDisable = g_weaponDisable.integer;
-	}
-
-	if (item->giType == IT_WEAPON &&
-		wDisable &&
-		(wDisable & (1 << item->giTag)))
-	{
-		if (g_gametype.integer != GT_JEDIMASTER)
-		{
-			G_FreeEntity( ent );
-			return;
-		}
-	}
 
 	RegisterItem( item );
 	if ( G_ItemDisabled(item) )

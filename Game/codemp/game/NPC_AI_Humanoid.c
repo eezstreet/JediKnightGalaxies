@@ -17,7 +17,6 @@ extern qboolean NPC_FollowRoutes( void );
 extern qboolean NPC_HaveValidEnemy( void );
 
 extern vmCvar_t	g_saberRealisticCombat;
-extern vmCvar_t	d_slowmodeath;
 
 void G_StartMatrixEffect( gentity_t *ent )
 { //perhaps write this at some point?
@@ -3500,10 +3499,6 @@ evasionType_t NPC_Humanoid_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t
 			}
 			if ( ((evasionType = NPC_Humanoid_CheckFlipEvasions( self, rightdot, zdiff )) != EVASION_NONE) )
 			{
-				if ( d_slowmodeath.integer > 5 && self->enemy && !self->enemy->s.number )
-				{
-					G_StartMatrixEffect( self );
-				}
 				saberBusy = qtrue;
 				evaded = qtrue;
 			}
@@ -3639,10 +3634,6 @@ evasionType_t NPC_Humanoid_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t
 		//FIXME: maybe make a sound?  Like a grunt?  EV_JUMP?
 		self->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 		//dodged, not block
-		if ( d_slowmodeath.integer > 5 && self->enemy && !self->enemy->s.number )
-		{
-			G_StartMatrixEffect( self );
-		}
 	}
 	else
 	{

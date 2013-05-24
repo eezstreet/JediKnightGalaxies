@@ -3008,7 +3008,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	char				userinfo[MAX_INFO_STRING];
 	forcedata_t			savedForce;
 	int					saveSaberNum = ENTITYNUM_NONE;
-	int					wDisable = 0;
 	int					savedSiegeIndex = 0;
 	int					maxHealth;
 	saberInfo_t			saberSaved[MAX_SABERS];
@@ -3436,21 +3435,9 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	//give default weapons
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
 
-	if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL)
-	{
-		wDisable = g_duelWeaponDisable.integer;
-	}
-	else
-	{
-		wDisable = g_weaponDisable.integer;
-	}
 
 
-
-	if ( g_gametype.integer != GT_HOLOCRON 
-		&& g_gametype.integer != GT_JEDIMASTER 
-		&& !HasSetSaberOnly()
-		&& !AllForceDisabled( g_forcePowerDisable.integer )
+	if ( !AllForceDisabled( g_forcePowerDisable.integer )
 		&& g_trueJedi.integer )
 	{
 		if ( g_gametype.integer >= GT_TEAM && (client->sess.sessionTeam == TEAM_BLUE || client->sess.sessionTeam == TEAM_RED) )
@@ -3505,18 +3492,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 		{//no force powers set
 			client->ps.trueNonJedi = qtrue;
 			client->ps.trueJedi = qfalse;
-			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
-			}
-			if (!wDisable || !(wDisable & (1 << WP_BLASTER)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BLASTER );
-			}
-			if (!wDisable || !(wDisable & (1 << WP_BOWCASTER)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BOWCASTER );
-			}
 			client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
 			client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
 			//client->ps.ammo[AMMO_POWERCELL] = GetAmmoMax (AMMO_POWERCELL);
@@ -3541,21 +3516,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 			{ //if you don't have saber attack rank then you don't get a saber
 				client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
 			}
-		}
-
-		if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
-		{
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
-		}
-		else if (g_gametype.integer == GT_JEDIMASTER)
-		{
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
-		}
-
-		if (g_gametype.integer == GT_JEDIMASTER)
-		{
-			client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
 		}
 
 		if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))

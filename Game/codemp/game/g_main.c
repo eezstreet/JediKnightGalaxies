@@ -142,8 +142,6 @@ qboolean gDuelExit = qfalse;
 vmCvar_t	g_trueJedi;
 
 vmCvar_t	g_gametype;
-vmCvar_t	g_MaxHolocronCarry;
-vmCvar_t	g_ff_objectives;
 vmCvar_t	g_autoMapCycle;
 vmCvar_t	g_dmflags;
 vmCvar_t	g_maxForceRank;
@@ -167,7 +165,7 @@ vmCvar_t	g_saberBladeFaces;
 vmCvar_t	d_saberAlwaysBoxTrace;
 vmCvar_t	d_saberBoxTraceSize;
 
-vmCvar_t	d_siegeSeekerNPC;
+vmCvar_t	d_seekerNPC;
 
 vmCvar_t	g_debugMelee;
 vmCvar_t	g_stepSlideFix;
@@ -205,9 +203,6 @@ vmCvar_t	g_svfps;
 vmCvar_t	g_forceRegenTime;
 vmCvar_t	g_spawnInvulnerability;
 vmCvar_t	g_forcePowerDisable;
-vmCvar_t	g_weaponDisable;
-vmCvar_t	g_duelWeaponDisable;
-vmCvar_t	g_allowDuelSuicide;
 vmCvar_t	g_fraglimitVoteCorrection;
 vmCvar_t	g_fraglimit;
 vmCvar_t	g_duel_fraglimit;
@@ -226,19 +221,13 @@ vmCvar_t	g_speed;
 vmCvar_t	g_gravity;
 vmCvar_t	g_cheats;
 vmCvar_t	g_knockback;
-vmCvar_t	g_quadfactor;
 vmCvar_t	g_forcerespawn;
-vmCvar_t	g_siegeRespawn;
 vmCvar_t	g_inactivity;
 vmCvar_t	g_debugMove;
 #ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
 #endif
-vmCvar_t	g_debugAlloc;
 vmCvar_t	g_debugServerSkel;
-vmCvar_t	g_weaponRespawn;
-vmCvar_t	g_weaponTeamRespawn;
-vmCvar_t	g_adaptRespawn;
 vmCvar_t	g_motd;
 vmCvar_t	g_synchronousClients;
 vmCvar_t	g_warmup;
@@ -259,9 +248,6 @@ vmCvar_t	jkg_bounty;					// Not sure if all servers wanted this or not, so I'm p
 vmCvar_t	jkg_arearestrictions;		// TEMP FOR PHASE 1
 #endif
 
-vmCvar_t	g_blood;
-vmCvar_t	g_podiumDist;
-vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
@@ -294,8 +280,6 @@ vmCvar_t	g_saberDmgDelay_Wound;
 
 vmCvar_t	g_saberDebugPrint;
 
-vmCvar_t	g_siegeTeamSwitch;
-
 vmCvar_t	bg_fighterAltControl;
 
 #ifdef DEBUG_SABER_BOX
@@ -319,20 +303,13 @@ vmCvar_t		d_saberStanceDebug;
 vmCvar_t		debugNPCAI;			// used to print out debug info about the bot AI
 vmCvar_t		debugNPCFreeze;		// set to disable bot ai and temporarily freeze them in place
 vmCvar_t		debugNPCAimingBeam;
-vmCvar_t		debugBreak;
-vmCvar_t		debugNoRoam;
 vmCvar_t		d_saberCombat;
 vmCvar_t		d_JediAI;
 vmCvar_t		d_noGroupAI;
 vmCvar_t		d_asynchronousGroupAI;
-vmCvar_t		d_slowmodeath;
 vmCvar_t		d_noIntermissionWait;
 
 vmCvar_t		g_spskill;
-
-
-vmCvar_t		g_siegeTeam1;
-vmCvar_t		g_siegeTeam2;
 
 vmCvar_t	g_austrian;
 
@@ -392,7 +369,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	// latched vars
 	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
-	{ &g_MaxHolocronCarry, "g_MaxHolocronCarry", "3", /*CVAR_SERVERINFO |*/ CVAR_LATCH, 0, qfalse  },
 
 	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_maxGameClients, "g_maxGameClients", "0", /*CVAR_SERVERINFO |*/ CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
@@ -400,8 +376,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_trueJedi, "g_jediVmerc", "0", /*CVAR_SERVERINFO |*/ CVAR_LATCH | CVAR_ARCHIVE, 0, qtrue },
 
 	// change anytime vars
-	{ &g_ff_objectives, "g_ff_objectives", "0", /*CVAR_SERVERINFO |*/ CVAR_CHEAT | CVAR_NORESTART, 0, qtrue },
-
 	{ &g_autoMapCycle, "g_autoMapCycle", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 	
@@ -427,7 +401,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &d_saberAlwaysBoxTrace, "d_saberAlwaysBoxTrace", "0", CVAR_CHEAT, 0, qtrue  },
 	{ &d_saberBoxTraceSize, "d_saberBoxTraceSize", "0", CVAR_CHEAT, 0, qtrue  },
 
-	{ &d_siegeSeekerNPC, "d_siegeSeekerNPC", "0", CVAR_CHEAT, 0, qtrue },
+	{ &d_seekerNPC, "d_seekerNPC", "0", CVAR_CHEAT, 0, qtrue },
 
 #ifdef _DEBUG
 	{ &g_disableServerG2, "g_disableServerG2", "0", 0, 0, qtrue },
@@ -462,10 +436,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_spawnInvulnerability, "g_spawnInvulnerability", "3000", CVAR_ARCHIVE, 0, qtrue  },
 
 	{ &g_forcePowerDisable, "g_forcePowerDisable", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue  },
-	{ &g_weaponDisable, "g_weaponDisable", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue  },
-	{ &g_duelWeaponDisable, "g_duelWeaponDisable", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue  },
-
-	{ &g_allowDuelSuicide, "g_allowDuelSuicide", "1", CVAR_ARCHIVE, 0, qtrue },
 
 	{ &g_fraglimitVoteCorrection, "g_fraglimitVoteCorrection", "1", CVAR_ARCHIVE, 0, qtrue },
 
@@ -476,13 +446,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
-		//Stoiss add
-	//turn on Super Duper Interpolation by default
-	//{ &d_saberInterpolate, "d_saberInterpolate", "2", 0, 0, qtrue },
-	{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },
-	//Stoiss end
-
-	{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },
+	//{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },
+	{ &d_saberInterpolate, "d_saberInterpolate", "2", CVAR_CHEAT, 0, qtrue },		// Stoiss edit
 
 	{ &g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_friendlySaber, "g_friendlySaber", "0", CVAR_ARCHIVE, 0, qtrue  },
@@ -512,24 +477,14 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_speed, "g_speed", "250", 0, 0, qtrue  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
-	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
-	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },
-	{ &g_weaponTeamRespawn, "g_weaponTeamRespawn", "5", 0, 0, qtrue },
-	{ &g_adaptRespawn, "g_adaptrespawn", "1", 0, 0, qtrue  },		// Make weapons respawn faster with a lot of players.
 	{ &g_forcerespawn, "g_forcerespawn", "60", 0, 0, qtrue },		// One minute force respawn.  Give a player enough time to reallocate force.
-	{ &g_siegeRespawn, "g_siegeRespawn", "20", /*CVAR_SERVERINFO |*/ CVAR_ARCHIVE, 0, qtrue }, //siege respawn wave time
 	{ &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
 	{ &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
 #ifndef FINAL_BUILD
 	{ &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
 #endif
-	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
 	{ &g_debugServerSkel, "g_debugServerSkel", "0", CVAR_CHEAT, 0, qfalse },
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
-	{ &g_blood, "com_blood", "1", 0, 0, qfalse },
-
-	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
-	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
@@ -570,8 +525,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &d_saberStanceDebug, "d_saberStanceDebug", "0", 0, 0, qfalse },
 
-	{ &g_siegeTeamSwitch, "g_siegeTeamSwitch", "1", /*CVAR_SERVERINFO|*/CVAR_ARCHIVE, qfalse },
-
 	{ &bg_fighterAltControl, "bg_fighterAltControl", "0", /*CVAR_SERVERINFO*/ 0, 0, qtrue },
 
 #ifdef DEBUG_SABER_BOX
@@ -585,32 +538,15 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_saberRestrictForce, "g_saberRestrictForce", "0", CVAR_CHEAT },
 	{ &d_saberSPStyleDamage, "d_saberSPStyleDamage", "1", CVAR_CHEAT },
 
-	{ &debugNoRoam, "d_noroam", "0", CVAR_CHEAT },
-	{ &debugNPCAimingBeam, "d_npcaiming", "0", CVAR_CHEAT },
-	{ &debugBreak, "d_break", "0", CVAR_CHEAT },
 	{ &debugNPCAI, "d_npcai", "0", CVAR_CHEAT },
 	{ &debugNPCFreeze, "d_npcfreeze", "0", CVAR_CHEAT },
 	{ &d_JediAI, "d_JediAI", "0", CVAR_CHEAT },
 	{ &d_noGroupAI, "d_noGroupAI", "0", CVAR_CHEAT },
 	{ &d_asynchronousGroupAI, "d_asynchronousGroupAI", "0", CVAR_CHEAT },
-	
-	//0 = never (BORING)
-	//1 = kyle only
-	//2 = kyle and last enemy jedi
-	//3 = kyle and any enemy jedi
-	//4 = kyle and last enemy in a group
-	//5 = kyle and any enemy
-	//6 = also when kyle takes pain or enemy jedi dodges player saber swing or does an acrobatic evasion
-
-	{ &d_slowmodeath, "d_slowmodeath", "0", CVAR_CHEAT },
 
 	{ &d_saberCombat, "d_saberCombat", "0", CVAR_CHEAT },
 
 	{ &g_spskill, "g_npcspskill", "0", CVAR_ARCHIVE | CVAR_INTERNAL },
-
-	//for overriding the level defaults
-	{ &g_siegeTeam1, "g_siegeTeam1", "none", CVAR_ARCHIVE/*|CVAR_SERVERINFO*/, 0, qfalse  },
-	{ &g_siegeTeam2, "g_siegeTeam2", "none", CVAR_ARCHIVE/*|CVAR_SERVERINFO*/, 0, qfalse  },
 
 	//mainly for debugging with bots while I'm not around (want the server to
 	//cycle through levels naturally)

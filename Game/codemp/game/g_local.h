@@ -1655,7 +1655,6 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 //
 // g_main.c
 //
-extern vmCvar_t g_ff_objectives;
 extern qboolean gDoSlowMoDuel;
 extern int gSlowMoDuelTime;
 
@@ -1756,7 +1755,6 @@ qboolean JKG_CheckRoutingFrom( int wp );
 qboolean JKG_CheckBelowWaypoint( int wp );
 // w_force.c / w_saber.c
 gentity_t *G_PreDefSound(vec3_t org, int pdSound);
-qboolean HasSetSaberOnly(void);
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower );
 void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd );
 int WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, qboolean projectile, int attackStr);
@@ -1884,7 +1882,7 @@ extern	vmCvar_t	g_saberBladeFaces;
 extern	vmCvar_t	d_saberAlwaysBoxTrace;
 extern	vmCvar_t	d_saberBoxTraceSize;
 
-extern	vmCvar_t	d_siegeSeekerNPC;
+extern	vmCvar_t	d_seekerNPC;
 
 extern	vmCvar_t	g_debugMelee;
 extern	vmCvar_t	g_stepSlideFix;
@@ -1922,9 +1920,7 @@ extern	vmCvar_t	g_svfps;
 extern	vmCvar_t	g_forceRegenTime;
 extern	vmCvar_t	g_spawnInvulnerability;
 extern	vmCvar_t	g_forcePowerDisable;
-extern	vmCvar_t	g_weaponDisable;
 
-extern	vmCvar_t	g_allowDuelSuicide;
 extern	vmCvar_t	g_fraglimitVoteCorrection;
 
 // Jedi Knight Galaxies
@@ -1940,7 +1936,6 @@ extern vmCvar_t	jkg_arearestrictions;		// TEMP FOR PHASE 1
 
 extern	vmCvar_t	g_duelWeaponDisable;
 extern	vmCvar_t	g_fraglimit;
-extern	vmCvar_t	g_duel_fraglimit;
 extern	vmCvar_t	g_timelimit;
 extern	vmCvar_t	g_capturelimit;
 extern	vmCvar_t	d_saberInterpolate;
@@ -1951,24 +1946,17 @@ extern	vmCvar_t	g_needpass;
 extern	vmCvar_t	g_gravity;
 extern	vmCvar_t	g_speed;
 extern	vmCvar_t	g_knockback;
-extern	vmCvar_t	g_quadfactor;
 extern	vmCvar_t	g_forcerespawn;
-extern	vmCvar_t	g_siegeRespawn;
 extern	vmCvar_t	g_inactivity;
 extern	vmCvar_t	g_debugMove;
-extern	vmCvar_t	g_debugAlloc;
 #ifndef FINAL_BUILD
 extern	vmCvar_t	g_debugDamage;
 #endif
 extern	vmCvar_t	g_debugServerSkel;
-extern	vmCvar_t	g_weaponRespawn;
-extern	vmCvar_t	g_weaponTeamRespawn;
-extern	vmCvar_t	g_adaptRespawn;
 extern	vmCvar_t	g_synchronousClients;
 extern	vmCvar_t	g_motd;
 extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;
-extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
@@ -2002,8 +1990,6 @@ extern	vmCvar_t	g_saberDmgDelay_Wound;
 extern	vmCvar_t	g_saberDebugPrint;
 #endif
 
-extern	vmCvar_t	g_siegeTeamSwitch;
-
 extern	vmCvar_t	bg_fighterAltControl;
 
 #ifdef DEBUG_SABER_BOX
@@ -2015,8 +2001,7 @@ extern vmCvar_t		d_altRoutes;
 extern vmCvar_t		d_patched;
 extern	vmCvar_t	d_noIntermissionWait;
 
-extern	vmCvar_t	g_siegeTeam1;
-extern	vmCvar_t	g_siegeTeam2;
+extern	vmCvar_t	g_duel_fraglimit;
 
 extern	vmCvar_t	g_austrian;
 

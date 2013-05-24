@@ -1532,10 +1532,6 @@ This is the spurt of blood when a character gets hit
 void CG_Bleed( vec3_t origin, int entityNum ) {
 	localEntity_t	*ex;
 
-	if ( !cg_blood.integer ) {
-		return;
-	}
-
 	ex = CG_AllocLocalEntity();
 	ex->leType = LE_EXPLOSION;
 

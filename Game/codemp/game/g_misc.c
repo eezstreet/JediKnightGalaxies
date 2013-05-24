@@ -12,7 +12,6 @@
 #define STATION_RECHARGE_TIME 100
 
 void HolocronThink(gentity_t *ent);
-extern vmCvar_t g_MaxHolocronCarry;
 
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
@@ -908,25 +907,6 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		}
 	}
 
-	if (g_MaxHolocronCarry.integer && othercarrying >= g_MaxHolocronCarry.integer)
-	{ //make the oldest holocron carried by the player pop out to make room for this one
-		other->client->ps.holocronsCarried[index_lowest] = 0;
-
-		/*
-		if (index_lowest == FP_SABER_OFFENSE && !HasSetSaberOnly())
-		{ //you lost your saberattack holocron, so no more saber for you
-			other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_STUN_BATON);
-			other->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
-
-			if (other->client->ps.weapon == WP_SABER)
-			{
-				forceReselect = WP_SABER;
-			}
-		}
-		*/
-		//NOTE: No longer valid as we are now always giving a force level 1 saber attack level in holocron
-	}
-
 	//G_Sound(other, CHAN_AUTO, G_SoundIndex("sound/weapons/w_pkup.wav"));
 	G_AddEvent( other, EV_ITEM_PICKUP, self->s.number );
 
@@ -936,19 +916,6 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 
 	self->pos2[0] = 1;
 	self->pos2[1] = level.time + HOLOCRON_RESPAWN_TIME;
-
-	/*
-	if (self->count == FP_SABER_OFFENSE && !HasSetSaberOnly())
-	{ //player gets a saber
-		other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_SABER);
-		other->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_STUN_BATON);
-
-		if (other->client->ps.weapon == WP_STUN_BATON)
-		{
-			forceReselect = WP_STUN_BATON;
-		}
-	}
-	*/
 
 	if (forceReselect != WP_NONE)
 	{
@@ -1046,108 +1013,8 @@ justthink:
 
 void SP_misc_holocron(gentity_t *ent)
 {
-	vec3_t dest;
-	trace_t tr;
-
-	if (g_gametype.integer != GT_HOLOCRON)
-	{
-		G_FreeEntity(ent);
-		return;
-	}
-
-	if (HasSetSaberOnly())
-	{
-		if (ent->count == FP_SABER_OFFENSE ||
-			ent->count == FP_SABER_DEFENSE ||
-			ent->count == FP_SABERTHROW)
-		{ //having saber holocrons in saber only mode is pointless
-			G_FreeEntity(ent);
-			return;
-		}
-	}
-
-	ent->s.isJediMaster = qtrue;
-
-	VectorSet( ent->r.maxs, 8, 8, 8 );
-	VectorSet( ent->r.mins, -8, -8, -8 );
-
-	ent->s.origin[2] += 0.1f;
-	ent->r.maxs[2] -= 0.1f;
-
-	VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-	trap_Trace( &tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID );
-	if ( tr.startsolid )
-	{
-		G_Printf ("SP_misc_holocron: misc_holocron startsolid at %s\n", vtos(ent->s.origin));
-		G_FreeEntity( ent );
-		return;
-	}
-
-	//add the 0.1f back after the trace
-	ent->r.maxs[2] += 0.1f;
-
-	// allow to ride movers
-//	ent->s.groundEntityNum = tr.entityNum;
-
-	G_SetOrigin( ent, tr.endpos );
-
-	if (ent->count < 0)
-	{
-		ent->count = 0;
-	}
-
-	if (ent->count >= NUM_FORCE_POWERS)
-	{
-		ent->count = NUM_FORCE_POWERS-1;
-	}
-/*
-	if (g_forcePowerDisable.integer &&
-		(g_forcePowerDisable.integer & (1 << ent->count)))
-	{
-		G_FreeEntity(ent);
-		return;
-	}
-*/
-	//No longer doing this, causing too many complaints about accidentally setting no force powers at all
-	//and starting a holocron game (making it basically just FFA)
-
-	ent->enemy = NULL;
-
-	ent->flags = FL_BOUNCE_HALF;
-
-	ent->s.modelindex = (ent->count - 128);//G_ModelIndex(holocronTypeModels[ent->count]);
-	ent->s.eType = ET_HOLOCRON;
-	ent->s.pos.trType = TR_GRAVITY;
-	ent->s.pos.trTime = level.time;
-
-	ent->r.contents = CONTENTS_TRIGGER;
-	ent->clipmask = MASK_SOLID;
-
-	ent->s.trickedentindex4 = ent->count;
-
-	if (forcePowerDarkLight[ent->count] == FORCE_DARKSIDE)
-	{
-		ent->s.trickedentindex3 = 1;
-	}
-	else if (forcePowerDarkLight[ent->count] == FORCE_LIGHTSIDE)
-	{
-		ent->s.trickedentindex3 = 2;
-	}
-	else
-	{
-		ent->s.trickedentindex3 = 3;
-	}
-
-	ent->physicsObject = qtrue;
-
-	VectorCopy(ent->s.pos.trBase, ent->s.origin2); //remember the spawn spot
-
-	ent->touch = HolocronTouch;
-
-	trap_LinkEntity(ent);
-
-	ent->think = HolocronThink;
-	ent->nextthink = level.time + 50;
+	G_FreeEntity(ent);
+	return;
 }
 
 /*
