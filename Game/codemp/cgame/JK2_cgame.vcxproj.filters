@@ -656,6 +656,9 @@
     <ClCompile Include="jkg_autowaypoint.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\bg_vmove.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h">

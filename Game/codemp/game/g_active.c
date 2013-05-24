@@ -3421,45 +3421,29 @@ void ClientThink_real( gentity_t *ent ) {
 	{
 		VectorCopy(ent->r.mins, pm.mins);
 		VectorCopy(ent->r.maxs, pm.maxs);
-#if 1
 		if (ent->s.NPC_class == CLASS_VEHICLE &&
 			ent->m_pVehicle )
 		{
-			if ( ent->m_pVehicle->m_pPilot)
-			{ //vehicles want to use their last pilot ucmd I guess
-				if ((level.time - ent->m_pVehicle->m_ucmd.serverTime) > 2000)
-				{ //Previous owner disconnected, maybe
-					ent->m_pVehicle->m_ucmd.serverTime = level.time;
-					ent->client->ps.commandTime = level.time-100;
-					msec = 100;
-				}
+			vmove_t vm;
 
-				memcpy(&pm.cmd, &ent->m_pVehicle->m_ucmd, sizeof(usercmd_t));
-				
-				//no veh can strafe
-				pm.cmd.rightmove = 0;
-				//no crouching or jumping!
-				pm.cmd.upmove = 0;
+			memcpy(&vm.cmd, &ent->m_pVehicle->m_ucmd, sizeof(usercmd_t));
 
-				//NOTE: button presses were getting lost!
-				assert(g_entities[ent->m_pVehicle->m_pPilot->s.number].client);
-				pm.cmd.buttons = (g_entities[ent->m_pVehicle->m_pPilot->s.number].client->pers.cmd.buttons&(BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/));
-			}
-			if ( ent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
+			// Vehicles can't move up/right/left/down, only forward
+			vm.cmd.upmove = 0;
+			if(!ent->m_pVehicle->m_pPilot)
 			{
-				if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
-				{//ATST crushes anything underneath it
-					gentity_t	*under = &g_entities[ent->client->ps.groundEntityNum];
-					if ( under && under->health && under->takedamage )
-					{
-						vec3_t	down = {0,0,-1};
-						//FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
-						G_Damage( under, ent, ent, down, under->r.currentOrigin, 100, 0, MOD_CRUSH );
-					}
-				}
+				vm.cmd.buttons = 0;
 			}
+			else
+			{
+				vm.cmd.buttons = g_entities[ent->m_pVehicle->m_pPilot->s.number].client->pers.cmd.buttons;	// FIXED: give me the full range of buttons, not just a bool
+			}
+
+			vm.ps = &ent->client->ps;
+
+			vm.isRider = qfalse;
+			Vmove(&vm);
 		}
-#endif
 	}
 
 	// Since PM cant access clipammo, we'll put it in STAT_AMMO
@@ -3527,7 +3511,24 @@ void ClientThink_real( gentity_t *ent ) {
     }
 
 	/* Run the Pmove (this will generate bg_pmove events */
-	Pmove (&pm);
+	if( ent->client->ps.m_iVehicleNum >= MAX_CLIENTS &&
+		ent->client->ps.clientNum < MAX_CLIENTS )
+	{
+		vmove_t vm;
+		memcpy(&vm.cmd, &ent->client->pers.cmd, sizeof(usercmd_t));
+		vm.cmd.upmove = 0;
+		
+		vm.ps = &ent->client->ps;
+
+		vm.isRider = qtrue;
+
+		Vmove(&vm);
+
+	}
+	else
+	{
+		Pmove (&pm);
+	}
 
 	if ( GetWeaponAmmoClip( ent->client->ps.weapon, ent->client->ps.weaponVariation ))
 	{
@@ -3729,16 +3730,6 @@ void ClientThink_real( gentity_t *ent ) {
 			{
 				ItemUse_Jetpack(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+HI_JETPACK, 0);
-				/*
-				if (ent->client->ps.zoomMode == 0)
-				{
-					G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 1);
-				}
-				else
-				{
-					G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 2);
-				}
-				*/
 			}
 			break;
 		case GENCMD_USE_HEALTHDISP:

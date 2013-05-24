@@ -1045,6 +1045,7 @@ void CG_PredictPlayerState( void ) {
 	usercmd_t	latestCmd;
 	centity_t *pEnt;
 	clientInfo_t *ci;
+	centity_t *veh;
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
 
@@ -1190,9 +1191,6 @@ void CG_PredictPlayerState( void ) {
 			cg_entities[i].currentState.eType == ET_NPC)
 		{
 			// Need a new playerState_t on Xbox
-#ifdef _XBOX
-			AllocSendPlayerstate(i);
-#endif
 			VectorCopy( cg_entities[i].currentState.pos.trBase, cgSendPS[i]->origin );
 			VectorCopy( cg_entities[i].currentState.pos.trDelta, cgSendPS[i]->velocity );
 			cgSendPS[i]->saberLockFrame = cg_entities[i].currentState.forceFrame;
@@ -1352,52 +1350,81 @@ void CG_PredictPlayerState( void ) {
 			}
 		}
 
-		if ( cg_pmove.pmove_fixed ) {
-			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
-		}
-
-		cg_pmove.animations = bgAllAnims[pEnt->localAnimIndex].anims;
-		cg_pmove.gametype = cgs.gametype;
-
-		cg_pmove.debugMelee = cgs.debugMelee;
-		cg_pmove.stepSlideFix = cgs.stepSlideFix;
-		cg_pmove.noSpecMove = cgs.noSpecMove;
-		cg_pmove.gender = ci->gender;
-
-		cg_pmove.nonHumanoid = (pEnt->localAnimIndex >= NUM_RESERVED_ANIMSETS);
-
-		if (cg.snap && cg.snap->ps.saberLockTime > cg.time)
+		veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
+		if( veh->m_pVehicle )
 		{
-			centity_t *blockOpp = &cg_entities[cg.snap->ps.saberLockEnemy];
+			vmove_t cg_vmove;
 
-			if (blockOpp)
-			{
-				vec3_t lockDir, lockAng;
+			veh->m_pVehicle->m_vOrientation = &cg.predictedVehicleState.vehOrientation[0];
+			//keep this updated based on what the playerstate says
+			veh->m_pVehicle->m_iRemovedSurfaces = cg.predictedVehicleState.vehSurfaces;
 
-				VectorSubtract( blockOpp->lerpOrigin, cg.snap->ps.origin, lockDir );
-				vectoangles(lockDir, lockAng);
+			trap_GetUserCmd( cmdNum, &veh->m_pVehicle->m_ucmd );
 
-				VectorCopy(lockAng, cg_pmove.ps->viewangles);
+			if ( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK )
+			{ //forced input if "chat bubble" is up
+				veh->m_pVehicle->m_ucmd.buttons = BUTTON_TALK;
+				veh->m_pVehicle->m_ucmd.forwardmove = 0;
+				veh->m_pVehicle->m_ucmd.rightmove = 0;
+				veh->m_pVehicle->m_ucmd.upmove = 0;
 			}
+
+			cg_vmove.ps = &cg.predictedPlayerState;
+			cg_vmove.animations = bgAllAnims[veh->localAnimIndex].anims;
+
+			memcpy(&cg_vmove.cmd, &veh->m_pVehicle->m_ucmd, sizeof(usercmd_t));
+
+			Vmove(&cg_vmove);
 		}
-
-		//THIS is pretty much bad, but...
-		cg_pmove.ps->fd.saberAnimLevelBase = cg_pmove.ps->fd.saberAnimLevel;
-		/*if ( cg_pmove.ps->saberHolstered == 1 )
+		else
 		{
-			if ( ci->saber[0].numBlades > 0 )
-			{
-				cg_pmove.ps->fd.saberAnimLevelBase = SS_STAFF;
+			if ( cg_pmove.pmove_fixed ) {
+				cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
 			}
-			else if ( ci->saber[1].model[0] )
+
+			cg_pmove.animations = bgAllAnims[pEnt->localAnimIndex].anims;
+			cg_pmove.gametype = cgs.gametype;
+
+			cg_pmove.debugMelee = cgs.debugMelee;
+			cg_pmove.stepSlideFix = cgs.stepSlideFix;
+			cg_pmove.noSpecMove = cgs.noSpecMove;
+			cg_pmove.gender = ci->gender;
+
+			cg_pmove.nonHumanoid = (pEnt->localAnimIndex >= NUM_RESERVED_ANIMSETS);
+
+			if (cg.snap && cg.snap->ps.saberLockTime > cg.time)
 			{
-				cg_pmove.ps->fd.saberAnimLevelBase = SS_DUAL;
-			}
-		}*/
+				centity_t *blockOpp = &cg_entities[cg.snap->ps.saberLockEnemy];
+
+				if (blockOpp)
+				{
+					vec3_t lockDir, lockAng;
 	
-		Pmove (&cg_pmove);
-		if (cg.deathcamTime) {
-			DeathcamClamp(&cg.predictedPlayerState);
+					VectorSubtract( blockOpp->lerpOrigin, cg.snap->ps.origin, lockDir );
+					vectoangles(lockDir, lockAng);
+
+					VectorCopy(lockAng, cg_pmove.ps->viewangles);
+				}
+			}
+
+			//THIS is pretty much bad, but...
+			cg_pmove.ps->fd.saberAnimLevelBase = cg_pmove.ps->fd.saberAnimLevel;
+			/*if ( cg_pmove.ps->saberHolstered == 1 )
+			{
+				if ( ci->saber[0].numBlades > 0 )
+				{
+					cg_pmove.ps->fd.saberAnimLevelBase = SS_STAFF;
+				}
+				else if ( ci->saber[1].model[0] )
+				{
+					cg_pmove.ps->fd.saberAnimLevelBase = SS_DUAL;
+				}
+			}*/
+	
+			Pmove (&cg_pmove);
+			if (cg.deathcamTime) {
+				DeathcamClamp(&cg.predictedPlayerState);
+			}
 		}
 
 		if (CG_Piloting(cg.predictedPlayerState.m_iVehicleNum) &&

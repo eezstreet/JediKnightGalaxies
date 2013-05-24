@@ -585,7 +585,7 @@ void PM_pitch_roll_for_slope( bgEntity_t *forwhom, vec3_t pass_slope, vec3_t sto
 		storeAngles[PITCH] = dot * pitch;
 		storeAngles[ROLL] = ((1-Q_fabs(dot)) * pitch * mod);
 	}
-	else //if ( forwhom->client )
+	/*else //if ( forwhom->client )
 	{
 		float oldmins2;
 
@@ -601,14 +601,14 @@ void PM_pitch_roll_for_slope( bgEntity_t *forwhom, vec3_t pass_slope, vec3_t sto
 			//forwhom->currentOrigin[2] = forwhom->client->ps.origin[2];
 			//gi.linkentity( forwhom );
 		}
-	}
-	/*
+	}*/
+	
 	else
 	{
-		forwhom->currentAngles[PITCH] = dot * pitch;
-		forwhom->currentAngles[ROLL] = ((1-Q_fabs(dot)) * pitch * mod);
+		pm->ps->viewangles[PITCH] = dot * pitch;
+		pm->ps->viewangles[ROLL] = ((1-Q_fabs(dot)) * pitch * mod);
 	}
-	*/
+	
 }
 
 #define		FLY_NONE	0
@@ -11257,88 +11257,6 @@ extern qboolean BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t
 
 //#define _TESTING_VEH_PREDICTION
 
-void PM_MoveForKata(usercmd_t *ucmd)
-{
-	if ( pm->ps->legsAnim == BOTH_A7_SOULCAL
-		&& pm->ps->saberMove == LS_STAFF_SOULCAL )
-	{//forward spinning staff attack
-		ucmd->upmove = 0;
-
-		if ( PM_CanRollFromSoulCal( pm->ps ) )
-		{
-			ucmd->upmove = -127;
-			ucmd->rightmove = 0;
-			if (ucmd->forwardmove < 0)
-			{
-				ucmd->forwardmove = 0;
-			}
-		}
-		else
-		{
-			ucmd->rightmove = 0;
-			//FIXME: don't slide off people/obstacles?
-			if ( pm->ps->legsTimer >= 2750 )
-			{//not at end
-				//push forward
-				ucmd->forwardmove = 64;
-			}
-			else
-			{
-				ucmd->forwardmove = 0;
-			}
-		}
-		if ( pm->ps->legsTimer >= 2650 
-			&& pm->ps->legsTimer < 2850 )     
-		{//the jump
-			if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
-			{//still on ground?
-				//jump!
-				pm->ps->velocity[2] = 250;
-				pm->ps->fd.forceJumpZStart = pm->ps->origin[2];//so we don't take damage if we land at same height
-			//	pm->ps->pm_flags |= PMF_JUMPING;//|PMF_SLOW_MO_FALL;
-				//FIXME: NPCs yell?
-				PM_AddEvent(EV_JUMP);
-			}
-		}
-	}
-	else if (pm->ps->legsAnim == BOTH_A2_SPECIAL)
-	{ //medium kata
-		pm->cmd.rightmove = 0;
-		pm->cmd.upmove = 0;
-		if (pm->ps->legsTimer < 2700 && pm->ps->legsTimer > 2300)
-		{
-			pm->cmd.forwardmove = 127;
-		}
-		else if (pm->ps->legsTimer < 900 && pm->ps->legsTimer > 500)
-		{
-			pm->cmd.forwardmove = 127;
-		}
-		else
-		{
-			pm->cmd.forwardmove = 0;
-		}
-	}
-	else if (pm->ps->legsAnim == BOTH_A3_SPECIAL)
-	{ //strong kata
-		pm->cmd.rightmove = 0;
-		pm->cmd.upmove = 0;
-		if (pm->ps->legsTimer < 1700 && pm->ps->legsTimer > 1000)
-		{
-			pm->cmd.forwardmove = 127;
-		}
-		else
-		{
-			pm->cmd.forwardmove = 0;
-		}
-	}
-	else
-	{
-		pm->cmd.forwardmove = 0;
-		pm->cmd.rightmove = 0;
-		pm->cmd.upmove = 0;
-	}
-}
-
 // Check to see if we're sprinting
 qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, const networkState_t *ns, qboolean PMOVE  )
 {
@@ -11557,12 +11475,6 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->saberMove == LS_PULL_ATTACK_SWING)
 	{
 		stiffenedUp = qtrue;
-	}
-	else if (BG_SaberInKata(pm->ps->saberMove) ||
-			 BG_InKataAnim(pm->ps->torsoAnim) ||
-			 BG_InKataAnim(pm->ps->legsAnim))
-	{
-		PM_MoveForKata(&pm->cmd);
 	}
 	else if ( BG_FullBodyTauntAnim( pm->ps->legsAnim )
 		&& BG_FullBodyTauntAnim( pm->ps->torsoAnim ) )

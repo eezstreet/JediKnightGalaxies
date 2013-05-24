@@ -731,6 +731,9 @@
     <ClCompile Include="jkg_supremacy_spawnsys.c">
       <Filter>Source Files\Warzone</Filter>
     </ClCompile>
+    <ClCompile Include="bg_vmove.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GLua\LuaCommands.txt">

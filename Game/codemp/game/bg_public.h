@@ -634,6 +634,26 @@ typedef struct {
 
 } pmove_t;
 
+// Jedi Knight Galaxies
+typedef struct {
+	playerState_t *ps;
+	
+	void *ghoul2;
+	vec3_t		modelScale;
+	usercmd_t	cmd;
+	int			tracemask;			// collide against these types of surfaces
+
+	animation_t	*animations;
+	qboolean	isRider;			// always false if we're using the vehicle in question
+
+	//rww - bg entitystate access method
+	bgEntity_t	*baseEnt; //base address of the entity array (g_entities or cg_entities)
+	int			entSize; //size of the struct (gentity_t or centity_t) so things can be dynamic
+
+	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
+	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+} vmove_t;
+
 #include "../namespace_begin.h"
 
 extern	pmove_t		*pm;
@@ -652,6 +672,9 @@ extern	pmove_t		*pm;
 // if a full pmove isn't done on the client, you can just update the angles
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
 void Pmove (pmove_t *pmove);
+
+// vehicle pmove
+void Vmove( vmove_t *vmove );
 
 #include "../namespace_end.h"
 
