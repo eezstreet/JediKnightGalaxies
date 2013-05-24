@@ -3,12 +3,12 @@
 
 // PLEASE DO NOT EDIT THESE NEXT FEW LINES, THESE ARE AUTOMATICALLY INCREMENTED BY VISUAL STUDIO, THANKS.
 #define INCREMENT_BUILD_NUMBERS	1
-#define BUILDNUM_CGAME 22
+#define BUILDNUM_CGAME 25
 // BUILDNUM_GAME looks to be technically incorrect. Since the game rebuilds itself a lot of the
 // time using the game project, I've come to the conclusion that really we need to be doing this
 // to all the projects quite frankly, or taking a closer look as to what's going on.
-#define BUILDNUM_GAME 53
-#define BUILDNUM_UI 10
+#define BUILDNUM_GAME 60
+#define BUILDNUM_UI 11
 #define BUILDNUM_AUX 3
 #define BUILDNUM_AUXSV 3
 // Turning on INCREMENT_BUILD_NUMBERS increases the build number with each compile..be careful, as it will increment

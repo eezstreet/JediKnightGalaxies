@@ -11284,7 +11284,8 @@ qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, const n
 	
 	if( PMOVE )
 	{
-		if( !pml.walking )
+		PM_GroundTrace();
+		if( !pml.walking )		// temporarily removed because wrongness --eez
 		{
 			return qfalse;
 		}
