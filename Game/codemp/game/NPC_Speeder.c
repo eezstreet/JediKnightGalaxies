@@ -4,33 +4,10 @@
 //seems to be a compiler bug, it doesn't clean out the #ifdefs between dif-compiles
 //or something, so the headers spew errors on these defs from the previous compile.
 //this fixes that. -rww
-#ifdef _JK2MP
-//get rid of all the crazy defs we added for this file
-#undef currentAngles
-#undef currentOrigin
-#undef mins
-#undef maxs
-#undef legsAnimTimer
-#undef torsoAnimTimer
-#undef bool
-#undef false
-#undef true
-
-#undef sqrtf
-#undef Q_flrand
-
-#undef MOD_EXPLOSIVE
-#endif
 
 #ifdef _JK2 //SP does not have this preprocessor for game like MP does
 #ifndef _JK2MP
 #define _JK2MP
-#endif
-#endif
-
-#ifndef _JK2MP //if single player
-#ifndef QAGAME //I don't think we have a QAGAME define
-#define QAGAME //but define it cause in sp we're always in the game
 #endif
 #endif
 
@@ -40,13 +17,7 @@
 #include "bg_public.h"
 #endif
 
-#ifndef _JK2MP
-#include "g_functions.h"
-#include "g_vehicles.h"
-#include "..\game\wp_saber.h"
-#else
 #include "bg_vehicles.h"
-#endif
 
 #ifdef _JK2MP
 //this is really horrible, but it works! just be sure not to use any locals or anything
@@ -98,51 +69,10 @@ extern qboolean BG_SabersOff( playerState_t *ps );
 #define	STRAFERAM_DURATION	8
 #define	STRAFERAM_ANGLE		8
 
-
-#ifndef _JK2MP
-bool	VEH_StartStrafeRam(Vehicle_t *pVeh, bool Right)
-{
-	if (!(pVeh->m_ulFlags&VEH_STRAFERAM))
-	{
-		float	speed = VectorLength(pVeh->m_pParentEntity->client->ps.velocity);
-		if (speed>400.0f)
-		{
-			// Compute Pos3
-			//--------------
-			vec3_t	right;
-			AngleVectors(pVeh->m_vOrientation, 0, right, 0);
- 			VectorMA(pVeh->m_pParentEntity->client->ps.velocity, (Right)?( speed):(-speed), right, pVeh->m_pParentEntity->pos3);
-
-			pVeh->m_ulFlags				|= VEH_STRAFERAM;
-			parentPS->hackingTime		 = (Right)?(STRAFERAM_DURATION):(-STRAFERAM_DURATION);
-
-			if (pVeh->m_iSoundDebounceTimer<level.time && Q_irand(0,1)==0)
-			{
-				int	shiftSound = Q_irand(1,4);
-				switch (shiftSound)
-				{
-				case 1: shiftSound=pVeh->m_pVehicleInfo->soundShift1; break;
-				case 2: shiftSound=pVeh->m_pVehicleInfo->soundShift2; break;
-				case 3: shiftSound=pVeh->m_pVehicleInfo->soundShift3; break;
-				case 4: shiftSound=pVeh->m_pVehicleInfo->soundShift4; break;
-				}
-				if (shiftSound)
-				{
-					pVeh->m_iSoundDebounceTimer = level.time + Q_irand(1000, 4000);
-					G_SoundIndexOnEnt( pVeh->m_pParentEntity, CHAN_AUTO, shiftSound);
-				}
-			}
-			return true;
-		}
-	}
-	return false;
-}
-#else
 bool	VEH_StartStrafeRam(Vehicle_t *pVeh, bool Right, int Duration)
 {
 	return false;
 }
-#endif
 
 
 #ifdef QAGAME //game-only.. for now
@@ -161,109 +91,6 @@ bool Update( Vehicle_t *pVeh, const usercmd_t *pUcmd )
 	}
 
 	// Update move direction.
-#ifndef _JK2MP //this makes prediction unhappy, and rightfully so.
-	gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
-
-	if ( pVeh->m_ulFlags & VEH_FLYING )
-	{
-		vec3_t vVehAngles;
-		VectorSet(vVehAngles, 0, pVeh->m_vOrientation[YAW], 0 );
-		AngleVectors( vVehAngles, parent->client->ps.moveDir, NULL, NULL );
-	}
-	else
-	{
-		vec3_t vVehAngles;
-		VectorSet(vVehAngles, pVeh->m_vOrientation[PITCH], pVeh->m_vOrientation[YAW], 0 );
-		AngleVectors( vVehAngles, parent->client->ps.moveDir, NULL, NULL );
-	}
-
-	// Check For A Strafe Ram
-	//------------------------
-	if (!(pVeh->m_ulFlags&VEH_STRAFERAM) && !(pVeh->m_ulFlags&VEH_FLYING))
-	{
-		// Started A Strafe
-		//------------------
-		if (pVeh->m_ucmd.rightmove && !parentPS->hackingTime)
-		{
-			parentPS->hackingTime = (pVeh->m_ucmd.rightmove>0)?(level.time):(-1*level.time);
-		}
-
-		// Ended A Strafe
-		//----------------
-		else if (!pVeh->m_ucmd.rightmove && parentPS->hackingTime)
-		{
-			// If It Was A Short Burst, Start The Strafe Ram
-			//-----------------------------------------------
-			if ((level.time - abs(parentPS->hackingTime))<300)
-			{
-				if (!VEH_StartStrafeRam(pVeh, (parentPS->hackingTime>0)))
-				{
-					parentPS->hackingTime = 0;
-				}
-			}
-
-			// Otherwise, Clear The Timer
-			//----------------------------
-			else
-			{
-				parentPS->hackingTime = 0;
-			}
-		}
-	}
-
-	// If Currently In A StrafeRam, Check To See If It Is Done (Timed Out)
-	//---------------------------------------------------------------------
-  	else if (!parentPS->hackingTime)
-	{
-		pVeh->m_ulFlags &=~VEH_STRAFERAM;
-	}
-
-
-	// Exhaust Effects Start And Stop When The Accelerator Is Pressed
-	//----------------------------------------------------------------
-	if (pVeh->m_pVehicleInfo->iExhaustFX)
-	{
-		// Start It On Each Exhaust Bolt
-		//-------------------------------
-		if (pVeh->m_ucmd.forwardmove && !(pVeh->m_ulFlags&VEH_ACCELERATORON))
-		{
-			pVeh->m_ulFlags |= VEH_ACCELERATORON;
-			for (int i=0; (i<MAX_VEHICLE_EXHAUSTS && pVeh->m_iExhaustTag[i]!=-1); i++)
-			{
-				G_PlayEffect(pVeh->m_pVehicleInfo->iExhaustFX, parent->playerModel, pVeh->m_iExhaustTag[i], parent->s.number, parent->currentOrigin, 1,	qtrue);
-			}
-		}
-
-		// Stop It On Each Exhaust Bolt
-		//------------------------------
-		else if (!pVeh->m_ucmd.forwardmove && (pVeh->m_ulFlags&VEH_ACCELERATORON))
-		{
-			pVeh->m_ulFlags &=~VEH_ACCELERATORON;
-			for (int i=0; (i<MAX_VEHICLE_EXHAUSTS && pVeh->m_iExhaustTag[i]!=-1); i++)
-			{
-				G_StopEffect(pVeh->m_pVehicleInfo->iExhaustFX, parent->playerModel, pVeh->m_iExhaustTag[i], parent->s.number);
-			}
-		}
-	}
-
-	if (!(pVeh->m_ulFlags&VEH_ARMORLOW) && (pVeh->m_iArmor <= pVeh->m_pVehicleInfo->armor/3))
-	{
-		pVeh->m_ulFlags |= VEH_ARMORLOW;
-
-	}
-
-	// Armor Gone Effects (Fire)
-	//---------------------------
-	if (pVeh->m_pVehicleInfo->iArmorGoneFX)
-	{
-		if (!(pVeh->m_ulFlags&VEH_ARMORGONE) && (pVeh->m_iArmor <= 0))
-		{
-			pVeh->m_ulFlags |= VEH_ARMORGONE;
-			G_PlayEffect(pVeh->m_pVehicleInfo->iArmorGoneFX, parent->playerModel, parent->crotchBolt, parent->s.number, parent->currentOrigin, 1, qtrue);
-			parent->s.loopSound = G_SoundIndex( "sound/vehicles/common/fire_lp.wav" );
-		}
-	}
-#endif
 
 	return true;
 }

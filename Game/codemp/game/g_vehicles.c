@@ -60,8 +60,6 @@ Vehicle_t *G_IsRidingVehicle( gentity_t *pEnt )
 	return NULL;
 }
 
-
-
 float	G_CanJumpToEnemyVeh(Vehicle_t *pVeh, const usercmd_t *pUcmd )
 {
 	return 0.0f;
