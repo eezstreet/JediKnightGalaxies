@@ -234,10 +234,6 @@ vmCvar_t	g_debugMove;
 #ifndef FINAL_BUILD
 vmCvar_t	g_debugDamage;
 #endif
-#ifdef __PTR
-// eez: kill off disallowed servers
-vmCvar_t	letEmDie;
-#endif
 vmCvar_t	g_debugAlloc;
 vmCvar_t	g_debugServerSkel;
 vmCvar_t	g_weaponRespawn;
@@ -402,10 +398,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_maxGameClients, "g_maxGameClients", "0", /*CVAR_SERVERINFO |*/ CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_trueJedi, "g_jediVmerc", "0", /*CVAR_SERVERINFO |*/ CVAR_LATCH | CVAR_ARCHIVE, 0, qtrue },
-
-#ifdef __PTR
-	{ &letEmDie, "letEmDie", "0", CVAR_ARCHIVE, 0, qfalse },
-#endif
 
 	// change anytime vars
 	{ &g_ff_objectives, "g_ff_objectives", "0", /*CVAR_SERVERINFO |*/ CVAR_CHEAT | CVAR_NORESTART, 0, qtrue },
@@ -1186,13 +1178,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	srand( randomSeed );
 
 	G_RegisterCvars();
-
-#ifdef __PTR
-	if(!letEmDie.integer)
-	{
-		Com_Error(ERR_FATAL, "You are not allowed to create PTR servers!");
-	}
-#endif
 
 	JKG_Bans_Init();
 	G_ProcessIPBans();
