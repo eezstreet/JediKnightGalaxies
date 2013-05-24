@@ -132,6 +132,9 @@ void QDECL G_LogWeaponFire(int client, int weaponid)
 #ifdef LOGGING_WEAPONS
 	int dur;
 
+	// JKG FIX: Very huge buffer overwrite here! NASTY! --eez
+	if( client >= MAX_CLIENTS ) return;
+
 	G_WeaponLogFired[client][weaponid]++;
 	dur = level.time - G_WeaponLogLastTime[client];
 	if (dur > 5000)		// 5 second max.
@@ -146,6 +149,9 @@ void QDECL G_LogWeaponFire(int client, int weaponid)
 void QDECL G_LogWeaponDamage(int client, int mod, int amount)
 {
 #ifdef LOGGING_WEAPONS
+	// JKG FIX: See above note in G_LogWeaponFire
+	if( client >= MAX_CLIENTS ) return;
+
 	if (client>=MAX_CLIENTS)
 		return;
 	G_WeaponLogDamage[client][mod] += amount;
