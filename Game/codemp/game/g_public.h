@@ -1,10 +1,12 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
+
 #ifndef G_PUBLIC_H
 
 // g_public.h -- game module information visible to server
-
 #define G_PUBLIC_H
+
+#include "bg_vehicles.h"
 
 // Jedi Knight Galaxies - Added a raised Q3_INFINITE to the absolute maximum time possible (server will auto-restart way before it reaches this)
 // The old max caused fuckups after 279 minutes of gameplay (as level.time will go over 0x01000000 or 16777216

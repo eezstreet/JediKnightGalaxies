@@ -136,10 +136,6 @@
 // warning C6387: 'argument x' might be '0': this does not adhere to the specification for the function 'xxx'
 #pragma warning( disable : 6387 )
 
-#endif // _WIN32
-
-#ifdef _WIN32
-
 #pragma warning(disable : 4018)     // signed/unsigned mismatch
 #pragma warning(disable : 4032)
 #pragma warning(disable : 4051)
@@ -175,6 +171,8 @@
 
 #pragma warning(disable : 4996)     //deprecated warning
 
+// Disable warnings that now occur since we're using OpenJK --eez
+#pragma warning(disable : 4710)		// function not inlined
 
 
 // Time to enable some warnings that probably should be left in

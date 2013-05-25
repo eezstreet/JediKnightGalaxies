@@ -152,13 +152,39 @@ char *COM_SkipPath (char *pathname)
 COM_StripExtension
 ============
 */
-void COM_StripExtension( const char *in, char *out ) {
-	while ( *in && *in != '.' ) {
-		*out++ = *in++;
-	}
-	*out = 0;
+void COM_StripExtension( const char *in, char *out, int destsize )
+{
+	const char *dot = strrchr(in, '.'), *slash;
+	if (dot && (!(slash = strrchr(in, '/')) || slash < dot))
+		Q_strncpyz(out, in, (destsize < dot-in+1 ? destsize : dot-in+1));
+	else
+		Q_strncpyz(out, in, destsize);
 }
 
+/*
+============
+COM_CompareExtension
+
+string compare the end of the strings and return qtrue if strings match
+============
+*/
+qboolean COM_CompareExtension(const char *in, const char *ext)
+{
+	int inlen, extlen;
+
+	inlen = strlen(in);
+	extlen = strlen(ext);
+
+	if(extlen <= inlen)
+	{
+		in += inlen - extlen;
+
+		if(!Q_stricmp(in, ext))
+			return qtrue;
+	}
+
+	return qfalse;
+}
 
 /*
 ==================
@@ -852,6 +878,27 @@ int Q_isalpha( int c )
 	return ( 0 );
 }
 
+qboolean Q_isanumber( const char *s )
+{
+	char *p;
+	double ret;
+
+	if( *s == '\0' )
+		return qfalse;
+
+	ret = strtod( s, &p );
+	
+	if ( ret == HUGE_VAL || errno == ERANGE )
+		return qfalse;
+
+	return (qboolean)(*p == '\0');
+}
+
+qboolean Q_isintegral( float f )
+{
+	return (qboolean)( (int)f == f );
+}
+
 char* Q_strrchr( const char* string, char c )
 {
 	char cc = c;
@@ -1050,6 +1097,51 @@ char *Q_CleanStr( char *string ) {
 	*d = '\0';
 
 	return string;
+}
+
+/*
+==================
+Q_StripColor
+ 
+Strips coloured strings in-place using multiple passes: "fgs^^56fds" -> "fgs^6fds" -> "fgsfds"
+
+(Also strips ^8 and ^9)
+==================
+*/
+void Q_StripColor(char *text)
+{
+	qboolean doPass = qtrue;
+	char *read;
+	char *write;
+
+	while ( doPass )
+	{
+		doPass = qfalse;
+		read = write = text;
+		while ( *read )
+		{
+			if ( Q_IsColorStringExt(read) )
+			{
+				doPass = qtrue;
+				read += 2;
+			}
+			else
+			{
+				// Avoid writing the same data over itself
+				if (write != read)
+				{
+					*write = *read;
+				}
+				write++;
+				read++;
+			}
+		}
+		if ( write < read )
+		{
+			// Add trailing NUL byte if string has shortened
+			*write = '\0';
+		}
+	}
 }
 
 // Jedi Knight Galaxies, source from OJP Basic
@@ -1519,7 +1611,7 @@ void JKG_NewGenericMemoryObject(GenericMemoryObject *gmo, size_t size)
 {
 	gmo->numElements = 0;
 	
-	gmo->elements = malloc(size);
+	gmo->elements = (void**)malloc(size);
 	gmo->memAllocated = 1;
 	gmo->elementSize = size;
 }
@@ -1540,7 +1632,7 @@ void JKG_GenericMemoryObject_AddElement(GenericMemoryObject *gmo, void *element)
 	if(gmo->memAllocated <= gmo->numElements+1)
 	{
 		gmo->memAllocated *= 2;
-		gmo->elements = realloc(gmo->elements, gmo->memAllocated*gmo->elementSize);
+		gmo->elements = (void **)realloc(gmo->elements, gmo->memAllocated*gmo->elementSize);
 	}
 	gmo->elements[gmo->numElements++] = element;
 }
@@ -1563,7 +1655,7 @@ qboolean Text_IsExtColorCode(const char *text) {
 	const char *r, *g, *b;
 	if ( strlen (text) < 4 )
 	{
-	    return 0;
+	    return qfalse;
 	}
 	
 	r = text+1;
@@ -1571,13 +1663,13 @@ qboolean Text_IsExtColorCode(const char *text) {
 	b = text+3;
 	// Get the color levels (if the numbers are invalid, it'll return -1, which we can use to validate)
 	if ((*r < '0' || *r > '9') && (*r < 'a' || *r > 'f') && (*r < 'A' || *r > 'F')) {
-		return 0;
+		return qfalse;
 	}
 	if ((*g < '0' || *g > '9') && (*g < 'a' || *g > 'f') && (*g < 'A' || *g > 'F')) {
-		return 0;
+		return qfalse;
 	}
 	if ((*b < '0' || *b > '9') && (*b < 'a' || *b > 'f') && (*b < 'A' || *b > 'F')) {
-		return 0;
+		return qfalse;
 	}
-	return 1;
+	return qtrue;
 }

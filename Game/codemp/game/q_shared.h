@@ -18,8 +18,16 @@
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
+
 // Include Global Definitions Header...
 #include "../game/z_global_defines.h"
+#define PRODUCT_NAME		"jkgalaxies"
+
+#define CLIENT_WINDOW_TITLE "Jedi Knight Galaxies"
+#define CLIENT_CONSOLE_TITLE "Jedi Knight Galaxies Console"
+#define HOMEPATH_NAME_UNIX ".jkgalaxies"
+#define HOMEPATH_NAME_WIN "JKGalaxies"
+#define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
@@ -28,7 +36,7 @@
 
 #include "qcommon/disablewarnings.h"
 
-#include "teams.h" //npc team stuff
+#include "game/teams.h" //npc team stuff
 #include <time.h>
 
 // vvvv lol --eez
@@ -82,6 +90,11 @@ void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int e
 #define VALIDATEP( a )	if ( a == NULL ) {	assert(0);	return NULL;	}
 
 #define VALIDSTRING( a )	( ( a != 0 ) && ( a[0] != 0 ) )
+
+//JAC: Added
+#define ARRAY_LEN( x ) ( sizeof( x ) / sizeof( *(x) ) )
+#define STRING( a ) #a
+#define XSTRING( a ) STRING( a )
 
 /*
 #define G2_EHNANCEMENTS
@@ -190,214 +203,356 @@ extern int g_G2AllocServer;
 
 // for windows fastcall option
 
-#define	QDECL
+// the mac compiler can't handle >32k of locals, so we
+// just waste space and make big arrays static...
+#define MAC_STATIC //RAZFIXME
 
-short   ShortSwap (short l);
-int		LongSwap (int l);
-float	FloatSwap (const float *f);
+short ShortSwap( short l );
+int LongSwap( int l );
+float FloatSwap( const float *f );
 
-//======================= WIN32 DEFINES =================================
 
+// for windows fastcall option
+#define QDECL
+#define QCALL
+
+// Win64
+#if defined(_WIN64) || defined(__WIN64__)
+
+	#define idx64
+
+	#undef QDECL
+	#define QDECL __cdecl
+
+	#undef QCALL
+	#define QCALL __stdcall
+
+	#if defined(_MSC_VER)
+		#define OS_STRING "win_msvc64"
+	#elif defined(__MINGW64__)
+		#define OS_STRING "win_mingw64"
+	#endif
+
+	#define QINLINE __inline
+	#define PATH_SEP '\\'
+
+	#if defined(__WIN64__)
+		#define ARCH_STRING "x64"
+	#elif defined(_M_ALPHA)
+		#define ARCH_STRING "AXP"
+	#endif
+
+	#define Q3_LITTLE_ENDIAN
+
+	#define DLL_EXT ".dll"
+#endif
+
+// Win32
 #ifdef WIN32
 
-#define	MAC_STATIC
+	#undef QDECL
+	#define	QDECL __cdecl
 
-#undef QDECL
-#define	QDECL	__cdecl
+	#undef QCALL
+	#define QCALL __stdcall
 
-// buildstring will be incorporated into the version string
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define	CPUSTRING	"win-x86"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"win-AXP"
+	#if defined(_MSC_VER)
+		#define OS_STRING "win_msvc"
+	#elif defined(__MINGW32__)
+		#define OS_STRING "win_mingw"
+	#endif
+
+	#define ID_INLINE __inline
+	#define PATH_SEP '\\'
+
+	#if defined(_M_IX86) || defined(__i386__)
+		#define ARCH_STRING "x86"
+	#elif defined _M_ALPHA
+		#define ARCH_STRING "AXP"
+	#endif
+
+	#define Q3_LITTLE_ENDIAN
+
+	#define DLL_EXT ".dll"
+
 #endif
+
+
+// ================================================================
+//
+// MAC OS X DEFINES
+//
+// ================================================================
+
+#ifdef MACOS_X
+
+	#include <sys/mman.h>
+    #include <unistd.h>
+
+	#define __cdecl
+	#define __declspec(x)
+	#define stricmp strcasecmp
+	#define ID_INLINE /*inline*/ 
+
+    #define OS_STRING "MacOSX"
+
+	#ifdef __ppc__
+		#define CPUSTRING "MacOSX-ppc"
+	#elif defined __i386__
+		#define CPUSTRING "MacOSX-i386"
+	#else
+		#define CPUSTRING "MacOSX-other"
+	#endif
+
+	#define	PATH_SEP	'/'
+
+	#define __rlwimi(out, in, shift, maskBegin, maskEnd) asm("rlwimi %0,%1,%2,%3,%4" : "=r" (out) : "r" (in), "i" (shift), "i" (maskBegin), "i" (maskEnd))
+	#define __dcbt(addr, offset) asm("dcbt %0,%1" : : "b" (addr), "r" (offset))
+
+	static inline unsigned int __lwbrx(register void *addr, register int offset) {
+		register unsigned int word;
+
+		asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
+		return word;
+	}
+
+	static inline unsigned short __lhbrx(register void *addr, register int offset) {
+		register unsigned short halfword;
+
+		asm("lhbrx %0,%2,%1" : "=r" (halfword) : "r" (addr), "b" (offset));
+		return halfword;
+	}
+
+	static inline float __fctiw(register float f) {
+		register float fi;
+
+		asm("fctiw %0,%1" : "=f" (fi) : "f" (f));
+		return fi;
+	}
+
+    #if defined(__i386__)
+        #define ARCH_STRING "i386"
+    #elif defined(__x86_64__)
+        #define idx64
+        #define ARCH_STRING "x86_64"
+    #elif defined(__powerpc64__)
+        #define ARCH_STRING "ppc64"
+    #elif defined(__powerpc__)
+        #define ARCH_STRING "ppc"
+    #endif
+
+    #define DLL_EXT ".dylib"
+
+#if BYTE_ORDER == BIG_ENDIAN
+#define Q3_BIG_ENDIAN
 #else
-#ifdef _M_IX86
-#define	CPUSTRING	"win-x86-debug"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"win-AXP-debug"
-#endif
+#define Q3_LITTLE_ENDIAN
 #endif
 
-#define ID_INLINE __inline 
 
-static ID_INLINE short BigShort( short l) { return ShortSwap(l); }
-#define LittleShort
-static ID_INLINE int BigLong(int l) { return LongSwap(l); }
-#define LittleLong
-static ID_INLINE float BigFloat(const float *l) { FloatSwap(l); }
-#define LittleFloat
+#endif // MACOS_X
 
-#define	PATH_SEP '\\'
 
-#endif
-
-//======================= MAC OS X DEFINES =====================
-
-#if defined(MACOS_X)
-
-#define MAC_STATIC
-#define __cdecl
-#define __declspec(x)
-#define stricmp strcasecmp
-#define ID_INLINE inline 
-
-#ifdef __ppc__
-#define CPUSTRING	"MacOSX-ppc"
-#elif defined __i386__
-#define CPUSTRING	"MacOSX-i386"
-#else
-#define CPUSTRING	"MacOSX-other"
-#endif
-
-#define	PATH_SEP	'/'
-
-#define __rlwimi(out, in, shift, maskBegin, maskEnd) asm("rlwimi %0,%1,%2,%3,%4" : "=r" (out) : "r" (in), "i" (shift), "i" (maskBegin), "i" (maskEnd))
-#define __dcbt(addr, offset) asm("dcbt %0,%1" : : "b" (addr), "r" (offset))
-
-static inline unsigned int __lwbrx(register void *addr, register int offset) {
-    register unsigned int word;
-    
-    asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
-    return word;
-}
-
-static inline unsigned short __lhbrx(register void *addr, register int offset) {
-    register unsigned short halfword;
-    
-    asm("lhbrx %0,%2,%1" : "=r" (halfword) : "r" (addr), "b" (offset));
-    return halfword;
-}
-
-static inline float __fctiw(register float f) {
-    register float fi;
-    
-    asm("fctiw %0,%1" : "=f" (fi) : "f" (f));
-
-    return fi;
-}
-
-#define BigShort
-static inline short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-static inline int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-static inline float LittleFloat (const float l) { return FloatSwap(&l); }
-
-#endif
-
-//======================= MAC DEFINES =================================
+// ================================================================
+//
+// MAC DEFINES
+//
+// ================================================================
 
 #ifdef __MACOS__
 
-#include <MacTypes.h>
-#define	MAC_STATIC
-#define ID_INLINE inline 
+	#include <MacTypes.h>
+	#define ID_INLINE inline 
 
-#define	CPUSTRING	"MacOS-PPC"
+	#define	CPUSTRING "MacOS-PPC"
 
-#define	PATH_SEP ':'
+	#define	PATH_SEP ':'
 
-void Sys_PumpEvents( void );
+	void Sys_PumpEvents( void );
 
-#define BigShort
-static inline short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-static inline int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-static inline float LittleFloat (const float l) { return FloatSwap(&l); }
+	#define BigShort
+	static inline short LittleShort( short l ) { return ShortSwap( l ); }
+	#define BigLong
+	static inline int LittleLong( int l ) { return LongSwap( l ); }
+	#define BigFloat
+	static inline float LittleFloat( const float l ) { return FloatSwap( &l ); }
 
-#endif
+	#define DLL_EXT ".dylib"
 
-//======================= LINUX DEFINES =================================
+#endif // __MACOS__
 
-// the mac compiler can't handle >32k of locals, so we
-// just waste space and make big arrays static...
+
+// ================================================================
+//
+// LINUX DEFINES
+//
+// ================================================================
+
 #ifdef __linux__
 
-// bk001205 - from Makefile
-#define stricmp strcasecmp
+	#include <sys/mman.h>
+	#include <unistd.h>
 
-#define	MAC_STATIC // bk: FIXME
-#define ID_INLINE inline 
+	// bk001205 - from Makefile
+	#define stricmp strcasecmp
 
-#ifdef __i386__
-#define	CPUSTRING	"linux-i386"
-#elif defined __axp__
-#define	CPUSTRING	"linux-alpha"
+	#define ID_INLINE /*inline*/
+
+	#define	PATH_SEP '/'
+	#define RAND_MAX 2147483647
+
+	#if defined(__linux__)
+		#define OS_STRING "linux"
+	#else
+		#define OS_STRING "kFreeBSD"
+	#endif
+
+	#ifdef __clang__
+		#define QINLINE static inline
+	#else
+		#define QINLINE inline
+	#endif
+
+	#define PATH_SEP '/'
+
+	#if defined(__i386__)
+		#define ARCH_STRING "i386"
+	#elif defined(__x86_64__)
+		#define idx64
+		#define ARCH_STRING "x86_64"
+	#elif defined(__powerpc64__)
+		#define ARCH_STRING "ppc64"
+	#elif defined(__powerpc__)
+		#define ARCH_STRING "ppc"
+	#elif defined(__s390__)
+		#define ARCH_STRING "s390"
+	#elif defined(__s390x__)
+		#define ARCH_STRING "s390x"
+	#elif defined(__ia64__)
+		#define ARCH_STRING "ia64"
+	#elif defined(__alpha__)
+		#define ARCH_STRING "alpha"
+	#elif defined(__sparc__)
+		#define ARCH_STRING "sparc"
+	#elif defined(__arm__)
+		#define ARCH_STRING "arm"
+	#elif defined(__cris__)
+		#define ARCH_STRING "cris"
+	#elif defined(__hppa__)
+		#define ARCH_STRING "hppa"
+	#elif defined(__mips__)
+		#define ARCH_STRING "mips"
+	#elif defined(__sh__)
+		#define ARCH_STRING "sh"
+	#endif
+
+	#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
+		#define Q3_BIG_ENDIAN
+	#else
+		#define Q3_LITTLE_ENDIAN
+	#endif
+
+	#define DLL_EXT ".so"
+
+#endif
+
+	// BSD
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+
+	#include <sys/types.h>
+	#include <machine/endian.h>
+	
+	#ifndef __BSD__
+		#define __BSD__
+	#endif
+	
+	#if defined(__FreeBSD__)
+		#define OS_STRING "freebsd"
+	#elif defined(__OpenBSD__)
+		#define OS_STRING "openbsd"
+	#elif defined(__NetBSD__)
+		#define OS_STRING "netbsd"
+	#endif
+	
+	#define QINLINE inline
+	#define PATH_SEP '/'
+	
+	#if defined(__i386__)
+		#define ARCH_STRING "i386"
+	#elif defined(__amd64__)
+		#define idx64
+		#define ARCH_STRING "amd64"
+	#elif defined(__axp__)
+		#define ARCH_STRING "alpha"
+	#endif
+	
+	#if BYTE_ORDER == BIG_ENDIAN
+		#define Q3_BIG_ENDIAN
+	#else
+		#define Q3_LITTLE_ENDIAN
+	#endif
+	
+	#define DLL_EXT ".so"
+
+#endif
+// catch missing defines in above blocks
+#if !defined(OS_STRING)
+	#error "Operating system not supported"
+#endif
+#if !defined(ARCH_STRING)
+	#error "Architecture not supported"
+#endif
+#if !defined(ID_INLINE)
+	#error "ID_INLINE not defined"
+#endif
+#if !defined(PATH_SEP)
+	#error "PATH_SEP not defined"
+#endif
+#if !defined(DLL_EXT)
+	#error "DLL_EXT not defined"
+#endif
+
+// endianness
+void CopyShortSwap( void *dest, void *src );
+void CopyLongSwap( void *dest, void *src );
+short ShortSwap( short l );
+int LongSwap( int l );
+float FloatSwap( const float *f );
+
+#if defined(Q3_BIG_ENDIAN) && defined(Q3_LITTLE_ENDIAN)
+	#error "Endianness defined as both big and little"
+#elif defined(Q3_BIG_ENDIAN)
+	#define CopyLittleShort( dest, src )	CopyShortSwap( dest, src )
+	#define CopyLittleLong( dest, src )		CopyLongSwap( dest, src )
+	#define LittleShort( x )				ShortSwap( x )
+	#define LittleLong( x )					LongSwap( x )
+	#define LittleFloat( x )				FloatSwap( &x )
+	#define BigShort
+	#define BigLong
+	#define BigFloat
+#elif defined( Q3_LITTLE_ENDIAN )
+	#define CopyLittleShort( dest, src )	Com_Memcpy(dest, src, 2)
+	#define CopyLittleLong( dest, src )		Com_Memcpy(dest, src, 4)
+	#define LittleShort
+	#define LittleLong
+	#define LittleFloat
+	#define BigShort( x )					ShortSwap( x )
+	#define BigLong( x )					LongSwap( x )
+	#define BigFloat( x )					FloatSwap( &x )
 #else
-#define	CPUSTRING	"linux-other"
+	#error "Endianness not defined"
 #endif
 
-#define	PATH_SEP '/'
 
-// bk001205 - try
-#ifdef Q3_STATIC
-#define	GAME_HARD_LINKED
-#define	CGAME_HARD_LINKED
-#define	UI_HARD_LINKED
-#define	BOTLIB_HARD_LINKED
-#endif
-
-#if !idppc
-inline static short BigShort( short l) { return ShortSwap(l); }
-#define LittleShort
-inline static int BigLong(int l) { return LongSwap(l); }
-#define LittleLong
-inline static float BigFloat(const float *l) { return FloatSwap(l); }
-#define LittleFloat
+// platform string
+#if defined(NDEBUG)
+	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
 #else
-#define BigShort
-inline static short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-inline static int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-inline static float LittleFloat (const float *l) { return FloatSwap(l); }
-#endif
-
-#endif
-
-//======================= FreeBSD DEFINES =====================
-#ifdef __FreeBSD__ // rb010123
-
-#define stricmp strcasecmp
-
-#define MAC_STATIC
-#define ID_INLINE inline 
-
-#ifdef __i386__
-#define CPUSTRING       "freebsd-i386"
-#elif defined __axp__
-#define CPUSTRING       "freebsd-alpha"
-#else
-#define CPUSTRING       "freebsd-other"
-#endif
-
-#define	PATH_SEP '/'
-
-// bk010116 - omitted Q3STATIC (see Linux above), broken target
-
-#if !idppc
-static short BigShort( short l) { return ShortSwap(l); }
-#define LittleShort
-static int BigLong(int l) { LongSwap(l); }
-#define LittleLong
-static float BigFloat(const float *l) { FloatSwap(l); }
-#define LittleFloat
-#else
-#define BigShort
-static short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-static int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-static float LittleFloat (const float *l) { return FloatSwap(l); }
-#endif
-
+	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
 #endif
 
 //=============================================================
-
+// TYPE DEFINITIONS
 //=============================================================
 
 typedef unsigned char 		byte;
@@ -405,8 +560,18 @@ typedef unsigned short		word;
 typedef unsigned long		ulong;
 
 typedef enum {qfalse, qtrue}	qboolean;
-#ifdef _XBOX
-#define	qboolean	int		//don't want strict type checking on the qboolean
+
+typedef union {
+	float f;
+	int i;
+	unsigned int ui;
+} floatint_t;
+
+#ifndef min
+	#define min(x,y) ((x)<(y)?(x):(y))
+#endif
+#ifndef max
+	#define max(x,y) ((x)>(y)?(x):(y))
 #endif
 
 typedef int		qhandle_t;
@@ -415,6 +580,51 @@ typedef int		fxHandle_t;
 typedef int		sfxHandle_t;
 typedef int		fileHandle_t;
 typedef int		clipHandle_t;
+
+//Raz: can't think of a better place to put this atm,
+//		should probably be in the platform specific definitions
+#if defined (_MSC_VER) && (_MSC_VER >= 1600)
+
+	#include <stdint.h>
+
+	// vsnprintf is ISO/IEC 9899:1999
+	// abstracting this to make it portable
+	int Q_vsnprintf( char *str, size_t size, const char *format, va_list args );
+
+#elif defined (_MSC_VER)
+
+	#include <io.h>
+
+	typedef signed __int64 int64_t;
+	typedef signed __int32 int32_t;
+	typedef signed __int16 int16_t;
+	typedef signed __int8  int8_t;
+	typedef unsigned __int64 uint64_t;
+	typedef unsigned __int32 uint32_t;
+	typedef unsigned __int16 uint16_t;
+	typedef unsigned __int8  uint8_t;
+
+	// vsnprintf is ISO/IEC 9899:1999
+	// abstracting this to make it portable
+	int Q_vsnprintf( char *str, size_t size, const char *format, va_list args );
+#else // not using MSVC
+
+	#include <stdint.h>
+
+	#define Q_vsnprintf vsnprintf
+
+#endif
+
+#define PAD(base, alignment)	(((base)+(alignment)-1) & ~((alignment)-1))
+#define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
+
+#define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
+
+#ifdef __GNUC__
+#define QALIGN(x) __attribute__((aligned(x)))
+#else
+#define QALIGN(x)
+#endif
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -1248,6 +1458,8 @@ extern	vec4_t		colorDkBlue;
 #define Q_COLOR_ESCAPE	'^'
 // you MUST have the last bit on here about colour strings being less than 7 or taiwanese strings register as colour!!!!
 #define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '9' && *((p)+1) >= '0' )
+// Correct version of the above for Q_StripColor
+#define Q_IsColorStringExt(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isdigit(*((p)+1))) // ^[0-9]
 
 
 #define COLOR_BLACK		'0'
@@ -1362,14 +1574,14 @@ typedef struct {
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define VectorSet5(v,x,y,z,a,b)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z), (v)[3]=(a), (v)[4]=(b)) //rwwRMG - added
 
-#define Vector2Set(v, x, y)			((v)[0]=(x),(v)[1]=(y)) // UQ1: Added
-#define Vector2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1]) // UQ1: Added
-#define Vector2Subtract(a,b,c)		((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1]) // UQ1: Added
+#define Vec2Set(v, x, y)			((v)[0]=(x),(v)[1]=(y)) // UQ1: Added	// renamed because conflicts with FX --eez
+#define Vec2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1]) // UQ1: Added	// renamed because conflicts with FX --eez
+#define Vec2Subtract(a,b,c)		((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1]) // UQ1: Added	// renamed because conflicts with FX --eez
 
-#define Vector4Set(v, x, y, z, n)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(n)) // UQ1: Added
-#define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
-#define	Vector4MA(v, s, b, o)		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s)) // UQ1: Added
-#define	Vector4Average(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s))) // UQ1: Added
+#define Vec4Set(v, x, y, z, n)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(n)) // UQ1: Added	// renamed because conflicts with FX --eez
+#define VectorCopy4(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+#define	Vec4MA(v, s, b, o)		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s)) // UQ1: Added // renamed because conflicts with FX --eez
+#define	Vec4Avg(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s))) // UQ1: Added
 static ID_INLINE void Vector4Clear ( vec4_t v )
 {
     v[0] = v[1] = v[2] = v[3] = 0.0f;
@@ -1570,8 +1782,9 @@ int Com_Clampi( int min, int max, int value ); //rwwRMG - added
 float Com_Clamp( float min, float max, float value );
 
 char	*COM_SkipPath( char *pathname );
-void	COM_StripExtension( const char *in, char *out );
+void	COM_StripExtension( const char *in, char *out, int destsize );
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
+qboolean COM_CompareExtension(const char *in, const char *ext);
 
 void	COM_BeginParseSession( const char *name );
 int		COM_GetCurrentParseLine( void );
@@ -1642,6 +1855,8 @@ int Q_isprint( int c );
 int Q_islower( int c );
 int Q_isupper( int c );
 int Q_isalpha( int c );
+qboolean Q_isanumber( const char *s );
+qboolean Q_isintegral( float f );
 
 // portable case insensitive compare
 int		Q_stricmp (const char *s1, const char *s2);
@@ -1660,6 +1875,7 @@ void		Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
+void Q_StripColor(char *text);
 
 //=============================================
 
@@ -1711,7 +1927,7 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	* QDECL va(char *format, ...);
+char	* QDECL va(const char *format, ...);
 
 //=============================================
 
@@ -1762,6 +1978,12 @@ default values.
 #define CVAR_NORESTART		0x00000400		// do not clear when a cvar_restart is issued
 #define CVAR_INTERNAL		0x00000800		// cvar won't be displayed, ever (for passwords and such)
 #define	CVAR_PARENTAL		0x00001000		// lets cvar system know that parental stuff needs to be updated
+#define CVAR_SERVER_CREATED	0x2000			// cvar was created by a server the client connected to.
+#define CVAR_VM_CREATED		0x4000			// cvar was created exclusively in one of the VMs.
+#define CVAR_PROTECTED		0x8000			// prevent modifying this var from VMs or the server
+// These flags are only returned by the Cvar_Flags() function
+#define CVAR_MODIFIED		0x40000000		// Cvar was modified
+#define CVAR_NONEXISTENT	0x80000000		// Cvar doesn't exist.
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
@@ -1774,8 +1996,16 @@ typedef struct cvar_s {
 	int			modificationCount;	// incremented each time the cvar is changed
 	float		value;				// atof( string )
 	int			integer;			// atoi( string )
+	qboolean	validate;
+	qboolean	integral;
+	float		min;
+	float		max;
+
 	struct cvar_s *next;
+	struct cvar_s *prev;
 	struct cvar_s *hashNext;
+	struct cvar_s *hashPrev;
+	int			hashIndex;
 } cvar_t;
 
 #define	MAX_CVAR_VALUE_STRING	256
@@ -3237,10 +3467,10 @@ enum {
 };
 
 // HERE BE MACROS
-#define BUMP(x,y)	if(x < y) x = y
+/*#define BUMP(x,y)	if(x < y) x = y
 #define  CAP(x,y)	if(x > y) x = y
 #define CLAMP( var, min, max )			BUMP( var,		min );	CAP( var,		max)
-#define CLAMPVEC( vec, idx, min, max )	BUMP( vec[idx], min );	CAP( vec[idx],	max)
+#define CLAMPVEC( vec, idx, min, max )	BUMP( vec[idx], min );	CAP( vec[idx],	max)*/
 
 double coslerp(
    double start,double end,
@@ -3248,23 +3478,6 @@ double coslerp(
 
 #define	FLOAT_INT_BITS	13
 #define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
-
-typedef struct {
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
-	qboolean	oob;			// set to true if the buffer size failed (with allowoverflow set)
-	byte	*data;
-	int		maxsize;
-	int		cursize;
-	int		readcount;
-	int		bit;				// for bitwise reads and writes
-} msg_t;
-
-typedef struct {
-	char	*name;
-	int		offset;
-	int		bits;		// 0 = float
-} netField_t;
 
 // Be sure to change networkStateFields in networkstate.c
 typedef enum {
@@ -3274,211 +3487,6 @@ typedef enum {
 	SAF_KICK,
 	SAF_ENDBLOCK,
 } saberActionFlag_e;
-
-#pragma pack(4)
-// align 4 for these two structs and for the structs below them, regardless of whether this is a debug build or not
-
-// Be sure to change networkStateFields in networkstate.c
-typedef struct networkState_s
-{
-	int start;
-	unsigned int ironsightsTime; // The MSB is used to tell whether the last change was to bring the ironsights up or down.
-	                                // 0 = take down, 1 = bring up
-
-	unsigned int	sprintTime;		// The MSB is used to determine whether we're starting or ending sprinting
-	int sprintDebounceTime;
-
-	signed short	forcePower;
-	float			saberSwingSpeed;
-	float			saberMoveSwingSpeed;
-
-	int saberPommel[2];
-	int saberShaft[2];
-	int saberEmitter[2];
-	int saberCrystal[2];
-
-	unsigned int ironsightsDebounceStart;	// Just the next time we can bring ironsights back up.
-											// brought this up because people were going into ironsights
-											// at really tacky/awkward times (such as while reloading)
-
-	qboolean		isSprinting;			// Only used for spectators.
-	qboolean		isInSights;				// Only used for spectators.
-
-	signed short	blockPoints;
-
-	// This code always exists on at least one gametype --eez
-	// Put this in the second playerstate (networkstate) so that clients can see their lives display
-#ifdef __JKG_NINELIVES__
-	unsigned char iLivesLeft;
-#elif defined __JKG_TICKETING__
-	unsigned char iLivesLeft;
-#elif defined __JKG_ROUNDBASED__
-	unsigned char iLivesLeft;
-#endif
-}networkState_t;
-
-
-
-// Be sure to change extraStateFields in networkstate.c
-typedef struct extraState_s
-{
-	int		number;
-	int		testInt;
-	float	testFloat;
-
-	signed short forcePower;
-	float saberSwingSpeed;
-	float saberMoveSwingSpeed;
-
-	int saberPommel[2];
-	int saberShaft[2];
-	int saberEmitter[2];
-	int saberCrystal[2];
-}extraState_t;
-
-#pragma pack()
-
-typedef struct {
-	int				areabytes;
-	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
-	playerState_t	ps;
-	playerState_t	vps;
-	int				num_entities;
-	int				first_entity;		// into the circular sv_packet_entities[]
-										// the entities MUST be in increasing state number
-										// order, otherwise the delta compression will fail
-	int				messageSent;		// time the message was transmitted
-	int				messageAcked;		// time the message was acked
-	int				messageSize;		// used to rate drop packets
-} clientSnapshot_t;
-
-// snapshots are a view of the server at a given time
-typedef struct {
-	qboolean		valid;			// cleared if delta parsing was invalid
-	int				snapFlags;		// rate delayed and dropped commands
-
-	int				serverTime;		// server time the message is valid for (in msec)
-
-	int				messageNum;		// copied from netchan->incoming_sequence
-	int				deltaNum;		// messageNum the delta is from
-	int				ping;			// time from when cmdNum-1 was sent to time packet was reeceived
-	byte			areamask[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
-
-	int				cmdNum;			// the next cmdNum the server is expecting
-	playerState_t	ps;						// complete information about the current player at this time
-	playerState_t	vps;	//vehicle I'm riding's playerstate (if applicable) -rww
-
-	int				numEntities;			// all of the entities that need to be presented
-	int				parseEntitiesNum;		// at the time of this snapshot
-
-	int				serverCommandNum;		// execute all commands up to this before
-											// making the snapshot current
-} clSnapshot_t;
-
-
-// using the stringizing operator to save typing...
-#define	NSF(x) #x,(int)&((networkState_t*)0)->x
-
-#ifdef __JKG_NINELIVES__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_TICKETING__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_ROUNDBASED__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#else
-extern netField_t	networkStateFields[19];		// increment count whenever you change the number of fields.
-#endif
-extern netField_t	extraStateFields[14];		// increment count whenever you change the number of fields.
-extern int numNetworkStateFields;
-extern int numExtraStateFields;
-
-#define ESF(x) #x,(int)&((extraState_t*)0)->x
-
-// Here is the best way to explain how this works.
-// First, a little referenc portion:
-// float = 0 bytes (for our sake) / 0
-// char/byte = 1 byte / 8
-// short = 2 bytes / 16
-// int = 4 bytes / 32
-
-// With this in mind, let's take an overview of what the playerState does for the client.
-// Basically, the game networks data to the client in the form of the playerState. You might
-// have seen this already in various instances, such as ent->client->ps."whatever" << this accesses the
-// player state.
-
-// Each player has exactly 1 player state (and a second one while in vehicles). This player state gets
-// replaced by the person you're spectating when you're in spectator mode. Clients cannot see each others
-// playerState, only their own.
-
-// So what's an entityState then? Simple. It's for every single entity, and it can be seen by all the clients.
-// You might store stuff which is more generic for all kinds of entities, and not just players. You might also
-// want to store stuff there that needs to be seen be all clients, which is why I did that for saberPommel, etc.
-// You might have seen this with ent->s."whatever"
-
-// Right. So, the main problem that we as coders have been having for quite some time is that it's impossible
-// to edit these structs at all. And that really freaking blows. So, what Scooper came up with was pretty nifty.
-// Basically, it's a second playerState/entityState for everything that needs it, and it fills the exact same
-// niche.
-
-// second playerState = networkState
-// second entityState = extraState
-
-// These can be accessed on the serverside with ent->client->ns and ent->x, respectively.
-// They can be accessed on the client with cg.networkState, cg.extraState (for yourself) or cent->extraState (for a cent)
-// Remember, you can only access your own networkState, and the networkState is sometimes invalid (such as when in a vehicle)
-// There's another drawback too. As it turns out, there's no form of snapshotting for this (so stuff isn't smoothened out properly)
-// This makes it not ideal at all to network things which need extreme precision through this method.
-
-// ---Editing it---
-
-// In networkstate.c, you should see something sorta similar to these:
-//netField_t extraStateFields[] =
-//{
-//	{ ESF(number), GENTITYNUM_BITS },
-//	{ ESF(testInt), 32 },				
-//	{ ESF(testFloat), 0 }
-//};
-
-//netField_t	networkStateFields[] = 
-//{
-//{ NSF(testInt), 32 },				
-//{ NSF(testFloat), 0 }
-//};
-
-// Basically, this is pretty simple. You'll add your new field to the end of, say networkState_t.
-
-//	int someStupidField;
-
-// Since this is an int, and it's at the end, we'll add it to the end of the networkStateFields thusly:
-//netField_t	networkStateFields[] = 
-//{
-//{ NSF(testInt), 32 },				
-//{ NSF(testFloat), 0 },
-//{ NSF(someStupidField), 32 },
-//};
-// THE ORDER MATTERS HERE. IT MUST MATCH THE NETWORKSTATE/EXTRASTATE! otherwise, you will encounter many issues
-
-// One more step. You need to edit the declaration of networkStateFields in q_shared.h, above where I'm typing this.
-// So before this, it would read:
-// netField_t networkStateFields[2];
-// Since before, there were only two fields. Now since there's 3, we need to change it to a 3. Otherwise, you'll get the
-// "too many initializers" error that I've got in the error log right now.
-
-// Now you're pretty much good. I think there's one more step to make sure that stuff gets PERFECTLY sent across. Lemme check.
-// Ya, okay.
-// In bg_misc.c, there's a function called BG_NetworkStateToExtraState. If you have a field in both extraState and networkState,
-// you need to make sure to add on to that function there appropriately.
-
-// That's pretty much it. This shouldn't be used as a first step at all, it should be considered only when it's necessary to do
-// something like this (don't let U1Q1 tell ya differently...trap_SendServerCommand has its uses ;) )
-
-// any questions? you know this is realy a cool way to cut it out eez, i did see you count the stuff in the netwotkstate bit wise so i could see you would need to 
-// somthing wiht it in the end mhm. i forgot to mention one big thing real quick
-// Shall we see if this baby here works :D ? sure, i'll be doing some work on my SP SDK in the meantime
-// how is that going btw `? :P
-// i have to actually map out the playerState, quite ironically. otherwise, it's going pretty well
-// awesome :D looking forward to see this :) anyhow, yeah, you test it and then PM me on IRC how it goes
-
 
 typedef struct
 {
