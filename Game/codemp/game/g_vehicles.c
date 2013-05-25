@@ -1506,11 +1506,12 @@ maintainSelfDuringBoarding:
 	{
 		AngleVectors( pVeh->m_vOrientation, parent->client->ps.moveDir, NULL, NULL ); 
 	}
-	else
+	/*else
 	{
 		VectorSet(vVehAngles, 0, pVeh->m_vOrientation[YAW], 0);
 		AngleVectors( vVehAngles, parent->client->ps.moveDir, NULL, NULL ); 
-	}
+	}*/
+	// BAD DONKEH, don't do this!
 
 	if (pVeh->m_pVehicleInfo->surfDestruction)
 	{
