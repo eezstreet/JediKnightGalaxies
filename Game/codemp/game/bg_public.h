@@ -29,7 +29,7 @@
 #define	MAX_SPAWN_VARS			64
 #define	MAX_SPAWN_VARS_CHARS	4096
 
-#define	GAME_VERSION	"Jedi Knight Galaxies v1.4b2"
+#define	GAME_VERSION	"Jedi Knight Galaxies 1.4.03"
 
 #define	STEPSIZE		18
 
