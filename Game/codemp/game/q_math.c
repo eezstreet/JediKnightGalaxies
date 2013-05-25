@@ -1,7 +1,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // q_math.c -- stateless support routines that are included in each code module
-#include "q_shared.h"
+#include "game/q_shared.h"
 
 
 vec3_t	vec3_origin = {0,0,0};
@@ -1547,6 +1547,49 @@ void NormalToLatLong( const vec3_t normal, byte bytes[2] )
 		bytes[0] = b;	// longitude
 		bytes[1] = a;	// lattitude
 	}
+}
+
+/*
+=====================
+Q_acos
+
+the msvc acos doesn't always return a value between -PI and PI:
+
+int i;
+i = 1065353246;
+acos(*(float*) &i) == -1.#IND0
+
+	This should go in q_math but it is too late to add new traps
+	to game and ui
+=====================
+*/
+float Q_acos(float c) {
+	float angle;
+
+	angle = acos(c);
+
+	if (angle > M_PI) {
+		return (float)M_PI;
+	}
+	if (angle < -M_PI) {
+		return (float)M_PI;
+	}
+	return angle;
+}
+
+float Q_asin(float c) 
+{
+	float angle;
+
+	angle = asin(c);
+
+	if (angle > M_PI) {
+		return (float)M_PI;
+	}
+	if (angle < -M_PI) {
+		return (float)M_PI;
+	}
+	return angle;
 }
 
 // This is the VC libc version of rand() without multiple seeds per thread or 12 levels

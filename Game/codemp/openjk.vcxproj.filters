@@ -241,12 +241,6 @@
     <ClCompile Include="icarus\Q3_Registers.cpp">
       <Filter>ICARUS</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\q_math.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="qcommon\q_shared.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="RMG\RM_Area.cpp">
       <Filter>RMG</Filter>
     </ClCompile>
@@ -484,10 +478,10 @@
     <ClCompile Include="libraries\zlib\zutil.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="game\q_math.c">
+    <ClCompile Include="qcommon\q_math.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="game\q_shared.c">
+    <ClCompile Include="qcommon\q_shared.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>

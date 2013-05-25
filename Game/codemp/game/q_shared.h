@@ -109,15 +109,6 @@ void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int e
 #endif
 */
 
-#ifndef FINAL_BUILD
-#define G2_PERFORMANCE_ANALYSIS
-#define _FULL_G2_LEAK_CHECKING
-extern int g_Ghoul2Allocations;
-extern int g_G2ServerAlloc;
-extern int g_G2ClientAlloc;
-extern int g_G2AllocServer;
-#endif
-
 /**********************************************************************
   VM Considerations
 
@@ -773,8 +764,8 @@ typedef enum {
 
 void *Hunk_Alloc( int size, ha_pref preference );
 
-void Com_Memset (void* dest, const int val, const size_t count);
-void Com_Memcpy (void* dest, const void* src, const size_t count);
+#define Com_Memset memset
+#define Com_Memcpy memcpy
 
 #define CIN_system	1
 #define CIN_loop	2
@@ -1542,6 +1533,32 @@ void ByteToDir( int b, vec3_t dir );
 #define minimum(x,y) ((x)<(y)?(x):(y))
 #define maximum(x,y) ((x)>(y)?(x):(y))
 
+#define				VectorAddM( vec1, vec2, vecOut )		((vecOut)[0]=(vec1)[0]+(vec2)[0], (vecOut)[1]=(vec1)[1]+(vec2)[1], (vecOut)[2]=(vec1)[2]+(vec2)[2])
+#define				VectorSubtractM( vec1, vec2, vecOut )	((vecOut)[0]=(vec1)[0]-(vec2)[0], (vecOut)[1]=(vec1)[1]-(vec2)[1], (vecOut)[2]=(vec1)[2]-(vec2)[2])
+#define				VectorScaleM( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale))
+#define				VectorScale4M( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale), (vecOut)[3]=(vecIn)[3]*(scale))
+#define				VectorMAM( vec1, scale, vec2, vecOut )	((vecOut)[0]=(vec1)[0]+(vec2)[0]*(scale), (vecOut)[1]=(vec1)[1]+(vec2)[1]*(scale), (vecOut)[2]=(vec1)[2]+(vec2)[2]*(scale))
+#define				VectorLengthM( vec )					VectorLength( vec )
+#define				VectorLengthSquaredM( vec )				VectorLengthSquared( vec )
+#define				DistanceM( vec )						Distance( vec )
+#define				DistanceSquaredM( p1, p2 )				DistanceSquared( p1, p2 )
+#define				VectorNormalizeFastM( vec )				VectorNormalizeFast( vec )
+#define				VectorNormalizeM( vec )					VectorNormalize( vec )
+#define				VectorNormalize2M( vec, vecOut )		VectorNormalize2( vec, vecOut )
+#define				VectorCopyM( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2])
+#define				VectorCopy4M( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2], (vecOut)[3]=(vecIn)[3])
+#define				VectorSetM( vec, x, y, z )				((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z))
+#define				VectorSet4M( vec, x, y, z, w )			((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w))
+#define				VectorSet5M( vec, x, y, z, w, u )		((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w), (vec)[4]=(u))
+#define				VectorClearM( vec )						((vec)[0]=(vec)[1]=(vec)[2]=0)
+#define				VectorClear4M( vec )					((vec)[0]=(vec)[1]=(vec)[2]=(vec)[3]=0)
+#define				VectorIncM( vec )						((vec)[0]+=1.0f, (vec)[1]+=1.0f, (vec)[2]+=1.0f)
+#define				VectorDecM( vec )						((vec)[0]-=1.0f, (vec)[1]-=1.0f, (vec)[2]-=1.0f)
+#define				VectorInverseM( vec )					((vec)[0]=-(vec)[0], (vec)[1]=-(vec)[1], (vec)[2]=-(vec)[2])
+#define				CrossProductM( vec1, vec2, vecOut )		((vecOut)[0]=((vec1)[1]*(vec2)[2])-((vec1)[2]*(v2)[1]), (vecOut)[1]=((vec1)[2]*(vec2)[0])-((vec1)[0]*(vec2)[2]), (vecOut)[2]=((vec1)[0]*(vec2)[1])-((vec1)[1]*(vec2)[0]))
+#define				DotProductM( x, y )						((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#define				VectorCompareM( vec1, vec2 )			(!!((vec1)[0]==(vec2)[0] && (vec1)[1]==(vec2)[1] && (vec1)[2]==(vec2)[2]))
+
 #define DotProduct(x,y)					((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSubtract(a,b,c)			((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
 #define VectorAdd(a,b,c)				((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
@@ -1831,7 +1848,6 @@ void Parse1DMatrix (const char **buf_p, int x, float *m);
 void Parse2DMatrix (const char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m);
 
-int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
 void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...);
 
 
@@ -3061,7 +3077,6 @@ typedef struct entityState_s {
 	unsigned char	weaponVariation;
 	unsigned char	firingMode;
 	unsigned char	weaponstate;
-	unsigned char	userByte1;
 
 	int 			damageTypeFlags;
 
@@ -3070,10 +3085,15 @@ typedef struct entityState_s {
 	int 			freezeLegsAnim;
 
 	unsigned int	saberActionFlags;
-	unsigned int	userInt2;
-	unsigned int    userInt3;
-	unsigned int	userInt4;
-	vec3_t			userVec2;
+
+	signed short	forcePower;	// ugly I know but whatever --eez
+	float			saberSwingSpeed;
+	float			saberMoveSwingSpeed;
+
+	unsigned short	saberPommel[2];
+	unsigned short	saberShaft[2];
+	unsigned short	saberEmitter[2];
+	unsigned short	saberCrystal[2];
 } entityState_t;
 
 #else

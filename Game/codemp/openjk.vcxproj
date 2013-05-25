@@ -82,7 +82,7 @@
       <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalLibraryDirectories>libs/win32</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>libraries/OpenAL;libraries/zlib</AdditionalLibraryDirectories>
       <Profile>true</Profile>
     </Link>
     <Midl>
@@ -320,8 +320,6 @@
     <ClCompile Include="client\cl_parse.cpp" />
     <ClCompile Include="client\cl_scrn.cpp" />
     <ClCompile Include="client\cl_ui.cpp" />
-    <ClCompile Include="game\q_math.c" />
-    <ClCompile Include="game\q_shared.c" />
     <ClCompile Include="libraries\mp3code\cdct.c" />
     <ClCompile Include="libraries\mp3code\csbt.c" />
     <ClCompile Include="libraries\mp3code\csbtb.c" />
@@ -357,6 +355,8 @@
     <ClCompile Include="libraries\zlib\zutil.c" />
     <ClCompile Include="qcommon\CNetProfile.cpp" />
     <ClCompile Include="qcommon\GenericParser2.cpp" />
+    <ClCompile Include="qcommon\q_math.cpp" />
+    <ClCompile Include="qcommon\q_shared.cpp" />
     <ClCompile Include="qcommon\RoffSystem.cpp" />
     <ClCompile Include="qcommon\cm_draw.cpp" />
     <ClCompile Include="qcommon\cm_load.cpp" />
@@ -381,8 +381,6 @@
     <ClCompile Include="qcommon\md4.cpp" />
     <ClCompile Include="qcommon\msg.cpp" />
     <ClCompile Include="qcommon\net_chan.cpp" />
-    <ClCompile Include="qcommon\q_math.cpp" />
-    <ClCompile Include="qcommon\q_shared.cpp" />
     <ClCompile Include="qcommon\stringed_ingame.cpp" />
     <ClCompile Include="qcommon\stringed_interface.cpp" />
     <ClCompile Include="qcommon\unzip.cpp" />

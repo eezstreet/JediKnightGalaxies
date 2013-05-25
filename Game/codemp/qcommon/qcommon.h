@@ -894,7 +894,7 @@ void CL_JoystickEvent( int axis, int value, int time );
 
 void CL_PacketEvent( netadr_t from, msg_t *msg );
 
-void CL_ConsolePrint( const char *text, qboolean silent );
+void CL_ConsolePrint( const char *text );
 
 void CL_MapLoading( void );
 // do a screen update before starting to load a map
@@ -1003,12 +1003,7 @@ void	Sys_Print( const char *msg );
 int		Sys_Milliseconds (bool baseTime = false);
 int		Sys_Milliseconds2(void);
 
-#if __linux__
 extern "C" void	Sys_SnapVector( float *v );
-
-#else
-void	Sys_SnapVector( float *v );
-#endif
 
 // the system console is shown when a dedicated server is running
 void	Sys_DisplaySystemConsole( qboolean show );

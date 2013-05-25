@@ -1,7 +1,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // q_shared.c -- stateless support routines that are included in each code dll
-#include "q_shared.h"
+#include "game/q_shared.h"
 
 
 #include "../game/jkg_gangwars.h"
@@ -385,7 +385,7 @@ void COM_ParseError( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	Q_vsnprintf (string, 1024, format, argptr);
+	Q_vsnprintf (string, sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string);
@@ -397,7 +397,7 @@ void COM_ParseWarning( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	Q_vsnprintf (string, 1024, format, argptr);
+	Q_vsnprintf (string, sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string);
@@ -1144,42 +1144,38 @@ void Q_StripColor(char *text)
 	}
 }
 
-// Jedi Knight Galaxies, source from OJP Basic
-//[OverflowProtection]
+#ifdef _MSC_VER
 /*
-============
+=============
 Q_vsnprintf
-
-vsnprintf portability:
-
-C99 standard: vsnprintf returns the number of characters (excluding the trailing
-'\0') which would have been written to the final string if enough space had been available
-snprintf and vsnprintf do not write more than size bytes (including the trailing '\0')
-
-win32: _vsnprintf returns the number of characters written, not including the terminating null character,
-or a negative value if an output error occurs. If the number of characters to write exceeds count, then count 
-characters are written and -1 is returned and no trailing '\0' is added.
-
-Q_vsnprintf: always appends a trailing '\0', returns number of characters written (not including terminal \0)
-or returns -1 on failure or if the buffer would be overflowed.
-============
+ 
+Special wrapper function for Microsoft's broken _vsnprintf() function.
+MinGW comes with its own snprintf() which is not broken.
+=============
 */
-int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr ) {
-	int ret;
 
-#ifdef _WIN32
-	ret = _vsnprintf( dest, size-1, fmt, argptr );
-#else
-	ret = vsnprintf( dest, size, fmt, argptr );
-#endif
+int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
+{
+	int retval;
 
-	dest[size-1] = '\0';
-	if ( ret < 0 || ret >= size ) {
-		return -1;
+	retval = _vsnprintf(str, size, format, ap);
+
+	if(retval < 0 || retval == size)
+	{
+		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
+		// which states that the return value must be the number of
+		// bytes written if the output string had sufficient length.
+		//
+		// Obviously we cannot determine that value from Microsoft's
+		// implementation, so we have no choice but to return size.
+
+		str[size - 1] = '\0';
+		return size;
 	}
-	return ret;
-}
 
+	return retval;
+}
+#endif
 
 //Ensiform provided this version of Com_sprintf, which is supposed to be overflow protected and less hacky.
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
@@ -1232,7 +1228,7 @@ varargs versions of all text functions.
 // Optimized and secure version of va, has 4 buffers (so it can be used 4 times in a row without overwriting old results) and
 // cannot overflow. - By BobaFett
 
-char	* QDECL va( char *format, ... ) {
+char	* QDECL va( const char *format, ... ) {
 	va_list		argptr;
 	#define	MAX_VA_STRING	32000
 	#define MAX_VA_BUFFERS 4

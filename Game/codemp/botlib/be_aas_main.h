@@ -12,6 +12,9 @@
  *
  *****************************************************************************/
 
+#pragma once
+#include "be_aas_def.h"
+
 #ifdef AASINTERN
 
 extern aas_t aasworld;
