@@ -5142,7 +5142,7 @@ qboolean G_SpecialRollGetup(gentity_t *self)
 void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 {
 	qboolean	usingForce = qfalse;
-	int			i, holo, holoregen;
+	int			i;
 	int			prepower = 0;
 	//see if any force powers are running
 	if ( !self )
