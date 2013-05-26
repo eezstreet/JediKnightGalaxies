@@ -763,11 +763,18 @@ SV_BeginDownload_f
 ==================
 */
 void SV_BeginDownload_f( client_t *cl ) {
+
 	if ( cl->state == CS_ACTIVE )
 		return;
 
 	// Kill any existing download
 	SV_CloseDownload( cl );
+
+	// Jedi Knight Galaxies -- download validation
+	char *c = Cmd_Argv(1);
+	if(strlen(c) < 4) return;										// Do not allow blank file names
+	else if(Q_stricmpn((c + strlen(c) - 4), ".pk3", 4)) return;		// Do not allow anything except PK3s
+	else if(strstr(c, "..")) return;								// Do not traverse the directory
 
 	// cl->downloadName is non-zero now, SV_WriteDownloadToClient will see this and open
 	// the file itself

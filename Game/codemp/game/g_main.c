@@ -1063,7 +1063,6 @@ static void JKG_RegisteServerCallback ( asyncTask_t *task )
 extern void RemoveAllWP(void);
 extern void BG_ClearVehicleParseParms(void);
 extern void JKG_InitItems(void);
-void JKG_PatchEngine();
 void ActivateCrashHandler();
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
@@ -1079,8 +1078,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	JKG_LoadAuxiliaryLibrary();
 	JKG_GLS_PatchEngine();
-	JKG_PatchEngine();
-	SetWindowTitle("Jedi Knight Galaxies Server - Initializing...");
 	OpenSSL_add_all_algorithms();
 
 	// Initialize Threading System
@@ -1089,8 +1086,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// Initialize admin commands
 	JKG_Admin_Init();
 	//JKG_Nav_Init();
-
-	N_Init();
 
 	//Init RMG to 0, it will be autoset to 1 if there is terrain on the level.
 	trap_Cvar_Set("RMG", "0");
@@ -1334,8 +1329,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	/* TEMP - Stress level logging */
 	trap_FS_FOpenFile("stresslog.log", &stressfile, FS_APPEND);
 	lastStressLog = levelTime;
-
-	UpdateWindowTitle();
 }
 
 
@@ -1345,7 +1338,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 G_ShutdownGame
 =================
 */
-void JKG_UnpatchEngine();
 void DeactivateCrashHandler();
 void G_ShutdownGame( int restart ) {
 	int i = 0;
@@ -1442,11 +1434,8 @@ void G_ShutdownGame( int restart ) {
 	JKG_Easy_DIMA_Cleanup();
 	G_TerminateMemory(); // wipe all allocs made with G_Alloc
 	//JKG_Nav_Shutdown();
-	JKG_UnpatchEngine();
 	JKG_GLS_BreakLinkup();
-	N_Clear();
 	EVP_cleanup();
-	SetWindowTitle("Jedi Knight Galaxies Server");
 }
 
 
@@ -3834,8 +3823,6 @@ extern void NPC_Humanoid_Decloak( gentity_t *self );
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 
 int g_siegeRespawnCheck = 0;
-
-extern int ClientConnectionActive[32];
 
 int FRAME_TIME = 0;
 

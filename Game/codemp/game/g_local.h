@@ -19,9 +19,6 @@
 #define GAME_INLINE //none
 #endif
 
-void SetWindowTitle(const char *newtitle);
-void UpdateWindowTitle();
-
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 
@@ -2361,14 +2358,6 @@ extern qboolean PATHING_IGNORE_FRAME_TIME;
 int ASTAR_FindPath(int from, int to, int *pathlist);
 int ASTAR_FindPathWithTimeLimit(int from, int to, int *pathlist);
 int ASTAR_FindPathFast(int from, int to, int *pathlist, qboolean shorten);
-
-/**************************************************
-* g_network.c - Second playerstate (:D)
-**************************************************/
-#ifdef QAGAME
-void N_Init();
-void N_Clear();
-#endif
 
 #ifdef _DEBUG
 extern void JKG_AssertFunction(char *file, int linenum, const char *expression);

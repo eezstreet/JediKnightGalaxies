@@ -326,7 +326,6 @@
     <ClCompile Include="jkg_chatcmds.c" />
     <ClCompile Include="jkg_cinbuild.c" />
     <ClCompile Include="jkg_custombounds.c" />
-    <ClCompile Include="jkg_engine.c" />
     <ClCompile Include="jkg_framebuffers.c" />
     <ClCompile Include="..\game\jkg_gangwars.c" />
     <ClCompile Include="jkg_glcommon.c" />

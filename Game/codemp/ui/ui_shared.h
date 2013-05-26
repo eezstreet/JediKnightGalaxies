@@ -682,8 +682,6 @@ qboolean	trap_G2API_IKMove(void *ghoul2, int time, sharedIKMoveParams_t *params)
 
 void		trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf);
 
-void N_CL_Init();
-void N_CL_Clear();
 void CL_InitMultiMasterServer(void);
 void CL_ShutdownMultiMasterServer(void);
 

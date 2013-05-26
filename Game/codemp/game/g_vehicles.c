@@ -1120,7 +1120,6 @@ qboolean Initialize( Vehicle_t *pVeh )
 		int iFlags = SETANIM_FLAG_NORMAL, iBlend = 300;
 		pVeh->m_ulFlags |= VEH_GEARSOPEN;
 		BG_SetAnim(pVeh->m_pParentEntity->playerState, 
-			NULL,
 			bgAllAnims[pVeh->m_pParentEntity->localAnimIndex].anims,
 			SETANIM_BOTH, BOTH_VS_IDLE, iFlags, iBlend);
 	}

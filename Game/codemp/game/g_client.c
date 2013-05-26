@@ -2179,28 +2179,25 @@ restarts.
 ============
 */
 
-static int CompareIPs(int clientnum1, int clientnum2) {
-	const char *ip1, *ip2;
-	if (clientnum1 < 0 || clientnum1 >= MAX_CLIENTS) return 0;
-	if (clientnum2 < 0 || clientnum2 >= MAX_CLIENTS) return 0;
-	ip1 = level.clients[clientnum1].sess.IP;
-	ip2 = level.clients[clientnum2].sess.IP;
-	while (1) {
-		if (*ip1 != *ip2)
-			return 0;
-		if (!*ip1 || *ip1 == ':')
+static qboolean CompareIPs( const char *ip1, const char *ip2 )
+{
+	while ( 1 ) {
+		if ( *ip1 != *ip2 )
+			return qfalse;
+		if ( !*ip1 || *ip1 == ':' )
 			break;
 		ip1++;
 		ip2++;
 	}
-	return 1;
+
+	return qtrue;
 }
 
 extern int NextIDCode;
-extern int ClientConnectionActive[32];
 
 extern vmCvar_t jkg_antifakeplayer;
 extern qboolean g_dontPenalizeTeam; //g_cmds.c
+#define NET_ADDRSTRMAXLEN 48 // maximum length of an IPv6 address string including trailing '\0'
 const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value;
 //	char		*areabits;
@@ -2210,7 +2207,7 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	gentity_t	*te;
 	char *luaresp;
 	const char *banreason;
-	int i;
+	char tmpIP[NET_ADDRSTRMAXLEN] = {0};
 
 	ent = &g_entities[ clientNum ];
 	ent->LuaUsable = 1; // So we can use it in lua (PlayerConnected hook)
@@ -2222,7 +2219,6 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// Once a sequenced packet has been received this goes back to 1
 	// Since q3fill will never do this, it stays at 0
 	// Which causes the server to kick and ban the client after 1 second
-	ClientConnectionActive[clientNum] = 0;		
 
 	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
@@ -2253,6 +2249,31 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 			static char sTemp[1024];
 			Q_strncpyz(sTemp, G_GetStringEdString("MP_SVGAME","INVALID_ESCAPE_TO_MAIN"), sizeof (sTemp) );
 			return sTemp;// return "Invalid password";
+		}
+	}
+
+	value = Info_ValueForKey (userinfo, "ip");
+	Q_strncpyz( tmpIP, isBot ? "Bot" : value, sizeof( tmpIP ) );
+
+	if(jkg_antifakeplayer.integer)
+	{
+		if(firstTime && !isBot)
+		{
+			int i;
+			int count = 0;
+
+			for(i = 0; i < level.maxclients; i++)
+			{
+				if ( level.clients[i].pers.connected != CON_DISCONNECTED && i != clientNum )
+				{
+					if( CompareIPs( tmpIP, level.clients[i].sess.IP ) )
+						count++;
+				}
+			}
+			if(count > 1)
+			{
+				return "Too many connections from the same IP.";
+			}
 		}
 	}
 
@@ -2322,21 +2343,6 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		return luaresp;
 	}
 
-	if (jkg_antifakeplayer.integer && firstTime && !isBot ) {
-		// Before we let the client in, we do one last check:
-		for (i=0; i < g_maxclients.integer; i++) {
-			if (level.clients[i].pers.connected != CON_DISCONNECTED && i != clientNum) {
-				if (CompareIPs(clientNum, i)) {
-					if (!ClientConnectionActive[i]) {
-						//This IP has a dead connection pending, wait for it to time out
-						client->pers.connected = CON_DISCONNECTED;
-						return "Please wait, another connection from this IP is still pending...";
-					}
-				}
-			}
-		}
-	}
-
 	// get and distribute relevent paramters
 	// FIXME:
 	//G_LogPrintf( "ClientConnect: %i. IP: %s\n", clientNum, isBot ? "Bot" : NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress) );
@@ -2366,7 +2372,6 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 //		client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	TeamInitialize( clientNum );
-	UpdateWindowTitle();
 	
 	client->ps.persistant[PERS_CREDITS] = jkg_startingCredits.integer-1;	// hack to give us our starting gear
 	client->storedCredits = jkg_startingCredits.integer-1;
@@ -4045,7 +4050,6 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	G_ClearClientLog(clientNum);
-	UpdateWindowTitle();
 }
 
 

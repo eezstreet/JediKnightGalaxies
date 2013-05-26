@@ -7605,7 +7605,6 @@ void CG_DrawChatbox() {
 }
 
 void ChatBox_CloseChat();
-extern void JKG_DoDebugController(void);
 static void CG_Draw2D( void ) {
 	float			inTime = cg.invenSelectTime+WEAPON_SELECT_TIME;
 	float			wpTime = cg.weaponSelectTime+WEAPON_SELECT_TIME;
@@ -7701,8 +7700,6 @@ static void CG_Draw2D( void ) {
 		return;
 	}
 	CinBuild_Visualize2D();
-
-	JKG_DoDebugController();
 
 
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {

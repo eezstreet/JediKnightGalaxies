@@ -4316,7 +4316,6 @@ void JKG_FireWeapon ( centity_t *cent, qboolean altFire )
 		float damageModifier = (weaponData->firemodes[s->firingMode].baseDamage)/100.0f;
 
 		CLAMP(damageModifier, 0.3f, 1.0f);
-		JKG_DoControllerRumble( weaponData->firemodes[s->firingMode].delay / 2, damageModifier * 65535 );
 	}
     
     weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);

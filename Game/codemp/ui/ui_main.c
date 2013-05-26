@@ -288,9 +288,6 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 const char *JAMD5Check();
 void CheckEngineDll();
 
-void UI_PatchEngine();
-void UI_UnpatchEngine();
-
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 	switch ( command ) {
 	case UI_GETAPIVERSION:
@@ -304,7 +301,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 				trap_Error(res);
 		}
 
-		UI_PatchEngine();
 		_UI_Init(arg0);
 		return 0;
 
@@ -313,7 +309,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		CG_StopMusic();
 #endif //__MUSIC_ENGINE__
 		_UI_Shutdown();
-		UI_UnpatchEngine();
 		return 0;
 
 	case UI_KEY_EVENT:
@@ -1213,8 +1208,6 @@ void _UI_Shutdown( void ) {
 	UI_CleanupGhoul2();
 	trap_Cvar_Set("connmsg", "");	// Clear the connection message override
 	JKG_GLUI_BreakLinkup();
-	N_CL_Clear();
-	CL_ShutdownMultiMasterServer();
 }
 
 char *defaultMenu = NULL;
@@ -9514,7 +9507,6 @@ UI_Init
 */
 //#define JKG_CLIENTSIDE_VERSION "0.3.25a"
 
-void ApplyNoCD();
 void __inline ClearSelfSabotage() {
 	// Hack: Clear the one-shot self-sabotage switch (0 and 1 are unaffected, 2 (one-shot) goes to 0)
 	*(int *)0xB8D544 &= 1;
@@ -9536,12 +9528,6 @@ void _UI_Init( qboolean inGameLoad ) {
 	// which is kinda stupid since we can't get there unless we actually connect to a server.
 	// DERP. --eez
 	trap_Cvar_Set("clver", JKG_VERSION);
-
-	// No-cd patch
-	ApplyNoCD();
-	ClearSelfSabotage();
-	N_CL_Init();
-	CL_InitMultiMasterServer();
 
 	JKG_UI_LoadAuxiliaryLibrary();
 	JKG_GLUI_PatchEngine();

@@ -746,20 +746,39 @@ void ChatBox_MessageMode3() {	// Private chat (aim trace)
 void ChatBox_MessageMode4() {
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
 
 	// VERSUS ONLY --eez
 
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
 	cb_chatmode = CHM_ACTION;
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
+}
+
+void ChatBox_UseMessageMode(int whichOne)
+{
+	switch(whichOne)
+	{
+		case 1:
+			ChatBox_MessageMode();
+			break;
+		case 2:
+			ChatBox_MessageMode2();
+			break;
+		case 3:
+			ChatBox_MessageMode3();
+			break;
+		case 4:
+			ChatBox_MessageMode4();
+			break;
+	}
 }
 
 

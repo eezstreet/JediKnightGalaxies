@@ -45,12 +45,18 @@ Con_MessageMode_f
 ================
 */
 void Con_MessageMode_f (void) {	//yell
-	chat_playerNum = -1;
+	/*chat_playerNum = -1;
 	chat_team = qfalse;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );*/
+	if( !cgvm )
+	{
+		assert( !"NULL cgvm" );
+		return;
+	}
+	VM_Call( cgvm, CG_MESSAGEMODE, 1 );
 }
 
 /*
@@ -59,11 +65,17 @@ Con_MessageMode2_f
 ================
 */
 void Con_MessageMode2_f (void) {	//team chat
-	chat_playerNum = -1;
+	/*chat_playerNum = -1;
 	chat_team = qtrue;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 25;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );*/
+	if( !cgvm )
+	{
+		assert( !"NULL cgvm" );
+		return;
+	}
+	VM_Call( cgvm, CG_MESSAGEMODE, 2 );
 }
 
 /*
@@ -79,7 +91,7 @@ void Con_MessageMode3_f (void)
 		return;
 	}
 
-	chat_playerNum = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
+	/*chat_playerNum = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -87,7 +99,8 @@ void Con_MessageMode3_f (void)
 	chat_team = qfalse;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );*/
+	VM_Call( cgvm, CG_MESSAGEMODE, 3 );
 }
 
 /*
@@ -103,7 +116,7 @@ void Con_MessageMode4_f (void)
 		return;
 	}
 
-	chat_playerNum = VM_Call( cgvm, CG_LAST_ATTACKER );
+	/*chat_playerNum = VM_Call( cgvm, CG_LAST_ATTACKER );
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -111,7 +124,8 @@ void Con_MessageMode4_f (void)
 	chat_team = qfalse;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );*/
+	VM_Call( cgvm, CG_MESSAGEMODE, 4 );
 }
 
 /*

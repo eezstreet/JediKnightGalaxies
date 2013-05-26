@@ -888,7 +888,8 @@ local int unzlocal_CheckCurrentFileCoherencyHeader (
         err=UNZ_BADZIPFILE;
 
     if ((err==UNZ_OK) && (s->cur_file_info.compression_method!=0) &&
-                         (s->cur_file_info.compression_method!=Z_DEFLATED))
+                         (s->cur_file_info.compression_method!=Z_DEFLATED) &&
+						 !(s->cur_file_info.compression_method&0x800))
         err=UNZ_BADZIPFILE;
 
     if (unzlocal_getLong(&s->z_filefunc, s->filestream,&uData) != UNZ_OK) /* date/time */
@@ -1002,7 +1003,8 @@ int ZEXPORT unzOpenCurrentFile3 (
     }
 
     if ((s->cur_file_info.compression_method!=0) &&
-        (s->cur_file_info.compression_method!=Z_DEFLATED))
+        (s->cur_file_info.compression_method!=Z_DEFLATED) &&
+		!(s->cur_file_info.compression_method&0x800))
         err=UNZ_BADZIPFILE;
 
     pfile_in_zip_read_info->crc32_wait=s->cur_file_info.crc;
@@ -1015,7 +1017,7 @@ int ZEXPORT unzOpenCurrentFile3 (
 
     pfile_in_zip_read_info->stream.total_out = 0;
 
-    if ((s->cur_file_info.compression_method==Z_DEFLATED) &&
+	if ((s->cur_file_info.compression_method==Z_DEFLATED || s->cur_file_info.compression_method==Z_DEFLATED|0x800) &&
         (!raw))
     {
       pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
@@ -1195,7 +1197,8 @@ int ZEXPORT unzReadCurrentFile  (
             pfile_in_zip_read_info->stream.avail_in = (uInt)uReadThis;
         }
 
-        if ((pfile_in_zip_read_info->compression_method==0) || (pfile_in_zip_read_info->raw))
+        if ((pfile_in_zip_read_info->compression_method==0) || (pfile_in_zip_read_info->raw) ||
+			pfile_in_zip_read_info->compression_method==0x800)
         {
             uInt uDoCopy,i ;
 

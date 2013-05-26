@@ -1408,16 +1408,8 @@ static void CG_ServerRedirect() {
 	return;
 }
 
-void JKG_SetSabotageState(int state);
-
 /* Enables or disables the engine's self-sabotage mechanism */
 /* When activated, this will randomly crash the player with packet parsing errors */
-
-static void CG_SelfSabotage() {
-	char buff[16];
-	trap_Argv( 1, buff, sizeof(buff) );
-	JKG_SetSabotageState(atoi(buff));
-}
 
 extern void CG_ChatBox_AddString(char *chatStr, int fadeLevel); //cg_draw.c
 void Cin_ProcessCinematic_f();
@@ -1444,33 +1436,6 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-#if 0
-	// never seems to get used -Ste
-	if ( !strcmp( cmd, "spd" ) ) 
-	{
-		const char *ID;
-		int holdInt,count,i;
-		char string[1204];
-
-		count = trap_Argc();
-
-		ID =  CG_Argv(1);
-		holdInt = atoi(ID);
-
-		memset( &string, 0, sizeof( string ) );
-
-		Com_sprintf( string,sizeof(string)," \"%s\"", (const char *) CG_Argv(2));
-
-		for (i=3;i<count;i++)
-		{
-			Com_sprintf( string,sizeof(string)," %s \"%s\"", string, (const char *) CG_Argv(i));
-		}
-
-		trap_SP_Print(holdInt, (byte *)string);
-		return;
-	}
-#endif
-
 	// Jedi Knight Galaxies
 	// Check the crossover
 	if (CO_ServerCommand(cmd))
@@ -1484,10 +1449,6 @@ static void CG_ServerCommand( void ) {
 
 	if (!strcmp(cmd, "svr")) { // Server redirect
 		CG_ServerRedirect();
-		return;
-	}
-	if (!strcmp(cmd, "ss")) { /* Self-sabotage controls */
-		CG_SelfSabotage();
 		return;
 	}
 

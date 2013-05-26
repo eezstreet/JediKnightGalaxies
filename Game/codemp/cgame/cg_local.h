@@ -2969,12 +2969,6 @@ extern qboolean CG_SnapRefEntToBone(centity_t *cent, refEntity_t *refEnt, const 
 extern void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlane );
 #endif //__WEAPON_HOLSTER__
 
-// jkg_joystick.c
-void __cdecl JKG_ControllerUpdate(void);
-void __cdecl JKG_CL_JoystickMovement( usercmd_t *cmd );
-void _Hook_CL_JoystickMovement();
-void JKG_DoControllerRumble( int duration, int intensity );
-
 // jkg_cg_damagetypes.c -- UQ1: Moved to stop cg_local.h recursive #include error...
 void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity );
 

@@ -290,9 +290,6 @@
     <ClCompile Include="jkg_custombounds.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_engine.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jkg_framebuffers.c">
       <Filter>Source Files</Filter>
     </ClCompile>

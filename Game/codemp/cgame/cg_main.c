@@ -225,6 +225,8 @@ extern qboolean CLIENT_FORCED_SHUTDOWN;
 extern void CG_ClearRecordedLights();
 #endif //__EXPERIMENTAL_SHADOWS__
 
+extern void ChatBox_UseMessageMode(int whichOne);
+
 /*
 ================
 vmMain
@@ -433,6 +435,10 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 			
 			CG_DoCameraShake( data->mOrigin, data->mIntensity, data->mRadius, data->mTime );
 		}
+		return 0;
+
+	case CG_MESSAGEMODE:
+		ChatBox_UseMessageMode(arg0);
 		return 0;
 
 	default:
@@ -4052,8 +4058,6 @@ Will perform callbacks to make the loading info screen update.
 
 void (__cdecl * CL_WritePacket)(void) = (void (__cdecl *)(void))0x41A470;
 void CinBuild_Init();
-void PatchEngine();
-void JKG_PatchEngine();
 void ChatBox_InitSystem();
 void MiniMap_Init();
 void JKG_WeaponIndicators_Init();
@@ -4087,8 +4091,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 	cgame_initializing = qtrue;
 
 	// Do the engine patches
-	PatchEngine();
-	JKG_PatchEngine();
 	ChatBox_InitSystem();
 	JKG_CG_LoadAuxiliaryLibrary();
 	trap_Cvar_Set("connmsg", ""); // Clear connection message override
@@ -4467,8 +4469,6 @@ CG_Shutdown
 Called before every level change or subsystem restart
 =================
 */
-void UnpatchEngine();
-void JKG_UnpatchEngine();
 
 void CG_Shutdown( void ) 
 {
@@ -4502,8 +4502,6 @@ void CG_Shutdown( void )
 
 	// Remove engine patches
 	JKG_GLCG_BreakLinkup();
-	UnpatchEngine();
-	JKG_UnpatchEngine();
 }
 
 /*

@@ -455,6 +455,9 @@ typedef enum {
 	CG_GET_SORTED_FORCE_POWER,
 
 	CG_FX_CAMERASHAKE,//mcg post-gold added
+
+	// Jedi Knight Galaxies
+	CG_MESSAGEMODE,
 } cgameExport_t;
 
 typedef struct
