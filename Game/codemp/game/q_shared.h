@@ -146,50 +146,46 @@ void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int e
 #include <ctype.h>
 #include <limits.h>
 
-// Special min treatment for Xbox C++ version
-
-#ifdef _XBOX
-#define min(x,y) ((x)<(y)?(x):(y))
-#define max(x,y) ((x)>(y)?(x):(y))
-
-#define tvector(T) std::vector< T >
-#define tdeque(T) std::deque< T >
-
-#define tlist(T) std::list< T >
-#define tslist(T) std::slist< T >
-
-#define tset(T) std::set< T, std::less< T > >
-#define tmultiset(T) std::multiset< T, std::less< T > >
-
-#define tcset(T,C) std::set< T, C >
-#define tcmultiset(T,C) std::multiset< T, C >
-
-#define tmap(K,T) std::map< K, T, std::less< K > >
-#define tmultimap(K,T) std::multimap< K, T, std::less< K > >
-
-#define tcmap(K,T,C) std::map< K, T, C >
-#define tcmultimap(K,T,C) std::multimap< K, T, C >
+//Ignore __attribute__ on non-gcc platforms
+#if !defined(__GNUC__) && !defined(__attribute__)
+	#define __attribute__(x)
 #endif
 
+#if defined(__GNUC__)
+	#define UNUSED_VAR __attribute__((unused))
+#else
+	#define UNUSED_VAR
 #endif
 
-#ifdef _WIN32
+#if (defined _MSC_VER)
+	#define Q_EXPORT __declspec(dllexport)
+#elif (defined __SUNPRO_C)
+	#define Q_EXPORT __global
+#elif ((__GNUC__ >= 3) && (!__EMX__) && (!sun))
+	#define Q_EXPORT __attribute__((visibility("default")))
+#else
+	#define Q_EXPORT
+#endif
 
-//#pragma intrinsic( memset, memcpy )
-
+#if defined(__linux__) && !defined(__GCC__)
+#define Q_EXPORT_C// extern "C"
+#else
+#define Q_EXPORT_C
 #endif
 
 // this is the define for determining if we have an asm version of a C function
-#if (defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__
-#define id386	1
+#if (defined(_M_IX86) || defined(__i386__)) && !defined(__sun__) && !defined(__LCC__)
+	#define id386	1
 #else
-#define id386	0
+	#define id386	0
 #endif
 
 #if (defined(powerc) || defined(powerpc) || defined(ppc) || defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
-#define idppc	1
+	#define idppc	1
 #else
-#define idppc	0
+	#define idppc	0
+#endif
+
 #endif
 
 // for windows fastcall option
@@ -802,6 +798,18 @@ typedef	int	fixed16_t;
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
+#endif
+
+#if defined(_MSC_VER)
+static __inline long Q_ftol(float f)
+{
+	return (long)f;
+}
+#else
+static inline long Q_ftol(float f)
+{
+	return (long)f;
+}
 #endif
 
 
@@ -1887,6 +1895,8 @@ qboolean	Q_stratt( char *dest, unsigned int iSize, char *source );
 void		Q_strncpyz( char *dest, const char *src, int destsize );
 void		Q_strcat( char *dest, int size, const char *src );
 
+const char *Q_stristr( const char *s, const char *find);
+
 // strlen that discounts Quake color sequences
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
@@ -1974,6 +1984,7 @@ default values.
 ==========================================================
 */
 
+#define CVAR_NONE			0x00000000
 #define	CVAR_ARCHIVE		0x00000001		// set to cause it to be saved to vars.rc
 											// used for system variables, not for player
 											// specific configurations
@@ -2638,31 +2649,38 @@ typedef struct playerState_s {
 	//keeps track of cloak fuel
 	int			cloakFuel;
 
-	//rww - spare values specifically for use by mod authors.
-	//See psf_overrides.txt if you want to increase the send
-	//amount of any of these above 1 bit.
+	// JKG SPECIFIC
 
-#ifndef _XBOX
 	unsigned char	weaponVariation;
 	unsigned char	weaponId;
 	unsigned char   shotsRemaining;
 	unsigned char	sprintMustWait;
 	
-	int				saberActionFlags;			// Unused1
-	unsigned int    unused2;			// Unused; this used to be the iron sights stuff.
-	unsigned int	unused3;			// Unused; this used to be the sprint stuff. got migrated to second playerstate.
+	short			saberActionFlags;
 
 	int 			damageTypeFlags;
 	int 			freezeTorsoAnim;
 	int 			freezeLegsAnim;
 
-	int				userInt1;
 	unsigned char	firingMode;
-	unsigned char	userByte1;
-	unsigned char	userByte2;
-	unsigned char	userByte3;
-	vec3_t			userVec1;
-#endif
+	unsigned int	ironsightsTime;
+	unsigned int	ironsightsDebounceStart;
+	qboolean		isInSights;
+
+	unsigned int	sprintTime;
+	int				sprintDebounceTime;
+	qboolean		isSprinting;
+
+	signed short	forcePower;
+	float			saberSwingSpeed;
+	float			saberMoveSwingSpeed;
+
+	short			saberPommel[2];
+	short			saberShaft[2];
+	short			saberEmitter[2];
+	short			saberCrystal[2];
+
+	signed short	blockPoints;
 
 #ifdef _ONEBIT_COMBO
 	int			deltaOneBits;
@@ -3445,6 +3463,300 @@ typedef struct SSkinGoreData_s
 
 	qboolean		fadeRGB; //specify fade method to modify RGB (by default, the alpha is set instead)
 } SSkinGoreData;
+
+/*
+========================================================================
+
+Trap Calls
+
+========================================================================
+*/
+
+// Call API version... increment if we change the below because mismatch is badness
+#define CGAME_API_VERSION	1
+#define UI_API_VERSION		1
+#define	SV_API_VERSION		1
+
+typedef struct
+{
+
+} cgImports_t;
+
+typedef struct
+{
+
+} uiImports_t;
+
+typedef struct
+{
+	void	(*Printf)( const char *fmt );
+	void	(*Error)( const char *fmt );
+	int		(*Milliseconds)( void );
+	void	(*PrecisionTimer_Start)( void **theTimer );
+	int		(*PrecisionTimer_End)( void *theTimer );
+
+	void	(*Cvar_Register)( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
+	void	(*Cvar_Update)( vmCvar_t *cvar );
+	void	(*Cvar_Set)( const char *var_name, const char *value );
+	int		(*Cvar_VariableIntegerValue)( const char *var_name );
+	void	(*Cvar_VariableStringBuffer)( const char *var_name, char *buffer, int bufsize );
+
+	int		(*Argc)( void );
+	void	(*Argv)( int n, char *buffer, int bufferLength );
+	
+	int		(*FS_FOpenFile)( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	void	(*FS_Read)( void *buffer, int len, fileHandle_t f );
+	void	(*FS_Write)( const void *buffer, int len, fileHandle_t f );
+	void	(*FS_FCloseFile)( fileHandle_t f );
+	int		(*FS_GetFileList)( const char *path, const char *extension, char *listbuf, int bufsize );
+	
+	void	(*SendConsoleCommand)( int exec_when, const char *text );
+	void	(*LocateGameData)(	void *gEnts, int numGEntities, int sizeofGEntity_t,
+								playerState_t *clients, int sizeofGClient );
+	void	(*DropClient)( int clientNum, const char *reason );
+	void	(*SendServerCommand)( int clientNum, const char *cmd );
+	void	(*SetConfigstring)( int num, const char *string );
+	void	(*GetConfigstring)( int num, char *buffer, int bufferSize );
+	void	(*GetUserinfo)( int num, char *buffer, int bufferSize );
+	void	(*SetUserinfo)( int num, const char *buffer );
+	void	(*GetServerinfo)( char *buffer, int bufferSize );
+	
+	void	(*SetServerCull)(float cullDistance);
+	void	(*SetBrushModel)( void *ent, const char *name );
+	void	(*Trace)(	trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						int passEntityNum, int contentMask );
+	void	(*TraceCapsule)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						int passEntityNum, int contentMask );
+	void	(*G2Trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						int passEntityNum, int contentmask, int g2TraceType, int traceLod );
+	int		(*PointContents)( const vec3_t point, int passEntityNum );
+	qboolean (*InPVS)( const vec3_t p1, const vec3_t p2 );
+	qboolean (*InPVSIgnorePortals)( const vec3_t p1, const vec3_t p2 );
+	void	(*AdjustAreaPortalState)( void *ent, qboolean open );
+	qboolean (*AreasConnected)( int area1, int area2 );
+	
+	void	(*LinkEntity)( void *ent );
+	void	(*UnlinkEntity)( void *ent );
+	int		(*EntitiesInBox)( const vec3_t mins, const vec3_t maxs, int *list, int maxcount );
+	qboolean (*EntityContactCapsule)( const vec3_t mins, const vec3_t maxs, const void *ent );
+	int		(*BotAllocateClient)( void );
+	void	(*BotFreeClient)( int clientNum );
+	void	(*GetUsercmd)( int clientNum, usercmd_t *cmd );
+	qboolean (*GetEntityToken)( char *buffer, int bufferSize );
+
+	int		(*DebugPolygonCreate)( int color, int numPoints, vec3_t *points );
+	void	(*DebugPolygonDelete)( int id );
+
+	int		(*RealTime)( qtime_t *qtime );
+	void	(*SnapVector)( float *v );
+
+	void	(*SV_RegisterSharedMemory)( char *memory );
+
+	int		(*SP_GetStringTextString)( const char *text, char *buffer, int bufferLength );
+
+	qboolean (*ROFF_Clean)( void );
+	void	(*ROFF_UpdateEntities)( void );
+	int		(*ROFF_Cache)( char *file );
+	qboolean (*ROFF_Play)( int entID, int roffID, qboolean doTranslation );
+	qboolean (*ROFF_Purge_Ent)( int entID );
+
+	void	(*TrueMalloc)(void **ptr, int size);
+	void	(*TrueFree)(void **ptr);
+
+	int		(*ICARUS_RunScript)( void *ent, const char *name );
+	qboolean (*ICARUS_RegisterScript)( const char *name, qboolean bCalledDuringInterrogate );
+	void	(*ICARUS_Init)( void );
+	qboolean (*ICARUS_ValidEnt)( void *ent );
+	qboolean (*ICARUS_IsInitialized)( int entID );
+	qboolean (*ICARUS_MaintainTaskManager)( int entID );
+	qboolean (*ICARUS_IsRunning)( int entID );
+	qboolean (*ICARUS_TaskIDPending)( void *ent, int taskID );
+	void	(*ICARUS_InitEnt)( void *ent );
+	void	(*ICARUS_FreeEnt)( void *ent );
+	void	(*ICARUS_AssociateEnt)( void *ent );
+	void	(*ICARUS_Shutdown)( void );
+	void	(*ICARUS_TaskIDSet)( void *ent, int taskType, int taskID );
+	void	(*ICARUS_TaskIDComplete)( void *ent, int taskType );
+	void	(*ICARUS_SetVar)( int taskID, int entID, const char *type_name, const char *data );
+	int		(*ICARUS_VariableDeclared)( const char *type_name);
+	int		(*ICARUS_GetFloatVariable)( const char *name, float *value );
+	int		(*ICARUS_GetStringVariable)( const char *name, const char *value );
+	int		(*ICARUS_GetVectorVariable)( const char *name, const vec3_t value );
+
+	void	(*NAV_Init)( void );
+	void	(*NAV_Free)( void );
+	qboolean (*NAV_Load)( const char *filename, int checksum );
+	qboolean (*NAV_Save)( const char *filename, int checksum );
+	int		(*NAV_AddRawPoint)( vec3_t point, int flags, int radius );
+	void	(*NAV_CalculatePaths)( qboolean recalc );
+	void	(*NAV_HardConnect)( int first, int second );
+	void	(*NAV_ShowNodes)( void );
+	void	(*NAV_ShowEdges)( void );
+	void	(*NAV_ShowPath)( int start, int end );
+	void	(*NAV_GetNearestNode)( void *ent, int lastID, int flags, int targetID );
+	int		(*NAV_GetBestNode)( int startID, int endID, int rejectID );
+	int		(*NAV_GetNodePosition)( int nodeID, vec3_t out );
+	int		(*NAV_GetNodeNumEdges)( int nodeID );
+	int		(*NAV_GetNumNodes)( void );
+	qboolean (*NAV_Connected)( int startID, int endID );
+	int		(*NAV_GetPathCost)( int startID, int endID );
+	int		(*NAV_GetEdgeCost)( int startID, int endID );
+	int		(*NAV_GetProjectedNode)( vec3_t origin, int nodeID );
+	void	(*NAV_AddFailedNode)( void *ent, int nodeID );
+	void	(*NAV_NodeFailed)( void *ent, int nodeID );
+	qboolean (*NAV_NodesAreNeighbors)( int startID, int endID );
+	void	(*NAV_ClearFailedEdge)( failedEdge_t *failedEdge );
+	void	(*NAV_ClearAllFailedEdges)( void );
+	int		(*NAV_EdgeFailed)( int startID, int endID );
+	void	(*NAV_AddFailedEdge)( int entID, int startID, int endID );
+	qboolean (*NAV_CheckFailedEdge)( failedEdge_t *failedEdge );
+	void	(*NAV_CheckAllFailedEdges)( void );
+	qboolean (*NAV_RouteBlocked)( int startID, int testEdgeID, int endID, int rejectRank );
+	int		(*NAV_GetBestNodeAltRoute)( int startID, int endID, int *pathCost, int rejectID );
+	int		(*NAV_GetBestNodeAltRoute2)( int startID, int endID, int rejectID );
+	int		(*NAV_GetBestPathBetweenEnts)( void *ent, void *goal, int flags );
+	int		(*NAV_GetNodeRadius)( int nodeID );
+	void	(*NAV_CheckBlockedEdges)( void );
+	void	(*NAV_ClearCheckedNodes)( void );
+	int		(*NAV_CheckedNode)(int wayPoint, int ent);
+	void	(*NAV_SetCheckedNode)(int wayPoint, int ent, int value);
+	void	(*NAV_FlagAllNodes)( int newFlag );
+	qboolean (*NAV_GetPathsCalculated)( void );
+	void	(*NAV_SetPathsCalculated)(qboolean newVal);
+
+	int		(*BotLibSetup)( void );
+	int		(*BotLibShutdown)( void );
+	int		(*BotGetSnapshotEntity)( int clientNum, int sequence );
+	int		(*BotGetServerCommand)( int clientNum, char *message, int size );
+	void	(*BotUserCommand)( int clientNum, usercmd_t *ucmd );
+	void	(*AAS_EntityInfo)( int entnum, void *info );
+
+	void	(*EA_Attack)( int client );
+	void	(*EA_Alt_Attack)( int client );
+	void	(*EA_ForcePower)( int client );
+	void	(*EA_Use)( int client );
+	void	(*EA_Crouch)( int client );
+	void	(*EA_MoveUp)( int client );
+	void	(*EA_MoveDown)( int client );
+	void	(*EA_MoveForward)( int client );
+	void	(*EA_MoveBack)( int client );
+	void	(*EA_MoveLeft)( int client );
+	void	(*EA_MoveRight)( int client );
+	void	(*EA_SelectWeapon)( int client, int weapon );
+	void	(*EA_Jump)( int client );
+	void	(*EA_DelayedJump)( int client );
+	void	(*EA_Move)( int client, vec3_t dir, float speed );
+	void	(*EA_View)( int client, vec3_t viewangles );
+	void	(*EA_GetInput)( int client, float thinktime, void *input );
+	void	(*EA_ResetInput)( int client );
+
+	void	(*BotResetGoalState)( int goalstate );
+	void	(*BotResetAvoidGoals)( int goalstate );
+	void	(*BotUpdateEntityItems)( void );
+	void	(*BotAllocGoalState)( int state );
+	void	(*BotFreeGoalState)( int handle );
+	void	(*BotResetMoveState)( int movestate );
+	void	(*BotResetAvoidReach)( int movestate );
+	int		(*BotAllocMoveState)( void );
+	void	(*BotFreeMoveState)( int handle );
+	int		(*BotAllocWeaponState)( void );
+	void	(*BotFreeWeaponState)( int weaponstate );
+	void	(*BotResetWeaponState)( int weaponstate );
+	
+	int		(*PC_LoadSource)( const char *filename );
+	int		(*PC_FreeSource)( int handle );
+	int		(*PC_ReadToken)( int handle, pc_token_t *pc_token );
+	int		(*PC_SourceFileAndLine)( int handle, char *filename, int *line );
+
+	qhandle_t (*R_RegisterSkin)( const char *name );
+
+	void	(*G2_ListModelBones)( void *ghlInfo, int frame );
+	void	(*G2_ListModelSurfaces)( void *ghlInfo );
+	qboolean (G2_HaveWeGhoul2Models)( void *ghoul2 );
+	void	(*G2_SetGhoul2ModelIndexes)( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
+
+	qboolean (*G2API_GetBoltMatrix)(	void *ghoul2, const int modelIndex, const int boltIndex,
+										mdxaBone_t *matrix, const vec3_t angles, const vec3_t position,
+										const int frameNum, qhandle_t *modelList, vec3_t scale );
+	qboolean (*G2API_GetBoltMatrix_NoReconstruct)(	void *ghoul2, const int modelIndex, const int boltIndex,
+													mdxaBone_t *matrix, const vec3_t angles, const vec3_t position,
+													const int frameNum, qhandle_t *modelList, vec3_t scale );
+	//Same as above but force it to not reconstruct the skeleton before getting the bolt position
+	qboolean (*G2API_GetBoltMatrix_NoRecNoRot)	(	void *ghoul2, const int modelIndex, const int boltIndex,
+													mdxaBone_t *matrix, const vec3_t angles, const vec3_t position,
+													const int frameNum, qhandle_t *modelList, vec3_t scale );
+	//Same as above but force it to not reconstruct the skeleton before getting the bolt position
+	int		 (*G2API_InitGhoul2Model)(	void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin,
+										qhandle_t customShader, int modelFlags, int lodBias );
+	qboolean (*G2API_SetSkin)(			void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
+	int		 (*G2API_Ghoul2Size)	 (	void *ghlInfo );
+	int		 (*G2API_AddBolt)(			void *ghoul2, int modelIndex, const char *boneName );
+	void	 (*G2API_SetBoltInfo)(		void *ghoul2, int modelIndex, int boltInfo );
+	qboolean (*G2API_SetBoneAngles)(	void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles,
+										const int flags, const int up, const int right, const int forward,
+										qhandle_t *modelList, int blendTime, int currentTime );
+	qboolean (*G2API_SetBoneAnim)(		void *ghoul2, const int modelIndex, const char *boneName, const int startFrame,
+										const int endFrame, const int flags, const float animSpeed, const int currentTime,
+										const float setFrame, const int blendTime );
+	qboolean (*G2API_GetBoneAnim)(		void *ghoul2, const char *boneName, const int currentTime, float *currentFrame,
+										int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList,
+										const int modelIndex );
+	void	 (*G2API_GetGLAName)(		void *ghoul2, int modelIndex, char *fillBuf );
+	int		 (*G2API_CopyG2Instance)(	void *g2From, void *g2To, int modelIndex );
+	void	 (*G2API_CopySpecificG2)(	void *g2From, int modelFrom, void *g2To, int modelTo );
+	void	 (*G2API_DuplicateG2Instance)(void *g2From, void **g2To );
+	qboolean (*G2API_HasG2ModelOnIndex)(void *ghlInfo, int modelIndex );
+	qboolean (*G2API_RemoveG2Model)(	void *ghlInfo, int modelIndex );
+	qboolean (*G2API_RemoveG2Models)(	void *ghlInfo );
+	void	 (*G2API_CleanG2Models)(	void **ghoul2Ptr );
+	void	 (*G2_CollisionDetect)(		CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position,
+										int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags,
+										int useLod, float fRadius );
+	void	 (*G2_CollisionDetectCache)(CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position,
+										int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags,
+										int useLod, float fRadius );
+	void	 (*G2API_GetSurfaceName)(	void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
+	qboolean (*G2API_SetRootSurface)(	void *ghoul2, const int modelIndex, const char *surfaceName );
+	qboolean (*G2API_SetSurfaceOnOff)(	void *ghoul2, const char *surfaceName, const int flags );
+	qboolean (*G2API_SetNewOrigin)(		void *ghoul2, const int boltIndex );
+	//check if a bone exists on skeleton without actually adding to the bone list -rww
+	qboolean (*G2API_DoesBoneExist)(	void *ghoul2, int modelIndex, const char *boneName);
+	int		 (*G2_GetSurfaceRenderStatus)(void *ghoul2, const int modelIndex, const char *surfaceName );
+	void	 (*G2API_AbsurdSmoothing)(	void *ghoul2, qboolean status );
+
+	//rww - RAGDOLL_BEGIN
+	void	 (*G2API_SetRagDoll)(		void *ghoul2, sharedRagDollParams_t *params );
+	void	 (*G2API_AnimateG2Models)(	void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
+	//additional ragdoll options -rww
+	qboolean (*G2API_RagPCJConstraint)(	void *ghoul2, const char *boneName, vec3_t min, vec3_t max ); //override default pcj bonee constraints
+	qboolean (*G2API_RagPCJGradientSpeed)( void *ghoul2, const char *boneName, const float speed );
+	qboolean (*G2API_RagEffectorGoal)(	void *ghoul2, const char *boneName, vec3_t pos );
+	qboolean (*G2API_GetRagBonePos)(	void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles,
+										vec3_t entPos, vec3_t entScale ); //current position of said bone is put into pos (world coordinates)
+	qboolean (*G2API_RagEffectorKick)(	void *ghoul2, const char *boneName, vec3_t velocity ); //add velocity to a rag bone
+	qboolean (*G2API_RagForceSolve)(	void *ghoul2, qboolean force ); //make sure we are actively performing solve/settle routines, if desired
+	qboolean (*G2API_SetBoneIKState)(	void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
+	qboolean (*G2API_IKMove)(			void *ghoul2, int time, sharedIKMoveParams_t *params );
+	qboolean (*G2API_RemoveBone)(		void *ghoul2, const char *boneName, int modelIndex );
+	//rww - Stuff to allow association of ghoul2 instances to entity numbers.
+	//This way, on listen servers when both the client and server are doing
+	//ghoul2 operations, we can copy relevant data off the client instance
+	//directly onto the server instance and slash the transforms and whatnot
+	//right in half.
+	void (*G2_AttachInstanceToEntNum )( void *ghoul2, int entityNum, qboolean server );
+	void (*G2_ClearAttachedInstance )( int entityNum );
+	void (*G2_CleanEntAttachments )( void );
+	void (*G2_OverrideServer )( void *serverInstance );
+
+
+
+	void (*SetActiveSubBSP)( int index );
+	int	 (*CM_RegisterTerrain)( const char *config );
+	void (*RMG_Init)( int terrainID );
+	void (*Bot_UpdateWaypoints)( int wpnum, wpobject_t **wps );
+	void (*Bot_CalculatePaths)( int rmg );
+
+} gImports_t;
 
 /*
 ========================================================================

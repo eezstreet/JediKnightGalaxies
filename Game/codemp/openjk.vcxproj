@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>openjk</ProjectName>
+    <ProjectName>Engine (openjk)</ProjectName>
     <ProjectGuid>{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -22,6 +22,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -35,8 +36,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\build\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\intermediate\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Build\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/OpenJK\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\build\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
@@ -47,7 +48,7 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName).$(PlatformShortName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jkgalaxies.$(PlatformShortName)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName).$(PlatformShortName)</TargetName>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\libs\win32;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)\libs\win32;$(LibraryPath)</LibraryPath>
@@ -55,7 +56,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\libraries;..\libraries\png;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;BOTLIB;_JK2;_JK2MP;ENGINE%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -158,17 +159,6 @@
     <ClInclude Include="libraries\mp3code\port.h" />
     <ClInclude Include="libraries\mp3code\small_header.h" />
     <ClInclude Include="libraries\mp3code\tableawd.h" />
-    <ClInclude Include="libraries\zlib\crc32.h" />
-    <ClInclude Include="libraries\zlib\deflate.h" />
-    <ClInclude Include="libraries\zlib\inffast.h" />
-    <ClInclude Include="libraries\zlib\inffixed.h" />
-    <ClInclude Include="libraries\zlib\inflate.h" />
-    <ClInclude Include="libraries\zlib\inftrees.h" />
-    <ClInclude Include="libraries\zlib\trees.h" />
-    <ClInclude Include="libraries\zlib\zconf.h" />
-    <ClInclude Include="libraries\zlib\zconf.in.h" />
-    <ClInclude Include="libraries\zlib\zlib.h" />
-    <ClInclude Include="libraries\zlib\zutil.h" />
     <ClInclude Include="qcommon\disablewarnings.h" />
     <ClInclude Include="qcommon\platform.h" />
     <ClInclude Include="win32\resource.h" />
@@ -221,6 +211,13 @@
     <ClInclude Include="client\snd_mp3.h" />
     <ClInclude Include="client\snd_music.h" />
     <ClInclude Include="client\snd_public.h" />
+    <ClInclude Include="zlib\crc32.h" />
+    <ClInclude Include="zlib\deflate.h" />
+    <ClInclude Include="zlib\gzguts.h" />
+    <ClInclude Include="zlib\inffast.h" />
+    <ClInclude Include="zlib\inffixed.h" />
+    <ClInclude Include="zlib\inflate.h" />
+    <ClInclude Include="zlib\inftrees.h" />
     <ClInclude Include="zlib\ioapi.h" />
     <ClInclude Include="client\eax\EaxMan.h" />
     <ClInclude Include="client\eax\eax.h" />
@@ -290,6 +287,10 @@
     <ClInclude Include="Ratl\bits_vs.h" />
     <ClInclude Include="Ratl\ratl_common.h" />
     <ClInclude Include="Ratl\vector_vs.h" />
+    <ClInclude Include="zlib\trees.h" />
+    <ClInclude Include="zlib\zconf.h" />
+    <ClInclude Include="zlib\zlib.h" />
+    <ClInclude Include="zlib\zutil.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EaxMan.dll" />
@@ -341,18 +342,6 @@
     <ClCompile Include="libraries\mp3code\uph.c" />
     <ClCompile Include="libraries\mp3code\upsf.c" />
     <ClCompile Include="libraries\mp3code\wavep.c" />
-    <ClCompile Include="libraries\zlib\adler32.c" />
-    <ClCompile Include="libraries\zlib\compress.c" />
-    <ClCompile Include="libraries\zlib\crc32.c" />
-    <ClCompile Include="libraries\zlib\deflate.c" />
-    <ClCompile Include="libraries\zlib\gzio.c" />
-    <ClCompile Include="libraries\zlib\infback.c" />
-    <ClCompile Include="libraries\zlib\inffast.c" />
-    <ClCompile Include="libraries\zlib\inflate.c" />
-    <ClCompile Include="libraries\zlib\inftrees.c" />
-    <ClCompile Include="libraries\zlib\trees.c" />
-    <ClCompile Include="libraries\zlib\uncompr.c" />
-    <ClCompile Include="libraries\zlib\zutil.c" />
     <ClCompile Include="qcommon\CNetProfile.cpp" />
     <ClCompile Include="qcommon\GenericParser2.cpp" />
     <ClCompile Include="qcommon\q_math.cpp" />
@@ -413,6 +402,18 @@
     <ClCompile Include="client\snd_mix.cpp" />
     <ClCompile Include="client\snd_mp3.cpp" />
     <ClCompile Include="client\snd_music.cpp" />
+    <ClCompile Include="zlib\adler32.c" />
+    <ClCompile Include="zlib\compress.c" />
+    <ClCompile Include="zlib\crc32.c" />
+    <ClCompile Include="zlib\deflate.c" />
+    <ClCompile Include="zlib\gzclose.c" />
+    <ClCompile Include="zlib\gzlib.c" />
+    <ClCompile Include="zlib\gzread.c" />
+    <ClCompile Include="zlib\gzwrite.c" />
+    <ClCompile Include="zlib\infback.c" />
+    <ClCompile Include="zlib\inffast.c" />
+    <ClCompile Include="zlib\inflate.c" />
+    <ClCompile Include="zlib\inftrees.c" />
     <ClCompile Include="zlib\ioapi.c" />
     <ClCompile Include="RMG\RM_Area.cpp" />
     <ClCompile Include="RMG\RM_Instance.cpp" />
@@ -464,6 +465,9 @@
     <ClCompile Include="icarus\Sequence.cpp" />
     <ClCompile Include="icarus\Sequencer.cpp" />
     <ClCompile Include="icarus\TaskManager.cpp" />
+    <ClCompile Include="zlib\trees.c" />
+    <ClCompile Include="zlib\uncompr.c" />
+    <ClCompile Include="zlib\zutil.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

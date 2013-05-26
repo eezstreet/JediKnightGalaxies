@@ -36,22 +36,9 @@ Handles byte ordering and avoids alignment errors
 
 int oldsize = 0;
 
-bool g_nOverrideChecked = false;
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides);
-
 void MSG_initHuffman();
 
 void MSG_Init( msg_t *buf, byte *data, int length ) {
-	if (!g_nOverrideChecked)
-	{
-		//Check for netf overrides
-		MSG_CheckNETFPSFOverrides(qfalse);
-		
-		//Then for psf overrides
-		MSG_CheckNETFPSFOverrides(qtrue);
-
-		g_nOverrideChecked = true;
-	}
 
 	if (!msgInit)
 	{
@@ -64,16 +51,6 @@ void MSG_Init( msg_t *buf, byte *data, int length ) {
 }
 
 void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
-	if (!g_nOverrideChecked)
-	{
-		//Check for netf overrides
-		MSG_CheckNETFPSFOverrides(qfalse);
-		
-		//Then for psf overrides
-		MSG_CheckNETFPSFOverrides(qtrue);
-
-		g_nOverrideChecked = true;
-	}
 
 	if (!msgInit)
 	{
@@ -1452,9 +1429,44 @@ netField_t	playerStateFields[] =
 { PSF(heldByClient), 6 },
 { PSF(ragAttach), GENTITYNUM_BITS },
 { PSF(iModelScale), 10 }, //0-1024 (guess it's gotta be increased if we want larger allowable scale.. but 1024% is pretty big)
-{ PSF(hackingBaseTime), 16 } //up to 65536ms, over 10 seconds would just be silly anyway
+{ PSF(hackingBaseTime), 16 }, //up to 65536ms, over 10 seconds would just be silly anyway
 //{ PSF(hyperSpaceAngles[0]), 0 },//only used by vehicle?
 //{ PSF(hyperSpaceAngles[2]), 0 },//only used by vehicle?
+
+{ PSF(weaponVariation), 8 },
+{ PSF(weaponId), 8 },
+{ PSF(shotsRemaining), 8 },
+{ PSF(sprintMustWait), 8 },
+
+{ PSF(saberActionFlags), 16 },
+
+{ PSF(damageTypeFlags), 32 },
+{ PSF(freezeTorsoAnim), 32 },
+{ PSF(freezeLegsAnim), 32 },
+
+{ PSF(firingMode), 8 },
+{ PSF(ironsightsTime), 32 },
+{ PSF(ironsightsDebounceStart), 32 },
+{ PSF(isInSights), 1 },
+
+{ PSF(sprintTime), 32 },
+{ PSF(sprintDebounceTime), 32 },
+{ PSF(isSprinting), 1 },
+
+{ PSF(forcePower), 16 },
+{ PSF(saberSwingSpeed), 0 },
+{ PSF(saberMoveSwingSpeed), 0 },
+
+{ PSF(saberPommel[0]), 16 },
+{ PSF(saberPommel[1]), 16 },
+{ PSF(saberShaft[0]), 16 },
+{ PSF(saberShaft[1]), 16 },
+{ PSF(saberEmitter[0]), 16 },
+{ PSF(saberEmitter[1]), 16 },
+{ PSF(saberCrystal[0]), 16 },
+{ PSF(saberCrystal[1]), 16 },
+
+{ PSF(blockPoints), 16 }
 };
 
 netField_t	pilotPlayerStateFields[] = 
@@ -1590,7 +1602,7 @@ netField_t	pilotPlayerStateFields[] =
 { PSF(heldByClient), 6 },
 { PSF(ragAttach), GENTITYNUM_BITS },
 { PSF(iModelScale), 10 }, //0-1024 (guess it's gotta be increased if we want larger allowable scale.. but 1024% is pretty big)
-{ PSF(hackingBaseTime), 16 } //up to 65536ms, over 10 seconds would just be silly anyway
+{ PSF(hackingBaseTime), 16 }, //up to 65536ms, over 10 seconds would just be silly anyway
 //===NEVER SEND THESE, ONLY USED BY VEHICLES==============================================================
 
 //{ PSF(vehOrientation[0]), 0 },
@@ -1605,6 +1617,34 @@ netField_t	pilotPlayerStateFields[] =
 //{ PSF(hyperSpaceAngles[1]), 0 },//only used by vehicle?
 //{ PSF(hyperSpaceAngles[0]), 0 },//only used by vehicle?
 //{ PSF(hyperSpaceAngles[2]), 0 },//only used by vehicle?
+
+{ PSF(weaponVariation), 8 },
+{ PSF(weaponId), 8 },
+{ PSF(shotsRemaining), 8 },
+
+{ PSF(damageTypeFlags), 32 },
+{ PSF(freezeTorsoAnim), 32 },
+{ PSF(freezeLegsAnim), 32 },
+
+{ PSF(firingMode), 8 },
+{ PSF(ironsightsTime), 32 },
+{ PSF(ironsightsDebounceStart), 32 },
+{ PSF(isInSights), 1 },
+
+{ PSF(forcePower), 16 },
+{ PSF(saberSwingSpeed), 0 },
+{ PSF(saberMoveSwingSpeed), 0 },
+
+{ PSF(saberPommel[0]), 16 },
+{ PSF(saberPommel[1]), 16 },
+{ PSF(saberShaft[0]), 16 },
+{ PSF(saberShaft[1]), 16 },
+{ PSF(saberEmitter[0]), 16 },
+{ PSF(saberEmitter[1]), 16 },
+{ PSF(saberCrystal[0]), 16 },
+{ PSF(saberCrystal[1]), 16 },
+
+{ PSF(blockPoints), 16 }
 };
 
 netField_t	vehPlayerStateFields[] = 
@@ -1857,200 +1897,6 @@ struct bitStorage_s
 static bitStorage_t		*g_netfBitStorage = NULL;
 static bitStorage_t		*g_psfBitStorage = NULL;
 
-//rww - Check the overrides files to see if the mod wants anything changed
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides)
-{
-	char overrideFile[4096];
-	char entryName[4096];
-	char bits[4096];
-	char *fileName;
-	int ibits;
-	int i = 0;
-	int j;
-	int len;
-	int numFields;
-	fileHandle_t f;
-	bitStorage_t **bitStorage;
-
-	if (psfOverrides)
-	{ //do PSF overrides instead of NETF
-		fileName = "psf_overrides.txt";
-		bitStorage = &g_psfBitStorage;
-		numFields = sizeof(playerStateFields)/sizeof(playerStateFields[0]);
-	}
-	else
-	{
-		fileName = "netf_overrides.txt";
-		bitStorage = &g_netfBitStorage;
-		numFields = sizeof(entityStateFields)/sizeof(entityStateFields[0]);
-	}
-
-	if (*bitStorage)
-	{ //if we have saved off the defaults before we want to stuff them all back in now
-		bitStorage_t *restore = *bitStorage;
-
-		while (i < numFields)
-		{
-			assert(restore);
-
-			if (psfOverrides)
-			{
-				playerStateFields[i].bits = restore->bits;
-			}
-			else
-			{
-				entityStateFields[i].bits = restore->bits;
-			}
-
-			i++;
-			restore = restore->next;
-		}
-	}
-
-	len = FS_FOpenFileRead(va("ext_data/MP/%s", fileName), &f, qfalse);
-
-	if (!f)
-	{ //silently exit since this file is not needed to proceed.
-		return;
-	}
-
-	if (len >= 4096)
-	{
-		Com_Printf("WARNING: %s is >= 4096 bytes and is being ignored\n", fileName);
-		FS_FCloseFile(f);
-		return;
-	}
-
-	//Get contents of the file
-	FS_Read(overrideFile, len, f);
-	FS_FCloseFile(f);
-
-	//because FS_Read does not do this for us.
-	overrideFile[len] = 0;
-
-	//If we haven't saved off the initial stuff yet then stuff it all into
-	//a list.
-	if (!*bitStorage)
-	{
-		i = 0;
-
-		while (i < numFields)
-		{
-			//Alloc memory for this new ptr
-			*bitStorage = (bitStorage_t *)Z_Malloc(sizeof(bitStorage_t), TAG_GENERAL, qtrue);
-
-			if (psfOverrides)
-			{
-				(*bitStorage)->bits = playerStateFields[i].bits;
-			}
-			else
-			{
-				(*bitStorage)->bits = entityStateFields[i].bits;
-			}
-
-			//Point to the ->next of the existing current ptr
-			bitStorage = &(*bitStorage)->next;
-			i++;
-		}
-	}
-
-	i = 0;
-	//Now parse through. Lines beginning with ; are disabled.
-	while (overrideFile[i])
-	{
-		if (overrideFile[i] == ';')
-		{ //parse to end of the line
-			while (overrideFile[i] != '\n')
-			{
-				i++;
-			}
-		}
-
-		if (overrideFile[i] != ';' &&
-			overrideFile[i] != '\n' &&
-			overrideFile[i] != '\r')
-		{ //on a valid char I guess, parse it
-			j = 0;
-
-			while (overrideFile[i] && overrideFile[i] != ',')
-			{
-				entryName[j] = overrideFile[i];
-				j++;
-				i++;
-			}
-			entryName[j] = 0;
-
-			if (!overrideFile[i])
-			{ //just give up, this shouldn't happen
-				Com_Printf("WARNING: Parsing error for %s\n", fileName);
-				return;
-			}
-
-			while (overrideFile[i] == ',' || overrideFile[i] == ' ')
-			{ //parse to the start of the value
-				i++;
-			}
-
-			j = 0;
-			while (overrideFile[i] != '\n' && overrideFile[i] != '\r')
-			{ //now read the value in
-				bits[j] = overrideFile[i];
-				j++;
-				i++;
-			}
-			bits[j] = 0;
-
-			if (bits[0])
-			{
-				if (!strcmp(bits, "GENTITYNUM_BITS"))
-				{ //special case
-					ibits = GENTITYNUM_BITS;
-				}
-				else
-				{
-	                ibits = atoi(bits);
-				}
-
-				j = 0;
-
-				//Now go through all the fields and see if we can find a match
-				while (j < numFields)
-				{
-					if (psfOverrides)
-					{ //check psf fields
-						if (!strcmp(playerStateFields[j].name, entryName))
-						{ //found it, set the bits
-							playerStateFields[j].bits = ibits;
-							break;
-						}
-					}
-					else
-					{ //otherwise check netf fields
-						if (!strcmp(entityStateFields[j].name, entryName))
-						{ //found it, set the bits
-							entityStateFields[j].bits = ibits;
-							break;
-						}
-					}
-					j++;
-				}
-
-				if (j == numFields)
-				{ //failed to find the value
-					Com_Printf("WARNING: Value '%s' from %s is not valid\n", entryName, fileName);
-				}
-			}
-			else
-			{ //also should not happen
-				Com_Printf("WARNING: Parsing error for %s\n", fileName);
-				return;
-			}
-		}
-
-		i++;
-	}
-}
-
 //MAKE SURE THIS MATCHES THE ENUM IN BG_PUBLIC.H!!!
 //This is in caps, because it is important.
 #define STAT_WEAPONS 4
@@ -2070,7 +1916,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	playerState_t	dummy;
 	int				statsbits;
 	int				persistantbits;
-	int				ammobits;
 	int				powerupbits;
 	int				numFields;
 	int				c;

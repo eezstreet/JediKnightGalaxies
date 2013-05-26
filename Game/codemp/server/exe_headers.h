@@ -2,7 +2,7 @@
 //	but without exposing too many extra protos, so for now (while I experiment)...
 //
 
-#include "../qcommon/q_shared.h"
+#include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 
 #pragma hdrstop

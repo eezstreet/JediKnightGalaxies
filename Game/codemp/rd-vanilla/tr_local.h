@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/qfiles.h"
+#include "qcommon/qfiles.h"
 #include "renderer/tr_public.h"
 
 #ifdef _WIN32

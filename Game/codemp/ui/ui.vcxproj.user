@@ -6,6 +6,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommandArguments>+set fs_game "JKG" +set fs_cdpath "C:/PROGRA~2/LUCASA~1/STARWA~1/Gamedata" +set password "fuckingpotatoes" +connect localhost:29070</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>../Debug/DLLs</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>../Debug/Build</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 </Project>

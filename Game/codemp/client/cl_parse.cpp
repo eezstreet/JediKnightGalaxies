@@ -367,10 +367,6 @@ void CL_ParseSetGame( msg_t *msg )
 
 	//Update the search path for the mod dir
 	FS_UpdateGamedir();
-
-	//Now update the overrides manually
-	MSG_CheckNETFPSFOverrides(qfalse);
-	MSG_CheckNETFPSFOverrides(qtrue);
 }
 
 

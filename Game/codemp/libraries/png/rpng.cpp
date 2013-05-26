@@ -2,7 +2,7 @@
 
 // leave this as first line for PCH reasons...
 //
-#include "qcommon/q_shared.h"
+#include "game/q_shared.h"
 #include "qcommon/qcommon.h"
 
 #include "zlib/zlib.h"

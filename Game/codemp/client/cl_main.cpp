@@ -1087,7 +1087,6 @@ we also have to reload the UI and CGame because the renderer
 doesn't know what graphics to reload
 =================
 */
-extern bool g_nOverrideChecked;
 void CL_Vid_Restart_f( void ) {
 	// Settings may have changed so stop recording now
 	if( CL_VideoRecording( ) ) {
@@ -1096,11 +1095,6 @@ void CL_Vid_Restart_f( void ) {
 
 	if(clc.demorecording)
 		CL_StopRecord_f();
-
-	//rww - sort of nasty, but when a user selects a mod
-	//from the menu all it does is a vid_restart, so we
-	//have to check for new net overrides for the mod then.
-	g_nOverrideChecked = false;
 
 	// don't let them loop during the restart
 	S_StopAllSounds();

@@ -11,7 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>openjkded</ProjectName>
+    <ProjectName>Dedicated Server (openjkded)</ProjectName>
+    <ProjectGuid>{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -40,8 +41,8 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\build\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\build\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Build\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/OpenJKDed\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
@@ -49,7 +50,7 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName).$(PlatformShortName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jkgalaxiesded.$(PlatformShortName)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName).$(PlatformShortName)</TargetName>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\libs\win32;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)\libs\win32;$(LibraryPath)</LibraryPath>
@@ -100,7 +101,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DEDICATED;_JK2;BOTLIB;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;DEDICATED;_JK2;BOTLIB;_WINDOWS;ENGINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
@@ -111,17 +112,18 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>.;..;../../../Game/codemp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;../libraries;../libraries/libpng;../libraries/png;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;Winmm.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>libs/win32</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>libraries/zlib</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <TypeLibraryName>$(IntDir)$(ProjectName).tlb</TypeLibraryName>
@@ -132,6 +134,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="libraries\libpng\png.h" />
+    <ClInclude Include="libraries\libpng\pngconf.h" />
+    <ClInclude Include="libraries\libpng\pngstruct.h" />
     <ClInclude Include="qcommon\GenericParser2.h" />
     <ClInclude Include="qcommon\MiniHeap.h" />
     <ClInclude Include="qcommon\RoffSystem.h" />
@@ -161,10 +166,6 @@
     <ClInclude Include="ghoul2\ghoul2_shared.h" />
     <ClInclude Include="server\server.h" />
     <ClInclude Include="server\NPCNav\navigator.h" />
-    <ClInclude Include="png\png.h" />
-    <ClInclude Include="libpng\png.h" />
-    <ClInclude Include="libpng\pngconf.h" />
-    <ClInclude Include="libpng\pngstruct.h" />
     <ClInclude Include="botlib\aasfile.h" />
     <ClInclude Include="botlib\be_aas_bsp.h" />
     <ClInclude Include="botlib\be_aas_cluster.h" />
@@ -256,6 +257,22 @@
     <ClInclude Include="zlib\zutil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="libraries\libpng\png.c" />
+    <ClCompile Include="libraries\libpng\pngerror.c" />
+    <ClCompile Include="libraries\libpng\pngget.c" />
+    <ClCompile Include="libraries\libpng\pngmem.c" />
+    <ClCompile Include="libraries\libpng\pngpread.c" />
+    <ClCompile Include="libraries\libpng\pngread.c" />
+    <ClCompile Include="libraries\libpng\pngrio.c" />
+    <ClCompile Include="libraries\libpng\pngrtran.c" />
+    <ClCompile Include="libraries\libpng\pngrutil.c" />
+    <ClCompile Include="libraries\libpng\pngset.c" />
+    <ClCompile Include="libraries\libpng\pngtrans.c" />
+    <ClCompile Include="libraries\libpng\pngwio.c" />
+    <ClCompile Include="libraries\libpng\pngwrite.c" />
+    <ClCompile Include="libraries\libpng\pngwtran.c" />
+    <ClCompile Include="libraries\libpng\pngwutil.c" />
+    <ClCompile Include="libraries\png\rpng.cpp" />
     <ClCompile Include="qcommon\RoffSystem.cpp" />
     <ClCompile Include="qcommon\cm_draw.cpp" />
     <ClCompile Include="qcommon\cm_load.cpp" />
@@ -357,22 +374,6 @@
     <ClCompile Include="rd-dedicated\tr_mesh.cpp" />
     <ClCompile Include="rd-dedicated\tr_model.cpp" />
     <ClCompile Include="rd-dedicated\tr_shader.cpp" />
-    <ClCompile Include="png\rpng.cpp" />
-    <ClCompile Include="libpng\png.c" />
-    <ClCompile Include="libpng\pngerror.c" />
-    <ClCompile Include="libpng\pngget.c" />
-    <ClCompile Include="libpng\pngmem.c" />
-    <ClCompile Include="libpng\pngpread.c" />
-    <ClCompile Include="libpng\pngread.c" />
-    <ClCompile Include="libpng\pngrio.c" />
-    <ClCompile Include="libpng\pngrtran.c" />
-    <ClCompile Include="libpng\pngrutil.c" />
-    <ClCompile Include="libpng\pngset.c" />
-    <ClCompile Include="libpng\pngtrans.c" />
-    <ClCompile Include="libpng\pngwio.c" />
-    <ClCompile Include="libpng\pngwrite.c" />
-    <ClCompile Include="libpng\pngwtran.c" />
-    <ClCompile Include="libpng\pngwutil.c" />
     <ClCompile Include="RMG\rm_area.cpp" />
     <ClCompile Include="RMG\rm_instance.cpp" />
     <ClCompile Include="RMG\rm_instance_bsp.cpp" />

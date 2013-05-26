@@ -10,7 +10,7 @@
 #define BUILDNUM_GAME 60
 #define BUILDNUM_UI 11
 #define BUILDNUM_AUX 3
-#define BUILDNUM_AUXSV 3
+#define BUILDNUM_AUXSV 4
 // Turning on INCREMENT_BUILD_NUMBERS increases the build number with each compile..be careful, as it will increment
 // for EVERY build, regardless of whether they are all up to date. This is pretty volatile stuff.
 
