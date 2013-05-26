@@ -49,9 +49,6 @@ struct {
 	weaponData_t *(* GetWeaponDatas)(unsigned char weapon, unsigned char variation);
 	int (* GetRedTeam)(void);
 	int (* GetBlueTeam)(void);
-	networkState_t *(* GetNetworkState)(void);
-	extraState_t *(* GetExtraState)(int);
-	extraState_t *(* GetOldExtraState)(int);
 } cg_crossover;
 
 static void CO_SysCall_UI() {
@@ -228,21 +225,6 @@ static void CO_InventoryAttachToACI ( int itemNum, int slot, int attach )
     }
 }
 
-static networkState_t *CO_GetNetworkState(void)
-{
-	return &cg.networkState;
-}
-
-static extraState_t *CO_GetExtraState(int entityNum)
-{
-	return &cg_entities[entityNum].extraState;
-}
-
-static extraState_t *CO_GetOldExtraState(int entityNum)
-{
-	return &cg_entities[entityNum].oldExtraState;
-}
-
 void CO_InitCrossover() {
 	cg_crossover.SendClientCommand = CO_SendClientCommand;
 	cg_crossover.EscapeTrapped = CO_EscapeTrapped;
@@ -252,9 +234,6 @@ void CO_InitCrossover() {
 	cg_crossover.GetWeaponDatas = GetWeaponDatas;
 	cg_crossover.GetRedTeam = CO_GetRedTeam;
 	cg_crossover.GetBlueTeam = CO_GetBlueTeam;
-	cg_crossover.GetNetworkState = CO_GetNetworkState;
-	cg_crossover.GetExtraState = CO_GetExtraState;
-	cg_crossover.GetOldExtraState = CO_GetOldExtraState;
 
 	// Transmit this structure to the auxlib so UI can use it
 	if (gl_cg_imports) {	// This should never be NULL, but just in case

@@ -3778,7 +3778,6 @@ void CG_AddPacketEntities( qboolean isPortal ) {
 	int					num;
 	centity_t			*cent;
 	playerState_t		*ps;
-	networkState_t		*ns;
 
 #ifdef __AUTOWAYPOINT__
 	DrawWaypoints();
@@ -3831,11 +3830,9 @@ void CG_AddPacketEntities( qboolean isPortal ) {
 
 	// generate and add the entity from the playerstate
 	ps = &cg.predictedPlayerState;
-	ns = &cg.networkState;
 
 	CG_CheckPlayerG2Weapons(ps, &cg_entities[cg.predictedPlayerState.clientNum]);
 	BG_PlayerStateToEntityState( ps, &cg_entities[cg.predictedPlayerState.clientNum].currentState, qfalse );
-	BG_NetworkStateToExtraState( ns, &cg_entities[cg.predictedPlayerState.clientNum].extraState );
 	
 	if (cg.predictedPlayerState.m_iVehicleNum)
 	{ //add the vehicle I'm riding first

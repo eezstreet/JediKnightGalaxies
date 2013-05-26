@@ -41,8 +41,6 @@ struct {
 	void (* InventoryNotify)(int msg);
 	void (* ShopNotify)(int msg);
 	weaponData_t *(* GetWeaponDatas)(unsigned char weapon, unsigned char variation);
-	extraState_t *(* GetExtraState)(int);
-	extraState_t *(* GetOldExtraState)(int);
 } ui_crossover;
 
 struct {
@@ -55,9 +53,6 @@ struct {
 	weaponData_t *(* GetWeaponDatas)(unsigned char weapon, unsigned char variation);
 	int (* GetRedTeam)(void);
 	int (* GetBlueTeam)(void);
-	networkState_t *(* GetNetworkState)(void);
-	extraState_t *(* GetExtraState)(int);
-	extraState_t *(* GetOldExtraState)(int);
 } * cg_crossover;
 
 void CO_SysCall_UI() {
@@ -112,45 +107,6 @@ int CO_GetBlueTeam(void)
 		}
 	}
 	return -1;
-}
-
-networkState_t *CO_GetNetworkState(void)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			if(cg_crossover->GetNetworkState)
-			{
-				return cg_crossover->GetNetworkState();
-			}
-		}
-	}
-	return (networkState_t *)NULL;
-}
-
-extraState_t *CO_GetExtraState(int num)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			return cg_crossover->GetExtraState(num);
-		}
-	}
-	return (extraState_t *)NULL;
-}
-
-extraState_t *CO_GetOldExtraState(int num)
-{
-	if (gl_ui_imports) {
-		cg_crossover = gl_ui_imports->GL_GetCrossover();
-		if(cg_crossover)
-		{
-			return cg_crossover->GetOldExtraState(num);
-		}
-	}
-	return (extraState_t *)-1;
 }
 
 void CO_SendClientCommand(const char *cmd) {
@@ -258,8 +214,6 @@ void CO_InitCrossover() {
 	ui_crossover.InventoryNotify = JKG_Inventory_UpdateNotify;
 	ui_crossover.ShopNotify = JKG_Shop_UpdateNotify;
 	ui_crossover.GetWeaponDatas = CO_GetWeaponDatas;
-	ui_crossover.GetExtraState = CO_GetExtraState;
-	ui_crossover.GetOldExtraState = CO_GetOldExtraState;
 
 	// Transmit this structure to the auxlib so UI can use it
 	if (gl_ui_imports) {	// This should never be NULL, but just in case

@@ -387,8 +387,8 @@ void JKG_Crystal_f ( gentity_t *ent, int saberNum )
 		}
 		else
 		{
-			ent->x.saberCrystal[saberNum] = argNum;
-			ent->client->ns.saberCrystal[saberNum] = argNum;
+			ent->s.saberCrystal[saberNum] = argNum;
+			ent->client->ps.saberCrystal[saberNum] = argNum;
 		}
 	}
 	else
@@ -400,8 +400,8 @@ void JKG_Crystal_f ( gentity_t *ent, int saberNum )
 		}
 		else
 		{
-			ent->x.saberCrystal[saberNum] = saber->crystalID;
-			ent->client->ns.saberCrystal[saberNum] = saber->crystalID;
+			ent->s.saberCrystal[saberNum] = saber->crystalID;
+			ent->client->ps.saberCrystal[saberNum] = saber->crystalID;
 		}
 	}
 }
@@ -3490,7 +3490,7 @@ void Cmd_Reload_f( gentity_t *ent ) {
 	}
 	
 	// Can't reload while sprinting
-	if ( BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, &ent->client->ns, qfalse) )
+	if ( BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, qfalse) )
 	{
 	    return;
 	}
@@ -3552,7 +3552,7 @@ void Cmd_Reload_f( gentity_t *ent ) {
 
 	//Take us out of ironsights
 	//ent->client->ns.ironsightsTime &= ~IRONSIGHTS_MSB;
-	ent->client->ns.ironsightsDebounceStart = level.time + ent->client->ps.weaponTime;
+	ent->client->ps.ironsightsDebounceStart = level.time + ent->client->ps.weaponTime;
 }
 
 

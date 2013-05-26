@@ -57,7 +57,7 @@ extern int PM_AnimLength( int index, animNumber_t anim );
 
 #include "../namespace_begin.h"
 
-extern void BG_SetAnim(playerState_t *ps, networkState_t *ns, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
+extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
 extern int BG_GetTime(void);
 extern qboolean BG_SabersOff( playerState_t *ps );
 #endif
@@ -518,7 +518,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 			iFlags = SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD;
 			
 #ifdef _JK2MP
-			BG_SetAnim(pVeh->m_pPilot->playerState, NULL, bgAllAnims[pVeh->m_pPilot->localAnimIndex].anims,
+			BG_SetAnim(pVeh->m_pPilot->playerState, bgAllAnims[pVeh->m_pPilot->localAnimIndex].anims,
 				SETANIM_BOTH, Anim, iFlags, iBlend);
 #else
 			NPC_SetAnim( pVeh->m_pPilot, SETANIM_BOTH, Anim, iFlags, iBlend );
@@ -859,7 +859,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 	{
 		pVeh->m_pPilot->playerState->legsTimer = BG_AnimLength(pVeh->m_pPilot->localAnimIndex, Anim);
 	}
-	BG_SetAnim(pVeh->m_pPilot->playerState, NULL, bgAllAnims[pVeh->m_pPilot->localAnimIndex].anims,
+	BG_SetAnim(pVeh->m_pPilot->playerState, bgAllAnims[pVeh->m_pPilot->localAnimIndex].anims,
 		SETANIM_BOTH, Anim, iFlags|SETANIM_FLAG_HOLD, iBlend);
 #else
 	NPC_SetAnim( pVeh->m_pPilot, SETANIM_BOTH, Anim, iFlags, iBlend );

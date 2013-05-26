@@ -1,7 +1,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // q_shared.c -- stateless support routines that are included in each code dll
-#include "game/q_shared.h"
+#include "../game/q_shared.h"
 
 
 #include "../game/jkg_gangwars.h"

@@ -11,7 +11,7 @@ USER INTERFACE MAIN
 // use this to get a demo build without an explicit demo build, i.e. to get the demo ui files to build
 //#define PRE_RELEASE_TADEMO
 
-#include "ghoul2/G2.h"
+#include "../ghoul2/G2.h"
 #include "ui_local.h"
 #include "qcommon/qfiles.h"
 #include "qcommon/game_version.h"
@@ -3303,9 +3303,9 @@ static void UI_Version(rectDef_t *rect, float scale, vec4_t color, int iMenuFont
 {
 	int width;
 
-	width = uiInfo.uiDC.textWidth(Q3_VERSION, scale, iMenuFont);
+	width = uiInfo.uiDC.textWidth(JK_VERSION, scale, iMenuFont);
 
-	uiInfo.uiDC.drawText(rect->x - width, rect->y, scale, color, Q3_VERSION, 0, 0, 0, iMenuFont);
+	uiInfo.uiDC.drawText(rect->x - width, rect->y, scale, color, JK_VERSION, 0, 0, 0, iMenuFont);
 }
 
 /*
@@ -9104,7 +9104,7 @@ nextSearch:
 	for (j=0; j<numfiles && uiInfo.forceConfigCount < MAX_FORCE_CONFIGS;j++,fileptr+=filelen+1)
 	{
 		filelen = strlen(fileptr);
-		COM_StripExtension(fileptr, configname);
+		COM_StripExtension(fileptr, configname, sizeof(configname));
 
 		if (lightSearch)
 		{
@@ -9232,7 +9232,7 @@ void UI_BuildQ3Model_List( void )
 
 			filelen = strlen(fileptr);
 
-			COM_StripExtension(fileptr,skinname);
+			COM_StripExtension(fileptr,skinname, sizeof(skinname));
 
 			skinLen = strlen(skinname);
 			k = 0;
@@ -9439,7 +9439,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 				}
 
 				filelen = strlen(fileptr);
-				COM_StripExtension(fileptr,skinname);
+				COM_StripExtension(fileptr,skinname, sizeof(skinname));
 
 				if (bIsImageFile(dirptr, skinname))
 				{ //if it exists

@@ -66,12 +66,12 @@ qboolean JKG_ShouldDisarm(gentity_t *defender, gentity_t *attacker)
 		return qfalse; // No, because the person isn't projectile blocking
 	}
 
-	if( defender->client->ns.blockPoints < 40 )
+	if( defender->client->ps.blockPoints < 40 )
 	{
 		return qfalse; // Defender has crap BP
 	}
 
-	if( attacker->client->ns.forcePower >= 35 )
+	if( attacker->client->ps.forcePower >= 35 )
 	{
 		return qfalse; // Attacker has too much force power to be a candidate for this
 	}
@@ -2281,7 +2281,7 @@ static GAME_INLINE int G_GetAttackDamage(gentity_t *self, int minDmg, int maxDmg
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor,
 		self->client->ps.brokenLimbs, SaberStances[self->client->ps.fd.saberAnimLevel].moves[self->client->ps.saberMove].animspeedscale, 
-		self->client->ns.saberSwingSpeed, self->client->ps.saberMove);
+		self->client->ps.saberSwingSpeed, self->client->ps.saberMove);
 	speedDif = attackAnimLength - (attackAnimLength * animSpeedFactor);
 	attackAnimLength += speedDif;
 	peakPoint = attackAnimLength;
@@ -2332,7 +2332,7 @@ static GAME_INLINE float G_GetAnimPoint(gentity_t *self)
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor,
 		self->client->ps.brokenLimbs, SaberStances[self->client->ps.fd.saberAnimLevel].moves[self->client->ps.saberMove].animspeedscale, 
-		self->client->ns.saberSwingSpeed, self->client->ps.saberMove);
+		self->client->ps.saberSwingSpeed, self->client->ps.saberMove);
 	speedDif = attackAnimLength - (attackAnimLength * animSpeedFactor);
 	attackAnimLength += speedDif;
 
@@ -4981,7 +4981,7 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 			BPneeded = JKG_GetBPNeededForBlock(&g_entities[tr.entityNum], self->client->ps.saberMove, self->client->ps.fd.saberAnimLevel);
 
 			// TODO: make this based off of style and all that jazz...
-			if(otherOwner->client->ns.blockPoints >= BPneeded)
+			if(otherOwner->client->ps.blockPoints >= BPneeded)
 			{
 				saberDoClashEffect = qtrue;
 				VectorCopy( tr.endpos, saberClashPos );
@@ -4990,11 +4990,11 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 				if(otherOwner->client->saberSaberBlockDebounce < level.time)
 				{
 					// BP grace time
-					otherOwner->client->ns.blockPoints -= BPneeded;
-					if(otherOwner->client->ns.blockPoints < 0)
+					otherOwner->client->ps.blockPoints -= BPneeded;
+					if(otherOwner->client->ps.blockPoints < 0)
 					{
 						// rollover warning
-						otherOwner->client->ns.blockPoints = 0;
+						otherOwner->client->ps.blockPoints = 0;
 					}
 					// Don't recreate MB2's inconsistent method of draining BP, aka, drain a static amount per swing
 					otherOwner->client->saberSaberBlockDebounce = level.time + self->client->ps.torsoTimer - 50; // like a 50ms grace period
@@ -5466,7 +5466,7 @@ blockStuff:
 
 			otherOwner->client->ps.saberMove = BG_BrokenParryForParry( otherOwner->client->ps.saberMove );
 			otherOwner->client->ps.saberBlocked = BLOCKED_PARRY_BROKEN;
-			otherOwner->client->ns.saberSwingSpeed = 1.0f;
+			otherOwner->client->ps.saberSwingSpeed = 1.0f;
 
 			didDefense = qtrue;
 		}
@@ -5633,7 +5633,7 @@ blockStuff:
 							}
 						}
 					}
-					if(otherOwner->client->ns.blockPoints < 30 && Q_irand(1,2) == 1)	// quick, small change, since stagger barely ever happened anyway --eez
+					if(otherOwner->client->ps.blockPoints < 30 && Q_irand(1,2) == 1)	// quick, small change, since stagger barely ever happened anyway --eez
 					{
 						// stagger him
 						crushTheParry = qtrue;
@@ -5728,7 +5728,7 @@ blockStuff:
 				  //But, one of the above cases says we actually can't. So we will be smashed into a broken parry instead.
 					otherOwner->client->ps.saberMove = BG_BrokenParryForParry( G_GetParryForBlock(otherOwner->client->ps.saberBlocked) );
 					otherOwner->client->ps.saberBlocked = BLOCKED_PARRY_BROKEN;
-					otherOwner->client->ns.saberSwingSpeed = 1.0f;
+					otherOwner->client->ps.saberSwingSpeed = 1.0f;
 
 					otherOwner->client->ps.saberEventFlags &= ~SEF_PARRIED;
 					self->client->ps.saberEventFlags &= ~SEF_BLOCKED;
@@ -10026,13 +10026,13 @@ qboolean WP_SaberBlockNonRandom( gentity_t *self, gentity_t *other, vec3_t hitlo
 	else
 	{
 		int BPneeded = JKG_GetBPNeededForBlock( self, other->client->ps.saberMove, other->client->ps.fd.saberAnimLevel );
-		if(self->client->ns.blockPoints >= BPneeded)
+		if(self->client->ps.blockPoints >= BPneeded)
 		{
 			/*if(BPneeded < 15)
 			{
 				other->client->ns.forcePower -= BPneeded-15;
 			}*/
-			self->client->ns.blockPoints -= BPneeded;
+			self->client->ps.blockPoints -= BPneeded;
 			self->client->ps.saberBlocked = desiredBlocked;
 			return qtrue;
 		}
@@ -10319,14 +10319,14 @@ qboolean WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, qb
 				}
 			}
 
-			if(self->client->ns.forcePower < forcePowerUsed)
+			if(self->client->ps.forcePower < forcePowerUsed)
 			{
-				self->client->ns.forcePower = 0;
+				self->client->ps.forcePower = 0;
 				return qfalse;
 			}
 			else
 			{
-				self->client->ns.forcePower -= forcePowerUsed;
+				self->client->ps.forcePower -= forcePowerUsed;
 			}
 			return qtrue;
 		}

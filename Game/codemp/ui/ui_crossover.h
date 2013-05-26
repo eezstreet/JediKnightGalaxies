@@ -13,9 +13,6 @@ weaponData_t *GetWeaponDatas ( int weapon, int variation );
 qboolean CO_IsWeaponInACI(int weaponId);
 int CO_GetRedTeam(void);
 int CO_GetBlueTeam(void);
-networkState_t	*CO_GetNetworkState(void);
-extraState_t	*CO_GetExtraState(int clientNum);
-extraState_t	*CO_GetOldExtraState(int clientNum);
 
 void CO_SysCall_UI();
 void CO_SysCall_CG();

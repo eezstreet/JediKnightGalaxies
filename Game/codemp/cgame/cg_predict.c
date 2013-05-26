@@ -1083,7 +1083,6 @@ void CG_PredictPlayerState( void ) {
 
 	// prepare for pmove
 	cg_pmove.ps = &cg.predictedPlayerState;
-	cg_pmove.ns = &cg.networkState;
 	cg_pmove.trace = CG_Trace;
 	cg_pmove.pointcontents = CG_PointContents;
 
@@ -1507,7 +1506,6 @@ void CG_PredictPlayerState( void ) {
 				cg_vehPmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
 				cg_vehPmove.pmove_fixed = pmove_fixed.integer;
 				cg_vehPmove.pmove_msec = pmove_msec.integer;
-				cg_vehPmove.ns = &cg.networkState;
 
 				cg_entities[cg.predictedPlayerState.clientNum].playerState = &cg.predictedPlayerState;
 				veh->playerState = &cg.predictedVehicleState;

@@ -7,7 +7,6 @@
 // GLua include
 #include "../GLua/glua.h"
 #include "jkg_admin.h"
-#include "g_engine.h"
 #include "jkg_bans.h"
 #include "jkg_damagetypes.h"
 
@@ -391,9 +390,9 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		other->client->ps.stats[STAT_HEALTH] = other->health = 200;
 	}
 
-	if (other->client->ns.forcePower < 100)
+	if (other->client->ps.forcePower < 100)
 	{
-		other->client->ns.forcePower = 100;
+		other->client->ps.forcePower = 100;
 	}
 
 	while (i < NUM_FORCE_POWERS)
@@ -2231,10 +2230,11 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	//value = Info_ValueForKey (userinfo, "ip");
 	//Q_strncpyz(TmpIP, value, sizeof(TmpIP)); // Used later
 
-	if ( ( banreason = JKG_Bans_IsBanned( svs->clients[clientNum].netchan.remoteAddress ) ) != NULL ) { /*G_FilterPacket( value )*/
+	// FIXME: Need to replace the ban code
+	/*if ( ( banreason = JKG_Bans_IsBanned( svs->clients[clientNum].netchan.remoteAddress ) ) != NULL ) {
 		return banreason;
 		//return "You are banned from this server.";
-	}
+	}*/
 	if (level.serverInit) {
 		// We're on the init map, deny all connections
 		return "Server is initializing, please wait...";
@@ -2303,7 +2303,8 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		client->sess.noq3fill = 1;
 	}
 
-	Q_strncpyz(client->sess.IP, NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress), sizeof(client->sess.IP));
+	// FIXME: Need to replace this
+	//Q_strncpyz(client->sess.IP, NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress), sizeof(client->sess.IP));
 
 	if( isBot ) {
 		ent->r.svFlags |= SVF_BOT;
@@ -2337,7 +2338,9 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	}
 
 	// get and distribute relevent paramters
-	G_LogPrintf( "ClientConnect: %i. IP: %s\n", clientNum, isBot ? "Bot" : NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress) );
+	// FIXME:
+	//G_LogPrintf( "ClientConnect: %i. IP: %s\n", clientNum, isBot ? "Bot" : NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress) );
+	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 	ClientUserinfoChanged( clientNum );
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
@@ -2810,7 +2813,7 @@ tryTorso:
 
 		BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, f, &animSpeedScale,
 			self->client->ps.brokenLimbs, SaberStances[self->client->ps.fd.saberAnimLevel].moves[self->client->ps.saberMove].animspeedscale, 
-			self->client->ns.saberSwingSpeed, self->client->ps.saberMove);
+			self->client->ps.saberSwingSpeed, self->client->ps.saberMove);
 
 		if( self->client->ps.weaponstate == WEAPON_RELOADING )
 		{
@@ -3372,7 +3375,7 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	client->ps.cloakFuel = 100;
 
 	// start out with full block points --eez
-	client->ns.blockPoints = 100;
+	client->ps.blockPoints = 100;
 
 	client->pers = saved;
 	client->sess = savedSess;
@@ -3814,7 +3817,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	// positively link the client, even if the command times are weird
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-		BG_NetworkStateToExtraState( &client->ns, &ent->x );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		trap_LinkEntity( ent );
 	}
@@ -3874,7 +3876,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-	BG_NetworkStateToExtraState( &client->ns, &ent->x );
 
 	//rww - make sure client has a valid icarus instance
 	trap_ICARUS_FreeEnt( ent );

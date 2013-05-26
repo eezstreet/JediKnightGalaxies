@@ -34,9 +34,9 @@
 
 #define MAX_TEAMNAME 32
 
-#include "qcommon/disablewarnings.h"
+#include "../qcommon/disablewarnings.h"
 
-#include "game/teams.h" //npc team stuff
+#include "../game/teams.h" //npc team stuff
 #include <time.h>
 
 // vvvv lol --eez
@@ -1607,6 +1607,17 @@ typedef struct {
 #define VectorCopy4(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 #define	Vec4MA(v, s, b, o)		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s)) // UQ1: Added // renamed because conflicts with FX --eez
 #define	Vec4Avg(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s))) // UQ1: Added
+
+#ifndef ENGINE
+// ugly I know, but it was necessary to undo some damage
+#define Vector2Set(v,x,y)			Vec2Set(v,x,y)
+#define Vector4Copy(a,b)			VectorCopy4(a,b)
+#define Vector4Average(v, b, s, o)	Vec4Avg(v, b, s, o)
+
+#define	BUMP(val, min)				if(val < min) val = min;
+#define CAP(val, max)				if(val > max) val = max;
+#define CLAMP(val, min, max)		BUMP(val, min) else CAP(val, max);
+#endif
 static ID_INLINE void Vector4Clear ( vec4_t v )
 {
     v[0] = v[1] = v[2] = v[3] = 0.0f;
@@ -3473,11 +3484,11 @@ Trap Calls
 */
 
 // Call API version... increment if we change the below because mismatch is badness
-#define CGAME_API_VERSION	1
-#define UI_API_VERSION		1
-#define	SV_API_VERSION		1
+//#define CGAME_API_VERSION	1
+//#define UI_API_VERSION		1
+//#define	SV_API_VERSION		1
 
-typedef struct
+/*typedef struct
 {
 
 } cgImports_t;
@@ -3605,11 +3616,11 @@ typedef struct
 	void	(*NAV_AddFailedNode)( void *ent, int nodeID );
 	void	(*NAV_NodeFailed)( void *ent, int nodeID );
 	qboolean (*NAV_NodesAreNeighbors)( int startID, int endID );
-	void	(*NAV_ClearFailedEdge)( failedEdge_t *failedEdge );
+//	void	(*NAV_ClearFailedEdge)( failedEdge_t *failedEdge );
 	void	(*NAV_ClearAllFailedEdges)( void );
 	int		(*NAV_EdgeFailed)( int startID, int endID );
 	void	(*NAV_AddFailedEdge)( int entID, int startID, int endID );
-	qboolean (*NAV_CheckFailedEdge)( failedEdge_t *failedEdge );
+//	qboolean (*NAV_CheckFailedEdge)( failedEdge_t *failedEdge );
 	void	(*NAV_CheckAllFailedEdges)( void );
 	qboolean (*NAV_RouteBlocked)( int startID, int testEdgeID, int endID, int rejectRank );
 	int		(*NAV_GetBestNodeAltRoute)( int startID, int endID, int *pathCost, int rejectID );
@@ -3757,7 +3768,7 @@ typedef struct
 	void (*Bot_CalculatePaths)( int rmg );
 
 } gImports_t;
-
+*/
 /*
 ========================================================================
 
@@ -3891,5 +3902,26 @@ qboolean StringContainsWord(const char *haystack, const char *needle);
 /*==============================================*/
 
 #define BLANK_FUNCTION( R, N, A ) typedef R (*N) A
+
+#ifndef ENGINE
+typedef enum {
+	NA_BOT,
+	NA_BAD,					// an address lookup failed
+	NA_LOOPBACK,
+	NA_BROADCAST,
+	NA_IP,
+	NA_IPX,
+	NA_BROADCAST_IPX
+} netadrtype_t;
+
+typedef struct {
+	netadrtype_t	type;
+
+	byte	ip[4];
+	byte	ipx[10];
+
+	unsigned short	port;
+} netadr_t;
+#endif // engine
 
 #endif	// __Q_SHARED_H

@@ -2,6 +2,8 @@
 #ifndef _QCOMMON_H_
 #define _QCOMMON_H_
 
+#ifdef ENGINE
+
 #include "qcommon/cm_public.h"
 #include "game/q_shared.h"
 
@@ -74,6 +76,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 						   , qboolean force );
 void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, 
 						 int number );
+
 
 #ifdef _ONEBIT_COMBO
 void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, qboolean isVehiclePS = qfalse );
@@ -1021,9 +1024,6 @@ void	Sys_ShowConsole( int level, qboolean quitOnClose );
 void	Sys_SetErrorText( const char *text );
 
 void	Sys_SendPacket( int length, const void *data, netadr_t to );
-#ifdef _XBOX
-void	Sys_SendVoicePacket( int length, const void *data, netadr_t to );
-#endif
 
 qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 //Does NOT parse port numbers, only base addresses.
@@ -1119,39 +1119,6 @@ inline int Round(float value)
 	return((int)floorf(value + 0.5f));
 }
 
-#ifdef _XBOX
-//////////////////////////////
-//
-// Map Lump Loader
-//
-struct Lump
-{
-	void* data;
-	int len;
-	
-	Lump() : data(NULL), len(0) {}
-	~Lump() { clear(); }
-
-	void load(const char* map, const char* lump)
-	{
-		clear();
-
-		char path[MAX_QPATH];
-		Com_sprintf(path, MAX_QPATH, "%s/%s.mle", map, lump);
-
-		len = FS_ReadFile(path, &data);
-		if (len < 0) len = 0;
-	}
-
-	void clear(void)
-	{
-		if (data)
-		{
-			FS_FreeFile(data);
-			data = NULL;
-		}
-	}
-};
-#endif _XBOX
-
 #endif // _QCOMMON_H_
+
+#endif

@@ -37,11 +37,11 @@ extern void CG_RecordLightPosition( vec3_t org );
 // position between normal position and ironsights
 // position.
 //=========================================================
-float JKG_CalculateIronsightsPhase ( const networkState_t *ns )
+float JKG_CalculateIronsightsPhase ( const playerState_t *ps )
 {
     double phase;
-    unsigned int time = ns->ironsightsTime & ~IRONSIGHTS_MSB;
-    if ( ns->ironsightsTime & IRONSIGHTS_MSB )
+    unsigned int time = ps->ironsightsTime & ~IRONSIGHTS_MSB;
+    if ( ps->ironsightsTime & IRONSIGHTS_MSB )
     {
         phase = CubicBezierInterpolate (min (cg.time - time, IRONSIGHTS_TIME) / (double)IRONSIGHTS_TIME, 0.0, 0.0, 1.0, 1.0);
         cg.ironsightsBlend = min (1.0f, max (0.0f, phase));
@@ -95,11 +95,11 @@ qboolean JKG_FiringModeAnimsAreTheSame( int transition )
 // full. All values in between are some position between 
 // normal position and full-on sprinting.
 //=========================================================
-float JKG_CalculateSprintPhase( const networkState_t *ns )
+float JKG_CalculateSprintPhase( const playerState_t *ps )
 {
 	double phase;
-    unsigned int time = ns->sprintTime & ~SPRINT_MSB;
-    if ( ns->sprintTime & SPRINT_MSB )
+    unsigned int time = ps->sprintTime & ~SPRINT_MSB;
+    if ( ps->sprintTime & SPRINT_MSB )
     {
         phase = CubicBezierInterpolate (min (cg.time - time, SPRINT_TIME) / (double)SPRINT_TIME, 0.0, 0.0, 1.0, 1.0);
         cg.sprintBlend = min (1.0f, max (0.0f, phase));
@@ -417,7 +417,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	float	swayscale;
 	int		delta;
 	float	fracsin;
-	float	sprintPhase = JKG_CalculateSprintPhase(&cg.networkState);
+	float	sprintPhase = JKG_CalculateSprintPhase(&cg.predictedPlayerState);
 	vec3_t defaultAngles, defaultOrigin;
 	weaponData_t *weaponData = GetWeaponData(cg.predictedPlayerState.weapon, cg.predictedPlayerState.weaponVariation);
 	weaponData_t *prevWeaponData = BG_GetWeaponDataByIndex(cg.lastFiringModeGun);
@@ -433,7 +433,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	}
 
 	// idle drift
-	if(JKG_CalculateIronsightsPhase(&cg.networkState) < 0.4)
+	if(JKG_CalculateIronsightsPhase(&cg.predictedPlayerState) < 0.4)
 	{	// EDIT 9/11/12: Don't do this when we're in ironsights. Looks bad, man.
 		swayscale = cg.xyspeed + 40;
 		fracsin = sin( cg.time * 0.001 );
@@ -585,7 +585,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		VectorMA( origin, sprintYAdd * sprintPhase, cg.refdef.viewaxis[1], origin );
 		VectorMA( origin, sprintZAdd * sprintPhase, cg.refdef.viewaxis[2], origin );
 
-		if(JKG_CalculateSprintPhase(&cg.networkState) > 0.001)
+		if(JKG_CalculateSprintPhase(&cg.predictedPlayerState) > 0.001)
 		{
 			float bobPitchAdd = /*jkg_debugSprintBobPitch.value*/ 0;
 			float bobYawAdd = /*jkg_debugSprintBobYaw.value*/ 0;
@@ -1626,7 +1626,7 @@ void CG_NextWeapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -1718,7 +1718,7 @@ void CG_PrevWeapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -1823,7 +1823,7 @@ void CG_Weapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -1917,7 +1917,7 @@ void CG_WeaponClean_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -3548,7 +3548,6 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
     const playerState_t *ps = &cg.predictedPlayerState;
     centity_t *cent = &cg_entities[ps->clientNum];
     const entityState_t *s = &cent->currentState;
-	const networkState_t *ns = &cg.networkState;
     
     const weaponInfo_t *weapon = NULL;
     
@@ -3598,7 +3597,7 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
     gunPosition[2] = abs (cg_gun_z.value) > FLT_EPSILON ? cg_gun_z.value : weapon->gunPosition[2];
     
     {
-        float phase = JKG_CalculateIronsightsPhase (ns);
+        float phase = JKG_CalculateIronsightsPhase (ps);
         vec3_t s;
         VectorSubtract (weapon->ironsightsPosition, gunPosition, s);
         

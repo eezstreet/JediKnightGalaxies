@@ -44,7 +44,7 @@ qboolean	CM_AreasConnected( int area1, int area2 );
 int			CM_WriteAreaBits( byte *buffer, int area );
 
 //rwwRMG - added:
-bool		CM_GenericBoxCollide(const vec3pair_t abounds, const vec3pair_t bbounds);
+bool	CM_GenericBoxCollide(const vec3pair_t abounds, const vec3pair_t bbounds);
 void		CM_HandlePatchCollision(struct traceWork_s *tw, trace_t &trace, const vec3_t tStart, const vec3_t tEnd, class CCMPatch *patch, int checkcount);
 void		CM_CalcExtents(const vec3_t start, const vec3_t end, const struct traceWork_s *tw, vec3pair_t bounds);
 

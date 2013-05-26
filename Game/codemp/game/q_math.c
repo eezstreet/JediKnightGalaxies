@@ -1,7 +1,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // q_math.c -- stateless support routines that are included in each code module
-#include "game/q_shared.h"
+#include "../game/q_shared.h"
 
 
 vec3_t	vec3_origin = {0,0,0};

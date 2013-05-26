@@ -104,9 +104,6 @@
     <ClCompile Include="jkg_ui_auxlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\networkstate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\q_math.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,9 +117,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_crossover.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_engine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_force.c">
@@ -208,9 +202,6 @@
     </ClCompile>
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_network.c">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

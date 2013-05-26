@@ -394,9 +394,6 @@ typedef struct centity_s {
 
 	//from here up must be unified with bgEntity_t -rww
 
-	extraState_t	extraState;
-	extraState_t	oldExtraState;
-
 	entityState_t	nextState;		// from cg.nextFrame, if available
 	qboolean		interpolate;	// true if next is valid to interpolate to
 	qboolean		inLastSnap;		// true if this entity was present in the last snapshot	// JKG
@@ -930,7 +927,6 @@ typedef struct {
 	qboolean	hyperspace;				// true if prediction has hit a trigger_teleport
 	playerState_t	predictedPlayerState;
 	playerState_t	predictedVehicleState;
-	networkState_t	networkState;
 
 
 	int lastPurchasedItem;
@@ -969,10 +965,6 @@ typedef struct {
 	// view rendering
 	refdef_t	refdef;
 
-#ifdef _XBOX
-	qboolean widescreen;
-#endif
-
 	// zoom key
 	qboolean	zoomed;
 	int			zoomTime;
@@ -999,9 +991,6 @@ typedef struct {
 	int				spectatorPaintX2;										// current paint x
 	int				spectatorOffset;										// current offset from start
 	int				spectatorPaintLen; 									// current offset from start
-
-	// skull trails
-	skulltrail_t	skulltrails[MAX_CLIENTS];
 
 	// centerprinting
 	int			centerPrintTime;
@@ -2966,7 +2955,7 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent);
 
 void CG_SetSiegeTimerCvar( int msec );
 
-float JKG_CalculateSprintPhase( const networkState_t *ps );
+float JKG_CalculateSprintPhase( const playerState_t *ps );
 
 void CG_Notifications_Add(char *string, qboolean weapon);
 

@@ -346,7 +346,7 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
         }
     }
     memset (weaponInfo->barrelModels, NULL_HANDLE, sizeof (weaponInfo->barrelModels));
-    COM_StripExtension (weaponVisuals->view_model, extensionlessModel);
+    COM_StripExtension (weaponVisuals->view_model, extensionlessModel, sizeof(extensionlessModel));
     
     for ( i = 0; i < 4; i++ )
     {
@@ -516,7 +516,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	if (weaponNum != WP_SABER)
 	{
 		strcpy( path, weaponData->visuals.view_model );
-		COM_StripExtension( path, path );
+		COM_StripExtension( path, path, sizeof(path) );
 		strcat( path, "_hand.md3" );
 		weaponInfo->handsModel = trap_R_RegisterModel( path );
 	}

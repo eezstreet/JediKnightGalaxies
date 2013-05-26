@@ -2526,7 +2526,7 @@ float CG_DrawRadar ( float y )
 	{
 		// CLEANME: rewrite this check later. i didn't mean to rescope, honest to goodness --eez
 		vec4_t newColor = {1, 1, 1, 0};
-		float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
+		float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
 		VectorCopy4(newColor, color);
 
 		if(ironSightsPhase > 0)
@@ -3490,8 +3490,8 @@ vec3_t cg_crosshairPos={0,0,0};
 		    }
 		    else
 		    {
-				float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
-				float sprintPhase = JKG_CalculateSprintPhase (&cg.networkState);
+				float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
+				float sprintPhase = JKG_CalculateSprintPhase (&cg.predictedPlayerState);
 				if(ironSightsPhase > 0)
 				{
 					ecolor[3] = 1.0f - ironSightsPhase;
@@ -3727,8 +3727,8 @@ vec3_t cg_crosshairPos={0,0,0};
             // JKG: Crosshair disappears for ironsights
             if ( !cg.renderingThirdPerson )
             {
-                float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
-				float sprintPhase = JKG_CalculateSprintPhase (&cg.networkState);
+				float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
+				float sprintPhase = JKG_CalculateSprintPhase (&cg.predictedPlayerState);
 				if(ironSightsPhase > 0)
 				{
 					ecolor[3] = 1.0f - ironSightsPhase;
@@ -6275,7 +6275,7 @@ void CG_DrawJetpackCloak(menuDef_t *menuHUD) {
 	// FIXME: what happens if using more than one?
 	if (cg.snap->ps.weapon == WP_SABER)
 	{
-		percent = cg.networkState.blockPoints;
+		percent = cg.predictedPlayerState.blockPoints;
 		pic = trap_R_RegisterShader("gfx/jkghud/ico_cloak.png");
 	}
 
@@ -7521,14 +7521,14 @@ void CG_DrawChatbox() {
 #pragma region h_
 	item = Menu_FindItemByName(menuHUD, "h_local");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
 	}
 	item = Menu_FindItemByName(menuHUD, "h_guild");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
@@ -7536,7 +7536,7 @@ void CG_DrawChatbox() {
 
 	item = Menu_FindItemByName(menuHUD, "h_action");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
@@ -7544,7 +7544,7 @@ void CG_DrawChatbox() {
 
 	item = Menu_FindItemByName(menuHUD, "h_comm");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);

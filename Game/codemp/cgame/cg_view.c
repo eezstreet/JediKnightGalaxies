@@ -1364,7 +1364,7 @@ static int CG_CalcFov( void ) {
 		
 		if ( weapon->ironsightsFov > 0.0f )
 		{
-		    float phase = JKG_CalculateIronsightsPhase (&cg.networkState);
+			float phase = JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
 		    if ( phase >= 1.0f )
             {
                 cgFov = cgFov - (80 - weapon->ironsightsFov);
@@ -1376,7 +1376,7 @@ static int CG_CalcFov( void ) {
         }
 
 		{
-			float phase = JKG_CalculateSprintPhase(&cg.networkState);
+			float phase = JKG_CalculateSprintPhase(&cg.predictedPlayerState);
 			if ( phase >= 1.0f )
             {
                 cgFov = cgFov - (80 - jkg_sprintFOV.value);
@@ -1524,7 +1524,7 @@ static int CG_CalcFov( void ) {
 		cg.zoomSensitivity = 0.25f * zoomFov / cgFov;
 	}
 	// JKG: Adjust mouse sensitivity based on ironsights FOV
-	else if ( cg.networkState.ironsightsTime & IRONSIGHTS_MSB )
+	else if ( cg.predictedPlayerState.ironsightsTime & IRONSIGHTS_MSB )
 	{
 	    const weaponData_t *weapon = GetWeaponData (cg.predictedPlayerState.weapon, cg.predictedPlayerState.weaponVariation);
 	    switch ( weapon->zoomType )

@@ -309,8 +309,6 @@ vec4_t	popAlmostBlack	=	{0.16f,0.16f,0.16f,1.0f};
 
 #define POP_HUD_BORDERSIZE 1
 
-#define	Vector4Average(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s)))
-
 /*
 ==============
 CG_HorizontalPercentBar
@@ -356,7 +354,7 @@ void CG_FilledBar(float x, float y, float w, float h, float *startColor, float *
 	}
 
 	if((flags&BAR_BG) && bgColor) {	// BAR_BG set, and color specified, use specified bg color
-		Vector4Copy(bgColor, backgroundcolor);
+		VectorCopy4(bgColor, backgroundcolor);
 	}
 
 	if(flags&BAR_LERP_COLOR) {

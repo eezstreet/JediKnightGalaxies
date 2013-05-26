@@ -276,11 +276,11 @@ void Text_DrawText(int x, int y, const char *text, const float* rgba, int iFontI
 	float xx = x;
 
 	s[1] = 0;
-	Vector4Copy(rgba, color);
+	VectorCopy4(rgba, color);
 	while (*t) {
 		if (*t == '^') {
 			if (*(t+1) >= '0' && *(t+1) <= '9') {
-				Vector4Copy(tColorTable[*(t+1) - '0'], color);
+				VectorCopy4(tColorTable[*(t+1) - '0'], color);
 				t+=2;
 				continue;
 			}

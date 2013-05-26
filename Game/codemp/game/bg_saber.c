@@ -24,7 +24,7 @@ int PM_irand_timesync(int val1, int val2)
 	return i;
 }
 
-void BG_ForcePowerDrain( playerState_t *ps, networkState_t *ns, forcePowers_t forcePower, int overrideAmt )
+void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt )
 {
 	// Migrating it to the server fixes nearly all of the desync issues on the bar. Fancy! But at a cost.
 #ifdef QAGAME
@@ -38,11 +38,6 @@ void BG_ForcePowerDrain( playerState_t *ps, networkState_t *ns, forcePowers_t fo
 	}
 	*/
 	//No longer grant infinite force with boon.
-
-	if( !ns )
-	{
-		return;
-	}
 
 	if ( !drain )
 	{
@@ -90,26 +85,26 @@ void BG_ForcePowerDrain( playerState_t *ps, networkState_t *ns, forcePowers_t fo
 			}
 		}
 
-		ns->forcePower -= jumpDrain;
-		if ( ns->forcePower < 0 )
+		ps->forcePower -= jumpDrain;
+		if ( ps->forcePower < 0 )
 		{
-			ns->forcePower = 0;
+			ps->forcePower = 0;
 		}
 
 		return;
 	}
 
-	ns->forcePower -= drain;
-	if ( ns->forcePower < 0 )
+	ps->forcePower -= drain;
+	if ( ps->forcePower < 0 )
 	{
-		ns->forcePower = 0;
+		ps->forcePower = 0;
 	}
 #endif
 }
 
 qboolean BG_EnoughForcePowerForMove( int cost )
 {
-	if ( pm->ns->forcePower < cost )
+	if ( pm->ps->forcePower < cost )
 	{
 		PM_AddEvent( EV_NOAMMO );
 		return qfalse;
@@ -2331,7 +2326,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				{
 					newmove = LS_BUTTERFLY_RIGHT;
 					pm->ps->velocity[2] = 350.0f;
-					BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_LR);
+					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_LR);
 				}
 				else if ( allowCartwheels )
 				{
@@ -2349,7 +2344,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					{
 						newmove = LS_JUMPATTACK_CART_RIGHT;
 					}
-					BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_LR);
+					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_LR);
 				}
 			}
 		}
@@ -2394,7 +2389,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				if ( newmove != LS_A_T2B 
 					&& newmove != LS_NONE )
 				{
-					BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 				}
 			}
 		else if ( !noSpecials
@@ -2406,7 +2401,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 			&& ( pm->cmd.upmove > 0 || (pm->ps->pm_flags & PMF_JUMP_HELD) )//focus-holding player
 			&& BG_EnoughForcePowerForMove( SABER_ALT_ATTACK_POWER_LR ) )//have enough power
 		{//cartwheel left
-			BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_LR);
+			BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_LR);
 
 			if ( overrideJumpLeftAttackMove != LS_INVALID )
 			{//overridden with another move
@@ -2500,7 +2495,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					if ( newmove != LS_A_T2B
 						&& newmove != LS_NONE )
 					{
-						BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+						BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 					}
 				}
 			}
@@ -2520,7 +2515,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					if ( newmove != LS_A_T2B
 						&& newmove != LS_NONE )
 					{
-						BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+						BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 					}
 				}
 			}
@@ -2535,7 +2530,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				if ( newmove != LS_A_T2B
 					&& newmove != LS_NONE )
 				{
-					BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 				}
 			}
 			else if ( !noSpecials )
@@ -2546,7 +2541,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					SaberStances[pm->ps->fd.saberAnimLevel].specialMoves.allowStabDown)
 				{
 					newmove = stabDownMove;
-					BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+					BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 				}
 				else
 				{
@@ -2766,7 +2761,7 @@ qboolean PM_SaberPowerCheck(void)
 {
 	if (pm->ps->saberInFlight)
 	{ //so we don't keep doing stupid force out thing while guiding saber.
-		if (pm->ns->forcePower > forcePowerNeeded[pm->ps->fd.forcePowerLevel[FP_SABERTHROW]][FP_SABERTHROW])
+		if (pm->ps->forcePower > forcePowerNeeded[pm->ps->fd.forcePowerLevel[FP_SABERTHROW]][FP_SABERTHROW])
 		{
 			return qtrue;
 		}
@@ -2803,13 +2798,7 @@ int PM_DoFeint(int curmove, int stance)
 {
 	int newQuad = -1;
 
-	if(!pm->ns)
-	{
-		// NOT a valid client!
-		return LS_NONE;
-	}
-
-	if(pm->ns->forcePower < 30)
+	if(pm->ps->forcePower < 30)
 	{
 		return LS_NONE;	// not enough force power to do it
 	}
@@ -2896,7 +2885,7 @@ int PM_DoFeint(int curmove, int stance)
 	//add faking flag
 	pm->ps->saberActionFlags |= ( 1 << SAF_FEINT );
 	// drain the force power
-	pm->ns->forcePower -= 30;	// drains force power, not BP. my mistake --eez
+	pm->ps->forcePower -= 30;	// drains force power, not BP. my mistake --eez
 	return transitionMove[SaberStances[stance].moves[curmove].endQuadrant][newQuad];
 }
 //Stoiss add
@@ -3009,7 +2998,7 @@ void PM_WeaponLightsaber(void)
 							PM_AddEvent(EV_SABER_UNHOLSTER);
 						}
 						PM_SetSaberMove( LS_ROLL_STAB );
-						BG_ForcePowerDrain(pm->ps, pm->ns, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
+						BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 					}
 				}
 			}
@@ -3167,13 +3156,15 @@ void PM_WeaponLightsaber(void)
 		}
 	}
 
-	if ( (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK )) )
+	// FIXME: This is complete wrongness, everything after the first nested check is completely invalidated --eez
+	if ( pm->ps->saberActionFlags & ( 1 << SAF_KICK ) )
 	{ //might as well just check for a saber throw right here
-		if ( (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK )) )
+		if ( pm->ps->saberActionFlags & ( 1 << SAF_KICK ) )
 		{ //kick instead of doing a throw 
 			//if in a saber attack return anim, can interrupt it with a kick
+			// FIXME: This check appears broken --eez
 			if ( (pm->ps->weaponTime > 0  //can't fire yet
-				&& PM_SaberInReturn( pm->ps->saberMove )  || (pm->ns && pm->ps->saberActionFlags & ( 1 << SAF_KICK ) ))//in a saber return move - FIXME: what about transitions?
+				&& PM_SaberInReturn( pm->ps->saberMove )  || pm->ps->saberActionFlags & ( 1 << SAF_KICK ) )//in a saber return move - FIXME: what about transitions?
 				//&& pm->ps->weaponTime <= 250//should be able to fire soon
 				//&& pm->ps->torsoTimer <= 250//torso almost done
 				&& pm->ps->saberBlocked == BLOCKED_NONE//not interacting with any other saber
@@ -3184,10 +3175,7 @@ void PM_WeaponLightsaber(void)
 				if (kickMove != -1)
 					{
 					pm->ps->weaponTime = 0;
-					if(pm->ns)
-					{
-						pm->ps->saberActionFlags &= ~(1 << SAF_KICK);
-					}
+					pm->ps->saberActionFlags &= ~(1 << SAF_KICK);
 					PM_SetSaberMove( kickMove );
 					return;
 				}
@@ -3228,7 +3216,7 @@ void PM_WeaponLightsaber(void)
 				//This will get set to false again once the saber makes it back to its owner game-side
 				if (!pm->ps->saberInFlight)
 				{
-					pm->ns->forcePower -= forcePowerNeeded[pm->ps->fd.forcePowerLevel[FP_SABERTHROW]][FP_SABERTHROW];
+					pm->ps->forcePower -= forcePowerNeeded[pm->ps->fd.forcePowerLevel[FP_SABERTHROW]][FP_SABERTHROW];
 				}
 
 				pm->ps->saberInFlight = qtrue;
@@ -4017,13 +4005,10 @@ void PM_SetSaberMove(short newMove)
 #ifdef QAGAME
 	if(SaberStances[pm->ps->fd.saberAnimLevel].moves[newMove].FPdrain)
 	{
-		if(pm->ns)
+		pm->ps->forcePower -= SaberStances[pm->ps->fd.saberAnimLevel].moves[newMove].FPdrain;
+		if(pm->ps->forcePower < 0)
 		{
-			pm->ns->forcePower -= SaberStances[pm->ps->fd.saberAnimLevel].moves[newMove].FPdrain;
-			if(pm->ns->forcePower < 0)
-			{
-				pm->ns->forcePower = 0;
-			}
+			pm->ps->forcePower = 0;
 		}
 	}
 #endif
@@ -4331,14 +4316,14 @@ void PM_SetSaberMove(short newMove)
 			pm->ps->saberMove <= LS_A_T2B))
 		{
 			//pm->ns->saberSwingSpeed = (((59.07f*sin((0.01169f*pm->ns->forcePower)+6.322f))+43.25f)/100.0f) * SaberStances[pm->ps->fd.saberAnimLevel].moves[pm->ps->saberMove].animspeedscale;
-			if(pm->ns->forcePower != 0)
+			if(pm->ps->forcePower != 0)
 			{
-				pm->ns->saberSwingSpeed = ((0.0025*pm->ns->forcePower)*SaberStances[pm->ps->fd.saberAnimLevel].moves[pm->ps->saberMove].animspeedscale)+0.70;
+				pm->ps->saberSwingSpeed = ((0.0025*pm->ps->forcePower)*SaberStances[pm->ps->fd.saberAnimLevel].moves[pm->ps->saberMove].animspeedscale)+0.70;
 			}
 		}
 		else
 		{
-			pm->ns->saberSwingSpeed = 1.0f;
+			pm->ps->saberSwingSpeed = 1.0f;
 		}
 		pm->ps->saberBlocking = SaberStances[pm->ps->fd.saberAnimLevel].moves[newMove].blockType;
 

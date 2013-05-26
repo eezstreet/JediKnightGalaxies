@@ -1,7 +1,9 @@
 #pragma once
 
 // Interpreter.h
+#ifdef ENGINE
 #include "blockstream.h"
+#endif
 
 #define ICARUS_VERSION	1.33
 

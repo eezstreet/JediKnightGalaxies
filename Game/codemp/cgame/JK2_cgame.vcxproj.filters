@@ -39,15 +39,6 @@
     <Filter Include="Libraries\Json\Source Files">
       <UniqueIdentifier>{ee75f532-5a57-493e-88b2-f9cd0e87686f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Libraries\Zlib">
-      <UniqueIdentifier>{ca96bae5-7f13-4623-a2c3-17e5b400cc97}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\Zlib\Source Files">
-      <UniqueIdentifier>{2540e897-f33e-4793-bb38-f93cb89c5363}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\Zlib\Header Files">
-      <UniqueIdentifier>{2741cbef-f8fb-453f-8248-3238125d65a2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Libraries\Base128">
       <UniqueIdentifier>{bef9392d-f395-4b3c-b74c-7f761037a6f4}</UniqueIdentifier>
     </Filter>
@@ -110,18 +101,6 @@
     </Filter>
     <Filter Include="Libraries\Bass\Header Files">
       <UniqueIdentifier>{8a3fc914-4415-4489-aa12-c35121af9890}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\gameswf">
-      <UniqueIdentifier>{b36e0637-10d9-462c-8024-e44536b9599e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\gameswf\base">
-      <UniqueIdentifier>{37e1bc46-a011-4b28-a116-5472f7a52f27}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\gameswf\SDL">
-      <UniqueIdentifier>{21178af8-e7c0-4506-b06b-163b18954945}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\gameswf\Other Dependencies">
-      <UniqueIdentifier>{60a7241f-d1ad-45e3-8747-6e746af115df}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{29543637-6fb7-4e89-b0e1-a61a61e46a50}</UniqueIdentifier>
@@ -189,9 +168,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cg_effects.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_engine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cg_ents.c">
@@ -329,9 +305,6 @@
     <ClCompile Include="jkg_hud.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_joystick.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jkg_minimaps.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -351,9 +324,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jkg_wpindicators.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\networkstate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\game\q_math.c">
@@ -403,42 +373,6 @@
     </ClCompile>
     <ClCompile Include="..\libraries\json\cJSON.c">
       <Filter>Libraries\Json\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\adler32.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\compress.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\crc32.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\deflate.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\gzio.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\infback.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\inffast.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\inflate.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\inftrees.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\trees.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\uncompr.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\zlib\zutil.c">
-      <Filter>Libraries\Zlib\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\encoding\base128.c">
       <Filter>Libraries\Base128\Source Files</Filter>
@@ -511,135 +445,6 @@
     </ClCompile>
     <ClCompile Include="..\libraries\glew\src\glew.c">
       <Filter>Libraries\GLEW\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_action.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_button.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_cgame_interface.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_dlist.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_font.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_fontlib.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_impl.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_log.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_morph.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_morph2.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_parser.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_processor.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_render.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_render_handler_ogl.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_render_handler_xbox.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_shape.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_sound.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_sound_handler_mp3.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_sound_handler_sdl.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_stream.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_styles.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_tesselate.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_text.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_tools.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\gameswf_types.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\swfparse.cpp">
-      <Filter>Libraries\gameswf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\component_hackery.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\config.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\container.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\dlmalloc.c">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\image.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\image_filters.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\jpeg.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\ogl.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\postscript.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\test_ogl.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\tu_file.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\tu_file_SDL.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\tu_random.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\tu_types.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\utf8.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\utility.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gameswf\base\zlib_adapter.cpp">
-      <Filter>Libraries\gameswf\base</Filter>
     </ClCompile>
     <ClCompile Include="..\game\NPC_Animal.c">
       <Filter>Source Files</Filter>
@@ -832,39 +637,6 @@
     <ClInclude Include="..\libraries\json\cJSON.h">
       <Filter>Libraries\Json\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\libraries\zlib\crc32.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\deflate.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\inffast.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\inffixed.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\inflate.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\inftrees.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\trees.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\zconf.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\zconf.in.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\zlib.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\zlib\zutil.h">
-      <Filter>Libraries\Zlib\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\libraries\encoding\base128.h">
       <Filter>Libraries\Base128\Header Files</Filter>
     </ClInclude>
@@ -934,265 +706,10 @@
     <ClInclude Include="basstest.h">
       <Filter>Libraries\Bass\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\gameswf\compatibility_include.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_action.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_button.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_dlist.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_font.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_fontlib.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_impl.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_log.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_morph.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_morph2.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_render.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_shape.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_sound.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_stream.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_styles.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_tesselate.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\gameswf_types.h">
-      <Filter>Libraries\gameswf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\config.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\container.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\cschema.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\dlmalloc.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\image.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\jpeg.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\ogl.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\postscript.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\smart_ptr.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\tu_config.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\tu_file.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\tu_math.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\tu_opengl_includes.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\tu_random.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\tu_swap.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\tu_types.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\utf8.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\utility.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\base\zlib_adapter.h">
-      <Filter>Libraries\gameswf\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\begin_code.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\close_code.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_active.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_audio.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_byteorder.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_cdrom.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_dreamcast.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_macos.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_macosx.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_minimal.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_nds.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_os2.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_symbian.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_win32.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_copying.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_cpuinfo.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_endian.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_error.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_events.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_getenv.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_joystick.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_keyboard.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_keysym.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_loadso.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_main.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_mouse.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_mutex.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_name.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_opengl.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_platform.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_quit.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_rwops.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_stdinc.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_syswm.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_thread.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_timer.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_types.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_version.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_video.h">
-      <Filter>Libraries\gameswf\SDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jconfig.h">
-      <Filter>Libraries\gameswf\Other Dependencies</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jerror.h">
-      <Filter>Libraries\gameswf\Other Dependencies</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jmorecfg.h">
-      <Filter>Libraries\gameswf\Other Dependencies</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jpeglib.h">
-      <Filter>Libraries\gameswf\Other Dependencies</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="JK2_cgame.def">
       <Filter>Header Files</Filter>
-    </None>
-    <None Include="..\gameswf\gameswf_parser.exe">
-      <Filter>Libraries\gameswf</Filter>
-    </None>
-    <None Include="..\gameswf\gameswf_processor.exe">
-      <Filter>Libraries\gameswf</Filter>
-    </None>
-    <None Include="..\gameswf\gameswf_test_ogl.exe">
-      <Filter>Libraries\gameswf</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

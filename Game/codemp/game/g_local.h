@@ -216,9 +216,6 @@ struct gentity_s {
 	gNPC_t		*NPC;//Only allocated if the entity becomes an NPC
 	int			cantHitEnemyCounter;//HACK - Makes them look for another enemy on the same team if the one they're after can't be hit
 
-	extraState_t x;
-	extraState_t xo;
-
 	qboolean	noLumbar; //see note in cg_local.h
 
 	qboolean	inuse;
@@ -734,8 +731,6 @@ struct gclient_s {
 	// the rest of the structure is private to game
 	clientPersistant_t	pers;
 	clientSession_t		sess;
-
-	networkState_t	ns;
 
 	saberInfo_t	saber[MAX_SABERS];
 	void		*weaponGhoul2[MAX_SABERS];

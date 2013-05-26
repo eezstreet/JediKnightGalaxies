@@ -729,7 +729,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		// set up for pmove
 		memset (&pm, 0, sizeof(pm));
 		pm.ps = &client->ps;
-		pm.ns = &client->ns;
 		pm.cmd = *ucmd;
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
 		pm.trace = trap_Trace;
@@ -2319,9 +2318,9 @@ void ClientThink_real( gentity_t *ent ) {
 	} 
 
 	// ironsights related crap here
-	if ( !isNPC && ent->client->ns.ironsightsDebounceStart && ent->client->ns.ironsightsDebounceStart <= level.time )
+	if ( !isNPC && ent->client->ps.ironsightsDebounceStart && ent->client->ps.ironsightsDebounceStart <= level.time )
 	{
-		ent->client->ns.ironsightsDebounceStart = 0;
+		ent->client->ps.ironsightsDebounceStart = 0;
 	}
 
 	if (isNPC && (ucmd->serverTime - client->ps.commandTime) < 1)
@@ -3207,7 +3206,6 @@ void ClientThink_real( gentity_t *ent ) {
 	G_CheckMovingLoopingSounds( ent, ucmd );
 
 	pm.ps = &client->ps;
-	pm.ns = &client->ns;
 	pm.cmd = *ucmd;
 	if ( pm.ps->pm_type == PM_DEAD ) {
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
@@ -3501,7 +3499,7 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->grenadeCookTime = 0;
 	}
 	
-	if ( BG_IsSprinting (&ent->client->ps, &pm.cmd, &ent->client->ns, qfalse) )
+	if ( BG_IsSprinting (&ent->client->ps, &pm.cmd, qfalse) )
 	{
 	    ent->client->ps.eFlags |= EF_SPRINTING;
     }
@@ -3799,12 +3797,10 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x ); // UQ1: Shouldn't this be here too????
 		//rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 	}
 	else {
 		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x );
 	}
 
 	if (isNPC)
@@ -4198,16 +4194,15 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				ent->client->ps.persistant[PERS_CREDITS] = credits;
 
 				// k, let's do some sort of stuffs
-				ent->client->ns = cl->ns;
 				trap_GetUsercmd(ent - g_entities, &ucmd);
 
 				if(ucmd.buttons & BUTTON_IRONSIGHTS)
 				{
-					ent->client->ns.isInSights = qtrue;
+					ent->client->ps.isInSights = qtrue;
 				}
 				else if(ucmd.buttons & BUTTON_SPRINT)
 				{
-					ent->client->ns.isSprinting = qtrue;
+					ent->client->ps.isSprinting = qtrue;
 				}
 				return;
 			} else {
@@ -4308,12 +4303,10 @@ void ClientEndFrame( gentity_t *ent ) {
 	// set the latest infor
 	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x ); // UQ1: Shouldn't this be here too???
 		//rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 	}
 	else {
 		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x );
 	}
 
 	if (isNPC)
