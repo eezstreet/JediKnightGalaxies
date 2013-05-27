@@ -688,12 +688,12 @@ qboolean ChatBox_CanUseChat() {
 void ChatBox_MessageMode() {
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
 
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
 
 	// VERSUS ONLY --eez
@@ -701,36 +701,36 @@ void ChatBox_MessageMode() {
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
 }
 
 void ChatBox_MessageMode2() {
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
 
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
 	cb_chatmode = CHM_TEAM;
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
 }
 
 void ChatBox_MessageMode3() {	// Private chat (aim trace)
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	int target;
 
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	target = CG_CrosshairPlayer();
 	if (target >= 0 && target < MAX_CLIENTS) {
 		ChatBox_InitChat();
@@ -740,7 +740,7 @@ void ChatBox_MessageMode3() {	// Private chat (aim trace)
 	}
 	
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
 }
 
 void ChatBox_MessageMode4() {
@@ -781,23 +781,20 @@ void ChatBox_UseMessageMode(int whichOne)
 	}
 }
 
-
-void *Cmd_EditCommand(const char *cmdname, void *newfunction);
-
 void ChatBox_InitSystem() {
 	// Relink the messagemode<x> commands to our custom functions
-	Cmd_EditCommand("messagemode", ChatBox_MessageMode);
+	/*Cmd_EditCommand("messagemode", ChatBox_MessageMode);
 	Cmd_EditCommand("messagemode2", ChatBox_MessageMode2);
 	Cmd_EditCommand("messagemode3", ChatBox_MessageMode3);
-	Cmd_EditCommand("messagemode4", ChatBox_MessageMode4);
+	Cmd_EditCommand("messagemode4", ChatBox_MessageMode4);*/
 }
 
 void ChatBox_ShutdownSystem() {
 	// Relink the messagemode<x> commands to their engine functions
-	Cmd_EditCommand("messagemode", (void *)0x417040);
+	/*Cmd_EditCommand("messagemode", (void *)0x417040);
 	Cmd_EditCommand("messagemode2", (void *)0x417080);
 	Cmd_EditCommand("messagemode3", (void *)0x4170C0);
-	Cmd_EditCommand("messagemode4", (void *)0x417130);
+	Cmd_EditCommand("messagemode4", (void *)0x417130);*/
 }
 
 void ChatBox_DrawBackdrop(menuDef_t *menu) {

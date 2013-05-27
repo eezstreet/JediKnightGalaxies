@@ -224,13 +224,11 @@
     <ClCompile Include="gl_engine.c" />
     <ClCompile Include="gl_enginefuncs.c" />
     <ClCompile Include="gl_hrtimer.c" />
-    <ClCompile Include="gl_lightmapquality.c" />
     <ClCompile Include="gl_main.c" />
     <ClCompile Include="gl_ogv.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Full</Optimization>
       <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">OnlyExplicitInline</InlineFunctionExpansion>
     </ClCompile>
-    <ClCompile Include="gl_pk3.c" />
     <ClCompile Include="gl_primetable.c" />
     <ClCompile Include="gl_screenshotext.c" />
     <ClCompile Include="gl_yuv2rgb.c" />

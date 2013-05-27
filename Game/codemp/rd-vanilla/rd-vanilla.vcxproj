@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{518BD884-C233-4B86-ACEA-79534A3CEC01}</ProjectGuid>
     <RootNamespace>rd-vanilla</RootNamespace>
+    <ProjectName>'Vanilla' Renderer (rd-vanilla)</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -37,10 +38,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>../../build/</OutDir>
-    <IntDir>..\.build\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(Configuration)/Build\</OutDir>
+    <IntDir>$(Configuration)/rd-vanilla\</IntDir>
     <LibraryPath>$(ProjectDir)\..\libs\win32;$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
-    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+    <TargetName>rd-vanilla_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>../../build/</OutDir>
@@ -53,12 +54,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..;libraries/jpeg-8c/;libraries/;../libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;_WIN32;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;_WIN32;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;ENGINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../libraries/zlib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;../zlib/zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

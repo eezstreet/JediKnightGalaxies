@@ -141,16 +141,10 @@
     <ClCompile Include="gl_hrtimer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl_lightmapquality.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gl_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl_ogv.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gl_pk3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl_primetable.c">

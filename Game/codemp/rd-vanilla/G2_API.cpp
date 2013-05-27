@@ -2467,7 +2467,7 @@ void G2API_LoadGhoul2Models(CGhoul2Info_v &ghoul2, char *buffer)
 
 void G2API_FreeSaveBuffer(char *buffer)
 {
-	Z_Free(buffer);
+	ri.Z_Free(buffer);
 }
 
 // this is kinda sad, but I need to call the destructor in this module (exe), not the game.dll...

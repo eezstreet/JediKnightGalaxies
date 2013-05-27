@@ -84,18 +84,6 @@
     <Filter Include="Libraries\RDDebugUtils\Source Files">
       <UniqueIdentifier>{d11580fa-7463-46b8-8077-b1527bec2053}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Libraries\GLEW">
-      <UniqueIdentifier>{046e006c-d2f0-444a-8a75-991f396d7382}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\GLEW\Header Files">
-      <UniqueIdentifier>{ab300d9a-20be-44fc-a20c-a840baf6af25}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\GLEW\Header Files\GL">
-      <UniqueIdentifier>{2eb94261-d204-4f77-a63d-aacd712b4176}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\GLEW\Source Files">
-      <UniqueIdentifier>{a0b9acc1-1f0a-45eb-b4dd-e5b8975c1a8a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Libraries\Bass">
       <UniqueIdentifier>{b19930a7-36dd-467e-9b8c-5519c776a9db}</UniqueIdentifier>
     </Filter>
@@ -200,9 +188,6 @@
     <ClCompile Include="cg_playerstate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cg_postprocess.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cg_predict.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -290,13 +275,7 @@
     <ClCompile Include="jkg_custombounds.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_framebuffers.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\jkg_gangwars.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_glcommon.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jkg_hud.c">
@@ -312,9 +291,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jkg_patcher.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_pixelshaders.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jkg_splinepaths.c">
@@ -440,9 +416,6 @@
     <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDump.cpp">
       <Filter>Libraries\RDDebugUtils\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\libraries\glew\src\glew.c">
-      <Filter>Libraries\GLEW\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\NPC_Animal.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -499,9 +472,6 @@
     <ClInclude Include="cg_local.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cg_postprocess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cg_public.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -535,13 +505,7 @@
     <ClInclude Include="jkg_eshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="jkg_framebuffers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\game\jkg_gangwars.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jkg_glcommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="jkg_hud.h">
@@ -551,9 +515,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="jkg_patcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jkg_pixelshaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ui\keycodes.h">
@@ -687,15 +648,6 @@
     </ClInclude>
     <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDump.h">
       <Filter>Libraries\RDDebugUtils\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\glew\include\GL\glew.h">
-      <Filter>Libraries\GLEW\Header Files\GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\glew\include\GL\glxew.h">
-      <Filter>Libraries\GLEW\Header Files\GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\glew\include\GL\wglew.h">
-      <Filter>Libraries\GLEW\Header Files\GL</Filter>
     </ClInclude>
     <ClInclude Include="bass.h">
       <Filter>Libraries\Bass\Header Files</Filter>

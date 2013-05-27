@@ -14,7 +14,6 @@ displayContextDef_t cgDC;
 
 // Jedi Knight Galaxies
 #include "cg_crossover.h"
-#include "cg_postprocess.h"
 #include "cg_weapons.h"
 #include "jkg_gangwars.h"
 #include "bg_items.h"
@@ -359,7 +358,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 #ifdef __MUSIC_ENGINE__
 				CG_StopMusic();
 #endif //__MUSIC_ENGINE__
-		        PP_TerminatePostProcess();
 		        return 1;
 		    }
 		}
@@ -1016,7 +1014,6 @@ vmCvar_t	ui_blurbackground;	// Blur the background when UI is active?
 
 vmCvar_t	jkg_simpleHUD;
 
-extern vmCvar_t	jkg_postprocess;
 extern vmCvar_t	jkg_nokillmessages;
 
 #ifdef __SWF__
@@ -1251,7 +1248,6 @@ Ghoul2 Insert End
 */
 // Jedi Knight Galaxies
 	{ &jkg_noletterbox, "jkg_noletterbox", "0", CVAR_ARCHIVE },
-	{ &jkg_postprocess, "jkg_postprocess", "1", CVAR_ARCHIVE | CVAR_LATCH },
 
 #ifdef __SWF__
 	{ &jkg_swf, "jkg_swf", "0", CVAR_ARCHIVE },
@@ -4285,17 +4281,6 @@ Ghoul2 Insert End
 	trap_GetGlconfig( &cgs.glconfig );
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
-	
-	// JKGalaxies - Setup in the post-processing system.
-	if(JKG_CheckIfIntel())
-	{
-		jkg_postprocess.integer = 0;
-		trap_Cvar_Set("jkg_postprocess", "0");
-	}
-	if(jkg_postprocess.integer)
-	{
-		PP_InitPostProcess();
-	}
 
 	// get the gamestate from the client system
 	trap_GetGameState( &cgs.gameState );
@@ -4478,7 +4463,6 @@ void CG_Shutdown( void )
 
 	// Jedi Knight Galaxies, terminate the crossover
 	CO_Shutdown();
-	PP_TerminatePostProcess(); // And Post Processing
 
 //	Com_Printf("... FX System Cleanup\n");
 	trap_FX_FreeSystem();

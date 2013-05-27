@@ -832,26 +832,12 @@ typedef struct {
 	int				itemNum;
 } powerupInfo_t;
 
-
-#define MAX_SKULLTRAIL		10
-
-typedef struct {
-	vec3_t positions[MAX_SKULLTRAIL];
-	int numpositions;
-} skulltrail_t;
-
-
-#define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
 
 //======================================================================
 
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
-
-#include "cg_postprocess.h"
-
-qboolean JKG_CheckIfIntel(void);
 
 #define MAX_PREDICTED_EVENTS	16
 
@@ -1020,13 +1006,6 @@ typedef struct {
 	int			attackerTime;
 	int			voiceTime;
 
-	// reward medals
-	int			rewardStack;
-	int			rewardTime;
-	int			rewardCount[MAX_REWARDSTACK];
-	qhandle_t	rewardShader[MAX_REWARDSTACK];
-	qhandle_t	rewardSound[MAX_REWARDSTACK];
-
 	// sound buffer mainly for announcer sounds
 	int			soundBufferIn;
 	int			soundBufferOut;
@@ -1144,7 +1123,6 @@ Ghoul2 Insert End
 
 	qboolean            framebufferActive;
 	int					motionBlurTime;
-	ppColormod_t		colorMod;
 	float				blurLevel;
 	int					blurPasses;
 	float				noise_cintensity;

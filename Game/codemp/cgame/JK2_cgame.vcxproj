@@ -234,7 +234,7 @@
     </PreLinkEvent>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;winmm.lib;jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)cgamex86.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\gameswf\dependencies\jpeglib\lib;..\gameswf\dependencies\SDL\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -296,7 +296,6 @@
     <ClCompile Include="cg_newDraw.c" />
     <ClCompile Include="cg_players.c" />
     <ClCompile Include="cg_playerstate.c" />
-    <ClCompile Include="cg_postprocess.c" />
     <ClCompile Include="cg_predict.c" />
     <ClCompile Include="cg_scoreboard.c" />
     <ClCompile Include="cg_servercmds.c" />
@@ -326,15 +325,12 @@
     <ClCompile Include="jkg_chatcmds.c" />
     <ClCompile Include="jkg_cinbuild.c" />
     <ClCompile Include="jkg_custombounds.c" />
-    <ClCompile Include="jkg_framebuffers.c" />
     <ClCompile Include="..\game\jkg_gangwars.c" />
-    <ClCompile Include="jkg_glcommon.c" />
     <ClCompile Include="jkg_hud.c" />
     <ClCompile Include="jkg_minimaps.c" />
     <ClCompile Include="jkg_musicengine.c" />
     <ClCompile Include="jkg_navmesh_visualiser.cpp" />
     <ClCompile Include="jkg_patcher.c" />
-    <ClCompile Include="jkg_pixelshaders.c" />
     <ClCompile Include="jkg_splinepaths.c" />
     <ClCompile Include="jkg_autowaypoint.c" />
     <ClCompile Include="jkg_wpindicators.c" />
@@ -377,7 +373,6 @@
     <ClCompile Include="..\libraries\RDDebugUtils\Source\DetourDebugDraw.cpp" />
     <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDebugDraw.cpp" />
     <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDump.cpp" />
-    <ClCompile Include="..\libraries\glew\src\glew.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h" />
@@ -392,7 +387,6 @@
     <ClInclude Include="cg_crossover.h" />
     <ClInclude Include="cg_lights.h" />
     <ClInclude Include="cg_local.h" />
-    <ClInclude Include="cg_postprocess.h" />
     <ClInclude Include="cg_public.h" />
     <ClInclude Include="cg_weapons.h" />
     <ClInclude Include="..\shared\qcommon\disablewarnings.h" />
@@ -404,13 +398,10 @@
     <ClInclude Include="jkg_cg_items.h" />
     <ClInclude Include="jkg_chatcmds.h" />
     <ClInclude Include="jkg_eshader.h" />
-    <ClInclude Include="jkg_framebuffers.h" />
     <ClInclude Include="..\game\jkg_gangwars.h" />
-    <ClInclude Include="jkg_glcommon.h" />
     <ClInclude Include="jkg_hud.h" />
     <ClInclude Include="jkg_navmesh_visualiser.h" />
     <ClInclude Include="jkg_patcher.h" />
-    <ClInclude Include="jkg_pixelshaders.h" />
     <ClInclude Include="..\ui\keycodes.h" />
     <ClInclude Include="..\..\JKGalaxies\ui\menudef.h" />
     <ClInclude Include="..\game\q_shared.h" />
@@ -455,9 +446,6 @@
     <ClInclude Include="..\libraries\RDDebugUtils\Include\DetourDebugDraw.h" />
     <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDebugDraw.h" />
     <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDump.h" />
-    <ClInclude Include="..\libraries\glew\include\GL\glew.h" />
-    <ClInclude Include="..\libraries\glew\include\GL\glxew.h" />
-    <ClInclude Include="..\libraries\glew\include\GL\wglew.h" />
     <ClInclude Include="bass.h" />
     <ClInclude Include="basstest.h" />
   </ItemGroup>

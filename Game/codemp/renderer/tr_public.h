@@ -3,6 +3,7 @@
 #include "renderer/tr_types.h"
 #include "qcommon/MiniHeap.h"
 #include "ghoul2/ghoul2_shared.h"
+#include "qcommon/qcommon.h"	// <-- this line here, doesn't make a difference if i add or remove it, it still fails with vm_t
 
 #define	REF_API_VERSION 1
 
