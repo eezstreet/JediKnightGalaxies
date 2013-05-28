@@ -447,8 +447,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
-	//{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },
-	{ &d_saberInterpolate, "d_saberInterpolate", "2", CVAR_CHEAT, 0, qtrue },		// Stoiss edit
+	{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },	// Stoiss edit
 
 	{ &g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_friendlySaber, "g_friendlySaber", "0", CVAR_ARCHIVE, 0, qtrue  },
