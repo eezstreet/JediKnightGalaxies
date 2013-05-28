@@ -1522,6 +1522,38 @@ static int GLua_Player_GetAdminRank(lua_State *L) {
 	return 1;
 }
 
+// eezstreet add -- Do us a solid and add some stuff for adding credits m8, thx
+
+static int GLua_Player_GetCreditCount(lua_State *L) {
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+
+	if (!ply) return 0;
+	lua_pushinteger(L, level.clients[ply->clientNum].ps.persistant[PERS_CREDITS]);
+	return 1;
+}
+
+static int GLua_Player_SetCreditCount(lua_State *L) {
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	gentity_t *ent;
+	int setTo = lua_tointeger(L,2);
+	if (!ply) return 0;
+	ent = &g_entities[ply->clientNum];
+	
+	ent->client->ps.persistant[PERS_CREDITS] = setTo;
+	return 0;
+}
+
+static int GLua_Player_ModifyCreditCount(lua_State *L) {
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	gentity_t *ent;
+	int modify = lua_tointeger(L,2);
+	if (!ply) return 0;
+	ent = &g_entities[ply->clientNum];
+	
+	ent->client->ps.persistant[PERS_CREDITS] += modify;
+	return 0;
+}
+
 /**************************************************
 * player_m
 *
@@ -1627,6 +1659,10 @@ static const struct luaL_reg player_m [] = {
 	{"HasHoldable", GLua_Player_HasHoldable},
 	{"StripHoldables", GLua_Player_StripHoldables},
 	{"ServerTransfer", GLua_Player_ServerTransfer},
+	// stuff for credits --eez
+	{"GetCreditCount", GLua_Player_GetCreditCount},
+	{"SetCreditCount", GLua_Player_SetCreditCount},
+	{"ModifyCreditCount", GLua_Player_ModifyCreditCount},
 	{NULL, NULL},
 };
 
