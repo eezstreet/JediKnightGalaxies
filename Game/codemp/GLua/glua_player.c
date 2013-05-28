@@ -1543,6 +1543,17 @@ static int GLua_Player_SetCreditCount(lua_State *L) {
 	return 0;
 }
 
+static int GLua_Player_ModifyCreditCount(lua_State *L) {
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	gentity_t *ent;
+	int modify = lua_tointeger(L,2);
+	if (!ply) return 0;
+	ent = &g_entities[ply->clientNum];
+	
+	ent->client->ps.persistant[PERS_CREDITS] += modify;
+	return 0;
+}
+
 /**************************************************
 * player_m
 *
@@ -1651,6 +1662,7 @@ static const struct luaL_reg player_m [] = {
 	// stuff for credits --eez
 	{"GetCreditCount", GLua_Player_GetCreditCount},
 	{"SetCreditCount", GLua_Player_SetCreditCount},
+	{"ModifyCreditCount", GLua_Player_ModifyCreditCount},
 	{NULL, NULL},
 };
 
