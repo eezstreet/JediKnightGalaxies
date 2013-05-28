@@ -5196,7 +5196,7 @@ void CG_DrawNPCNames( void )
 			break;
 			//Stoiss add: Faq coler names for npcs in this class
 			case CLASS_JKG_FAQ_IMP_DROID:
-				str2 = va("< Faq Imp Droid >");//red coler
+				str2 = va("< Imperial FAQ Droid >");//red coler
 			tclr[0] = 1.0f;
 			tclr[1] = 0.125f;
 			tclr[2] = 0.125f;
@@ -5208,7 +5208,7 @@ void CG_DrawNPCNames( void )
 			tclr2[3] = 1.0f;
 			break;
 			case CLASS_JKG_FAQ_ALLIANCE_DROID:
-				str2 = va("< Faq Alliance Droid >");//Dark Blue coler
+				str2 = va("< Alliance FAQ Droid >");//Dark Blue coler
 			tclr[0] = 0.125f;
 			tclr[1] = 0.125f;
 			tclr[2] = 0.7f;
@@ -5221,43 +5221,43 @@ void CG_DrawNPCNames( void )
 			break;
 			case CLASS_JKG_FAQ_SPY_DROID:
 				str2 = va("< Faq Spy Droid >");//Yellow colder
-			tclr[0] = 0.125f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.7f;
+			tclr[0] = 0.7f;
+			tclr[1] = 0.7f;
+			tclr[2] = 0.125f;
 			tclr[3] = 1.0f;
 
-			tclr2[0] = 0.125f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.7f;
+			tclr2[0] = 0.7f;
+			tclr2[1] = 0.7f;
+			tclr2[2] = 0.125f;
 			tclr2[3] = 1.0f;
 			break;
 
 			case CLASS_JKG_FAQ_CRAFTER_DROID:
-				str2 = va("< Faq Crafter Droid >");//Yellow colder
-			tclr[0] = 0.125f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.7f;
+				str2 = va("< Master Crafter >");//Yellow colder
+			tclr[0] = 0.7f;
+			tclr[1] = 0.7f;
+			tclr[2] = 0.125f;
 			tclr[3] = 1.0f;
 
-			tclr2[0] = 0.125f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.7f;
+			tclr2[0] = 0.7f;
+			tclr2[1] = 0.7f;
+			tclr2[2] = 0.125f;
 			tclr2[3] = 1.0f;
 			break;
 			case CLASS_JKG_FAQ_MERC_DROID:
-				str2 = va("< Faq Merc Droid >");//Yellow colder. fixme: need a better coler for mercs
-			tclr[0] = 0.125f;
-			tclr[1] = 0.125f;
-			tclr[2] = 0.7f;
+				str2 = va("< Merc FAQ Droid >");//Yellow colder. fixme: need a better coler for mercs
+			tclr[0] = 1.0f;
+			tclr[1] = 0.225f;
+			tclr[2] = 0.125f;
 			tclr[3] = 1.0f;
 
-			tclr2[0] = 0.125f;
-			tclr2[1] = 0.125f;
-			tclr2[2] = 0.7f;
+			tclr2[0] = 1.0f;
+			tclr2[1] = 0.225f;
+			tclr2[2] = 0.125f;
 			tclr2[3] = 1.0f;
 			break;
 			case CLASS_JKG_FAQ_JEDI_MENTOR:
-				str2 = va("< Faq Jedi Mentor >");// Blue coler
+				str2 = va("< Jedi Mentor >");// Blue coler
 			tclr[0] = 0.125f;
 			tclr[1] = 0.325f;
 			tclr[2] = 0.7f;
@@ -5269,14 +5269,14 @@ void CG_DrawNPCNames( void )
 			tclr2[3] = 1.0f;
 			break;
 			case CLASS_JKF_FAQ_SITH_MENTOR:
-				str2 = va("< Faq Sith Mentor >");//oriange coler
+				str2 = va("< Sith Mentor >");//oriange coler
 			tclr[0] = 1.0f;
-			tclr[1] = 0.325f;
+			tclr[1] = 0.225f;
 			tclr[2] = 0.125f;
 			tclr[3] = 1.0f;
 
 			tclr2[0] = 1.0f;
-			tclr2[1] = 0.325f;
+			tclr2[1] = 0.225f;
 			tclr2[2] = 0.125f;
 			tclr2[3] = 1.0f;
 			break;//Stoiss end
