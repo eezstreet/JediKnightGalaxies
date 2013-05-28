@@ -31,7 +31,7 @@ typedef struct asyncTask_s {
 
 	struct asyncTask_s *next;		// Used by stacks/queues
 } asyncTask_t;
-
+/*
 void JKG_UI_LoadAuxiliaryLibrary();
 void JKG_GLUI_PatchEngine();
 void JKG_GLUI_BreakLinkup();
@@ -41,4 +41,5 @@ void JKG_GLUI_Task_Test(void (*callback)(asyncTask_t *task));
 void JKG_GLUI_Task_GetTermsOfUse(void (*callback)(asyncTask_t *task));
 void JKG_GLUI_Task_RegisterUser(const char *username, const char *password, const char *email, void (*callback)(asyncTask_t *task));
 void JKG_GLUI_Task_Login(const char *username, const char *password, void (*callback)(asyncTask_t *task));
+*/
 

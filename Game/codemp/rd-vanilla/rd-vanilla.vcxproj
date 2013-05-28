@@ -38,8 +38,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(Configuration)/Build\</OutDir>
-    <IntDir>$(Configuration)/rd-vanilla\</IntDir>
+    <OutDir>../$(Configuration)/Build\</OutDir>
+    <IntDir>../$(Configuration)/rd-vanilla\</IntDir>
     <LibraryPath>$(ProjectDir)\..\libs\win32;$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
     <TargetName>rd-vanilla_$(PlatformShortName)</TargetName>
   </PropertyGroup>

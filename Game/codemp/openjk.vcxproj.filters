@@ -76,9 +76,6 @@
     <ClCompile Include="client\cl_cgame.cpp">
       <Filter>Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_cin.cpp">
-      <Filter>Client</Filter>
-    </ClCompile>
     <ClCompile Include="client\cl_console.cpp">
       <Filter>Client</Filter>
     </ClCompile>
@@ -492,6 +489,9 @@
     </ClCompile>
     <ClCompile Include="zlib\zutil.c">
       <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="client\cl_cin.cpp">
+      <Filter>Client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

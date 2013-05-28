@@ -780,13 +780,12 @@ void IN_Button15Down(void) {IN_KeyDown(&in_buttons[15]);}
 void IN_Button15Up(void) {IN_KeyUp(&in_buttons[15]);}
 
 void IN_CenterView (void) {
-	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+	// This command is ignored if we have +attack down --eez
+	if( !in_buttons[0].active )
+	{
+		cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+	}
 }
-
-#ifdef _XBOX
-void IN_VoiceToggleDown(void) { g_Voice.SetChannel( CHAN_ALL ); }
-void IN_VoiceToggleUp(void) { g_Voice.SetChannel( CHAN_TEAM ); }
-#endif
 
 
 //==========================================================================

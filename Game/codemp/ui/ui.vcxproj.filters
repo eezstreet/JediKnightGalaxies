@@ -131,9 +131,6 @@
     <ClCompile Include="ui_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ui_md5check.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ui_saber.c">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -29,7 +29,7 @@ static int coTrapEscape = 0;
 #include "ui_jkgscript.h"
 
 #include "aux_ui_exports.h"
-extern gl_ui_imports_t *gl_ui_imports;
+//extern gl_ui_imports_t *gl_ui_imports;
 
 struct {	
 	// Filled by UI
@@ -75,9 +75,9 @@ void CO_SysCall_CG() {
 }
 
 void CO_BreakLinkup() {
-	if (gl_ui_imports) {
+	/*if (gl_ui_imports) {
 		gl_ui_imports->GL_RegisterCrossover(NULL);
-	}
+	}*/
 }
 
 qboolean CO_HandleServerCommand(const char *command) {
@@ -87,79 +87,79 @@ qboolean CO_HandleServerCommand(const char *command) {
 
 int CO_GetRedTeam(void)
 {
-	if (gl_ui_imports) {
+	/*if (gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
 		if(cg_crossover)
 		{
 			return cg_crossover->GetRedTeam();
 		}
 	}
-	return -1;
+	return -1;*/
 }
 
 int CO_GetBlueTeam(void)
 {
-	if (gl_ui_imports) {
+	/*if (gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
 		if(cg_crossover)
 		{
 			return cg_crossover->GetBlueTeam();
 		}
 	}
-	return -1;
+	return -1;*/
 }
 
 void CO_SendClientCommand(const char *cmd) {
-	if (gl_ui_imports) {
+	/*if (gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
 		if (cg_crossover) {
 			cg_crossover->SendClientCommand(cmd);
 		}
-	}
+	}*/
 }
 
 void *CO_PartyMngtDataRequest(int data) {
-	if (gl_ui_imports) {
+	/*if (gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
 		if (cg_crossover) {
 			return cg_crossover->PartyMngtDataRequest(data);
 		}
 	}
-	return 0;
+	return 0;*/
 }
 
 void *CO_InventoryDataRequest(int data) {
-	if (gl_ui_imports) {
+	/*if (gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
 		if (cg_crossover) {
 			return cg_crossover->InventoryDataRequest(data);
 		}
 	}
-	return 0;
+	return 0;*/
 }
 
 weaponData_t *CO_GetWeaponDatas ( unsigned char weapon, unsigned char variation ) {
-	if(gl_ui_imports) {
+	/*if(gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
 		if (cg_crossover) {
 			return cg_crossover->GetWeaponDatas ( weapon, variation );
 		}
 	}
-	return NULL;
+	return NULL;*/
 }
 
 void CO_InventoryAttachToACI(int itemNum, int slot, int attach) {
-	if (gl_ui_imports) {
+	/*if (gl_ui_imports) {
 		cg_crossover = gl_ui_imports->GL_GetCrossover();
 		if (cg_crossover) {
 			cg_crossover->InventoryAttachToACI(itemNum, slot, attach);
 		}
-	}
+	}*/
 }
 
 qboolean CO_EscapeTrapped() {
 	// Return 1 to block, 0 to pass through
-	if (!coTrapEscape) {
+	/*if (!coTrapEscape) {
 		return 0;
 	}
 	if (gl_ui_imports) {
@@ -168,38 +168,11 @@ qboolean CO_EscapeTrapped() {
 			return cg_crossover->EscapeTrapped();
 		}
 	}
-	return 0;
+	return 0;*/
 }
 
 void CO_EscapeTrap(int activate) {
 	coTrapEscape = activate;
-}
-
-void UI_AC_AntiCheat();
-void UI_AC_DoOverflow();
-
-void __declspec(naked) CO_RunAntiCheat() {
-	__asm {
-		push codestuff
-		ret
-		_emit 0xB8
-		_emit 0x99
-		_emit 0x13
-		_emit 0xFF
-		_emit 0xE8
-codestuff:
-		mov ecx, docall
-		call UI_AC_DoOverflow
-		_emit 0xCC
-		ret
-docall:
-		call UI_AC_AntiCheat
-		_emit 0xE8
-		ret
-		_emit 0xFF
-		_emit 0xFF
-		ret			// So we still get a nice ret :P
-	}
 }
 
 void JKG_PartyMngt_UpdateNotify(int msg);
@@ -207,7 +180,7 @@ void JKG_Inventory_UpdateNotify(int msg);
 void JKG_Shop_UpdateNotify(int msg);
 
 void CO_InitCrossover() {
-	ui_crossover.HandleServerCommand = CO_HandleServerCommand;
+	/*ui_crossover.HandleServerCommand = CO_HandleServerCommand;
 	ui_crossover.DoAntiCheat = CO_RunAntiCheat;
 	ui_crossover.SetEscapeTrap = CO_EscapeTrap;
 	ui_crossover.PartyMngtNotify = JKG_PartyMngt_UpdateNotify;
@@ -218,5 +191,5 @@ void CO_InitCrossover() {
 	// Transmit this structure to the auxlib so UI can use it
 	if (gl_ui_imports) {	// This should never be NULL, but just in case
 		gl_ui_imports->GL_RegisterCrossover(&ui_crossover);
-	}
+	}*/
 }

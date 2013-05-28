@@ -60,28 +60,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gls_bspdecrypter.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gls_challenge.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gls_crashreport.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gls_engine.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gls_enginefuncs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gls_hrtimer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gls_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gls_stresslevel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\json\cJSON.c">

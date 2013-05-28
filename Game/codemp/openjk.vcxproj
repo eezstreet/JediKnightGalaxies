@@ -56,7 +56,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..;..\libraries;..\libraries\png;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\libraries;..\libraries\png;libraries\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;BOTLIB;_JK2;_JK2MP;ENGINE%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -74,7 +74,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>ALut.lib;OpenAL32.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ALut.lib;OpenAL32.lib;winmm.lib;wsock32.lib;libogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -83,7 +83,7 @@
       <MapFileName>$(IntDir)$(ProjectName).map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
-      <AdditionalLibraryDirectories>libraries/OpenAL;libraries/zlib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>libraries/OpenAL;libraries/zlib;libraries/ogg</AdditionalLibraryDirectories>
       <Profile>true</Profile>
     </Link>
     <Midl>
@@ -304,6 +304,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="client\cl_cin.cpp" />
     <ClCompile Include="client\FXExport.cpp" />
     <ClCompile Include="client\FxPrimitives.cpp" />
     <ClCompile Include="client\FxScheduler.cpp" />
@@ -312,7 +313,6 @@
     <ClCompile Include="client\FxUtil.cpp" />
     <ClCompile Include="client\cl_avi.cpp" />
     <ClCompile Include="client\cl_cgame.cpp" />
-    <ClCompile Include="client\cl_cin.cpp" />
     <ClCompile Include="client\cl_console.cpp" />
     <ClCompile Include="client\cl_input.cpp" />
     <ClCompile Include="client\cl_keys.cpp" />

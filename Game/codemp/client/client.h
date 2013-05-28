@@ -538,6 +538,10 @@ void CIN_CloseAllVideos(void);
 void CL_UpdateHotSwap(void);
 
 //
+// cl_cin_ogv.cpp
+//
+
+//
 // cl_cgame.c
 //
 void CL_InitCGame( void );

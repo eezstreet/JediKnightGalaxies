@@ -213,14 +213,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gls_bspdecrypter.c" />
-    <ClCompile Include="gls_challenge.c" />
-    <ClCompile Include="gls_crashreport.c" />
-    <ClCompile Include="gls_engine.c" />
-    <ClCompile Include="gls_enginefuncs.c" />
     <ClCompile Include="gls_hrtimer.c" />
     <ClCompile Include="gls_main.c" />
-    <ClCompile Include="gls_stresslevel.c" />
     <ClCompile Include="..\libraries\json\cJSON.c" />
     <ClCompile Include="..\libraries\encoding\base128.c" />
     <ClCompile Include="..\libraries\encoding\bitstream.c" />

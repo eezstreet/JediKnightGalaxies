@@ -294,13 +294,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		return UI_API_VERSION;
 
 	case UI_INIT:
-		{
-			const char *res;
-			res = JAMD5Check();
-			if (res)
-				trap_Error(res);
-		}
-
 		_UI_Init(arg0);
 		return 0;
 
@@ -1030,8 +1023,6 @@ void _UI_Refresh( int realtime )
 	//	return;
 	//}
 
-	JKG_GLUI_ProcessTasks();
-
 	trap_G2API_SetTime(realtime, 0);
 	trap_G2API_SetTime(realtime, 1);
 	//ghoul2 timer must be explicitly updated during ui rendering.
@@ -1207,7 +1198,6 @@ void _UI_Shutdown( void ) {
 	trap_LAN_SaveCachedServers();
 	UI_CleanupGhoul2();
 	trap_Cvar_Set("connmsg", "");	// Clear the connection message override
-	JKG_GLUI_BreakLinkup();
 }
 
 char *defaultMenu = NULL;
@@ -9529,8 +9519,6 @@ void _UI_Init( qboolean inGameLoad ) {
 	// DERP. --eez
 	trap_Cvar_Set("clver", JKG_VERSION);
 
-	JKG_UI_LoadAuxiliaryLibrary();
-	JKG_GLUI_PatchEngine();
 	CO_InitCrossover();
 	// Get the list of possible languages
 	uiInfo.languageCount = trap_SP_GetNumLanguages();	// this does a dir scan, so use carefully
@@ -10608,24 +10596,6 @@ static void UI_DoServerRefresh( void )
 
 /*
 =================
-JKG_ChangeSupportedProtocol
-=================
-*/
-#define WIN32_LEAN_AND_MEAN
-#ifndef Rectangle
-#include <windows.h>
-#endif
-
-static void JKG_ChangeSupportedProtocol(unsigned char theProtocol)
-{
-	DWORD dummy;
-	VirtualProtect((LPVOID)0x00420093, sizeof(unsigned char), PAGE_EXECUTE_READWRITE, &dummy);
-	*(unsigned char *)0x00420093 = theProtocol;
-	VirtualProtect((LPVOID)0x00420093, sizeof(unsigned char), PAGE_EXECUTE_READ, NULL);
-}
-
-/*
-=================
 UI_StartServerRefresh
 =================
 */
@@ -10660,7 +10630,7 @@ static void UI_StartServerRefresh(qboolean full)
 	}
 
 	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-#ifndef _XBOX	// Optimatch is handled elsewhere
+
 	if( UI_SourceForLAN() != AS_LOCAL && UI_SourceForLAN() != AS_FAVORITES) {
 		if( ui_netSource.integer == AS_GLOBAL ) {
 			i = 1;
@@ -10679,20 +10649,16 @@ static void UI_StartServerRefresh(qboolean full)
 			if(!Q_stricmp(holdStr, "JKG"))
 			{
 #ifdef			__PTR
-				JKG_ChangeSupportedProtocol(28);
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 28\n", i ) );			// PTR uses protocol 28
 #else
-				JKG_ChangeSupportedProtocol(27);
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 27\n", i ) );			// hax. JKG servers use protocol 27
 #endif
 			}
 			else
 			{
-				JKG_ChangeSupportedProtocol(atoi(UI_Cvar_VariableString("protocol")));
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s\n", i, UI_Cvar_VariableString("protocol") ) );
 			}
 		}
 	}
-#endif
 }
 
