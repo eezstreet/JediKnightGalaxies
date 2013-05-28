@@ -218,16 +218,17 @@ player:Kick([reason:string]):nil - Kicks the player off the server with the reas
 player:SetTeam(team:string):nil - Sends the player to the specified team ("r" = red, "b" = blue, "s" = spectators, "f" = free)
 player:GetTeam():number - Returns the team the player is currently on (0 = free, 1 = red, 2 = blue, 3 = spectators)
 player:Spawn():nil - Forces the player to (re)spawn
-player:Health():number - Returns the player's current health.
-player:MaxHealth():number - Returns the player's max health.
-player:Armor():number - Returns the player's current armor.
-player:SetHealth(value:number):nil - Sets the player's current health.
-player:SetMaxHealth(value:number):nil - Sets the player's max health.
-player:SetArmor(value:number):nil - Sets the player's current armor.
 player:GetEyeTrace():table - Returns a table with trace results (see above)
 player:GetEntity():entity - Returns the entity object of the player
 player:GiveWeapon(weapon:number):nil - Gives the player the specified weapon (weapon = one of the WP_ constants)
 player:TakeWeapon(weapon:number):nil - Takes the specified weapon from the player (weapon = one of the WP_ constants)
 player:HasWeapon(weapon:number):bool - Returns whether the player has the specified weapon or not (weapon = one of the WP_ constants)
+player:StripWeapons():nil - Removes all weapons from the client [DOES NOT WORK]
+player:GetCreditCount():number - Returns number of credits that the player is currently holding on to.
+player:SetCreditCount(amount:number):nil - sets the amount of credits that the player has
+player:ModifyCreditCount(amount:number):nil - adds to the number of credits that the player has (eg a value of 100 adds 100 credits, -100 subtracts 100 credits)
+player:SetAmmo(ammotype:string, amount:number):nil - sets ammo of a certain type. Ammo is defined in ammo.json
+player:GetAmmo(ammotype:string):number - returns amount of ammo of a certain type that the player is holding
+player:ModifyAmmo(ammotype:string, amount:number):nil - adds to, rather than setting current ammo
 
 --------------------------------------------------------------------------------------------------------

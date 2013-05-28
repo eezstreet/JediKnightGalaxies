@@ -1030,30 +1030,49 @@ static int GLua_Player_StartHacking(lua_State *L) {
 
 static int GLua_Player_SetAmmo(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
-	int ammo = luaL_checkint(L,2);
+	const char *ammoString = lua_tostring(L, 2);
 	int amt = luaL_checkint(L,3);
+	const ammo_t *ammo;
+	if (!ammoString) return 0;
 	if (!ply) return 0;
-	if (ammo < 0 || ammo >= AMMO_MAX) {
-		return 0;
-	}
+	
 	if (amt < 0) {
 		amt = 0;
 	}
-	// TODO: use proper ammo array here
-	g_entities[ply->clientNum].client->ammoTable[ammo] = amt;
+	
+	ammo = BG_GetAmmo(ammoString);
+
+	g_entities[ply->clientNum].client->ammoTable[ammo->ammoIndex] = amt;
 	
 	return 0;
 }
 
 static int GLua_Player_GetAmmo(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
-	int ammo = luaL_checkint(L,2);
+	const char *ammoString = lua_tostring(L, 2);
+	const ammo_t *ammo;
 	if (!ply) return 0;
-	if (ammo < 0 || ammo >= AMMO_MAX) {
-		return 0;
-	}
-	// TODO: use proper ammo array here
-	lua_pushinteger(L, g_entities[ply->clientNum].client->ammoTable[ammo]);
+	if (!ammoString) return 0;
+	
+	ammo = BG_GetAmmo(ammoString);
+
+	lua_pushinteger(L, g_entities[ply->clientNum].client->ammoTable[ammo->ammoIndex]);
+	return 1;
+}
+
+static int GLua_Player_ModifyAmmo(lua_State *L)
+{
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	const char *ammoString = lua_tostring(L, 2);
+	const int amount = luaL_checkint(L, 3);
+	const ammo_t *ammo;
+
+	if (!ply) return 0;
+	if(!ammoString) return 0;
+
+	ammo = BG_GetAmmo(ammoString);
+
+	g_entities[ply->clientNum].client->ammoTable[ammo->ammoIndex] = amount;
 	return 1;
 }
 
@@ -1635,6 +1654,7 @@ static const struct luaL_reg player_m [] = {
 	{"StartHacking", GLua_Player_StartHacking},	
 	{"SetAmmo", GLua_Player_SetAmmo},
 	{"GetAmmo", GLua_Player_GetAmmo},
+	{"ModifyAmmo", GLua_Player_ModifyAmmo},
 	{"StripClipAmmo", GLua_Player_StripClipAmmo},
 	{"StripAmmo", GLua_Player_StripAmmo},
 	{"SetClipAmmo", GLua_Player_SetClipAmmo},
