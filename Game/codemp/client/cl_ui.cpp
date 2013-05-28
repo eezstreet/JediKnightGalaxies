@@ -1281,6 +1281,12 @@ Ghoul2 Insert End
 			
 			return re.G2API_AttachG2Model(*g2From, args[2], *g2To, args[4], args[5]);
 		}
+
+	// Jedi Knight Galaxies
+
+	case UI_JKG_CHANGEPROTOCOL:
+
+		return 0;
 /*
 Ghoul2 Insert End
 */

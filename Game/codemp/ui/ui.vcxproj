@@ -270,7 +270,6 @@
     <ClCompile Include="jkg_ui_auxlib.c" />
     <ClCompile Include="..\game\q_math.c" />
     <ClCompile Include="..\game\q_shared.c" />
-    <ClCompile Include="ui_anticheat.c" />
     <ClCompile Include="ui_atoms.c" />
     <ClCompile Include="ui_crossover.c" />
     <ClCompile Include="ui_force.c" />

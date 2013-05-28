@@ -113,9 +113,9 @@ qhandle_t trap_R_RegisterFont( const char *fontName )
 	return syscall( UI_R_REGISTERFONT, fontName);
 }
 
-int	trap_R_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale)
+int trap_R_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale)
 {
-	return syscall( UI_R_FONT_STRLENPIXELS, text, iFontIndex, PASSFLOAT(scale));
+	return (float)syscall( UI_R_FONT_STRLENPIXELS, text, iFontIndex, PASSFLOAT(scale));
 }
 
 int trap_R_Font_StrLenChars(const char *text)
@@ -668,5 +668,10 @@ qboolean trap_G2API_AttachG2Model(void *ghoul2From, int modelIndexFrom, void *gh
 /*
 Ghoul2 Insert End
 */
+
+void trap_JKG_ChangeProtocol( int whatProtocol )
+{
+	syscall(UI_JKG_CHANGEPROTOCOL, whatProtocol );
+}
 
 #include "../namespace_end.h"

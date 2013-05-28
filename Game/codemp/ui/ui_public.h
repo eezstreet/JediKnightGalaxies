@@ -189,6 +189,9 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
+
+	// Jedi Knight Galaxies, temp until I remove these later --eez
+	UI_JKG_CHANGEPROTOCOL,
 } uiImport_t;
 
 typedef enum {

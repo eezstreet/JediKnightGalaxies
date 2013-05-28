@@ -9497,11 +9497,6 @@ UI_Init
 */
 //#define JKG_CLIENTSIDE_VERSION "0.3.25a"
 
-void __inline ClearSelfSabotage() {
-	// Hack: Clear the one-shot self-sabotage switch (0 and 1 are unaffected, 2 (one-shot) goes to 0)
-	*(int *)0xB8D544 &= 1;
-}
-
 #include "ui_crossover.h"
 
 
@@ -10644,18 +10639,20 @@ static void UI_StartServerRefresh(qboolean full)
 			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s\n", i, ptr));
 		}
 		else {
-			char holdStr[64];
-			strcpy(holdStr, serverFilters[ui_serverFilterType.integer].description);
-			if(!Q_stricmp(holdStr, "JKG"))
+			// cleaned this up slightly --eez
+			if(!Q_stricmp(serverFilters[ui_serverFilterType.integer].description, "JKG"))
 			{
 #ifdef			__PTR
+				trap_JKG_ChangeProtocol( 28 );
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 28\n", i ) );			// PTR uses protocol 28
 #else
+				trap_JKG_ChangeProtocol( 27 );
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 27\n", i ) );			// hax. JKG servers use protocol 27
 #endif
 			}
 			else
 			{
+				trap_JKG_ChangeProtocol( atoi(UI_Cvar_VariableString("protocol")) );
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s\n", i, UI_Cvar_VariableString("protocol") ) );
 			}
 		}

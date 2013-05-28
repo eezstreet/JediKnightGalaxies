@@ -3148,6 +3148,7 @@ void CL_GlobalServers_f( void ) {
 	netadr_t	to;
 	int			count, i, masterNum;
 	char		command[1024];
+	char		mserver[512];
 	
 	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > 1)
 	{
@@ -3155,20 +3156,22 @@ void CL_GlobalServers_f( void ) {
 		return;
 	}
 
+	Cvar_VariableStringBuffer(va("sv_master%i", masterNum), mserver, 512);
+
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
 
-	i = NET_StringToAdr(MASTER_SERVER_NAME, &to);
+	i = NET_StringToAdr(mserver, &to);
 
 	if (!i)
 	{
-		Com_Printf("CL_GlobalServers_f: Error: could not resolve address of master %s\n", MASTER_SERVER_NAME);
+		Com_Printf("CL_GlobalServers_f: Error: could not resolve address of master %s\n", mserver);
 		return;
 	}
 	to.type = NA_IP;
 	to.port = BigShort(PORT_MASTER);
 
-	Com_Printf("Requesting servers from the master %s (%s)...\n", MASTER_SERVER_NAME, NET_AdrToString(to));
+	Com_Printf("Requesting servers from the master %s (%s)...\n", mserver, NET_AdrToString(to));
 
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;

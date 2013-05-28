@@ -685,6 +685,8 @@ void		trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, ch
 void CL_InitMultiMasterServer(void);
 void CL_ShutdownMultiMasterServer(void);
 
+void trap_JKG_ChangeProtocol( int whatProtocol );
+
 #include "../namespace_end.h"
 
 /*

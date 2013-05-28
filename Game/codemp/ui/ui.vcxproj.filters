@@ -110,9 +110,6 @@
     <ClCompile Include="..\game\q_shared.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ui_anticheat.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ui_atoms.c">
       <Filter>Source Files</Filter>
     </ClCompile>
