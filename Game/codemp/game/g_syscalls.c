@@ -22,13 +22,6 @@ void (*iCom_Error)(int level, const char *error) = (void (*)(int, const char*))0
 
 void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
 	syscall = syscallptr;
-#ifdef _WIN32
-	// Ensure this is jampded and not jamp!
-	if (strncmp((char *)0x4A88AC, "(internal)JAmp:", 15)) {
-		// No match? then this is jamp.exe, crash it
-		iCom_Error(0, "Invalid engine detected, please run Jedi Knight Galaxies using jampded.exe v1.01 (not jamp.exe!)\n");
-	}
-#endif
 }
 /*
 #ifdef __linux__
