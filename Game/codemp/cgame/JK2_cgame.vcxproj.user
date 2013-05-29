@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>C:\Games\JKG\GameData\jamp.exe</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>+set fs_cdpath "C:\Games\JKG\GameData\" +set fs_game "JKG" </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>+set fs_cdpath "C:\Games\JKG\GameData\" +set fs_game "JKG" + connect localhost:29070</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>../Debug/DLLs</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
