@@ -1076,12 +1076,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 #endif
 
-	JKG_LoadAuxiliaryLibrary();
-	JKG_GLS_PatchEngine();
+	//JKG_LoadAuxiliaryLibrary();
+	//JKG_GLS_PatchEngine();
 	OpenSSL_add_all_algorithms();
 
 	// Initialize Threading System
-	JKG_InitThreading();
+	//JKG_InitThreading();
 
 	// Initialize admin commands
 	JKG_Admin_Init();
@@ -2433,19 +2433,6 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	//vsprintf( string +7 , fmt,argptr );
 	//[/OverflowProtection]
 	va_end( argptr );
-
-	/* If message redirecting is not enabled, display the log message in the server console too */
-	/* To determine this, we check if rd_flush != NULL */
-#ifdef __linux__
-	if ( g_dedicated.integer  && !*(void **)0x81E90C8 ) {
-#else
-	if ( g_dedicated.integer  && !*(void **)0x4DC73C ) {
-#endif
-		//[OverflowProtection]
-		G_Printf( "%s", string + l );
-		//G_Printf( "%s", string + 7 );
-		//[/OverflowProtection]
-	}
 
 
 	if ( !level.logFile ) {
@@ -3847,7 +3834,7 @@ void G_RunFrame( int levelTime ) {
 	FRAME_TIME = trap_Milliseconds();
 
 	// Run the main thread task poller (calling final callback functions that need to be on the main thread)
-	JKG_MainThreadPoller();
+	//JKG_MainThreadPoller();
 
 	// Jedi Knight Galaxies
 	// FIXME:
