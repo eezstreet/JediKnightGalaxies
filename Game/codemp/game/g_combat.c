@@ -5071,6 +5071,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		case CLASS_ODDITIES_VENDOR:
 		case CLASS_DRUG_VENDOR:
 		case CLASS_TRAVELLING_VENDOR:
+		case CLASS_JKG_FAQ_IMP_DROID:
+		case CLASS_JKG_FAQ_ALLIANCE_DROID:
+		case CLASS_JKG_FAQ_SPY_DROID:
+		case CLASS_JKG_FAQ_CRAFTER_DROID:
+		case CLASS_JKG_FAQ_MERC_DROID:
+		case CLASS_JKG_FAQ_JEDI_MENTOR:
+		case CLASS_JKF_FAQ_SITH_MENTOR:
 			{
 				targ->enemy = NULL; // Make sure civilians never have an enemy... (no AI for it, no weapon for it)
 

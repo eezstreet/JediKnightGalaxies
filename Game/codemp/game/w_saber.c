@@ -4235,7 +4235,7 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 	//Stoiss end
 	//Stoiss add
 	//boxscale for blockbox
-	int boxScale = 10;
+	float boxScale = 10;
 	
 	int sabimpactdebounce;
 	int sabimpactentitynum;

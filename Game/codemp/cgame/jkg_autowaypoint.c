@@ -5478,7 +5478,7 @@ int FileLength(FILE *fp)
 
 	return end;
 } //end of the function FileLength
-
+/*
 qboolean IsPathDataTooLarge(const char *mapname)
 {
 	// facepalm...really? --eez
@@ -5519,9 +5519,9 @@ qboolean IsPathDataTooLarge(const char *mapname)
 	trap_FS_FCloseFile(f);
 
 	return qfalse;
-*/
-}
 
+}
+*/
 /* */
 void
 AIMod_AutoWaypoint_Optimizer ( void )

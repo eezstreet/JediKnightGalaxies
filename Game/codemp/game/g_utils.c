@@ -1611,6 +1611,13 @@ qboolean ValidUseTarget( gentity_t *ent )
 		case CLASS_ODDITIES_VENDOR:
 		case CLASS_DRUG_VENDOR:
 		case CLASS_TRAVELLING_VENDOR:
+		case CLASS_JKG_FAQ_IMP_DROID:
+		case CLASS_JKG_FAQ_ALLIANCE_DROID:
+		case CLASS_JKG_FAQ_SPY_DROID:
+		case CLASS_JKG_FAQ_CRAFTER_DROID:
+		case CLASS_JKG_FAQ_MERC_DROID:
+		case CLASS_JKG_FAQ_JEDI_MENTOR:
+		case CLASS_JKF_FAQ_SITH_MENTOR:
 			return qtrue;
 			break;
 		default:
