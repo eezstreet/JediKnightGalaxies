@@ -995,6 +995,7 @@ qboolean NPC_CanUseAdvancedFighting()
 	//case CLASS_SENTRY:
 	case CLASS_SHADOWTROOPER:
 	case CLASS_STORMTROOPER:
+	case CLASS_MERC://Stoiss add merc class
 	case CLASS_SWAMP:
 	case CLASS_SWAMPTROOPER:
 	case CLASS_TAVION:
@@ -1485,6 +1486,49 @@ void NPC_BehaviorSet_Sniper( int bState )
 		break;
 	}
 }
+
+/*
+-------------------------
+NPC_BehaviorSet_Humen_Merc
+-------------------------
+*/
+
+void NPC_BehaviorSet_Humen_Merc( int bState )
+{
+	switch( bState )
+	{
+	case BS_STAND_GUARD:
+	case BS_PATROL:
+	case BS_HUNT_AND_KILL:
+	case BS_DEFAULT:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Default();
+		break;
+	case BS_STAND_AND_SHOOT:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Default();
+		break;
+	case BS_INVESTIGATE:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Investigate();
+		break;
+	case BS_SLEEP:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Sleep();
+		break;
+	default:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BehaviorSet_Default( bState );
+		break;
+	}
+}
+
+
 /*
 -------------------------
 NPC_BehaviorSet_Stormtrooper
@@ -2283,6 +2327,7 @@ void NPC_SetHitBox( void )
 	case CLASS_REELO:
 	case CLASS_RODIAN:
 	case CLASS_SHADOWTROOPER:
+	case CLASS_MERC://Stoiss add merc class
 	case CLASS_STORMTROOPER:
 	case CLASS_SWAMP:
 	case CLASS_SWAMPTROOPER:

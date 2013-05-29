@@ -1145,6 +1145,9 @@ void G_CheckMinimumNpcs( void ) {
 
 	// Add vendors...
 	G_CheckVendorNPCs();
+	
+	// add enemies
+	G_CheckMinimumNpcs();
 
 	// Add civilians...
 	G_CheckCivilianNPCs();

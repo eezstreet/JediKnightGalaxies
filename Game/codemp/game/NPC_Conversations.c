@@ -154,6 +154,8 @@ void NPC_StormtrooperFindConversationPartner()
 {
 	if (NPC->client->NPC_class != CLASS_STORMTROOPER) return;
 
+	if (NPC->client->NPC_class != CLASS_MERC) return;//Stoiss add merc class
+
 	if (VectorLength(NPC->client->ps.velocity) <= 16)
 	{// I'm not mooving... Conversaion possible...
 		int i = 0;
@@ -169,6 +171,7 @@ void NPC_StormtrooperFindConversationPartner()
 			if (partner->s.eType != ET_NPC) continue;
 			if (!partner->client) continue;
 			if (partner->client->NPC_class != CLASS_STORMTROOPER) continue;
+			if (partner->client->NPC_class != CLASS_MERC) continue;//Stoiss add merc class
 			if (partner->NPC->conversationPartner || partner->NPC->conversationReplyTime > level.time)
 				if (Distance(partner->r.currentOrigin, NPC->r.currentOrigin) < 2048)
 					return; // We don't want them talking too close to others having the same conversations :)
@@ -183,6 +186,7 @@ void NPC_StormtrooperFindConversationPartner()
 			if (partner->s.eType != ET_NPC) continue;
 			if (!partner->client) continue;
 			if (partner->client->NPC_class != CLASS_STORMTROOPER) continue;
+			if (partner->client->NPC_class != CLASS_MERC) continue;//Stoiss add merc class
 			if (VectorLength(partner->client->ps.velocity) > 16) continue;
 
 			if (partner->NPC->conversationPartner || partner->NPC->conversationReplyTime > level.time)
@@ -313,6 +317,11 @@ void NPC_NPCConversation()
 		NPC_StormTrooperConversation();
 		return;
 	}
+	if (NPC->client->NPC_class == CLASS_MERC)//Stoiss add merc class
+	{
+		NPC_StormTrooperConversation();
+		return;
+	}
 
 	if (NPC->enemy || NPC->NPC->conversationPartner->enemy)
 	{// Exit early if they get a target...
@@ -372,6 +381,11 @@ void NPC_FindConversationPartner()
 		NPC_StormtrooperFindConversationPartner();
 		return;
 	}
+	if (NPC->client->NPC_class == CLASS_MERC)//Stoiss add merc class
+	{
+		NPC_StormtrooperFindConversationPartner();
+		return;
+	}
 
 	if (!NPC_HasConversationSounds(NPC)) 
 		return;
@@ -391,6 +405,7 @@ void NPC_FindConversationPartner()
 			if (partner->s.eType != ET_NPC) continue;
 			if (!partner->client) continue;
 			if (partner->client->NPC_class == CLASS_STORMTROOPER) continue;
+			if (partner->client->NPC_class == CLASS_MERC) continue;//Stoiss add merc class
 			//if (!Q_stricmpn(partner->NPC_type, NPC->NPC_type, strlen(partner->NPC_type)-1)) continue; // never talk to the same race... (they would repeat eachother)
 			if (partner->NPC->conversationPartner || partner->NPC->conversationReplyTime > level.time)
 				if (Distance(partner->r.currentOrigin, NPC->r.currentOrigin) < 1024)//2048)
@@ -406,6 +421,7 @@ void NPC_FindConversationPartner()
 			if (partner->s.eType != ET_NPC) continue;
 			if (!partner->client) continue;
 			if (partner->client->NPC_class == CLASS_STORMTROOPER) continue;
+			if (partner->client->NPC_class == CLASS_MERC) continue;//Stoiss add merc class
 			//if (!Q_stricmpn(partner->NPC_type, NPC->NPC_type, strlen(partner->NPC_type)-1)) continue; // never talk to the same race... (they would repeat eachother)
 			if (VectorLength(partner->client->ps.velocity) > 16) continue;
 			if (!NPC_HasConversationSounds(partner)) continue;

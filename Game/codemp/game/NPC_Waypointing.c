@@ -3010,7 +3010,8 @@ qboolean NPC_FollowRoutes( void )
 
 	if (HUNTING_ENEMY 
 		&& (Distance(NPC->r.currentOrigin, NPC->spawn_pos) > 4096.0f || (NPC->longTermGoal > 0 && NPC->longTermGoal < gWPNum && Distance(gWPArray[NPC->longTermGoal]->origin, NPC->spawn_pos) > 4096.0f))
-		&& NPC->client->NPC_class == CLASS_STORMTROOPER)
+		&& NPC->client->NPC_class == CLASS_STORMTROOPER
+		&& NPC->client->NPC_class == CLASS_MERC)//Stoiss add merc class
 	{// Moved too far from our start position... Return home...
 		NPC->enemy = NULL;
 		NPC->longTermGoal = -1;

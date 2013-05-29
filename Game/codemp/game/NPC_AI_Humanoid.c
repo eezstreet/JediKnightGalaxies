@@ -177,6 +177,7 @@ qboolean NPC_IsHumanoid( void )
 	//case CLASS_SENTRY:
 	case CLASS_SHADOWTROOPER:
 	case CLASS_STORMTROOPER:
+	case CLASS_MERC://Stoiss add merc class
 	case CLASS_SWAMP:
 	case CLASS_SWAMPTROOPER:
 	case CLASS_TAVION:
@@ -268,6 +269,7 @@ qboolean NPC_IsJedi ( gentity_t *self )
 	//case CLASS_SEEKER:			// droid
 	//case CLASS_SENTRY:
 	case CLASS_SHADOWTROOPER:
+	case CLASS_MERC://Stoiss add merc class
 	//case CLASS_STORMTROOPER:
 	//case CLASS_SWAMP:
 	//case CLASS_SWAMPTROOPER:
@@ -477,6 +479,7 @@ qboolean Boba_ChangeWeapon( int wp )
 	//case CLASS_SENTRY:
 	//case CLASS_SHADOWTROOPER:
 	case CLASS_STORMTROOPER:
+    case CLASS_MERC://Stoiss add merc class
 	case CLASS_SWAMP:
 	case CLASS_SWAMPTROOPER:
 	//case CLASS_TAVION:

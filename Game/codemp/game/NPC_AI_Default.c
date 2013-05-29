@@ -68,6 +68,7 @@ void NPC_CheckEvasion(void)
 	//case CLASS_SENTRY:
 	case CLASS_SHADOWTROOPER:
 	case CLASS_STORMTROOPER:
+	case CLASS_MERC://Stoiss add merc class
 	case CLASS_SWAMP:
 	case CLASS_SWAMPTROOPER:
 	case CLASS_TAVION:

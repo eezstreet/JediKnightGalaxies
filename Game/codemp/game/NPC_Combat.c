@@ -140,6 +140,9 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		//NOTE: attDelay should be somewhere between 1000 to 6000 milliseconds
 		switch ( self->client->NPC_class )
 		{
+		case CLASS_MERC://Stoiss add merc class
+			attDelay += Q_irand( 500, 1500 );
+			break;
 		case CLASS_IMPERIAL://they give orders and hang back
 			attDelay += Q_irand( 500, 1500 );
 			break;
@@ -470,6 +473,11 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 					maxErr = 30;
 				}
 				else if ( self->client->NPC_class == CLASS_STORMTROOPER && self->NPC && self->NPC->rank <= RANK_CREWMAN )
+				{
+					minErr = 5;
+					maxErr = 15;
+				}//Stoiss add merc class
+				else if ( self->client->NPC_class == CLASS_MERC && self->NPC && self->NPC->rank <= RANK_CREWMAN )
 				{
 					minErr = 5;
 					maxErr = 15;

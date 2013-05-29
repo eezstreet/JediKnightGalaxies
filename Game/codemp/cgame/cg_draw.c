@@ -5297,6 +5297,18 @@ void CG_DrawNPCNames( void )
 			tclr2[2] = 0.125f;
 			tclr2[3] = 1.0f;
 			break;
+			case CLASS_MERC://Stoiss add merc class
+			str2 = va("< Merc >");
+			tclr[0] = 1.0f;
+			tclr[1] = 0.125f;
+			tclr[2] = 0.125f;
+			tclr[3] = 1.0f;
+
+			tclr2[0] = 1.0f;
+			tclr2[1] = 0.125f;
+			tclr2[2] = 0.125f;
+			tclr2[3] = 1.0f;
+			break;
 		case CLASS_TAVION:
 		case CLASS_REBORN:
 		case CLASS_DESANN:
@@ -5478,6 +5490,7 @@ void CG_DrawNPCNames( void )
 			case CLASS_BESPIN_COP:
 			case CLASS_GALAK:
 			case CLASS_GRAN:
+			case CLASS_MERC://Stoiss add merc class
 			case CLASS_LANDO:			
 			case CLASS_REBEL:
 			case CLASS_REELO:
