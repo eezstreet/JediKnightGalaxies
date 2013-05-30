@@ -4782,3 +4782,34 @@ void R_InitShaders(qboolean server)
 	// !drakkar
 #endif
 }
+
+/*
+=============================
+JEDI KNIGHT GALAXIES
+=============================
+*/
+
+// Replacement code for hacks in jkg_wpindicators.c --eez
+void R_OverrideShaderFrame( qhandle_t shader, int desiredFrame, int time )
+{
+	float animFrequency = 1;
+	float floattime = (float)time * 0.001f;
+	float desiredTime;
+	shader_t *sh;
+	int i;
+
+	if( shader <= 0 ) return;
+
+	sh = tr.shaders[shader];
+
+	for ( i = 0; i < (sh->numUnfoggedPasses ? sh->numUnfoggedPasses : 1); i++ )
+	{
+		if( sh->stages[i].bundle[0].numImageAnimations > 1 )
+		{
+			animFrequency = sh->stages[i].bundle[0].imageAnimationSpeed;
+		}
+	}
+
+	desiredTime = ( 1 / animFrequency ) * ( desiredFrame + 0.5 );
+	sh->timeOffset = floattime - desiredTime;
+}

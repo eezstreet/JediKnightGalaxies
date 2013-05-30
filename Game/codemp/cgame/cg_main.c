@@ -13,7 +13,6 @@ displayContextDef_t cgDC;
 #endif
 
 // Jedi Knight Galaxies
-#include "cg_crossover.h"
 #include "cg_weapons.h"
 #include "jkg_gangwars.h"
 #include "bg_items.h"
@@ -4062,12 +4061,12 @@ void JKG_WeaponIndicators_Init();
 #include "jkg_chatcmds.h"
 
 static void CG_OpenPartyManagement( void ) {
-	CO_PartyMngtNotify(10);
+	trap_CO_PartyMngtNotify(10);
 }
 
 static void CG_OpenInventory ( void )
 {
-    CO_InventoryNotify (0);
+    trap_CO_InventoryNotify (0);
 }
 
 void CG_SetupChatCmds() {
@@ -4088,7 +4087,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
 	// Do the engine patches
 	ChatBox_InitSystem();
-	JKG_CG_LoadAuxiliaryLibrary();
 	trap_Cvar_Set("connmsg", ""); // Clear connection message override
 
 	BG_InitAnimsets(); //clear it out
@@ -4372,7 +4370,7 @@ Ghoul2 Insert End
 	CG_SpawnCGameOnlyEnts();
 
 	// Init crossover
-	CO_InitCrossover();
+	trap_CO_InitCrossover();
 
 	/* Initialize the party list table */
 	for ( i = 0; i < MAX_CLIENTS; i++ )
@@ -4462,7 +4460,7 @@ void CG_Shutdown( void )
     CG_DestroyAllGhoul2();
 
 	// Jedi Knight Galaxies, terminate the crossover
-	CO_Shutdown();
+	trap_CO_Shutdown();
 
 //	Com_Printf("... FX System Cleanup\n");
 	trap_FX_FreeSystem();
@@ -4483,9 +4481,6 @@ void CG_Shutdown( void )
 
 	// some mods may need to do cleanup work here,
 	// like closing files or archiving session data
-
-	// Remove engine patches
-	JKG_GLCG_BreakLinkup();
 }
 
 /*

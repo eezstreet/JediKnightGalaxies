@@ -9,7 +9,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "cg_local.h"
-#include "cg_crossover.h"
 #include <math.h>
 #include "encoding/bitstream.h"
 #include "encoding/base128.h"
@@ -1070,7 +1069,7 @@ static void Cin_Reset() {
 	cin.Flash.state = 0;
 	if (cg.trapEscape) {
 		cg.trapEscape = 0;
-		CO_EscapeTrap(0);
+		trap_CO_EscapeTrap(0);
 	}
 }
 
@@ -1666,13 +1665,13 @@ void Cin_ProcessCinematic_f() {
 		if (!Q_stricmp(token,"ae")) {
 			// Allow use of escape key
 			cg.trapEscape = 1;
-			CO_EscapeTrap(1);
+			trap_CO_EscapeTrap(1);
 			continue;
 		}
 		if (!Q_stricmp(token,"de")) {
 			// Disallow use of escape key
 			cg.trapEscape = 0;
-			CO_EscapeTrap(0);
+			trap_CO_EscapeTrap(0);
 			continue;
 		}
 		if (!Q_stricmp(token,"rdc")) {

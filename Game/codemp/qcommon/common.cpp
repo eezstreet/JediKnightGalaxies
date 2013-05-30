@@ -64,6 +64,9 @@ cvar_t	*com_noErrorInterrupt;
 
 cvar_t	*com_RMG;
 
+// Jedi Knight Galaxies
+cvar_t	*clver;
+
 // com_speeds times
 int		time_game;
 int		time_frontend;		// renderer frontend time
@@ -1213,6 +1216,9 @@ void Com_Init( char *commandLine ) {
 #endif
 
 		com_RMG = Cvar_Get("RMG", "0", 0);
+
+		// Jedi Knight Galaxies
+		clver = Cvar_Get("clver", JKG_VERSION, CVAR_ROM|CVAR_USERINFO);
 
 		Cvar_Get ("RMG_seed", "0", 0);
 		Cvar_Get ("RMG_time", "day", 0);

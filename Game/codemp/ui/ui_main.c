@@ -9512,7 +9512,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	// Some knucklehead decided to update client version once we got to the client aux lib,
 	// which is kinda stupid since we can't get there unless we actually connect to a server.
 	// DERP. --eez
-	trap_Cvar_Set("clver", JKG_VERSION);
+	//trap_Cvar_Set("clver", JKG_VERSION); // this is handled in engine now --eez
 
 	CO_InitCrossover();
 	// Get the list of possible languages

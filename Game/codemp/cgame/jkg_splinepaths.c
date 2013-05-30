@@ -11,7 +11,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "cg_local.h"
-#include "cg_crossover.h"
 #include <math.h>
 #include "encoding/bitstream.h"
 #include "encoding/base128.h"

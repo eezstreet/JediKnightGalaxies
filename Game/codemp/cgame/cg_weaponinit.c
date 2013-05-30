@@ -293,7 +293,6 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
         drawData->explosiveArm.armSound = trap_S_RegisterSound (fireModeVisuals->explosiveArm.armSound);
 }
 
-qhandle_t CG_FindShader(const char *name);
 void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weaponData )
 {
     static const char *barrelSuffixes[] = {
@@ -311,13 +310,13 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
     {
         if ( weaponVisuals->groupedIndicatorShaders[i][0] )
         {
-            weaponInfo->groupedIndicators[i] = CG_FindShader (weaponVisuals->groupedIndicatorShaders[i]);
+            weaponInfo->groupedIndicators[i] = trap_R_RegisterShader (weaponVisuals->groupedIndicatorShaders[i]);
         }
     }
     
     if ( weaponVisuals->firemodeIndicatorShader[0] )
     {
-        weaponInfo->fireModeIndicator = CG_FindShader (weaponVisuals->firemodeIndicatorShader);
+        weaponInfo->fireModeIndicator = trap_R_RegisterShader (weaponVisuals->firemodeIndicatorShader);
     }
     
     VectorClear (weaponInfo->gunPosition);

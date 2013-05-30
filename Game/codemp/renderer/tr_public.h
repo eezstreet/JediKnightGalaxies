@@ -234,6 +234,9 @@ typedef struct {
 	int					(*SavePNG)								( char *filename, byte *buf, size_t width, size_t height, int byteDepth );
 
 	IGhoul2InfoArray &	(*TheGhoul2InfoArray)					( void );
+
+	// Jedi Knight Galaxies specifc
+	void				(*OverrideShaderFrame)					( qhandle_t shader, int desiredFrame, int time );
 } refexport_t;
 
 //

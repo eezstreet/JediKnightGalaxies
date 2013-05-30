@@ -146,9 +146,6 @@
     <ClCompile Include="cg_consolecmds.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cg_crossover.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cg_draw.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -246,12 +243,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jkg_antidebug.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_cg_auxlib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_cg_crafting.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="jkg_cg_damagetypes.c">
@@ -442,9 +433,6 @@
     <ClInclude Include="animtable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="aux_cg_exports.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\game\bg_ammo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -461,9 +449,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\game\bg_weapons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cg_crossover.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cg_lights.h">

@@ -2916,6 +2916,16 @@ qboolean	trap_G2API_OverrideServer(void *serverInstance);
 
 void		trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf);
 
+void trap_CO_InitCrossover( void );
+void trap_CO_Shutdown( void );
+qboolean trap_CO_ServerCommand( const char *cmd );
+void trap_CO_EscapeTrap( int activate );
+void trap_CO_PartyMngtNotify( int msg );
+void trap_CO_InventoryNotify( int msg );
+void trap_CO_ShopNotify( int msg );
+void trap_CO_Syscall_UI( void );
+void trap_CO_Syscall_CG( void );
+
 #include "../namespace_end.h"
 
 void		CG_Init_CG(void);

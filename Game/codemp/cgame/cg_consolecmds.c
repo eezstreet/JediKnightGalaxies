@@ -7,8 +7,6 @@
 #include "../ui/ui_shared.h"
 #include "bg_saga.h"
 
-#include "cg_crossover.h"
-
 // TEST
 #include "jkg_cg_auxlib.h"
 #include "json/cJSON.h"
@@ -77,7 +75,7 @@ void CG_TargetCommand_f( void ) {
 }
 
 void CG_OpenPartyManagement_f( void ) {
-	CO_PartyMngtNotify(10);
+	trap_CO_PartyMngtNotify(10);
 }
 
 /*
@@ -312,18 +310,14 @@ int testMasterFinalFunc (asyncTask_t *task) {
 	return 0;
 }
 
-static void CG_TestMaster(void) {
-	JKG_GLCG_Task_Test(testMasterFinalFunc);
-}
-
 static void JKG_OpenInventoryMenu_f ( void )
 {
-    CO_InventoryNotify (0);
+    trap_CO_InventoryNotify (0);
 }
 
 void JKG_OpenShopMenu_f ( void )
 {
-	CO_ShopNotify(0);
+	trap_CO_ShopNotify(0);
 }
 
 static void JKG_UseACI_f ( void )
@@ -456,9 +450,6 @@ static consoleCommand_t	commands[] = {
 	{ "shop", JKG_OpenShopMenu_f },
 	{ "dumpWeaponList", JKG_DumpWeaponList_f },
 	{ "printWeaponList", JKG_PrintWeaponList_f },
-	
-	// TEST
-	{ "cg_testmaster", CG_TestMaster },
 
 #ifdef __AUTOWAYPOINT__
 	{ "awp", AIMod_AutoWaypoint },

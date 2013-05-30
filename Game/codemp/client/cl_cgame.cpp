@@ -1686,6 +1686,10 @@ Ghoul2 Insert End
 		re.AddWeatherZone( (vec_t *)VMA(1), (vec_t *)VMA(2) );
 		return 0;
 
+	case CG_JKG_OVERRIDESHADERFRAME:
+		re.OverrideShaderFrame( args[1], args[2], args[3] );
+		return 0;
+
 	default:
 	        assert(0); // bk010102
 		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );

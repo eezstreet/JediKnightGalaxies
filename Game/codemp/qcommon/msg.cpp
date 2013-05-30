@@ -1040,7 +1040,15 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	// the "number" field is not part of the field list
 	// if this assert fails, someone added a field to the entityState_t
 	// struct without updating the message fields
-	assert( numFields + 1 == sizeof( *from )/4 );
+
+	//assert( numFields + 1 == sizeof( *from )/4 );	// this is totally fucking useless, let's make the assert way more verbose --eez
+#ifdef _DEBUG
+	if( numFields + 1 != sizeof( *from )/4 )
+	{
+		size_t fieldSize = sizeof( *from )/4;
+		assert( va("numFields + 1 (%i bytes) does not match sizeof(*from)/4 (%i bytes)!!", numFields + 1, fieldSize) );
+	}
+#endif
 
 	// a NULL to is a delta remove message
 	if ( to == NULL ) {

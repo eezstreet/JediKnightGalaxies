@@ -2691,7 +2691,6 @@ extern void CG_ActualLoadDeferredPlayers( void );
 
 static int cg_siegeClassIndex = -2;
 
-#include "cg_crossover.h"
 void CinBuild_Visualize();
 
 int LastACRun = 0;
@@ -2725,8 +2724,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		cg.frameDelta = trap_Milliseconds() - lastTime;
 	}
 	lastTime = trap_Milliseconds();
-
-	JKG_GLCG_ProcessTasks();
 
 	cg.time = serverTime;
 	/*if (!LastACRun || serverTime - LastACRun > 1000) {

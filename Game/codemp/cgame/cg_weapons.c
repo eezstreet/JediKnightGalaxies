@@ -2553,21 +2553,26 @@ void CG_InitG2Weapons(void)
 	    for ( j = 0; j < numVariations; j++ )
 	    {
 	        const weaponData_t *weaponData = GetWeaponData (i, j);
-	        void *ghoul2 = NULL;
+
+			if( weaponData && weaponData->classname && weaponData->classname[0] &&			// stop with these goddamn asserts...
+				weaponData->visuals.world_model && weaponData->visuals.world_model[0])		// hard to code with all this background noise going on --eez
+			{
+				void *ghoul2 = NULL;
 	        
-	        trap_G2API_InitGhoul2Model (&g2WeaponInstances[id].ghoul2, weaponData->visuals.world_model, 0, 0, 0, 0, 0);
+				trap_G2API_InitGhoul2Model (&g2WeaponInstances[id].ghoul2, weaponData->visuals.world_model, 0, 0, 0, 0, 0);
 	        
-	        ghoul2 = g2WeaponInstances[id].ghoul2;
+				ghoul2 = g2WeaponInstances[id].ghoul2;
 	        
-	        if ( trap_G2_HaveWeGhoul2Models (ghoul2) )
-	        {
-	            trap_G2API_SetBoltInfo (ghoul2, 0, 0);
-	            trap_G2API_AddBolt (ghoul2, 0, i == WP_SABER ? "*blade1" : "*flash");
+				if ( trap_G2_HaveWeGhoul2Models (ghoul2) )
+				{
+					trap_G2API_SetBoltInfo (ghoul2, 0, 0);
+					trap_G2API_AddBolt (ghoul2, 0, i == WP_SABER ? "*blade1" : "*flash");
 	            
-	            g2WeaponInstances[id].weaponNum = i;
-	            g2WeaponInstances[id].weaponVariation = j;
-	            id++;
-	        }
+					g2WeaponInstances[id].weaponNum = i;
+					g2WeaponInstances[id].weaponVariation = j;
+					id++;
+				}
+			}
 	    }
 	}
 	

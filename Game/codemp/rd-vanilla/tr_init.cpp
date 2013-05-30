@@ -1536,6 +1536,8 @@ extern void R_CreateAutomapImage( const char *name, const byte *pic, int width, 
 extern qhandle_t RE_RegisterServerSkin( const char *name );
 extern IGhoul2InfoArray &TheGhoul2InfoArray();
 
+extern void R_OverrideShaderFrame( qhandle_t shader, int desiredFrame, int time );
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 GetRefAPI
@@ -1736,6 +1738,9 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.TheGhoul2InfoArray					= TheGhoul2InfoArray;
 	// this is set in R_Init
 	//re.G2VertSpaceServer	= G2VertSpaceServer;
+
+	// Jedi Knight Galaxies
+	re.OverrideShaderFrame					= R_OverrideShaderFrame;
 
 	return &re;
 }

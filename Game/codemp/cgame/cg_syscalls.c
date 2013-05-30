@@ -1131,4 +1131,61 @@ void trap_WE_AddWeatherZone( const vec3_t mins, const vec3_t maxs )
 Ghoul2 Insert End
 */
 
+/*
+===========================
+
+JKG Syscalls - Temporary until new import table is done
+
+===========================
+*/
+
+void trap_CO_InitCrossover( void )
+{
+	syscall(CG_CO_INITCROSSOVER);
+}
+
+void trap_CO_Shutdown( void )
+{
+	syscall(CG_CO_SHUTDOWN);
+}
+
+qboolean trap_CO_ServerCommand( const char *cmd )
+{
+	return (qboolean)syscall(CG_CO_SERVERCOMMAND, cmd);
+}
+
+void trap_CO_EscapeTrap( int activate )
+{
+	syscall(CG_CO_ESCAPETRAP, activate);
+}
+
+void trap_CO_PartyMngtNotify( int msg )
+{
+	syscall(CG_CO_PARTYMNGTNOTIFY, msg);
+}
+
+void trap_CO_InventoryNotify( int msg )
+{
+	syscall(CG_CO_INVENTORYNOTIFY, msg);
+}
+
+void trap_CO_ShopNotify( int msg )
+{
+	syscall(CG_CO_SHOPNOTIFY, msg);
+}
+
+void trap_CO_Syscall_UI( void )
+{
+	syscall(CG_CO_SYSCALL_UI);
+}
+
+void trap_CO_Syscall_CG( void )
+{
+	syscall(CG_CO_SYSCALL_CG);
+}
+
+void trap_JKG_OverrideShaderFrame( qhandle_t shader, int frame, int time )
+{
+	syscall(CG_JKG_OVERRIDESHADERFRAME, shader, frame, time );
+}
 #include "../namespace_end.h"
