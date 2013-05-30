@@ -871,17 +871,17 @@ void NPC_BSPatrol( void )
 	}
 	*/
 
-	NPCInfo->investigateSoundDebounceTime = 0;
-	//FIXME if there is no nav data, we need to do something else
-	// if we're stuck, try to move around it
-	if ( UpdateGoal() )
-	{
-		NPC_MoveToGoal( qtrue );
-	}
+	//NPCInfo->investigateSoundDebounceTime = 0;
+	////FIXME if there is no nav data, we need to do something else
+	//// if we're stuck, try to move around it
+	//if ( UpdateGoal() )
+	//{
+	//	NPC_MoveToGoal( qtrue );
+	//}
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	//NPC_UpdateAngles( qtrue, qtrue );
 
-	ucmd.buttons |= BUTTON_WALKING;
+	//ucmd.buttons |= BUTTON_WALKING;
 }
 
 /*

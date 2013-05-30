@@ -2855,7 +2855,7 @@ qboolean NPC_FollowRoutes( void )
 	{// UQ1: Main visibility handling...
 		// UQ1: Saber wielders should get up close and personal, even if the enemy is visible already...
 		if (NPC->client->ps.weapon != WP_SABER
-			|| (NPC->client->ps.weapon == WP_SABER && VectorDistance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin) < 96))
+			|| (NPC->client->ps.weapon == WP_SABER && VectorDistance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin) < 100))//Stoiss add Test was 96
 		{
 			/*
 			if (NPC->client->ps.weapon != WP_SABER
@@ -2974,8 +2974,12 @@ qboolean NPC_FollowRoutes( void )
 	{// This sith/jedi is in range... Let normal attack code run...
 		return qfalse;
 	}
-
-	if (gWPNum <= 0)
+	else if (HUNTING_ENEMY)
+	{
+		return qtrue;
+	}
+		
+		if (gWPNum <= 0)
 	{// No waypoints available...
 		return qfalse;
 	}
@@ -3003,7 +3007,7 @@ qboolean NPC_FollowRoutes( void )
 
 	if ( NPC_HaveValidEnemy()
 		&& !(NPC->client->ps.weapon != WP_SABER && (NPC->coverpointGoal > 0 || NPC->coverpointGoal < gWPNum))
-		&& (Distance(NPC->enemy->r.currentOrigin, NPC->r.currentOrigin) > 128.0f || !ENEMY_VISIBLE || (NPC->client->ps.weapon == WP_SABER && VectorDistance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin) >= 96)) )
+		&& (Distance(NPC->enemy->r.currentOrigin, NPC->r.currentOrigin) > 150.0f || !ENEMY_VISIBLE || (NPC->client->ps.weapon == WP_SABER && VectorDistance(NPC->r.currentOrigin, NPC->enemy->r.currentOrigin) >= 100)) )
 	{// Chasing them around the map...
 		HUNTING_ENEMY = qtrue;
 	}

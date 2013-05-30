@@ -1146,9 +1146,6 @@ void G_CheckMinimumNpcs( void ) {
 	// Add vendors...
 	G_CheckVendorNPCs();
 	
-	// add enemies
-	G_CheckMinimumNpcs();
-
 	// Add civilians...
 	G_CheckCivilianNPCs();
 
@@ -1216,9 +1213,14 @@ void G_CheckMinimumNpcs( void ) {
 
 		if (NPC_SPAWN_TEAM == TEAM_RED)
 		{// Imperial NPCs...
-			if (random >= 6)
+
+			if (random >= 7)
 			{
 				npc->NPC_type = "stormtrooper";
+			}
+			if (random >= 6)
+			{
+				npc->NPC_type = "human_merc";
 			}
 			else if (random >= 5)
 			{
@@ -1243,9 +1245,9 @@ void G_CheckMinimumNpcs( void ) {
 				case 1:
 					npc->NPC_type = "impworker";
 					break;
-				case 2:
-					//npc->NPC_type = "hazardtrooper";
-					//break;
+				/*case 2:
+					npc->NPC_type = "human_merc";
+					break;*/
 				case 3:
 					npc->NPC_type = "boba_fett";
 					break;

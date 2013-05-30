@@ -150,11 +150,11 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 			if ( self->NPC->rank >= RANK_LT )
 			{//officers shoot even sooner
 				attDelay -= Q_irand( 500, 1500 );
-			}
-			else
-			{//normal stormtroopers don't have as fast reflexes as officers
-				attDelay -= Q_irand( 0, 1000 );
-			}
+			}//Stoiss add: edit this becours it sounds to me its a bit overkill when we fight rebels
+			//else
+			//{//normal stormtroopers don't have as fast reflexes as officers
+			//	attDelay -= Q_irand( 0, 1000 );
+			//}
 			break;
 		case CLASS_SWAMPTROOPER://shoot very quickly?  What about guys in water?
 			attDelay -= Q_irand( 1000, 2000 );
