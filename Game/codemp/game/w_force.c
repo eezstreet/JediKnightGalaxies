@@ -2048,6 +2048,9 @@ void ForceShootLightning( gentity_t *self )
 			// ok, we are within the radius, add us to the incoming list
 			ForceLightningDamage( self, traceEnt, dir, ent_org );
 
+			if( !traceEnt->client)					
+				continue;
+			
 			//Stoiss add: Lightning Disintgrate to the player and npc's	
 			if( traceEnt->client->ps.stats[STAT_HEALTH] < 1								// if under 1 health
 				&& self->client->ps.fd.forcePowersActive & (1<<FP_LIGHTNING)			// if using a force lightning.

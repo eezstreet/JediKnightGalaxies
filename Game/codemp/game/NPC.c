@@ -995,6 +995,7 @@ qboolean NPC_CanUseAdvancedFighting()
 	//case CLASS_SENTRY:
 	case CLASS_SHADOWTROOPER:
 	case CLASS_STORMTROOPER:
+	case CLASS_MERC://Stoiss add merc class
 	case CLASS_SWAMP:
 	case CLASS_SWAMPTROOPER:
 	case CLASS_TAVION:
@@ -1092,40 +1093,47 @@ void NPC_BehaviorSet_Default( int bState )
 	switch( bState )
 	{
 	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSAdvanceFight ();
 		break;
 	case BS_SLEEP://Follow a path, looking for enemies
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSSleep ();
 		break;
 	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSFollowLeader();
 		break;
 	case BS_JUMP:			//41: Face navgoal and jump to it.
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSJump();
 		break;
 	case BS_REMOVE:
 		NPC_BSRemove();
 		break;
 	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSSearch();
 		break;
 	case BS_NOCLIP:
 		NPC_BSNoClip();
 		break;
 	case BS_WANDER:			//# 46: Wander down random waypoint paths
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSWander();
 		break;
 	case BS_FLEE:
 		NPC_BSFlee();
 		break;
 	case BS_WAIT:
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSWait();
 		break;
 	case BS_CINEMATIC:
@@ -1133,7 +1141,8 @@ void NPC_BehaviorSet_Default( int bState )
 		break;
 	default:
 	case BS_DEFAULT://whatever
-		if (!NPC_FollowRoutes())
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
 			NPC_BSDefault();
 		break;
 	}
@@ -1485,6 +1494,71 @@ void NPC_BehaviorSet_Sniper( int bState )
 		break;
 	}
 }
+
+/*
+-------------------------
+NPC_BehaviorSet_Humen_Merc
+-------------------------
+*/
+
+void NPC_BehaviorSet_Humen_Merc( int bState )
+{
+	switch( bState )
+	{
+	case BS_STAND_GUARD:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSStandGuard();
+		break;
+	case BS_PATROL:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSPatrol();
+		break;
+	case BS_HUNT_AND_KILL:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSHuntAndKill();
+		break;
+	case BS_SEARCH:	//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSSearch();
+		break;
+	case BS_WANDER://# Wander down random waypoint paths
+		if(g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSWander();
+		break;
+	case BS_STAND_AND_SHOOT:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSStandAndShoot();
+		break;
+	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSAdvanceFight();
+		break;
+	case BS_INVESTIGATE:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Investigate();
+		break;
+	case BS_SLEEP:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSST_Sleep();
+		break;
+	default:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BehaviorSet_Default( bState );
+		break;
+	}
+}
+
+
 /*
 -------------------------
 NPC_BehaviorSet_Stormtrooper
@@ -1496,17 +1570,39 @@ void NPC_BehaviorSet_Stormtrooper( int bState )
 	switch( bState )
 	{
 	case BS_STAND_GUARD:
-	case BS_PATROL:
-	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
 		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
 			if (!NPC_PatrolArea())
-				NPC_BSST_Default();
+				NPC_BSStandGuard();
+		break;
+	case BS_PATROL:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSPatrol();
+		break;
+	case BS_HUNT_AND_KILL:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSHuntAndKill();
+		break;
+	case BS_SEARCH:	//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSSearch();
+		break;
+	case BS_WANDER://# Wander down random waypoint paths
+		if(g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSWander();
 		break;
 	case BS_STAND_AND_SHOOT:
 		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
 			if (!NPC_PatrolArea())
-				NPC_BSST_Default();
+				NPC_BSStandAndShoot();
+		break;
+	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSAdvanceFight();
 		break;
 	case BS_INVESTIGATE:
 		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
@@ -1531,29 +1627,68 @@ void NPC_BehaviorSet_Stormtrooper( int bState )
 NPC_BehaviorSet_Jedi
 -------------------------
 */
-
+//Stoiss add Jeids/Sith has better Ai now 
 void NPC_BehaviorSet_Jedi( int bState )
 {
 	switch( bState )
 	{
 	case BS_STAND_GUARD:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BSStandGuard();
+		break;
 	case BS_PATROL:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BSPatrol();
+		break;
 	case BS_HUNT_AND_KILL:
-	case BS_DEFAULT:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_Default();
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BSHuntAndKill();
+		break;
+	case BS_SEARCH:	//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSSearch();
+		break;
+	case BS_WANDER://# Wander down random waypoint paths
+		if(g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSWander();
 		break;
 	case BS_STAND_AND_SHOOT:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_Default();
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BSRunAndShoot();
 		break;
-	case BS_FOLLOW_LEADER:
-		if (!NPC_FollowRoutes())
-			NPC_BSJedi_FollowLeader();
+	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BSAdvanceFight ();
+		break;
+	case BS_INVESTIGATE:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BSST_Investigate();
+		break;
+	case BS_SLEEP:
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BSST_Sleep();
 		break;
 	default:
-		if (!NPC_FollowRoutes())
-			NPC_BehaviorSet_Default( bState );
+		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
+			if (!NPC_PatrolArea())
+				NPC_BSJedi_Default();
+				NPC_BehaviorSet_Default( bState );
 		break;
 	}
 }
@@ -2283,6 +2418,7 @@ void NPC_SetHitBox( void )
 	case CLASS_REELO:
 	case CLASS_RODIAN:
 	case CLASS_SHADOWTROOPER:
+	case CLASS_MERC://Stoiss add merc class
 	case CLASS_STORMTROOPER:
 	case CLASS_SWAMP:
 	case CLASS_SWAMPTROOPER:

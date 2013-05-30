@@ -733,9 +733,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\GLua\LuaCommands.txt">
-      <Filter>Source Files\GLua</Filter>
-    </None>
     <None Include="JK2_game.def">
       <Filter>Header Files</Filter>
     </None>
