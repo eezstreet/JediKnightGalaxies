@@ -11729,6 +11729,9 @@ void PmoveSingle (pmove_t *pmove) {
 
 	pml.frametime = pml.msec * 0.001f;
 
+	// set groundentity
+	PM_GroundTrace();
+
 	if (pm->ps->clientNum >= MAX_CLIENTS &&
 		pm_entSelf &&
 		pm_entSelf->s.NPC_class == CLASS_VEHICLE)
@@ -11986,8 +11989,6 @@ void PmoveSingle (pmove_t *pmove) {
 		BG_VehicleAdjustBBoxForOrientation( pm_entSelf->m_pVehicle, pm->ps->origin, pm->mins, pm->maxs, pm->ps->clientNum, pm->tracemask, pm->trace );
 	}
 
-	// set groundentity
-	PM_GroundTrace();
 	if ( pm_flying == FLY_HOVER )
 	{//never stick to the ground
 		PM_HoverTrace();
@@ -12231,8 +12232,6 @@ void PmoveSingle (pmove_t *pmove) {
 		PM_Animate();
 	}
 
-	// set groundentity, watertype, and waterlevel
-	PM_GroundTrace();
 	if ( pm_flying == FLY_HOVER )
 	{//never stick to the ground
 		PM_HoverTrace();

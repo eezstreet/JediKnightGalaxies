@@ -1030,30 +1030,49 @@ static int GLua_Player_StartHacking(lua_State *L) {
 
 static int GLua_Player_SetAmmo(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
-	int ammo = luaL_checkint(L,2);
+	const char *ammoString = lua_tostring(L, 2);
 	int amt = luaL_checkint(L,3);
+	const ammo_t *ammo;
+	if (!ammoString) return 0;
 	if (!ply) return 0;
-	if (ammo < 0 || ammo >= AMMO_MAX) {
-		return 0;
-	}
+	
 	if (amt < 0) {
 		amt = 0;
 	}
-	// TODO: use proper ammo array here
-	g_entities[ply->clientNum].client->ammoTable[ammo] = amt;
+	
+	ammo = BG_GetAmmo(ammoString);
+
+	g_entities[ply->clientNum].client->ammoTable[ammo->ammoIndex] = amt;
 	
 	return 0;
 }
 
 static int GLua_Player_GetAmmo(lua_State *L) {
 	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
-	int ammo = luaL_checkint(L,2);
+	const char *ammoString = lua_tostring(L, 2);
+	const ammo_t *ammo;
 	if (!ply) return 0;
-	if (ammo < 0 || ammo >= AMMO_MAX) {
-		return 0;
-	}
-	// TODO: use proper ammo array here
-	lua_pushinteger(L, g_entities[ply->clientNum].client->ammoTable[ammo]);
+	if (!ammoString) return 0;
+	
+	ammo = BG_GetAmmo(ammoString);
+
+	lua_pushinteger(L, g_entities[ply->clientNum].client->ammoTable[ammo->ammoIndex]);
+	return 1;
+}
+
+static int GLua_Player_ModifyAmmo(lua_State *L)
+{
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	const char *ammoString = lua_tostring(L, 2);
+	const int amount = luaL_checkint(L, 3);
+	const ammo_t *ammo;
+
+	if (!ply) return 0;
+	if(!ammoString) return 0;
+
+	ammo = BG_GetAmmo(ammoString);
+
+	g_entities[ply->clientNum].client->ammoTable[ammo->ammoIndex] = amount;
 	return 1;
 }
 
@@ -1522,6 +1541,38 @@ static int GLua_Player_GetAdminRank(lua_State *L) {
 	return 1;
 }
 
+// eezstreet add -- Do us a solid and add some stuff for adding credits m8, thx
+
+static int GLua_Player_GetCreditCount(lua_State *L) {
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+
+	if (!ply) return 0;
+	lua_pushinteger(L, level.clients[ply->clientNum].ps.persistant[PERS_CREDITS]);
+	return 1;
+}
+
+static int GLua_Player_SetCreditCount(lua_State *L) {
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	gentity_t *ent;
+	int setTo = lua_tointeger(L,2);
+	if (!ply) return 0;
+	ent = &g_entities[ply->clientNum];
+	
+	ent->client->ps.persistant[PERS_CREDITS] = setTo;
+	return 0;
+}
+
+static int GLua_Player_ModifyCreditCount(lua_State *L) {
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	gentity_t *ent;
+	int modify = lua_tointeger(L,2);
+	if (!ply) return 0;
+	ent = &g_entities[ply->clientNum];
+	
+	ent->client->ps.persistant[PERS_CREDITS] += modify;
+	return 0;
+}
+
 /**************************************************
 * player_m
 *
@@ -1603,6 +1654,7 @@ static const struct luaL_reg player_m [] = {
 	{"StartHacking", GLua_Player_StartHacking},	
 	{"SetAmmo", GLua_Player_SetAmmo},
 	{"GetAmmo", GLua_Player_GetAmmo},
+	{"ModifyAmmo", GLua_Player_ModifyAmmo},
 	{"StripClipAmmo", GLua_Player_StripClipAmmo},
 	{"StripAmmo", GLua_Player_StripAmmo},
 	{"SetClipAmmo", GLua_Player_SetClipAmmo},
@@ -1627,6 +1679,10 @@ static const struct luaL_reg player_m [] = {
 	{"HasHoldable", GLua_Player_HasHoldable},
 	{"StripHoldables", GLua_Player_StripHoldables},
 	{"ServerTransfer", GLua_Player_ServerTransfer},
+	// stuff for credits --eez
+	{"GetCreditCount", GLua_Player_GetCreditCount},
+	{"SetCreditCount", GLua_Player_SetCreditCount},
+	{"ModifyCreditCount", GLua_Player_ModifyCreditCount},
 	{NULL, NULL},
 };
 

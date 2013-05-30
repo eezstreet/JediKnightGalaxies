@@ -339,6 +339,7 @@ vmCvar_t		jkg_url;
 
 vmCvar_t		jkg_chatFloodProtect;
 vmCvar_t        jkg_deathTimer;
+vmCvar_t		jkg_startingGun;
 
 #ifdef __MUSIC_ENGINE__
 vmCvar_t		s_radioStation;
@@ -583,8 +584,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &jkg_serverid, "jkg_serverid", "", CVAR_LATCH, 0, qfalse },
 	{ &jkg_url, "jkg_url", "", CVAR_LATCH, 0, qfalse },
 
-	{ &jkg_chatFloodProtect, "jkg_chatfloodprotect", "200", CVAR_ARCHIVE },
-	{ &jkg_deathTimer, "jkg_deathTimer", "1", CVAR_ARCHIVE },
+	{ &jkg_chatFloodProtect, "jkg_chatfloodprotect", "200", CVAR_ARCHIVE, 0, qfalse },
+	{ &jkg_deathTimer, "jkg_deathTimer", "1", CVAR_ARCHIVE, 0, qfalse },
+
+	{ &jkg_startingGun, "jkg_startingGun", "pistol_DL-18", CVAR_ARCHIVE|CVAR_LATCH, 0, qfalse },
 
 #ifdef __MUSIC_ENGINE__
 	{ &s_radioStation, "s_radioStation", "http://jblive.fm", CVAR_SERVERINFO | CVAR_ARCHIVE },

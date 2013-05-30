@@ -1882,6 +1882,8 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 				{//2-handed lightning
 					//jackin' 'em up, Palpatine-style
 					dmg *= 2;
+					//Lets Drain some more block points if we use 2 handend Lightning
+					self->client->blockingLightningAccumulation += 1;
 					//2 beams in melee.lots of pain
 				}
 
@@ -1923,7 +1925,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 							VectorMA( traceEnt->client->saber[rSaberNum].blade[rBladeNum].muzzlePoint, traceEnt->client->saber[rSaberNum].blade[rBladeNum].lengthMax*flrand(0, 1), traceEnt->client->saber[rSaberNum].blade[rBladeNum].muzzleDir, end2 );
 							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_absorb.efx"),end2, ang );
 							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_flare.efx"),end2, ang );
-							G_PlayEffectID( G_EffectIndex( "effects/lightning_impact.efx"),end2, ang );
+							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_impact.efx"),end2, ang );
 							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_arc.efx"),end2, ang );
 							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_arc.efx"),end2, ang );
 							G_PlayEffectID( G_EffectIndex( "effects/force/lightning.efx"),end2, ang );// 1 lightning effect from saber blade

@@ -1538,6 +1538,8 @@ BSP Options
 */
 extern void EWebPrecache(void); //g_items.c
 float g_cullDistance;
+
+extern vmCvar_t jkg_startingGun;
 void SP_worldspawn( void ) 
 {
 	char		*text, temp[32];
@@ -1618,7 +1620,7 @@ void SP_worldspawn( void )
 	G_SpawnString( "soundSet", "default", &text );
 	trap_SetConfigstring( CS_GLOBAL_AMBIENT_SET, text );
 
-	G_SpawnString( "defaultWeapon", "saber", &text );//pistol_DL-18
+	G_SpawnString( "defaultWeapon", jkg_startingGun.string, &text );//pistol_DL-18
 	if(text)
 	{
 		strcpy(level.startingWeapon, text);

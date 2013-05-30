@@ -301,7 +301,7 @@ static qboolean JKG_LoadItems ( void )
 		}
 
 		if(itemLookupTable[dummy.itemID].itemID)
-			Com_Printf (S_COLOR_YELLOW "Duplicate item id: %d", dummy.itemID);
+			Com_Printf (S_COLOR_YELLOW "Duplicate item id: %d\n", dummy.itemID);
 		itemLookupTable[dummy.itemID] = dummy;
 
 		itemFile += strlen (itemFile) + 1;
