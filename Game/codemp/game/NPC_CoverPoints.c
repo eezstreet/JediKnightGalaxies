@@ -105,8 +105,7 @@ qboolean AIMOD_LoadCoverPoints ( void )
 	return qtrue;
 }
 
-int
-CoverOrgVisible ( vec3_t org1, vec3_t org2, int ignore )
+int CoverOrgVisible ( vec3_t org1, vec3_t org2, int ignore )
 {
 	trace_t tr;
 	trap_Trace( &tr, org1, NULL, NULL, org2, ignore, MASK_SOLID | MASK_OPAQUE | MASK_WATER );

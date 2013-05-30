@@ -2749,6 +2749,7 @@ void NPC_BSST_Default( void )
 	
 	if( !NPC->enemy )
 	{//don't have an enemy, look for one
+		if (!NPC_MoveToGoal( qtrue ))
 		NPC_BSST_Patrol();
 	}
 	else //if ( NPC->enemy )
@@ -2756,6 +2757,12 @@ void NPC_BSST_Default( void )
 		if (NPC_CanUseAdvancedFighting())
 		{
 			NPC_BSJedi_Default();
+		}
+		else if (NPC->enemy 
+		&& NPC->genericValue15 < level.time)
+		{// have enemy but it is not visible right now...
+		if (!NPC_MoveToGoal( qtrue ))
+			NPC_BSST_Patrol();
 		}
 		else
 		{

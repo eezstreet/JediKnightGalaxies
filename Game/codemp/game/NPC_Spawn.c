@@ -254,6 +254,7 @@ PAIN_FUNC *NPC_PainFunc( gentity_t *ent )
 		// troopers get special pain
 		case CLASS_STORMTROOPER:
 		case CLASS_SWAMPTROOPER:
+		case CLASS_MERC://Stoiss add merc class
 			func = NPC_ST_Pain;
 			break;
 
@@ -1103,6 +1104,7 @@ void NPC_Begin (gentity_t *ent)
 	else if ( ent->client->NPC_class == CLASS_STORMTROOPER
 		|| ent->client->NPC_class == CLASS_SWAMPTROOPER
 		|| ent->client->NPC_class == CLASS_IMPWORKER
+		|| ent->client->NPC_class == CLASS_MERC//Stoiss add merc class
 		|| !Q_stricmp( "rodian2", ent->NPC_type ) )
 	{//tweak yawspeed for these NPCs based on difficulty
 		switch ( g_spskill.integer )

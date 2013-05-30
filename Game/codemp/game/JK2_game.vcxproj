@@ -469,7 +469,6 @@
     <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\GLua\LuaCommands.txt" />
     <None Include="JK2_game.def" />
     <None Include="authdb.xml" />
   </ItemGroup>
