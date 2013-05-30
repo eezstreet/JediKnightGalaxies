@@ -94,6 +94,15 @@ stringID_table_t ClassTable[] =
 	ENUM2STRING(CLASS_ODDITIES_VENDOR),
 	ENUM2STRING(CLASS_DRUG_VENDOR),
 	ENUM2STRING(CLASS_TRAVELLING_VENDOR),
+	//Stoiss add: FAQ Npc class
+	ENUM2STRING(CLASS_JKG_FAQ_IMP_DROID),
+	ENUM2STRING(CLASS_JKG_FAQ_ALLIANCE_DROID),
+	ENUM2STRING(CLASS_JKG_FAQ_SPY_DROID),
+	ENUM2STRING(CLASS_JKG_FAQ_CRAFTER_DROID),
+	ENUM2STRING(CLASS_JKG_FAQ_MERC_DROID),
+	ENUM2STRING(CLASS_JKG_FAQ_JEDI_MENTOR),
+	ENUM2STRING(CLASS_JKF_FAQ_SITH_MENTOR),
+	//Stoiss end
 
 	ENUM2STRING(CLASS_BOT_FAKE_NPC),
 	"",	-1
@@ -235,6 +244,15 @@ char	*ClassNames[CLASS_NUM_CLASSES] =
 	"vendor_oddities",
 	"vendor_drug",
 	"vendor_travelling",
+	//Stoiss add faq class names
+	"jkg_faq_imp_droid",
+	"jkg_faq_alliance_droid",
+	"jkg_faq_spy_droid",
+	"jkg_faq_crafter_droid",
+	"jkg_faq_merc_droid",
+	"jkg_faq_jedi_mentor",
+	"jkg_faq_sith_mentor",
+	//Stoiss end
 	"bot_fake_npc",
 };
 

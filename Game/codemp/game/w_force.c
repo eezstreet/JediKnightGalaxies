@@ -1878,7 +1878,8 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 					|| self->client->ps.weapon == WP_NONE
 					|| self->client->ps.weapon == WP_MELEE
 					|| self->client->ps.weapon == WP_SABER 
-					&& self->client->ps.saberHolstered )
+					&& self->client->ps.saberHolstered
+					&& self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_3 )
 				{//2-handed lightning
 					//jackin' 'em up, Palpatine-style
 					dmg *= 2;
@@ -1918,18 +1919,15 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 							&& !traceEnt->client->ps.saberInFlight )//saber in hand impactPoint
 						{
 							vec3_t	end2;
-							vec3_t ang = { 0, 0, 0};
+							vec3_t ang = { 0, 1, 2};
 							ang[0] = flrand(0,360);
 							ang[1] = flrand(0,360);
 							ang[2] = flrand(0,360);
 							VectorMA( traceEnt->client->saber[rSaberNum].blade[rBladeNum].muzzlePoint, traceEnt->client->saber[rSaberNum].blade[rBladeNum].lengthMax*flrand(0, 1), traceEnt->client->saber[rSaberNum].blade[rBladeNum].muzzleDir, end2 );
-							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_absorb.efx"),end2, ang );
-							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_flare.efx"),end2, ang );
-							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_impact.efx"),end2, ang );
-							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_arc.efx"),end2, ang );
-							G_PlayEffectID( G_EffectIndex( "effects/force/lightning_arc.efx"),end2, ang );
-							G_PlayEffectID( G_EffectIndex( "effects/force/lightning.efx"),end2, ang );// 1 lightning effect from saber blade
-							G_PlayEffectID( G_EffectIndex( "effects/force/lightning.efx"),end2, ang ); // 2 lightning effect from saber blade
+							G_PlayEffectID( G_EffectIndex( "effects/saber/saber_lightninghit.efx"),end2, ang );
+							G_PlayEffectID( G_EffectIndex( "effects/saber/saber_lightninghit.efx"),end2, ang );
+							//G_PlayEffectID( G_EffectIndex( "effects/force/lightning.efx"),end2, ang );// 1 lightning effect from saber blade
+							//G_PlayEffectID( G_EffectIndex( "effects/force/lightning.efx"),end2, ang ); // 2 lightning effect from saber blade
 							
 						}
 					}

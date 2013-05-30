@@ -200,6 +200,15 @@ qboolean NPC_IsHumanoid( void )
 	case CLASS_ODDITIES_VENDOR:
 	case CLASS_DRUG_VENDOR:
 	case CLASS_TRAVELLING_VENDOR:
+	//Stoiss add: FAQ Npc class
+	case CLASS_JKG_FAQ_IMP_DROID:
+	case CLASS_JKG_FAQ_ALLIANCE_DROID:
+	case CLASS_JKG_FAQ_SPY_DROID:
+	case CLASS_JKG_FAQ_CRAFTER_DROID:
+	case CLASS_JKG_FAQ_MERC_DROID:
+	case CLASS_JKG_FAQ_JEDI_MENTOR:
+	case CLASS_JKF_FAQ_SITH_MENTOR:
+	//Stoiss end
 	case CLASS_BOT_FAKE_NPC:
 		// Humanoid...
 		return qtrue;
@@ -283,6 +292,15 @@ qboolean NPC_IsJedi ( gentity_t *self )
 	//case CLASS_ODDITIES_VENDOR:
 	//case CLASS_DRUG_VENDOR:
 	//case CLASS_TRAVELLING_VENDOR:
+	//Stoiss add: FAQ Npc class
+	//case CLASS_JKG_FAQ_IMP_DROID:
+	//case CLASS_JKG_FAQ_ALLIANCE_DROID:
+	//case CLASS_JKG_FAQ_SPY_DROID:
+	//case CLASS_JKG_FAQ_CRAFTER_DROID:
+	//case CLASS_JKG_FAQ_MERC_DROID:
+	case CLASS_JKG_FAQ_JEDI_MENTOR:
+	case CLASS_JKF_FAQ_SITH_MENTOR:
+	//Stoiss end
 	//case CLASS_BOT_FAKE_NPC:
 		// Is Jedi...
 		return qtrue;
