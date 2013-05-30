@@ -1722,6 +1722,10 @@ Ghoul2 Insert End
 		*(float **)VMA(1) = (float *)g_color_table;
 		return 0;
 
+	case CG_JKG_GETVIEWANGLES:
+		*(float **)VMA(1) = (float *)cl.viewangles;
+		return 0;
+
 	default:
 	        assert(0); // bk010102
 		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );

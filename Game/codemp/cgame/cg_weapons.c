@@ -1991,6 +1991,9 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	entityState_t *ent;
 	int				c;
 	weaponInfo_t	*weap;
+	vec3_t			viewangles;
+
+	trap_JKG_GetViewAngles((float **)&viewangles);
 	
 
 	ent = &cent->currentState;
@@ -2011,11 +2014,10 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 
 		if ( fRecoil )
 		{
-			/* This used pointer (0x97DF88) is the base address of cl.viewangles. Therefore this is PITCH and +4 is YAW */
 			float fYawRecoil = flrand( 0.15 * fRecoil, 0.25 * fRecoil );
 			CGCam_Shake( flrand( 0.85 * fRecoil, 0.15 * fRecoil), 100 );
-			*(( float * ) 0x97DF8C ) += Q_irand( 0, 1 ) ? -fYawRecoil : fYawRecoil; // yaw
-			*(( float * ) 0x97DF88 ) -= fRecoil; // pitch
+			viewangles[YAW] += Q_irand( 0, 1 ) ? -fYawRecoil : fYawRecoil; // yaw
+			viewangles[PITCH] -= fRecoil; // pitch
 		}
 		
 		/*
@@ -2968,12 +2970,13 @@ weaponInfo_t *CG_NextFreeWeaponInfo ( void )
 //=========================================================
 // Weapon event handling functions
 //=========================================================
-#define VIEWANGLES_YAW_ADDRESS (0x97DF8C)
-#define VIEWANGLES_PITCH_ADDRESS (0x97DF88)
 static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode )
 {
     const entityState_t *s = &cent->currentState;
     const weaponData_t *thisWeaponData = GetWeaponData (cg.snap->ps.weapon, cg.snap->ps.weaponVariation);
+	vec3_t viewangles;
+
+	trap_JKG_GetViewAngles((float **)&viewangles);
 
     // Update the muzzle flash time, so we know to draw it in the render function.
     if ( (cent->shotCount + 1) == UINT_MAX )
@@ -3004,8 +3007,8 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
 			
 			CGCam_Shake (flrand (0.85f * pitchRecoil, 0.15f * pitchRecoil), 100);
 			
-			*(float *)VIEWANGLES_YAW_ADDRESS += yawRecoil;
-			*(float *)VIEWANGLES_PITCH_ADDRESS -= pitchRecoil;
+			viewangles[YAW] += yawRecoil;
+			viewangles[PITCH] -= pitchRecoil;
 		}
     }
     
