@@ -67,39 +67,20 @@ void ChatBox_CloseChat() {
 	}
 }
 
-int RE_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale) {
-	// Funnel it right to the engine so we skip the whole syscall thing
-	// So we can use this often without overhead
-	int (* func)(const char*, const int, const float);
-	func = *(void **)0x8AF0C8;
-	if (func) {
-		return func(text, iFontIndex, scale);
-	} else {
-		return 0;
-	}
-}
-
-void RE_Font_DrawString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale) {
-	// Funnel it right to the engine so we skip the whole syscall thing
-	// So we can use this often without overhead
-	void (* func)(int, int, const char *, const float *, const int, int, const float);
-	func = *(void **)0x8AF0D4;
-	if (func) {
-		func(ox, oy, text, rgba, setIndex, iCharLimit, scale);
-	}
-}
-
 void ChatBox_SetPaletteAlpha(float alpha) {
 	// This modifies the alpha of the JA color palette
 	// As well as the drop shadow color
 	// Always reset this back to 1 after you're done!
 	int i;
+	vec4_t fantasticArray[8];
+
+	trap_JKG_GetColorTable((float **)fantasticArray);
 	for (i=0; i<8; i++) {
 		// Color code palette (vec4_t array)
-		*(float *)(0x56DF48 + (i * 16) + 12) = alpha;
+		fantasticArray[i][3] = alpha;
 	}
 	// Drop shadow color
-	*(float *)(0x5582B8 + 12) = alpha;
+	//*(float *)(0x5582B8 + 12) = alpha;		// FIXME: this address didn't look correct in the first place --eez
 }
 
 float Text_GetWidth(const char *text, int iFontIndex, float scale) {
@@ -124,7 +105,7 @@ float Text_GetWidth(const char *text, int iFontIndex, float scale) {
 			}
 		}
 		s[0] = *t;
-		w += ((float)RE_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		w += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		t++;
 	}
 	return w;
@@ -293,8 +274,8 @@ void Text_DrawText(int x, int y, const char *text, const float* rgba, int iFontI
 			}
 		}
 		s[0] = *t;
-		RE_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
-		xx += ((float)RE_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		trap_R_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
+		xx += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		t++;
 	}
 }
@@ -351,7 +332,7 @@ const char *ChatBox_PrintableText(int iFontIndex, float scale) {
 		}
 		s[0] = *t;
 
-		w += ((float)RE_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		w += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		if (w > cb_data.maxwidth) {
 			break;
 		}

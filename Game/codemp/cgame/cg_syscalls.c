@@ -1188,4 +1188,10 @@ void trap_JKG_OverrideShaderFrame( qhandle_t shader, int frame, int time )
 {
 	syscall(CG_JKG_OVERRIDESHADERFRAME, shader, frame, time );
 }
+
+// WARNING: float *table is actually a vec4_t [8]!!
+void trap_JKG_GetColorTable( float **table )
+{
+	syscall(CG_JKG_GETCOLORTABLE, table);
+}
 #include "../namespace_end.h"

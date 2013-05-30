@@ -2926,6 +2926,8 @@ void trap_CO_ShopNotify( int msg );
 void trap_CO_Syscall_UI( void );
 void trap_CO_Syscall_CG( void );
 
+void trap_JKG_GetColorTable( float **table );
+
 #include "../namespace_end.h"
 
 void		CG_Init_CG(void);

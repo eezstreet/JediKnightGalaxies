@@ -1690,6 +1690,38 @@ Ghoul2 Insert End
 		re.OverrideShaderFrame( args[1], args[2], args[3] );
 		return 0;
 
+	// TODO: --eez
+	case CG_CO_INITCROSSOVER:
+		return 0;
+
+	case CG_CO_SHUTDOWN:
+		return 0;
+		
+	case CG_CO_SERVERCOMMAND:
+		return 0;
+
+	case CG_CO_ESCAPETRAP:
+		return 0;
+
+	case CG_CO_PARTYMNGTNOTIFY:
+		return 0;
+
+	case CG_CO_INVENTORYNOTIFY:
+		return 0;
+
+	case CG_CO_SHOPNOTIFY:
+		return 0;
+
+	case CG_CO_SYSCALL_UI:
+		return 0;
+
+	case CG_CO_SYSCALL_CG:
+		return 0;
+
+	case CG_JKG_GETCOLORTABLE:
+		*(float **)VMA(1) = (float *)g_color_table;
+		return 0;
+
 	default:
 	        assert(0); // bk010102
 		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
