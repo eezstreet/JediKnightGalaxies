@@ -1,0 +1,213 @@
+jkg_faq_imp_droid
+{
+	playerModel		protocol
+	customSkin		imp
+	weapon		WP_MELEE
+	forcePowerMax		0
+	forceRegenAmount	0
+	forceRegenRate		0
+	rank		commander
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_JKG_FAQ_IMP_DROID
+	health			9999
+	movetype		walk
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbHands	0
+	dismemberProbLegs	0
+	dismemberProbWaist	0
+}
+
+jkg_faq_alliance_droid
+{
+	playerModel		protocol
+	weapon		WP_MELEE
+	forcePowerMax		0
+	forceRegenAmount	0
+	forceRegenRate		0
+	rank		commander
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_JKG_FAQ_ALLIANCE_DROID
+	health			9999
+	movetype		walk
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbHands	0
+	dismemberProbLegs	0
+	dismemberProbWaist	0
+}
+
+jkg_faq_spy_droid
+{
+	playerModel		assassin_droid
+	weapon		WP_MELEE
+	forcePowerMax		0
+	forceRegenRate		0
+	rank		commander
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_JKG_FAQ_SPY_DROID
+	health			9999
+	movetype		walk
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbHands	0
+	dismemberProbLegs	0
+	dismemberProbWaist	0
+}
+
+jkg_faq_crafter_droid
+{
+	playerModel		imperial_worker
+	weapon		WP_MELEE
+	forcePowerMax		0
+	forceRegenAmount	0
+	forceRegenRate		0
+	rank		commander
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_JKG_FAQ_CRAFTER_DROID
+	health			9999
+	movetype		walk
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbHands	0
+	dismemberProbLegs	0
+	dismemberProbWaist	0
+}
+
+jkg_faq_merc_droid
+{
+	playerModel		galak_mech
+	weapon		WP_MELEE
+	forcePowerMax		0
+	forceRegenAmount	0
+	forceRegenRate		0
+	rank		commander
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_JKG_FAQ_MERC_DROID
+	health			9999
+	movetype		walk
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbHands	0
+	dismemberProbLegs	0
+	dismemberProbWaist	0
+}
+
+jkg_faq_jedi_mentor
+{
+	playerModel		jeditrainer
+	customSkin		blue
+	weapon			WP_SABER
+	weapon		WP_MELEE
+	saber			single_9
+	saberColor		orange
+	saberStyle		1
+	saberStyle		2
+	saberStyle		3
+	saberStyle		4
+	saberStyle		5
+	FP_LEVITATION		3
+	FP_PULL			3
+	FP_PUSH			3
+	FP_SEE			3
+	FP_SPEED		3
+	FP_ABSORB		3
+	FP_HEAL			3
+	FP_PROTECT		3
+	FP_TELEPATHY		3
+	FP_SABER_DEFENSE	3
+	FP_SABER_OFFENSE	3
+	FP_SABERTHROW		3
+	forcePowerMax		500
+	forceRegenRate		130
+	rank		commander
+	aggression		5
+	aim			5
+	evasion			5
+	intelligence		5
+	move			5
+	reactions		5
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_JKG_FAQ_JEDI_MENTOR
+	health			9999
+	movetype		walk
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbHands	0
+	dismemberProbLegs	0
+	dismemberProbWaist	0
+}
+
+jkg_faq_sith_mentor
+{
+	playerModel		reborn_new
+	customSkin		red
+	weapon			WP_SABER
+	weapon		WP_MELEE
+	saber			single_8
+	saberColor		red
+	saberStyle		1
+	saberStyle		2
+	saberStyle		3
+	saberStyle		4
+	saberStyle		5
+	FP_LEVITATION		3
+	FP_PULL			3
+	FP_PUSH			3
+	FP_SEE			3
+	FP_SPEED		3
+	FP_DRAIN		3
+	FP_GRIP			3
+	FP_LIGHTNING		3
+	FP_RAGE			3
+	FP_SABER_DEFENSE	3
+	FP_SABER_OFFENSE	3
+	FP_SABERTHROW		3
+	forcePowerMax		500
+	forceRegenRate		130
+	rank		commander
+	aggression		5
+	aim			5
+	evasion			5
+	intelligence		5
+	move			5
+	reactions		5
+	playerTeam		TEAM_NEUTRAL
+	enemyTeam		TEAM_NEUTRAL
+	class			CLASS_JKF_FAQ_SITH_MENTOR
+	health			9999
+	movetype		walk
+	yawspeed	90
+	walkSpeed	55
+	runSpeed	200
+	dismemberProbHead	0
+	dismemberProbArms	0
+	dismemberProbHands	0
+	dismemberProbLegs	0
+	dismemberProbWaist	0
+}
+

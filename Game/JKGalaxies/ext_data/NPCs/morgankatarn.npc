@@ -1,10 +1,8 @@
-vendor_travelling
+MorganKatarn
 {
-	playerModel	reelo
+	playerModel	morgan
 	weapon		WP_MELEE
-	rank		commander
-	altFire		1
-	snd			reelo
+	snd			morgan
 	reactions	3
 	aim			1
 	move		3
@@ -14,17 +12,14 @@ vendor_travelling
 	rank		crewman
 	playerTeam	TEAM_NEUTRAL
 	enemyTeam	TEAM_NEUTRAL
-//	race		klingon
-	class		CLASS_TRAVELLING_VENDOR
-	snd			reelo
-	sndcombat	reelo
-	sndextra	reelo
-	yawspeed	90
+//	race		human
+	class		CLASS_MORGAN
 	walkSpeed	55
 	runSpeed	200
+	yawspeed	90
 	dismemberProbHead	0
 	dismemberProbArms	0
-	dismemberProbHands	0
 	dismemberProbLegs	0
+	dismemberProbHands	0
 	dismemberProbWaist	0
 }
