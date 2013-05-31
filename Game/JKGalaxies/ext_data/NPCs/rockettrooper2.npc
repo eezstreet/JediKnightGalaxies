@@ -1,7 +1,8 @@
-StormTrooper
+RocketTrooper2
 {
-	playerModel stormtrooper
-	weapon		WP_BLASTER
+	playerModel rockettrooper
+	weapon	WP_ROCKET_LAUNCHER
+	health	200
 	headPitchRangeDown 30
 	reactions	3
 	aim			1
@@ -12,18 +13,19 @@ StormTrooper
 	rank		crewman
 	playerTeam	TEAM_ENEMY
 	enemyTeam	TEAM_PLAYER
-//	race		klingon
-	class		CLASS_STORMTROOPER
-	height		64
-	crouchheight 38
+	class		CLASS_ROCKETTROOPER
+	height		72
+	crouchheight 48
 	walkSpeed	51
 	runSpeed	200
-	snd			st1
+	snd		st1
 	sndcombat	st1
 	sndextra	st1
-	yawspeed	70
 	walkSpeed	55
-	runSpeed	200
+	runSpeed	150
+	yawspeed	50
+	visrange	2048
+	earshot	2048
 	dismemberProbHead	0
 	dismemberProbArms	10
 	dismemberProbLegs	0
@@ -31,10 +33,11 @@ StormTrooper
 	dismemberProbWaist	0
 }
 
-StormTrooper2
+RocketTrooper2Officer
 {
-	playerModel stormtrooper
-	weapon		WP_BLASTER
+	playerModel rockettrooper
+	weapon	WP_REPEATER
+	health	400
 	headPitchRangeDown 30
 	reactions	3
 	aim			1
@@ -42,21 +45,24 @@ StormTrooper2
 	aggression	3
 	evasion		1
 	intelligence	5
-	rank		crewman
+	rank		lt
 	playerTeam	TEAM_ENEMY
 	enemyTeam	TEAM_PLAYER
-//	race		klingon
-	class		CLASS_STORMTROOPER
-	height		64
-	crouchheight 38
+	class		CLASS_ROCKETTROOPER
+	height		72
+	crouchheight 48
 	walkSpeed	51
 	runSpeed	200
-	snd			st2
-	sndcombat	st2
-	sndextra	st2
-	yawspeed	70
+	snd		st1
+	sndcombat	st1
+	sndextra	st1
 	walkSpeed	55
 	runSpeed	200
+	yawspeed	50
+	hfov		60
+	vfov		80
+	visrange	2048
+	earshot	2048
 	dismemberProbHead	0
 	dismemberProbArms	10
 	dismemberProbLegs	0

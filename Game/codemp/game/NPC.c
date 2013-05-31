@@ -1093,47 +1093,40 @@ void NPC_BehaviorSet_Default( int bState )
 	switch( bState )
 	{
 	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSAdvanceFight ();
 		break;
 	case BS_SLEEP://Follow a path, looking for enemies
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSSleep ();
 		break;
 	case BS_FOLLOW_LEADER://# 40: Follow your leader and shoot any enemies you come across
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSFollowLeader();
 		break;
 	case BS_JUMP:			//41: Face navgoal and jump to it.
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSJump();
 		break;
 	case BS_REMOVE:
 		NPC_BSRemove();
 		break;
 	case BS_SEARCH:			//# 43: Using current waypoint as a base, search the immediate branches of waypoints for enemies
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSSearch();
 		break;
 	case BS_NOCLIP:
 		NPC_BSNoClip();
 		break;
 	case BS_WANDER:			//# 46: Wander down random waypoint paths
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSWander();
 		break;
 	case BS_FLEE:
 		NPC_BSFlee();
 		break;
 	case BS_WAIT:
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSWait();
 		break;
 	case BS_CINEMATIC:
@@ -1141,8 +1134,7 @@ void NPC_BehaviorSet_Default( int bState )
 		break;
 	default:
 	case BS_DEFAULT://whatever
-		if (g_gametype.integer != GT_WARZONE || !NPC_FollowRoutes())
-			if (!NPC_PatrolArea())
+		if (!NPC_FollowRoutes())
 			NPC_BSDefault();
 		break;
 	}
