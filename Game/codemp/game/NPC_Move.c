@@ -411,14 +411,8 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 	*/
 }
 
-#if	AI_TIMERS
-extern int navTime;
-#endif//	AI_TIMERS
 
-#ifdef __DOMINANCE_NPC__
-extern qboolean NPC_EnemyVisible( gentity_t *self, gentity_t *enemy );
-extern gentity_t *NPC_PickEnemyExt( qboolean checkAlerts );
-
+/*
 qboolean NPC_MoveToGoal( qboolean tryStraight ) 
 {
 	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
@@ -434,15 +428,19 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 
 	return qtrue;
 }
-/*
+*/
+#if	AI_TIMERS
+extern int navTime;
+#endif//	AI_TIMERS
+
+#ifdef __DOMINANCE_NPC__
+extern qboolean NPC_EnemyVisible( gentity_t *self, gentity_t *enemy );
+extern gentity_t *NPC_PickEnemyExt( qboolean checkAlerts );
+
 qboolean NPC_MoveToGoal( qboolean tryStraight ) 
 {
 	qboolean ENEMY_VISIBLE = qfalse;
 
-#if	AI_TIMERS
-	int	startTime = GetTime(0);
-#endif//	AI_TIMERS
-	
 	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
 	{// If taking full body pain, don't move...
 		return qfalse;
@@ -504,7 +502,7 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 
 	return qtrue;
 }
-*/
+
 
 #else //!__DOMINANCE_NPC__
 /*
@@ -697,6 +695,7 @@ qboolean NPC_SlideMoveToGoal( void )
 
 	return ret;
 }
+
 
 
 /*

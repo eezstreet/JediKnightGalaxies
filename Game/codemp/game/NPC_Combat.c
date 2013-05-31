@@ -140,6 +140,9 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		//NOTE: attDelay should be somewhere between 1000 to 6000 milliseconds
 		switch ( self->client->NPC_class )
 		{
+		case CLASS_MERC://Stoiss add merc class
+			attDelay += Q_irand( 500, 1500 );
+			break;
 		case CLASS_IMPERIAL://they give orders and hang back
 			attDelay += Q_irand( 500, 1500 );
 			break;
@@ -147,11 +150,11 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 			if ( self->NPC->rank >= RANK_LT )
 			{//officers shoot even sooner
 				attDelay -= Q_irand( 500, 1500 );
-			}
-			else
-			{//normal stormtroopers don't have as fast reflexes as officers
-				attDelay -= Q_irand( 0, 1000 );
-			}
+			}//Stoiss add: edit this becours it sounds to me its a bit overkill when we fight rebels
+			//else
+			//{//normal stormtroopers don't have as fast reflexes as officers
+			//	attDelay -= Q_irand( 0, 1000 );
+			//}
 			break;
 		case CLASS_SWAMPTROOPER://shoot very quickly?  What about guys in water?
 			attDelay -= Q_irand( 1000, 2000 );
@@ -470,6 +473,11 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 					maxErr = 30;
 				}
 				else if ( self->client->NPC_class == CLASS_STORMTROOPER && self->NPC && self->NPC->rank <= RANK_CREWMAN )
+				{
+					minErr = 5;
+					maxErr = 15;
+				}//Stoiss add merc class
+				else if ( self->client->NPC_class == CLASS_MERC && self->NPC && self->NPC->rank <= RANK_CREWMAN )
 				{
 					minErr = 5;
 					maxErr = 15;
