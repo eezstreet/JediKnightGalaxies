@@ -4869,8 +4869,6 @@ static void NPC_Humanoid_CombatIdle( int enemy_dist )
 				if ( enemy_dist > 200 
 					&& NPC_IsJedi(NPC)
 					&& !NPC->client->ps.saberHolstered
-					&& NPC->client->NPC_class != CLASS_BOBAFETT//Stoiss add
-					&& (NPC->client->NPC_class != CLASS_REBORN || NPC->s.weapon == WP_SABER)//Stoiss end
 					&& !Q_irand( 0, 5 ) )
 				{//taunt even more, turn off the saber
 					//FIXME: don't do this if health low?
@@ -4903,12 +4901,7 @@ static void NPC_Humanoid_CombatIdle( int enemy_dist )
 }
 
 static qboolean NPC_Humanoid_AttackDecide( int enemy_dist )
-{//Stoiss add. AI test
-	if ( !TIMER_Done( NPC, "allyJediDelay" ) )
-	{
-		return qfalse;
-	}//Stoiss end
-
+{
 	if ( NPC->enemy
 		&& NPC->enemy->client 
 		&& NPC->enemy->s.weapon == WP_SABER 
@@ -4929,10 +4922,6 @@ static qboolean NPC_Humanoid_AttackDecide( int enemy_dist )
 		{//tavion
 			chance = 10;
 		}
-		else if ( NPC->client->NPC_class == CLASS_SHADOWTROOPER )
-		{//shadowtrooper
-			chance = 5;
-		}//Stoiss end
 		else if ( NPC->client->NPC_class == CLASS_REBORN && NPCInfo->rank == RANK_LT_JG ) 
 		{//fencer
 			chance = 5;
@@ -6840,10 +6829,10 @@ extern void NPC_BSSniper_Default( void );
 
 void NPC_BSJedi_Default( void )
 {
-	//if (NPC_HaveValidEnemy() && NPC_FollowRoutes())
-	//{// They are not visible/reachable... Move to them...
-	//	return;
-	//}
+	if (NPC_HaveValidEnemy() && NPC_FollowRoutes())
+	{// They are not visible/reachable... Move to them...
+		return;
+	}
 
 	NPC_Humanoid_CheckCloak();
 

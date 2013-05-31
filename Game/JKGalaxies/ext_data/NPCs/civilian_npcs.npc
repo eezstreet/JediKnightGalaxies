@@ -1,7 +1,7 @@
 civilian_bartender
 {
 	playerModel	chiss
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	//customRGBA	random1
 	snd			bartender
 	reactions	3
@@ -29,7 +29,7 @@ civilian_human_merc
 {
 	playerModel human_merc
 	surfOff		"l_arm_pocket l_arm_key"
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	//customRGBA	random1
 	health		100
 	headPitchRangeDown 30
@@ -63,7 +63,7 @@ civilian_human_merc
 civilian_merchant
 {
 	playerModel	prisoner
-	weapon	WP_NONE
+	weapon	WP_MELEE
 	customRGBA	random1
 	customSkin	merchant
 	reactions	3
@@ -92,7 +92,7 @@ civilian_merchant
 civilian_protocol
 {
 	playerModel	protocol
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	//customRGBA	random1
 	reactions	3
 	aim			1
@@ -118,7 +118,7 @@ civilian_protocol
 civilian_r2d2
 {
 	playermodel		r2d2
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	//customRGBA	random1
 	headYawRangeLeft	180
 	headYawRangeRight	180
@@ -151,7 +151,7 @@ civilian_r2d2
 civilian_r5d2
 {
 	playerModel r5d2
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	//customRGBA	random1
 	headYawRangeLeft		180
 	headYawRangeRight		180
@@ -186,7 +186,7 @@ civilian_rodian
 	playerModel	rodian
 	customSkin	sp
 	customRGBA	random1
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	altFire		1
 	reactions	3
 	aim			1
@@ -219,7 +219,7 @@ civilian_rodian2
 	playerModel	rodian
 	customSkin	sp
 	//customRGBA	random1
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	altFire		1
 	surfOff		"hips_belt torso_vest"
 	surfOn		"torso_augment"
@@ -253,7 +253,7 @@ civilian_trandoshan
 	playerModel	trandoshan
 	customSkin	sp
 	customRGBA	random1
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	reactions	3
 	aim			1
 	move		3
@@ -282,7 +282,7 @@ civilian_trandoshan
 civilian_ugnaught
 {
 	playerModel	ugnaught
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	//customRGBA	random1
 	scale 		75
 	health		10
@@ -310,7 +310,7 @@ civilian_ugnaught
 civilian_ugnaught2
 {
 	playerModel	ugnaught
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	//customRGBA	random1
 	surfOff		"l_hand_purse"
 	surfOn		"r_hand_tool"
@@ -342,7 +342,7 @@ civilian_weequay
 	playerModel	weequay
 	customSkin	sp
 	customRGBA	random1
-	weapon		WP_NONE
+	weapon		WP_MELEE
 //FIXME: randomize these somehow, also belt...
 	surfOff		"hips_lowerarmor"
 	surfOn		"hips_torso_augment"
@@ -375,7 +375,7 @@ civilian_weequay2
 	playerModel	weequay
 	customSkin	sp
 	customRGBA	random1
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	surfOff		"head_l_hairback hips_r_strap hips_r_packsmall"
 	surfOn		"head_r_hairshoulder hips_l_packsmall hips_l_strap"
 	reactions	3
@@ -407,7 +407,7 @@ civilian_weequay3
 	playerModel	weequay
 	customSkin	sp
 	customRGBA	random1
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	surfOff		"head_l_hairback hips_l_packlarge hips_l_packwide hips_r_strap hips_r_packsmall"
 	surfOn		"head_r_hairback hips_l_packsmall hips_l_strap hips_r_packlarge hips_r_packwide"
 	reactions	3
@@ -439,7 +439,7 @@ civilian_weequay4
 	playerModel	weequay
 	customSkin	sp
 	customRGBA	random1
-	weapon		WP_NONE
+	weapon		WP_MELEE
 	surfOff		"head_l_hairback hips_l_packlarge hips_l_packwide"
 	surfOn		"head_l_hairshoulder hips_r_packlarge hips_r_packwide"
 	reactions	3

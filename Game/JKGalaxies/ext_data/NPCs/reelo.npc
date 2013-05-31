@@ -1,7 +1,7 @@
-vendor_travelling
+Reelo
 {
 	playerModel	reelo
-	weapon		WP_MELEE
+	weapon		WP_BLASTER
 	rank		commander
 	altFire		1
 	snd			reelo
@@ -12,10 +12,10 @@ vendor_travelling
 	evasion		1
 	intelligence	5
 	rank		crewman
-	playerTeam	TEAM_NEUTRAL
-	enemyTeam	TEAM_NEUTRAL
+	playerTeam	TEAM_ENEMY
+	enemyTeam	TEAM_PLAYER
 //	race		klingon
-	class		CLASS_TRAVELLING_VENDOR
+	class		CLASS_REELO
 	snd			reelo
 	sndcombat	reelo
 	sndextra	reelo

@@ -3301,7 +3301,7 @@ qboolean NPC_FollowRoutes( void )
 	}	
 	else
 	{
-		//NPC_NPCBlockingPath();//Stoiss/Xy no good for npc, make the walk in cyrcle in combat and make awalk delay on them
+		/NPC_NPCBlockingPath();
 	}
 	
 	if ( !NPC_HaveValidEnemy() )

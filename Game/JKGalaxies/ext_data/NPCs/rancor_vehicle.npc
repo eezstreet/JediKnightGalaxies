@@ -1,11 +1,14 @@
 
 //NOTE: for vehicle-class NPCs, the playerModel key is actually their entry in the vehicles.dat
 
-Bantha
+Rancor_vehicle
 {
-	weapon		WP_MELEE
+	weapon		WP_NONE
 	playerTeam	TEAM_NEUTRAL
 	enemyTeam	TEAM_NEUTRAL
 	class		CLASS_VEHICLE
-	snd			tauntaun
+	snd			rancor
+	height		128
+	crouchheight 	128
+	width		60
 }

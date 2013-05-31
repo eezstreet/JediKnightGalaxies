@@ -1,7 +1,7 @@
 hsroam_1
 {
 	playerModel	prisoner
-	weapon	WP_NONE
+	weapon	WP_MELEE
 	customSkin	merchant
 	reactions	3
 	aim			1
@@ -29,7 +29,7 @@ hsroam_1
 hsroam_2
 {
 	playerModel	prisoner
-	weapon	WP_NONE
+	weapon	WP_MELEE
 	customSkin	elder
 	reactions	3
 	aim			1
@@ -58,7 +58,7 @@ hsroam_2
 hsroam_3
 {
 	playerModel	jedi
-	weapon	WP_NONE
+	weapon	WP_MELEE
 	reactions	3
 	aim			1
 	move		3
@@ -85,7 +85,7 @@ hsroam_3
 hsroam_4f
 {
 	playerModel	jan
-	weapon	WP_NONE
+	weapon	WP_MELEE
 	reactions	3
 	aim			1
 	move		3
@@ -110,7 +110,7 @@ hsroam_4f
 hsroam_benett
 {
 	playerModel	rax_joris
-	weapon	WP_NONE
+	weapon	WP_MELEE
 	reactions	3
 	aim			1
 	move		3
