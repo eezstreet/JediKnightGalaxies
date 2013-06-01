@@ -10,7 +10,6 @@
 
 #include "ui_shared.h"
 #include "ui_local.h"
-#include "ui_crossover.h"
 
 #include <encoding/base128.h>
 #include <encoding/bitstream.h>
@@ -162,7 +161,7 @@ void JKG_Slice_ProgramSetParameter(int param)
 	menuDef_t *menu;
 	itemDef_t *item;
 
-	CO_SendClientCommand(va("~slc runprog %s %i", sliceData.programs[sliceData.selectedProgram].ID, param));
+	cgImports->SendClientCommand(va("~slc runprog %s %i", sliceData.programs[sliceData.selectedProgram].ID, param));
 	sliceData.inputState = 0;
 
 	menu = Menus_FindByName("jkg_slice");
@@ -255,9 +254,9 @@ void JKG_Slice_Script_DialogButton(char **args) {
 	}
 	if (sliceData.dlgActive) {
 		if (sliceData.dlgid == DLGID_SERVER) {
-			CO_SendClientCommand(va("~slc dlgresp %i", button));
+			cgImports->SendClientCommand(va("~slc dlgresp %i", button));
 		} else if (sliceData.dlgid == DLGID_STOPSLICING && button == 1) {
-			CO_SendClientCommand("~slc stop");
+			cgImports->SendClientCommand("~slc stop");
 		}
 	}
 	JKG_Slice_Dialog_Close();
@@ -724,7 +723,7 @@ qboolean JKG_Slice_Grid_HandleKey(int slot, int flags, float *special, int key) 
 	if (key == A_MOUSE1) {
 		if (sliceData.inputState == INPUTSTATE_NORMAL) {
 			if (!sliceData.grid[row][col].active) {
-				CO_SendClientCommand(va("~slc actnode %i", slot));
+				cgImports->SendClientCommand(va("~slc actnode %i", slot));
 			}
 		} else if (sliceData.inputState == INPUTSTATE_AWAITINGNODE  || (sliceData.inputState == INPUTSTATE_AWAITINGINACTIVENODE && !sliceData.grid[row][col].active)) {
 			JKG_Slice_ProgramSetParameter(slot);
@@ -777,7 +776,7 @@ void JKG_Slice_Script_RunProgram(char **args) {
 	switch (sliceData.programs[sliceData.selectedProgram].type)
 	{
 	case PROGTYPE_NORMAL:
-		CO_SendClientCommand(va("~slc runprog %s", sliceData.programs[sliceData.selectedProgram].ID));
+		cgImports->SendClientCommand(va("~slc runprog %s", sliceData.programs[sliceData.selectedProgram].ID));
 		break;
 	case PROGTYPE_NODE:
 		sliceData.inputState = INPUTSTATE_AWAITINGNODE;
@@ -828,7 +827,7 @@ void JKG_Slice_Script_OnEsc(char **args) {
 		// Yes we are, check the type and process it
 		if (sliceData.dlgType != DLGTYPE_BLANK) {
 			if (sliceData.dlgid == DLGID_SERVER) {
-				CO_SendClientCommand("~slc dlgresp 0");
+				cgImports->SendClientCommand("~slc dlgresp 0");
 			}
 			JKG_Slice_Dialog_Close();
 		}

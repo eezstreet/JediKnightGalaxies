@@ -283,6 +283,7 @@
     <ClCompile Include="..\game\NPC_Walker.c" />
     <ClCompile Include="cg_cinematics.c" />
     <ClCompile Include="cg_consolecmds.c" />
+    <ClCompile Include="cg_crossover.c" />
     <ClCompile Include="cg_draw.c" />
     <ClCompile Include="cg_drawtools.c" />
     <ClCompile Include="cg_effects.c" />

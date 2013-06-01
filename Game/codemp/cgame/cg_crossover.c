@@ -10,32 +10,31 @@
 //                       \    \_\  \/    |    \    |___/    |    \/     \ |   ||        \/        \   
 //                        \______  /\____|__  /_______ \____|__  /___/\  \|___/_______  /_______  /   
 //                               \/         \/        \/	   \/	   \_/			  \/        \/ (c)
-// ui_crossover.c -- Crossover API module for UI
+// cg_crossover.c -- Crossover API module for CGame
 // Copyright (c) 2013 Jedi Knight Galaxies
 
-#include "ui_local.h"
+#include "cg_local.h"
+#include "../ui/ui_shared.h"
 
-cgCrossoverExports_t *cgImports;
+uiCrossoverExports_t *uiImports;
 
-static qboolean coTrapEscape = qfalse;
+cgCrossoverExports_t co;
 
-qboolean UI_RunSvCommand(const char *command);
-void JKG_PartyMngt_UpdateNotify(int msg);
-void JKG_Inventory_UpdateNotify(int msg);
-void JKG_Shop_UpdateNotify(int msg);
-
-void CO_SetEscapeTrapped( qboolean trapped )
+int CO_GetRedTeam( void )
 {
-	coTrapEscape = trapped;
+	return cgs.redTeam;
 }
 
-void UI_InitializeCrossoverAPI( cgCrossoverExports_t *cg, uiCrossoverExports_t *ui )
+int CO_GetBlueTeam( void )
 {
-	cgImports = cg;
+	return cgs.blueTeam;
+}
 
-	ui->HandleServerCommand = UI_RunSvCommand;
-	ui->InventoryNotify = JKG_Inventory_UpdateNotify;
-	ui->PartyMngtNotify = JKG_PartyMngt_UpdateNotify;
-	ui->SetEscapeTrap = CO_SetEscapeTrapped;
-	ui->ShopNotify = JKG_Shop_UpdateNotify;
+extern uiCrossoverExports_t *trap_CO_InitCrossover( cgCrossoverExports_t *uiImport );
+void CG_InitializeCrossoverAPI( void )
+{
+	co.GetBlueTeam = CO_GetBlueTeam;
+	co.GetRedTeam = CO_GetRedTeam;
+
+	uiImports = trap_CO_InitCrossover( &co );
 }

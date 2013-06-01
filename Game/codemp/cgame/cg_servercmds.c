@@ -219,7 +219,7 @@ static void JKG_ShopConfirm( void )
 		}
 	}
 
-	trap_CO_ShopNotify(1);
+	uiImports->ShopNotify(1);
 }
 
 /*
@@ -1437,7 +1437,7 @@ static void CG_ServerCommand( void ) {
 
 	// Jedi Knight Galaxies
 	// Check the crossover
-	if (trap_CO_ServerCommand(cmd))
+	if ( uiImports->HandleServerCommand( cmd ) )
 		return;
 
 	// Check Jedi Knight Galaxies commands (not handled by the UI)
@@ -1641,7 +1641,7 @@ static void CG_ServerCommand( void ) {
 	        int oldItem = atoi (CG_Argv (2));
 	        
 	        JKG_CG_EquipItem (newItem, oldItem);
-	        trap_CO_InventoryNotify (1);
+	        uiImports->InventoryNotify( 1 );
 	    }
 	    return;
 	}
@@ -1652,7 +1652,7 @@ static void CG_ServerCommand( void ) {
 	    {
 	        int slot = atoi (CG_Argv (1));
 	        JKG_CG_UnequipItem (slot);
-	        trap_CO_InventoryNotify (1);
+	        uiImports->InventoryNotify( 1 );
 	    }
 	    
 	    return;
@@ -1660,7 +1660,7 @@ static void CG_ServerCommand( void ) {
 	if ( !strcmp (cmd, "inventory_update") )
 	{
 		cg.predictedPlayerState.persistant[PERS_CREDITS] = atoi(CG_Argv(1));
-		trap_CO_InventoryNotify (1);
+		uiImports->InventoryNotify (1);
 		return;
 	}
 
@@ -1805,7 +1805,7 @@ static void CG_ServerCommand( void ) {
 	if( !strcmp(cmd, "shopupdate"))
 	{
 		cg.snap->ps.persistant[PERS_CREDITS] = atoi(CG_Argv(1));
-		trap_CO_ShopNotify(1);
+		uiImports->ShopNotify(1);
 		return;
 	}
 
@@ -2023,7 +2023,7 @@ static void CG_ServerCommand( void ) {
 			}
 		}
 		/* Notify UI */
-		trap_CO_PartyMngtNotify(1);
+		uiImports->PartyMngtNotify( 1 );
 		return;
 	}
 
@@ -2044,7 +2044,7 @@ static void CG_ServerCommand( void ) {
 		/* Win cake */
 
 		/* Notify UI */
-		trap_CO_PartyMngtNotify(0);
+		uiImports->PartyMngtNotify( 0 );
 		return;
 	}
 
@@ -2083,7 +2083,7 @@ static void CG_ServerCommand( void ) {
 		cgs.party.members[0].status = 1;
 
 		/* Notify UI */
-		trap_CO_PartyMngtNotify(0);
+		uiImports->PartyMngtNotify( 0 );
 		return;
 	}
 

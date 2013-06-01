@@ -2916,15 +2916,9 @@ qboolean	trap_G2API_OverrideServer(void *serverInstance);
 
 void		trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf);
 
-void trap_CO_InitCrossover( void );
 void trap_CO_Shutdown( void );
-qboolean trap_CO_ServerCommand( const char *cmd );
-void trap_CO_EscapeTrap( int activate );
-void trap_CO_PartyMngtNotify( int msg );
-void trap_CO_InventoryNotify( int msg );
-void trap_CO_ShopNotify( int msg );
-void trap_CO_Syscall_UI( void );
-void trap_CO_Syscall_CG( void );
+void trap_Syscall_UI( void );
+void trap_Syscall_CG( void );
 
 void trap_JKG_GetColorTable( float **table );
 void trap_JKG_GetViewAngles( float **viewangles );
@@ -2963,4 +2957,14 @@ extern void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float sha
 // jkg_cg_damagetypes.c -- UQ1: Moved to stop cg_local.h recursive #include error...
 void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity );
 
+#endif
+
+
+// -------------
+// Crossover API
+// -------------
+
+#ifdef CGAME
+#include "../ui/ui_shared.h"
+extern uiCrossoverExports_t *uiImports;
 #endif

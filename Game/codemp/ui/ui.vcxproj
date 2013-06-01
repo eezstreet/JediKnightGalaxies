@@ -321,7 +321,6 @@
     <ClInclude Include="..\game\surfaceflags.h" />
     <ClInclude Include="..\shared\qcommon\tags.h" />
     <ClInclude Include="..\cgame\tr_types.h" />
-    <ClInclude Include="ui_crossover.h" />
     <ClInclude Include="ui_force.h" />
     <ClInclude Include="ui_jkgscript.h" />
     <ClInclude Include="ui_local.h" />

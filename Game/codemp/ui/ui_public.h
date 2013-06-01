@@ -192,6 +192,9 @@ Ghoul2 Insert End
 
 	// Jedi Knight Galaxies, temp until I remove these later --eez
 	UI_JKG_CHANGEPROTOCOL,
+
+	UI_SYSCALL_UI,
+	UI_SYSCALL_CG,
 } uiImport_t;
 
 typedef enum {

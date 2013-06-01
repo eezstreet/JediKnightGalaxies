@@ -603,6 +603,9 @@ extern int CL_GetValueForHidden(const char *s); //cl_parse.cpp
 
 extern qboolean cl_bUseFighterPitch; //cl_input.cpp
 
+//qcommon/vm.cpp
+extern vm_t *currentVM;
+
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
 	//rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -1696,26 +1699,13 @@ Ghoul2 Insert End
 
 	case CG_CO_SHUTDOWN:
 		return 0;
-		
-	case CG_CO_SERVERCOMMAND:
-		return 0;
-
-	case CG_CO_ESCAPETRAP:
-		return 0;
-
-	case CG_CO_PARTYMNGTNOTIFY:
-		return 0;
-
-	case CG_CO_INVENTORYNOTIFY:
-		return 0;
-
-	case CG_CO_SHOPNOTIFY:
-		return 0;
 
 	case CG_CO_SYSCALL_UI:
+		currentVM = uivm;
 		return 0;
 
 	case CG_CO_SYSCALL_CG:
+		currentVM = cgvm;
 		return 0;
 
 	case CG_JKG_GETCOLORTABLE:
@@ -1727,7 +1717,7 @@ Ghoul2 Insert End
 		return 0;
 
 	default:
-	        assert(0); // bk010102
+	    assert( !"Bad cgame system trap" ); // Better looking --eez
 		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
 	}
 	return 0;

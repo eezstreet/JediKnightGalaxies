@@ -75,7 +75,7 @@ void CG_TargetCommand_f( void ) {
 }
 
 void CG_OpenPartyManagement_f( void ) {
-	trap_CO_PartyMngtNotify(10);
+	uiImports->PartyMngtNotify( 10 );
 }
 
 /*
@@ -312,12 +312,12 @@ int testMasterFinalFunc (asyncTask_t *task) {
 
 static void JKG_OpenInventoryMenu_f ( void )
 {
-    trap_CO_InventoryNotify (0);
+    uiImports->InventoryNotify (0);
 }
 
 void JKG_OpenShopMenu_f ( void )
 {
-	trap_CO_ShopNotify(0);
+	uiImports->ShopNotify( 0 );
 }
 
 static void JKG_UseACI_f ( void )

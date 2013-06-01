@@ -21,7 +21,6 @@ USER INTERFACE MAIN
 #include "../game/jkg_gangwars.h"
 
 // JKG
-#include "ui_crossover.h"
 #include "jkg_ui_auxlib.h"
 #include "jkg_conversations.h"
 #include "jkg_pazaak.h"
@@ -7064,7 +7063,7 @@ static int UI_HeadCountByColor() {
 		int gwTeam;
 		if(uiSkinColor == TEAM_BLUE || uiSkinColor == TEAM_RED)
 		{
-			gwTeam = (uiSkinColor == TEAM_RED) ? CO_GetRedTeam() : CO_GetBlueTeam();
+			gwTeam = (uiSkinColor == TEAM_RED) ? cgImports->GetRedTeam() : cgImports->GetBlueTeam();
 			if(bgGangWarsTeams[gwTeam].useTeamColors)
 			{
 				if(uiSkinColor == TEAM_BLUE)
@@ -7958,7 +7957,7 @@ static const char *UI_SelectedTeamHead(int index, int *actual) {
 
 	if(ui_gameType.integer >= GT_TEAM)
 	{
-		gwTeam = (uiSkinColor == TEAM_RED) ? CO_GetRedTeam() : CO_GetBlueTeam();
+		gwTeam = (uiSkinColor == TEAM_RED) ? cgImports->GetRedTeam() : cgImports->GetBlueTeam();
 		*actual = index;
 		return uiInfo.q3HeadNames[index];
 	}
@@ -9179,7 +9178,7 @@ void UI_BuildQ3Model_List( void )
 
 		if(myTeam == TEAM_BLUE || myTeam == TEAM_RED)
 		{
-			gwTeam = (myTeam == TEAM_RED) ? CO_GetRedTeam() : CO_GetBlueTeam();
+			gwTeam = (myTeam == TEAM_RED) ? cgImports->GetRedTeam() : cgImports->GetBlueTeam();
 			if(Q_stricmp(bgGangWarsTeams[gwTeam].modelStore[0], "NULL"))
 			{
 				// Okay. Loop through all the model store entries..
@@ -9497,8 +9496,6 @@ UI_Init
 */
 //#define JKG_CLIENTSIDE_VERSION "0.3.25a"
 
-#include "ui_crossover.h"
-
 
 
 void _UI_Init( qboolean inGameLoad ) {
@@ -9514,7 +9511,6 @@ void _UI_Init( qboolean inGameLoad ) {
 	// DERP. --eez
 	//trap_Cvar_Set("clver", JKG_VERSION); // this is handled in engine now --eez
 
-	CO_InitCrossover();
 	// Get the list of possible languages
 	uiInfo.languageCount = trap_SP_GetNumLanguages();	// this does a dir scan, so use carefully
 
@@ -9829,7 +9825,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			//UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
 			return;
 		case UIMENU_INGAME:
-			if (CO_EscapeTrapped()) 
+			if (cgImports->EscapeTrapped()) 
 				return;
 			trap_Cvar_Set( "cl_paused", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );

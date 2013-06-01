@@ -11,7 +11,6 @@
 
 #include "ui_shared.h"
 #include "ui_local.h"
-#include "ui_crossover.h"
 
 #define MAX_LOOT_DRAW	10
 
@@ -180,7 +179,7 @@ void JKG_LootScript_Button(char **args)
 	}
 	switch(button) {
 		case LOOT_EXIT:
-			CO_SendClientCommand("~inv clo");
+			cgImports->SendClientCommand("~inv clo");
 			break;
 	}
 }
@@ -205,7 +204,7 @@ void JKG_LootScript_Item(char **args)
 		return;
 	}
 
-	CO_SendClientCommand(va("bodyLoot %i %i", lootUIData.entListener, item));
+	cgImports->SendClientCommand( va("bodyLoot %i %i", lootUIData.entListener, item ));
 	Q_strncpyz(lootInContainer[item].name, "NULLSLOT", sizeof(lootInContainer[item].name)); //We strncpyz NULLSLOT to tell the game not to render this slot
 }
 
@@ -283,7 +282,7 @@ void JKG_ProcessLoot(){
 		if(!Q_stricmp(token, "cl")) {
 			//Destroy menu
 			JKG_Loot_DestroyMenu();
-			CO_SendClientCommand("~inv cls");
+			cgImports->SendClientCommand( "~inv cls" );
 		}
 		if(!Q_stricmp(token, "clw")) {
 			//Close whole menu, only used in certain situations

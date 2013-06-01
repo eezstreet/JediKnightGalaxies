@@ -679,6 +679,8 @@ CL_UISystemCalls
 The ui module is making a system call
 ====================
 */
+
+extern vm_t *currentVM;
 intptr_t CL_UISystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
 	//rww - alright, DO NOT EVER add a GAME/CGAME/UI generic call without adding a trap to match, and
@@ -1285,7 +1287,14 @@ Ghoul2 Insert End
 	// Jedi Knight Galaxies
 
 	case UI_JKG_CHANGEPROTOCOL:
+		return 0;
 
+	case UI_SYSCALL_CG:
+		currentVM = cgvm;
+		return 0;
+
+	case UI_SYSCALL_UI:
+		currentVM = uivm;
 		return 0;
 /*
 Ghoul2 Insert End

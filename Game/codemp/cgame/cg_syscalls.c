@@ -1139,9 +1139,10 @@ JKG Syscalls - Temporary until new import table is done
 ===========================
 */
 
-void trap_CO_InitCrossover( void )
+#include "../ui/ui_shared.h"
+void trap_CO_InitCrossover( uiCrossoverExports_t *uiImports )
 {
-	syscall(CG_CO_INITCROSSOVER);
+	syscall(CG_CO_INITCROSSOVER, uiImports);
 }
 
 void trap_CO_Shutdown( void )
@@ -1149,37 +1150,12 @@ void trap_CO_Shutdown( void )
 	syscall(CG_CO_SHUTDOWN);
 }
 
-qboolean trap_CO_ServerCommand( const char *cmd )
-{
-	return (qboolean)syscall(CG_CO_SERVERCOMMAND, cmd);
-}
-
-void trap_CO_EscapeTrap( int activate )
-{
-	syscall(CG_CO_ESCAPETRAP, activate);
-}
-
-void trap_CO_PartyMngtNotify( int msg )
-{
-	syscall(CG_CO_PARTYMNGTNOTIFY, msg);
-}
-
-void trap_CO_InventoryNotify( int msg )
-{
-	syscall(CG_CO_INVENTORYNOTIFY, msg);
-}
-
-void trap_CO_ShopNotify( int msg )
-{
-	syscall(CG_CO_SHOPNOTIFY, msg);
-}
-
-void trap_CO_Syscall_UI( void )
+void trap_Syscall_UI( void )
 {
 	syscall(CG_CO_SYSCALL_UI);
 }
 
-void trap_CO_Syscall_CG( void )
+void trap_Syscall_CG( void )
 {
 	syscall(CG_CO_SYSCALL_CG);
 }

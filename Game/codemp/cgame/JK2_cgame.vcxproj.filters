@@ -425,6 +425,9 @@
     <ClCompile Include="..\game\bg_vmove.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cg_crossover.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h">

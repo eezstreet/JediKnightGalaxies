@@ -4051,7 +4051,6 @@ Will perform callbacks to make the loading info screen update.
 =================
 */
 
-void (__cdecl * CL_WritePacket)(void) = (void (__cdecl *)(void))0x41A470;
 void CinBuild_Init();
 void ChatBox_InitSystem();
 void MiniMap_Init();
@@ -4061,12 +4060,12 @@ void JKG_WeaponIndicators_Init();
 #include "jkg_chatcmds.h"
 
 static void CG_OpenPartyManagement( void ) {
-	trap_CO_PartyMngtNotify(10);
+	uiImports->PartyMngtNotify( 10 );
 }
 
 static void CG_OpenInventory ( void )
 {
-    trap_CO_InventoryNotify (0);
+	uiImports->InventoryNotify( 0 );
 }
 
 void CG_SetupChatCmds() {
@@ -4092,14 +4091,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 	BG_InitAnimsets(); //clear it out
 
 	trap_CG_RegisterSharedMemory(cg.sharedBuffer);
-
-	// Jedi Knight Galaxies
-	// Tell the server that we're a valid client
-	// Moved to UI: Engine hook
-	// trap_SendClientCommand("~svrValidateClient");
-	// Force the game to send it
-	//CL_WritePacket();
-	//CL_WritePacket();
 
 	//Load external vehicle data
 	BG_VehicleLoadParms();

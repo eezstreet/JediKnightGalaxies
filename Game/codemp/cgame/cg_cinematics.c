@@ -1069,7 +1069,7 @@ static void Cin_Reset() {
 	cin.Flash.state = 0;
 	if (cg.trapEscape) {
 		cg.trapEscape = 0;
-		trap_CO_EscapeTrap(0);
+		uiImports->SetEscapeTrap(qfalse);
 	}
 }
 
@@ -1665,13 +1665,13 @@ void Cin_ProcessCinematic_f() {
 		if (!Q_stricmp(token,"ae")) {
 			// Allow use of escape key
 			cg.trapEscape = 1;
-			trap_CO_EscapeTrap(1);
+			uiImports->SetEscapeTrap( qfalse );
 			continue;
 		}
 		if (!Q_stricmp(token,"de")) {
 			// Disallow use of escape key
 			cg.trapEscape = 0;
-			trap_CO_EscapeTrap(0);
+			uiImports->SetEscapeTrap( qfalse );
 			continue;
 		}
 		if (!Q_stricmp(token,"rdc")) {

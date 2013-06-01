@@ -674,4 +674,14 @@ void trap_JKG_ChangeProtocol( int whatProtocol )
 	syscall(UI_JKG_CHANGEPROTOCOL, whatProtocol );
 }
 
+void trap_Syscall_UI( void )
+{
+	syscall(UI_SYSCALL_UI);
+}
+
+void trap_Syscall_CG( void )
+{
+	syscall(UI_SYSCALL_CG);
+}
+
 #include "../namespace_end.h"

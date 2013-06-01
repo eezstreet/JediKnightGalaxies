@@ -3,7 +3,6 @@
 #include "jkg_gangwars_ui.h"
 #include "ui_shared.h"
 #include "ui_local.h"
-#include "ui_crossover.h"
 
 int MenuFontToHandle(int iMenuFont);
 
@@ -13,7 +12,7 @@ void JKG_GangWars_TeamREDText( rectDef_t *rect, float scale, vec4_t color, int i
 	int x,y;
 	char line[512];
 	int iFontIndex = MenuFontToHandle(iMenuFont);
-	int gwTeam = CO_GetRedTeam();
+	int gwTeam = cgImports->GetRedTeam();
 	float scale2 = scale;
 	if(gwTeam < 0 || !bgGangWarsTeams[gwTeam].menustring[0] || !bgGangWarsTeams[gwTeam].menustring)
 	{
@@ -32,7 +31,7 @@ void JKG_GangWars_TeamBLUEText( rectDef_t *rect, float scale, vec4_t color, int 
 	char line[512];
 	float scale2 = scale;
 	int iFontIndex = MenuFontToHandle(iMenuFont);
-	int gwTeam = CO_GetBlueTeam();
+	int gwTeam = cgImports->GetBlueTeam();
 	if(gwTeam < 0 || !bgGangWarsTeams[gwTeam].menustring[0] || !bgGangWarsTeams[gwTeam].menustring)
 	{
 		return;

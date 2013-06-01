@@ -9,7 +9,6 @@
 ////////////////////////////////////////////////////////////
 
 #include "ui_local.h"
-#include "ui_crossover.h"
 
 // UI includes
 void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
@@ -118,7 +117,7 @@ static void JKG_PartyMngt_UpdateState() {
 		return;
 	}
 	trap_GetClientState( &cs );
-	party = (teamParty_t *)CO_PartyMngtDataRequest(0);
+	party = (teamParty_t *)cgImports->PartyMngtDataRequest(0);
 	
 	if (!party) {
 		return;
@@ -230,7 +229,7 @@ static void JKG_PartyMngt_UpdateSeekers() {
 		return;
 	}
 	trap_GetClientState( &cs );
-	list = (teamPartyList_t *)CO_PartyMngtDataRequest(1);
+	list = (teamPartyList_t *)cgImports->PartyMngtDataRequest(1);
 
 	if (!list) {
 		return;
@@ -279,25 +278,25 @@ void JKG_PartyMngt_UpdateNotify(int msg) {
 		if (!PMngtData.active) {
 			return;
 		}
-		CO_SysCall_UI();
+		trap_Syscall_UI();
 		JKG_PartyMngt_UpdateState();
-		CO_SysCall_CG();
+		trap_Syscall_CG();
 	} else if (msg == 1) {
 		if (!PMngtData.active) {
 			return;
 		}
-		CO_SysCall_UI();
+		trap_Syscall_UI();
 		JKG_PartyMngt_UpdateSeekers();
-		CO_SysCall_CG();
+		trap_Syscall_CG();
 	} else if (msg == 10) {
-		CO_SysCall_UI();
+		trap_Syscall_UI();
 		memset(&PMngtData, 0, sizeof(PMngtData));
 		PMngtData.active = 1;
 		if (Menus_ActivateByName("jkg_partymanagement"))
 		{
 			trap_Key_SetCatcher( trap_Key_GetCatcher() | KEYCATCH_UI & ~KEYCATCH_CONSOLE );			
 		}
-		CO_SysCall_CG();
+		trap_Syscall_CG();
 	}
 }
 
@@ -597,52 +596,52 @@ static void PartyMngt_Dlg_Response(int response, const char *text) {
 	switch (PMngtData.dlgid) {
 		case PDLGID_NEWPARTY:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand("~pmngt partycreate");
+				cgImports->SendClientCommand("~pmngt partycreate");
 			}
 			break;
 		case PDLGID_ACCEPTINVITE:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand(va("~pmngt partyaccept %i", PMngtData.partySelection));
+				cgImports->SendClientCommand(va("~pmngt partyaccept %i", PMngtData.partySelection));
 			}
 			break;
 		case PDLGID_REJECTINVITE:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand(va("~pmngt partyreject %i", PMngtData.partySelection));
+				cgImports->SendClientCommand(va("~pmngt partyreject %i", PMngtData.partySelection));
 			}
 			break;
 		case PDLGID_LEAVEPARTY:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand("~pmngt partyleave");
+				cgImports->SendClientCommand("~pmngt partyleave");
 			}
 			break;
 		case PDLGID_DISBANDPARTY:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand("~pmngt partydisband");
+				cgImports->SendClientCommand("~pmngt partydisband");
 			}
 			break;
 		case PDLGID_MAKELEADER:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand(va("~pmngt partychangeleader %i", PMngtData.Data.PartyMembers[PMngtData.partySelection].slotid ));
+				cgImports->SendClientCommand(va("~pmngt partychangeleader %i", PMngtData.Data.PartyMembers[PMngtData.partySelection].slotid ));
 			}
 			break;
 		case PDLGID_DISMISSMEMBER:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand(va("~pmngt partydismiss %i", PMngtData.Data.PartyMembers[PMngtData.partySelection].slotid ));
+				cgImports->SendClientCommand(va("~pmngt partydismiss %i", PMngtData.Data.PartyMembers[PMngtData.partySelection].slotid ));
 			}
 			break;
 		case PDLGID_ADDTOLIST:
 			if (response == PDLGRESP_OK) {
-				CO_SendClientCommand(va("~pmngt partylistregister \"%s\"", StripQuotes((char *)text)));
+				cgImports->SendClientCommand(va("~pmngt partylistregister \"%s\"", StripQuotes((char *)text)));
 			}
 			break;
 		case PDLGID_REMOVEFROMLIST:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand("~pmngt partylistunregister");
+				cgImports->SendClientCommand("~pmngt partylistunregister");
 			}
 			break;
 		case PDLGID_INVITE:
 			if (response == PDLGRESP_YES) {
-				CO_SendClientCommand(va("~pmngt partyinvite %i", PMngtData.partySeeker[PMngtData.seekerSelection].id));
+				cgImports->SendClientCommand(va("~pmngt partyinvite %i", PMngtData.partySeeker[PMngtData.seekerSelection].id));
 			}
 			break;
 	}
@@ -769,18 +768,18 @@ void PartyMngt_Script_Button(char **args) {
 void PartyMngt_Script_OpenDlg(char **args) {
 	// We just opened the dialog, inform the server and request updates
 	PartyMngt_Dialog_Close();
-	CO_SendClientCommand("~pmngt on");
+	cgImports->SendClientCommand("~pmngt on");
 	JKG_PartyMngt_UpdateState();
 	// Request a new list
 	PMngtData.seekerListPending = 1;
-	CO_SendClientCommand(va("~pmngt partylistrefresh %i", (int)CO_PartyMngtDataRequest(2)));
+	cgImports->SendClientCommand(va("~pmngt partylistrefresh %i", (int)cgImports->PartyMngtDataRequest(2)));
 	trap_Cvar_Set("ui_hidehud", "1");
 	PMngtData.active = 1;
 }
 
 void PartyMngt_Script_CloseDlg(char **args) {
 	// Dialog got closed, inform the server
-	CO_SendClientCommand("~pmngt off");
+	cgImports->SendClientCommand("~pmngt off");
 	trap_Cvar_Set("ui_hidehud", "0");
 	PMngtData.active = 0;
 }
