@@ -1150,6 +1150,9 @@ void trap_CO_Shutdown( void )
 	syscall(CG_CO_SHUTDOWN);
 }
 
+#include "../ui/ui_public.h"
+
+// make sure you use the appropriate follow-up, otherwise i will feed your dog to a carnivorous antelope --eez
 void trap_Syscall_UI( void )
 {
 	syscall(CG_CO_SYSCALL_UI);
@@ -1157,7 +1160,7 @@ void trap_Syscall_UI( void )
 
 void trap_Syscall_CG( void )
 {
-	syscall(CG_CO_SYSCALL_CG);
+	syscall(UI_SYSCALL_CG);
 }
 
 void trap_JKG_OverrideShaderFrame( qhandle_t shader, int frame, int time )
