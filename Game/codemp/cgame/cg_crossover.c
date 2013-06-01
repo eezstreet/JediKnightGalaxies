@@ -108,7 +108,12 @@ static void *CO_PartyMngtDataRequest(int data) {
 	}
 }
 
-
+void CO_SendClientCommand( const char *command )
+{
+	trap_Syscall_CG();
+	trap_SendClientCommand( command );
+	trap_Syscall_UI();
+}
 
 extern uiCrossoverExports_t *trap_CO_InitCrossover( cgCrossoverExports_t *uiImport );
 void CG_InitializeCrossoverAPI( void )
@@ -120,7 +125,7 @@ void CG_InitializeCrossoverAPI( void )
 	co.InventoryAttachToACI = CO_InventoryAttachToACI;
 	co.InventoryDataRequest = CO_InventoryDataRequest;
 	co.PartyMngtDataRequest = CO_PartyMngtDataRequest;
-	co.SendClientCommand = trap_SendClientCommand;
+	co.SendClientCommand = CO_SendClientCommand;
 
 	uiImports = trap_CO_InitCrossover( &co );
 }
