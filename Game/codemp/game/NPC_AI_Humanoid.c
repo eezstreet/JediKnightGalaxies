@@ -2533,11 +2533,11 @@ evasionType_t NPC_Humanoid_CheckFlipEvasions( gentity_t *self, float rightdot, f
 	{
 		return EVASION_NONE;
 	}
-
-	if ( self->client->NPC_class == CLASS_STORMTROOPER )
-	{// UQ1: Stormies shouldn't do this...
-		return EVASION_NONE;
-	}
+	//Stoiss add they should as rebel does to!
+	//if ( self->client->NPC_class == CLASS_STORMTROOPER )
+	//{// UQ1: Stormies shouldn't do this...
+	//	return EVASION_NONE;
+	//}
 
 	if ( self->client 
 		&& (self->client->ps.fd.forceRageRecoveryTime > level.time	|| (self->client->ps.fd.forcePowersActive&(1<<FP_RAGE))) )
@@ -5807,6 +5807,7 @@ static void NPC_Humanoid_Combat( void )
 					NPC->client->ps.saberBlocked = BLOCKED_NONE;
 				}
 			}
+
 			if ( NPC_Humanoid_Hunt() && !(NPCInfo->aiFlags&NPCAI_BLOCKED) )//FIXME: have to do this because they can ping-pong forever
 			{//can macro-navigate to him
 				if ( enemy_dist < 384 && !Q_irand( 0, 10 ) && NPCInfo->blockedSpeechDebounceTime < level.time && NPC_HumanoidSpeechDebounceTime[NPC->client->playerTeam] < level.time && !NPC_ClearLOS4( NPC->enemy ) )
@@ -6829,10 +6830,10 @@ extern void NPC_BSSniper_Default( void );
 
 void NPC_BSJedi_Default( void )
 {
-	if (NPC_HaveValidEnemy() && NPC_FollowRoutes())
-	{// They are not visible/reachable... Move to them...
-		return;
-	}
+	//if (NPC_HaveValidEnemy() && NPC_FollowRoutes())
+	//{// They are not visible/reachable... Move to them...
+	//	return;
+	//}
 
 	NPC_Humanoid_CheckCloak();
 

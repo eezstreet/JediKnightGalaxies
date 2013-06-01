@@ -453,6 +453,12 @@ void NPC_BSST_Sleep( void )
 {
 	int alertEvent = NPC_CheckAlertEvents( qfalse, qtrue, -1, qfalse, AEL_MINOR );//only check sounds since we're alseep!
 
+	if (NPC->NPC->behavior_timers[BS_STAND_GUARD] > level.time) 
+	 {
+		 NPC->NPC->behavior_timers[BS_STAND_GUARD] = level.time + 50; // <-- don't run again for 50ms
+			return;
+	}
+
 	//There is an event we heard
 	if ( alertEvent >= 0 )
 	{
@@ -994,6 +1000,12 @@ void NPC_BSST_Investigate( void )
 	{
 		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
 		{
+			if (NPC->NPC->behavior_timers[BS_STAND_GUARD] > level.time) 
+		{
+		 NPC->NPC->behavior_timers[BS_STAND_GUARD] = level.time + 50; // <-- don't run again for 50ms
+			return;
+		}
+			
 			//Look for an enemy
 			if ( NPC_CheckPlayerTeamStealth() )
 			{
