@@ -958,6 +958,12 @@ void NPC_BSSearch (void)
 {
 	NPC_CheckEnemy(qtrue, qfalse, qtrue);
 
+	if (NPC->NPC->behavior_timers[BS_STAND_GUARD] > level.time) 
+	 {
+		 NPC->NPC->behavior_timers[BS_STAND_GUARD] = level.time + 50; // <-- don't run again for 50ms
+			return;
+	}
+
 	//Look for enemies, if find one:
 	if ( NPC->enemy )
 	{

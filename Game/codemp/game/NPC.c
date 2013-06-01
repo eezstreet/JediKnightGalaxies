@@ -1090,6 +1090,11 @@ void NPC_BehaviorSet_Default( int bState )
 		}
 	}
 
+	//if (NPC_HaveValidEnemy() && NPC_FollowRoutes())
+	//{// They are not visible/reachable... Move to them...
+	//	return;
+	//}
+
 	switch( bState )
 	{
 	case BS_ADVANCE_FIGHT://head toward captureGoal, shoot anything that gets in the way
