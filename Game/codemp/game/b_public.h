@@ -166,6 +166,9 @@ typedef struct
 	int			walkDebounceTime;
 	int			enemyCheckDebounceTime;
 	int			investigateDebounceTime;
+	//Stoiss add 
+	int         behavior_timers[NUM_BSTATES];
+	//Stoiss end
 	int			investigateCount;
 	vec3_t		investigateGoal;
 	int			investigateSoundDebounceTime;

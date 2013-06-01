@@ -889,8 +889,8 @@ void JKG_CreateNewVendor(gentity_t *ent, int desiredVendorID, qboolean random, q
 	//FIXME: Getting a Error in this swift, npc files need a scripts on its own. --Stoiss
 	switch (ent->client->NPC_class)
 	{// UQ1: Need to change these in the actual NPC script files...
-	//case CLASS_GENERAL_VENDOR:
-	/*case CLASS_WEAPONS_VENDOR:
+	case CLASS_GENERAL_VENDOR:
+	case CLASS_WEAPONS_VENDOR:
 	case CLASS_ARMOR_VENDOR:
 	case CLASS_SUPPLIES_VENDOR:
 	case CLASS_FOOD_VENDOR:
@@ -898,7 +898,7 @@ void JKG_CreateNewVendor(gentity_t *ent, int desiredVendorID, qboolean random, q
 	case CLASS_GAMBLER_VENDOR:
 	case CLASS_TRADE_VENDOR:
 	case CLASS_ODDITIES_VENDOR:
-	case CLASS_DRUG_VENDOR:*/
+	case CLASS_DRUG_VENDOR:
 	case CLASS_TRAVELLING_VENDOR:
 		break;
 	default:
