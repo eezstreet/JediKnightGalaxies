@@ -128,6 +128,7 @@ static void JKG_CompactInventory ( cgItemInstance_t *inventory )
 	}
 }
 
+extern void CO_InventoryNotify(int msg);
 void JKG_CG_DeltaFeed ( const char *mode )
 {
 	//This is part of something greater, which Boba calls a "delta feed".
@@ -255,6 +256,12 @@ void JKG_CG_DeltaFeed ( const char *mode )
 		//What the switch above does is actually pretty simple.
 		//You'll get a command that looks something like this:
 		//"pInv chng <iID> <int that corresponds to itemPacketParse_t> <amount>
+	}
+	else if(!Q_stricmp(mode, "open"))
+	{
+		// Opens the inventory. Self-explanatory.
+		CO_InventoryNotify( 0 );
+		return;
 	}
 	else
 		CG_Printf("unknown mode parameter %s\n", mode);
