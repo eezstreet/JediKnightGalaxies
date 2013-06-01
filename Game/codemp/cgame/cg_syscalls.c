@@ -1140,9 +1140,9 @@ JKG Syscalls - Temporary until new import table is done
 */
 
 #include "../ui/ui_shared.h"
-void trap_CO_InitCrossover( uiCrossoverExports_t *uiImports )
+uiCrossoverExports_t *trap_CO_InitCrossover( cgCrossoverExports_t *uiImports )
 {
-	syscall(CG_CO_INITCROSSOVER, uiImports);
+	return (uiCrossoverExports_t *)syscall(CG_CO_INITCROSSOVER, uiImports);
 }
 
 void trap_CO_Shutdown( void )

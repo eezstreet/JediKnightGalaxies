@@ -1695,7 +1695,7 @@ Ghoul2 Insert End
 
 	// TODO: --eez
 	case CG_CO_INITCROSSOVER:
-		return 0;
+		return VM_Call( uivm, UI_CROSSOVER_API, args[1] );
 
 	case CG_CO_SHUTDOWN:
 		return 0;

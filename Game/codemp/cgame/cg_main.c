@@ -4075,6 +4075,7 @@ void CG_SetupChatCmds() {
 
 extern void JKG_CG_InitItems( void );
 extern void JKG_CG_InitArmor( void );
+extern void CG_InitializeCrossoverAPI( void );
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 {
 	static gitem_t *item;
@@ -4094,6 +4095,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
 	//Load external vehicle data
 	BG_VehicleLoadParms();
+
+	CG_InitializeCrossoverAPI();
 
 	// clear everything
 /*
@@ -4359,9 +4362,6 @@ Ghoul2 Insert End
 
 	//now get all the cgame only cents
 	CG_SpawnCGameOnlyEnts();
-
-	// Init crossover
-	trap_CO_InitCrossover();
 
 	/* Initialize the party list table */
 	for ( i = 0; i < MAX_CLIENTS; i++ )

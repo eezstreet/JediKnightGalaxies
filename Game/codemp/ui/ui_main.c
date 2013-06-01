@@ -287,6 +287,7 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 const char *JAMD5Check();
 void CheckEngineDll();
 
+extern uiCrossoverExports_t *UI_InitializeCrossoverAPI( cgCrossoverExports_t *cg );
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 	switch ( command ) {
 	case UI_GETAPIVERSION:
@@ -328,11 +329,12 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 	case UI_DRAW_CONNECT_SCREEN:
 		UI_DrawConnectScreen( arg0 );
 		return 0;
-	case UI_HASUNIQUECDKEY: // mod authors need to observe this
-		return qtrue; // bk010117 - change this to qfalse for mods!
 	case UI_MENU_RESET:
 		Menu_Reset();
 		return 0;
+
+	case UI_CROSSOVER_API:
+		return (int)UI_InitializeCrossoverAPI( (cgCrossoverExports_t *)arg0 );
 	}
 
 	return -1;

@@ -17,6 +17,8 @@
 
 cgCrossoverExports_t *cgImports;
 
+uiCrossoverExports_t ui;
+
 static qboolean coTrapEscape = qfalse;
 
 qboolean UI_RunSvCommand(const char *command);
@@ -29,13 +31,15 @@ void CO_SetEscapeTrapped( qboolean trapped )
 	coTrapEscape = trapped;
 }
 
-void UI_InitializeCrossoverAPI( cgCrossoverExports_t *cg, uiCrossoverExports_t *ui )
+uiCrossoverExports_t *UI_InitializeCrossoverAPI( cgCrossoverExports_t *cg )
 {
 	cgImports = cg;
 
-	ui->HandleServerCommand = UI_RunSvCommand;
-	ui->InventoryNotify = JKG_Inventory_UpdateNotify;
-	ui->PartyMngtNotify = JKG_PartyMngt_UpdateNotify;
-	ui->SetEscapeTrap = CO_SetEscapeTrapped;
-	ui->ShopNotify = JKG_Shop_UpdateNotify;
+	ui.HandleServerCommand = UI_RunSvCommand;
+	ui.InventoryNotify = JKG_Inventory_UpdateNotify;
+	ui.PartyMngtNotify = JKG_PartyMngt_UpdateNotify;
+	ui.SetEscapeTrap = CO_SetEscapeTrapped;
+	ui.ShopNotify = JKG_Shop_UpdateNotify;
+
+	return &ui;
 }
