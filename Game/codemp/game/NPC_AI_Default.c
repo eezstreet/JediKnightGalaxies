@@ -331,8 +331,8 @@ void NPC_BSIdle( void )
 	}
 
 	if ( ( ucmd.forwardmove == 0 ) && ( ucmd.rightmove == 0 ) && ( ucmd.upmove == 0 ) )
-	{
-//		NPC_StandIdle();
+	{//Stoiss edit: NPC_StandIdle
+		NPC_BSST_Investigate();
 	}
 
 	NPC_UpdateAngles( qtrue, qtrue );
@@ -353,6 +353,13 @@ void NPC_BSRun (void)
 
 void NPC_BSStandGuard (void)
 {
+
+	 if (NPC->NPC->behavior_timers[BS_STAND_GUARD] > level.time) 
+	 {
+		 NPC->NPC->behavior_timers[BS_STAND_GUARD] = level.time + 50; // <-- don't run again for 50ms
+			return;
+	}
+
 	//FIXME: Use Snapshot info
 	if ( NPC->enemy == NULL )
 	{//Possible to pick one up by being shot
