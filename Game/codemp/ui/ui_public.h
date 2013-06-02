@@ -18,6 +18,11 @@ typedef enum {
 	UI_ERROR,
 	UI_PRINT,
 	UI_MILLISECONDS,
+
+	// these have to match the definitions in cg_public.h --eez
+	UI_SYSCALL_UI = 4,
+	UI_SYSCALL_CG = 5,
+
 	UI_CVAR_SET,
 	UI_CVAR_VARIABLEVALUE,
 	UI_CVAR_VARIABLESTRINGBUFFER,
@@ -192,9 +197,6 @@ Ghoul2 Insert End
 
 	// Jedi Knight Galaxies, temp until I remove these later --eez
 	UI_JKG_CHANGEPROTOCOL,
-
-	UI_SYSCALL_UI,
-	UI_SYSCALL_CG,
 } uiImport_t;
 
 typedef enum {

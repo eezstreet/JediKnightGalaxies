@@ -76,6 +76,10 @@ typedef enum {
 	CG_ERROR,
 	CG_MILLISECONDS,
 
+	// these have to match the definitions in ui_public.h ==eez
+	CG_CO_SYSCALL_UI = 4,
+	CG_CO_SYSCALL_CG = 5,
+
 	//Also for profiling.. do not use for game related tasks.
 	CG_PRECISIONTIMER_START,
 	CG_PRECISIONTIMER_END,
@@ -360,8 +364,6 @@ Ghoul2 Insert End
 	// JKG trap calls --eez
 	CG_CO_INITCROSSOVER,
 	CG_CO_SHUTDOWN,
-	CG_CO_SYSCALL_UI,
-	CG_CO_SYSCALL_CG,
 
 	CG_JKG_OVERRIDESHADERFRAME,
 	CG_JKG_GETCOLORTABLE,
