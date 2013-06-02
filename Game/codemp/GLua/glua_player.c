@@ -1559,7 +1559,7 @@ static int GLua_Player_SetCreditCount(lua_State *L) {
 	ent = &g_entities[ply->clientNum];
 	
 	ent->client->ps.persistant[PERS_CREDITS] = setTo;
-	return 0;
+	return 1;
 }
 
 static int GLua_Player_ModifyCreditCount(lua_State *L) {
@@ -1570,7 +1570,89 @@ static int GLua_Player_ModifyCreditCount(lua_State *L) {
 	ent = &g_entities[ply->clientNum];
 	
 	ent->client->ps.persistant[PERS_CREDITS] += modify;
-	return 0;
+	return 1;
+}
+
+static int GLua_Player_GetCurrentGunAmmoType(lua_State *L)
+{
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	gentity_t *ent;
+
+	if(!ply || ply->clientNum < 0 || ply->clientNum > MAX_CLIENTS) return 0;
+	ent = &g_entities[ply->clientNum];
+	if(!ent) return 0;
+
+	weaponData_t *wp = GetWeaponData((unsigned char)ent->client->ps.weapon, (unsigned char)ent->client->ps.weaponVariation);
+	if(!wp) return 0;
+
+	lua_pushinteger(L, wp->ammoIndex);
+
+	return 1;
+}
+
+// FIXME: this makes no sense whatsoever being a member of ply/player
+static int GLua_Player_GetGunAmmoType(lua_State *L)
+{
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	int weapon = lua_tointeger(L,2);
+	int variation = lua_tointeger(L,3);
+	weaponData_t *wp = GetWeaponData((unsigned char)weapon, (unsigned char)variation);
+
+	if(!wp) return 0;
+
+	lua_pushinteger(L, wp->ammoIndex);
+	return 1;
+}
+
+static int GLua_Player_PossessingItem(lua_State *L)
+{
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	int itemID = lua_tointeger(L,2);
+	gentity_t *ent;
+	int i;
+
+	if(!ply) return 0;
+
+	ent = &g_entities[ply->clientNum];
+	for(i = 0; i < ent->inventory->elements; i++)
+	{
+		if(ent->inventory->items[i].id && ent->inventory->items[i].id->itemID == itemID)
+		{
+			lua_pushboolean(L, 1);	// return qtrue
+			return 1;
+		}
+	}
+	lua_pushboolean(L, 0);	// return qfalse
+	return 1;
+}
+
+static int GLua_Player_PossessingWeapon(lua_State *L)
+{
+	GLua_Data_Player_t *ply = GLua_CheckPlayer(L,1);
+	int weapon = lua_tointeger(L, 2);
+	int variation = lua_tointeger(L, 3);
+	gentity_t *ent;
+	int i;
+
+	if(!ply) return 0;
+
+	ent = &g_entities[ply->clientNum];
+	if(!ent) return 0;
+
+	for(i = 0; i < ent->inventory->elements; i++)
+	{
+		if( ent->inventory->items[i].id )
+		{
+			if( ent->inventory->items[i].id->weapon == weapon &&
+				ent->inventory->items[i].id->variation == variation )
+			{
+				lua_pushboolean(L, 1); // return qtrue
+				return 1;
+			}
+		}
+	}
+	lua_pushboolean(L, 0);	// return qfalse
+	return 1;
 }
 
 /**************************************************
@@ -1683,6 +1765,11 @@ static const struct luaL_reg player_m [] = {
 	{"GetCreditCount", GLua_Player_GetCreditCount},
 	{"SetCreditCount", GLua_Player_SetCreditCount},
 	{"ModifyCreditCount", GLua_Player_ModifyCreditCount},
+	// add 6/2/13
+	{"GetCurrentGunAmmoType", GLua_Player_GetCurrentGunAmmoType},
+	{"GetGunAmmoType", GLua_Player_GetGunAmmoType},
+	{"PossessingItem", GLua_Player_PossessingItem},
+	{"PossessingWeapon", GLua_Player_PossessingWeapon},
 	{NULL, NULL},
 };
 

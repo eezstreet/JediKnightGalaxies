@@ -230,5 +230,9 @@ player:ModifyCreditCount(amount:number):nil - adds to the number of credits that
 player:SetAmmo(ammotype:string, amount:number):nil - sets ammo of a certain type. Ammo is defined in ammo.json
 player:GetAmmo(ammotype:string):number - returns amount of ammo of a certain type that the player is holding
 player:ModifyAmmo(ammotype:string, amount:number):nil - adds to, rather than setting current ammo
+player:GetCurrentGunAmmoType():number - retrieves the ammo ID of the currently equipped weapon
+player:GetGunAmmoType(weapon:number, variation: number):number - retrieves the ammo ID of the weapon/variation given (NOTE: I have no clue why I put this in player/ply...)--eez
+player:PossessingItem(itemid:number):bool - returns true if we are possessing the item, returns false otherwise
+player:PossessingWeapon(weapon: number, variation:number):bool - returns true if we are possessing this weapon in our inventory, returns false otherwise
 
 --------------------------------------------------------------------------------------------------------
