@@ -711,18 +711,6 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 	case TRAP_PERPENDICULARVECTOR:
 		PerpendicularVector( (float *)VMA(1), (const float *)VMA(2) );
 		return 0;
-	case TRAP_FLOOR:
-		return FloatAsInt( floor( VMF(1) ) );
-	case TRAP_CEIL:
-		return FloatAsInt( ceil( VMF(1) ) );
-	case TRAP_TESTPRINTINT:
-		return 0;
-	case TRAP_TESTPRINTFLOAT:
-		return 0;
-	case TRAP_ACOS:
-		return FloatAsInt( Q_acos( VMF(1) ) );
-	case TRAP_ASIN:
-		return FloatAsInt( Q_asin( VMF(1) ) );
 
 
 	case UI_ERROR:
