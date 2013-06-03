@@ -156,6 +156,11 @@ typedef struct client_s {
 	int				oldServerTime;
 	qboolean		csUpdated[MAX_CONFIGSTRINGS+1];	
 
+	bool hasVOIP;
+	bool muteAllVOIP;
+	bool ignoreVOIPFromClients[MAX_CLIENTS];
+
+
 } client_t;
 
 //=============================================================================

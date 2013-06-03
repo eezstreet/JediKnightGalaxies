@@ -1299,6 +1299,53 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 	VM_Call( gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients );
 }
 
+/*
+==================
+SV_VoipIgnore_f
+==================
+*/
+
+static void SV_VoipIgnore_f( client_t *cl, bool ignore = true )
+{
+	char *num = Cmd_Argv(2);
+	int intNum = atoi(num);
+	if( intNum < 0 || intNum >= MAX_CLIENTS ) return;
+
+	cl->ignoreVOIPFromClients[intNum] = ignore;
+}
+
+/*
+==================
+SV_Voip_f
+==================
+*/
+
+static void SV_Voip_f( client_t *cl )
+{
+	char *cmd = Cmd_Argv(1);
+	if(!Q_stricmp(cmd, "ignore") )
+	{
+		SV_VoipIgnore_f( cl );
+	}
+	else if(!Q_stricmp(cmd, "unignore") )
+	{
+		SV_VoipIgnore_f( cl, false );
+	}
+	else if(!Q_stricmp(cmd, "muteall"))
+	{
+		cl->muteAllVOIP = true;
+	}
+	else if(!Q_stricmp(cmd, "unmuteall"))
+	{
+		cl->muteAllVOIP = false;
+	}
+	else
+	{
+		Com_Printf("unknown voip command \"%s\" from client %i\n", cmd, cl->gentity->s.clientNum);
+		return;
+	}
+}
+
 typedef struct {
 	char	*name;
 	void	(*func)( client_t *cl );
@@ -1313,6 +1360,9 @@ static ucmd_t ucmds[] = {
 	{"nextdl", SV_NextDownload_f},
 	{"stopdl", SV_StopDownload_f},
 	{"donedl", SV_DoneDownload_f},
+
+	// VOIP --eez
+	{"voip", SV_Voip_f},
 
 	{NULL, NULL}
 };
