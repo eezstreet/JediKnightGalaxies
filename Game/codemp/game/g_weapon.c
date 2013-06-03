@@ -3507,6 +3507,11 @@ void SP_emplaced_gun( gentity_t *ent )
 
 		/* Get the bolt index and the ghoul model to retrieve the muzzle point */
 		pGhoul		= ent->client->weaponGhoul2[0];					/* Use secondary hand muzzle when shooting with that! */
+		if( !pGhoul )
+		{
+			assert(!"One of those stupid vendor guys tried to shoot you! Fix the AI, please.");
+			return;
+		}
 		iBolt		= trap_G2API_AddBolt( pGhoul, 0, "*flash" );	/* Use the *flash tag as muzzle point, it's rather accurate */
 
 		/* These weapons dont have a proper muzzle bolt, don't crash the client but fake the muzzle */

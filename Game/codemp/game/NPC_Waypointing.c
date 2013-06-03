@@ -3466,7 +3466,7 @@ qboolean NPC_PatrolArea( void )
 	}	
 	else
 	{
-		NPC_NPCBlockingPath();//Stoiss/Xy no good for npc, make the walk in cyrcle in combat and make awalk delay on them
+		//NPC_NPCBlockingPath();//Stoiss/Xy no good for npc, make the walk in cyrcle in combat and make awalk delay on them
 	}
 
 	ucmd.buttons |= BUTTON_WALKING;
