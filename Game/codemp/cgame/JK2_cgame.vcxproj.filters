@@ -5,9 +5,6 @@
       <UniqueIdentifier>{15eab1df-c914-4496-b6f7-9c30cbc93cab}</UniqueIdentifier>
       <Extensions>c</Extensions>
     </Filter>
-    <Filter Include="Source Files\Network">
-      <UniqueIdentifier>{e4387449-cb2f-4a9f-9ec8-87aa4544fac6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{3c227821-7ba6-4e51-ac7b-a09f31fda13b}</UniqueIdentifier>
       <Extensions>h</Extensions>
@@ -20,15 +17,6 @@
     </Filter>
     <Filter Include="Libraries">
       <UniqueIdentifier>{1205f295-0345-425c-b080-efc9982469a1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86">
-      <UniqueIdentifier>{0ec42186-0691-451d-a0a4-5ccd87370600}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86\Source Files">
-      <UniqueIdentifier>{a8a0f423-88be-4dbc-b160-90dfad1f56d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86\Header Files">
-      <UniqueIdentifier>{b317bd0c-7d85-4d15-a74f-7fb43f283e23}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json">
       <UniqueIdentifier>{830c36f0-bf24-4970-9936-73ab9e036500}</UniqueIdentifier>
@@ -57,15 +45,6 @@
     <Filter Include="Libraries\BitStream\Source Files">
       <UniqueIdentifier>{9f64c8fc-012f-4fd7-9e10-87c84f1f9246}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Libraries\Detour">
-      <UniqueIdentifier>{7d3d7e54-30a5-44ca-bf52-6d621e2b572d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\Detour\Header Files">
-      <UniqueIdentifier>{20100fb5-6239-4906-b787-dc27ebfa34a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\Detour\Source Files">
-      <UniqueIdentifier>{751e939c-e055-4010-af6b-2db7a6b0068a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Libraries\Recast">
       <UniqueIdentifier>{c6b57f21-5219-4da7-8048-725a80b1617c}</UniqueIdentifier>
     </Filter>
@@ -84,253 +63,13 @@
     <Filter Include="Libraries\RDDebugUtils\Source Files">
       <UniqueIdentifier>{d11580fa-7463-46b8-8077-b1527bec2053}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Libraries\Bass">
-      <UniqueIdentifier>{b19930a7-36dd-467e-9b8c-5519c776a9db}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\Bass\Header Files">
-      <UniqueIdentifier>{8a3fc914-4415-4489-aa12-c35121af9890}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{29543637-6fb7-4e89-b0e1-a61a61e46a50}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\game\animtable.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_ammo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_constants.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_g2_utils.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_items.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_lib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_misc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_panimate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_pmove.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_saber.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_saberLoad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_slidemove.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_vehicleLoad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_weapons.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_weapons_load.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_cinematics.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_consolecmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_draw.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_drawtools.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_effects.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_ents.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_event.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_info.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_light.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_localents.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_marks.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_newDraw.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_players.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_playerstate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_predict.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_scoreboard.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_servercmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_snapshot.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_strap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_syscalls.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_turret.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_view.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_weaponinit.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cg_weapons.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_blaster.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_bowcaster.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_bryarpistol.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_demp2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_disruptor.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_flechette.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_force.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_heavyrepeater.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fx_rocketlauncher.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_cg_damagetypes.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_cg_items.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_cg_weaponholster.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_chatbox.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_chatcmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_cinbuild.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_custombounds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\jkg_gangwars.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_hud.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_minimaps.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_musicengine.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jkg_navmesh_visualiser.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_patcher.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_splinepaths.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_wpindicators.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\q_math.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\q_shared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\ui_shared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\ClientGame.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\ClientNetwork.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\jkg_clientsidenetwork.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\NetworkServices.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\stdafx.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\decode.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\input.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\itab.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn-att.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn-intel.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\udis86.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\json\cJSON.c">
       <Filter>Libraries\Json\Source Files</Filter>
@@ -340,27 +79,6 @@
     </ClCompile>
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\Detour\Source\DetourAlloc.cpp">
-      <Filter>Libraries\Detour\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\Detour\Source\DetourCommon.cpp">
-      <Filter>Libraries\Detour\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\Detour\Source\DetourNavMesh.cpp">
-      <Filter>Libraries\Detour\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshBuilder.cpp">
-      <Filter>Libraries\Detour\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshQuery.cpp">
-      <Filter>Libraries\Detour\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp">
-      <Filter>Libraries\Detour\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.cpp">
-      <Filter>Libraries\Detour\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\Recast\Source\Recast.cpp">
       <Filter>Libraries\Recast\Source Files</Filter>
@@ -404,25 +122,217 @@
     <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDump.cpp">
       <Filter>Libraries\RDDebugUtils\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\NPC_Animal.c">
+    <ClCompile Include="..\game\animtable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\NPC_Fighter.c">
+    <ClCompile Include="..\game\bg_ammo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\NPC_Speeder.c">
+    <ClCompile Include="..\game\bg_constants.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\NPC_Walker.c">
+    <ClCompile Include="..\game\bg_g2_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_autowaypoint.c">
+    <ClCompile Include="..\game\bg_items.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\bg_vmove.c">
+    <ClCompile Include="..\game\bg_misc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cg_crossover.c">
+    <ClCompile Include="..\game\bg_panimate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_pmove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_saber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_saberLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_slidemove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_vehicleLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_vmove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_weapons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_weapons_load.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_cinematics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_consolecmds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_crossover.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_draw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_drawtools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_effects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_ents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_localents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_marks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_newDraw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_players.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_playerstate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_predict.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_scoreboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_strap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_syscalls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_turret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_weaponinit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_weapons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_blaster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_bowcaster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_bryarpistol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_demp2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_disruptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_flechette.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_force.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_heavyrepeater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fx_rocketlauncher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_autowaypoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_cg_damagetypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_cg_items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_cg_weaponholster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_chatbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_chatcmds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_cinbuild.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_custombounds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\jkg_gangwars.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_hud.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_minimaps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_musicengine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_splinepaths.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_wpindicators.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\NPC_Animal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\NPC_Fighter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\NPC_Speeder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\NPC_Walker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\q_math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\q_shared.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ui\ui_shared.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_snapshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_servercmds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -556,27 +466,6 @@
     <ClInclude Include="..\network\targetver.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\decode.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\extern.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\input.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\itab.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\syn.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\types.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\udis86.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\libraries\json\cJSON.h">
       <Filter>Libraries\Json\Header Files</Filter>
     </ClInclude>
@@ -585,33 +474,6 @@
     </ClInclude>
     <ClInclude Include="..\libraries\encoding\bitstream.h">
       <Filter>Libraries\BitStream\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourAlloc.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourAssert.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourCommon.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourNavMesh.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshBuilder.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshQuery.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourNode.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\Detour\Include\DetourStatus.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.h">
-      <Filter>Libraries\Detour\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\Recast\Include\Recast.h">
       <Filter>Libraries\Recast\Header Files</Filter>
@@ -633,12 +495,6 @@
     </ClInclude>
     <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDump.h">
       <Filter>Libraries\RDDebugUtils\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bass.h">
-      <Filter>Libraries\Bass\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="basstest.h">
-      <Filter>Libraries\Bass\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

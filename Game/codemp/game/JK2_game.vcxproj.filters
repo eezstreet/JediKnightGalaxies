@@ -11,9 +11,6 @@
     <Filter Include="Source Files\NPCs">
       <UniqueIdentifier>{33e75c86-c683-4938-9362-845a81dd29be}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Network">
-      <UniqueIdentifier>{c81da7c7-a6fb-461b-bdc7-1698f6dd4b04}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{a62872af-28a0-465b-82f5-877a9641ae06}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
@@ -32,15 +29,6 @@
     </Filter>
     <Filter Include="Libraries">
       <UniqueIdentifier>{30402801-6c05-47c1-b6bb-c9cd02e4769d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86">
-      <UniqueIdentifier>{15c2a45f-135f-4d20-9967-1027fc99aeab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86\Source Files">
-      <UniqueIdentifier>{424afe03-1b84-413c-91c5-8b790fdbeb5e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86\Header Files">
-      <UniqueIdentifier>{c590b1d6-3c4e-4329-ba7b-ca1810413bcb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries\Json">
       <UniqueIdentifier>{2f794ef0-ad17-47e1-8406-8d44b0df3226}</UniqueIdentifier>
@@ -122,402 +110,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="animtable.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_ammo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_constants.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_g2_utils.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_items.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_lib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_misc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_panimate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_pmove.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_saber.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_saberLoad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_slidemove.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_vehicleLoad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_weapons.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bg_weapons_load.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_active.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_arenas.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_bot.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_client.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_cmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_combat.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_crash.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_exphysics.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_ICARUScb.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_items.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_log.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_mem.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_misc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_missile.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_mover.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_nav.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_navnew.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_object.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_session.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_spawn.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_strap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_svcmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_syscalls.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_target.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_team.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_timer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_trigger.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_turret.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_turret_G2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_utils.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_vehicles.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_vehicleTurret.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="g_weapon.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_admin.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_auxlib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_bans.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_chatcmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_crafting.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_custombounds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_damagetypes.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_dynarrays.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_equip.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_gangwars.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_item_sub.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_items.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_items_easy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_keypairs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_playerisolation.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_primetable.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_rconbans.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_team.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_threading.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_threadingsq.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_utilityfunc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="q_math.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="q_shared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tri_coll_test.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="w_force.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="w_saber.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_bitstream.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_bitwise.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_cryptography.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_cvar.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_encoding.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_engine.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_entity.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_files.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_main.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_npc.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_player.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_prng.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_sys.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GLua\glua_vector.c">
-      <Filter>Source Files\GLua</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Atst.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Default.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Droid.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_GalakMech.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Grenadier.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Howler.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_ImperialProbe.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Interrogator.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Mark1.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Mark2.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_MineMonster.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Rancor.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Remote.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Seeker.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Sentry.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Sniper.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Stormtrooper.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Utils.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Wampa.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_behavior.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_combat.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_goal.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_misc.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_move.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_reactions.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_senses.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_sounds.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_spawn.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_stats.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_utils.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\jkg_serversidenetwork.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\NetworkServices.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\ServerGame.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\ServerNetwork.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\network\stdafx.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\decode.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\input.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\itab.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn-att.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn-intel.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\udis86.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\libraries\json\cJSON.c">
       <Filter>Libraries\Json\Source Files</Filter>
     </ClCompile>
@@ -668,61 +260,412 @@
     <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp">
       <Filter>Libraries\Detour %28Pathfinding%29\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ai_dominance_bot.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Animal.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Fighter.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Speeder.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_Walker.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC_AI_Humanoid.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_dominance.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_dominance_evasion.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_wpnav.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_main.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
-    <ClCompile Include="ai_util.c">
-      <Filter>Source Files\NPCs</Filter>
-    </ClCompile>
     <ClCompile Include="ai_dominance_astar.cpp">
       <Filter>Source Files\NPCs</Filter>
     </ClCompile>
-    <ClCompile Include="NPC_Conversations.c">
+    <ClCompile Include="..\GLua\glua_bitstream.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_bitwise.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_cryptography.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_cvar.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_encoding.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_engine.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_entity.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_files.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_main.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_npc.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_player.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_prng.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_sys.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLua\glua_vector.cpp">
+      <Filter>Source Files\GLua</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_dominance.cpp">
       <Filter>Source Files\NPCs</Filter>
     </ClCompile>
-    <ClCompile Include="NPC_CoverPoints.c">
+    <ClCompile Include="ai_dominance_bot.cpp">
       <Filter>Source Files\NPCs</Filter>
     </ClCompile>
-    <ClCompile Include="NPC_Waypointing.c">
+    <ClCompile Include="ai_dominance_evasion.cpp">
       <Filter>Source Files\NPCs</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_supremacy_flags.c">
+    <ClCompile Include="ai_main.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_util.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_wpnav.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Atst.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Default.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Droid.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_GalakMech.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Grenadier.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Howler.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Humanoid.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_ImperialProbe.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Interrogator.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Mark1.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Mark2.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_MineMonster.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Rancor.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Remote.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Seeker.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Sentry.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Sniper.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Stormtrooper.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Utils.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_AI_Wampa.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_behavior.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_combat.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Conversations.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_CoverPoints.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_goal.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_misc.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_move.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_reactions.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_senses.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_sounds.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_spawn.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_stats.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_utils.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Waypointing.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_supremacy_flags.cpp">
       <Filter>Source Files\Warzone</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_supremacy_flagsys.c">
+    <ClCompile Include="jkg_supremacy_flagsys.cpp">
       <Filter>Source Files\Warzone</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_supremacy_spawnsys.c">
+    <ClCompile Include="jkg_supremacy_spawnsys.cpp">
       <Filter>Source Files\Warzone</Filter>
     </ClCompile>
-    <ClCompile Include="bg_vmove.c">
+    <ClCompile Include="g_active.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_arenas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_bot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_cmds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_combat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_crash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_exphysics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_ICARUScb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_mem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_missile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_mover.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_nav.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_navnew.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_session.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_spawn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_strap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_svcmds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_syscalls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_target.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_team.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_trigger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_turret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_turret_G2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_vehicles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_vehicleTurret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="g_weapon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_admin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_bans.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_chatcmds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_crafting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_custombounds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_damagetypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_dynarrays.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_equip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_item_sub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_items_easy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_keypairs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_playerisolation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_rconbans.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_team.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_threading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_threadingsq.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_utilityfunc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tri_coll_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="w_force.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="w_saber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Animal.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Fighter.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Speeder.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC_Walker.cpp">
+      <Filter>Source Files\NPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="animtable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_ammo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_constants.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_g2_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_panimate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_pmove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_saber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_saberLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_slidemove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_vehicleLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_vmove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_weapons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bg_weapons_load.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_gangwars.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="q_math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="q_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -969,27 +912,6 @@
     </ClInclude>
     <ClInclude Include="..\network\targetver.h">
       <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\decode.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\extern.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\input.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\itab.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\syn.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\types.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\udis86.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\json\cJSON.h">
       <Filter>Libraries\Json\Header Files</Filter>

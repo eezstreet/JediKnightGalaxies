@@ -214,7 +214,7 @@ void cJSON_InitHooks(cJSON_Hooks* hooks)
 
 static int cJSON_SB_Init(cJSON_StringBuilder *sb)	// Initializes the stringbuilder structure (Do not call this more than once, as it causes memory leaks)
 {
-	sb->buffer = cJSON_malloc(SBBLOCKSIZE);
+	sb->buffer = (char *)cJSON_malloc(SBBLOCKSIZE);
 	sb->bufferlen = SBBLOCKSIZE;
 	sb->blocksize = SBBLOCKSIZE;
 	sb->stringlen = 0;
@@ -226,7 +226,7 @@ static int cJSON_SB_Init(cJSON_StringBuilder *sb)	// Initializes the stringbuild
 
 static int cJSON_SB_InitCustom(cJSON_StringBuilder *sb, size_t initlen, size_t blocksize)	// Initializes the stringbuilder structure (Do not call this more than once, as it causes memory leaks)
 {
-	sb->buffer = cJSON_malloc(initlen);
+	sb->buffer = (char *)cJSON_malloc(initlen);
 	sb->bufferlen = initlen;
 	sb->blocksize = blocksize;
 	sb->stringlen = 0;
@@ -330,8 +330,8 @@ static const char *cJSON_SB_Finalize(cJSON_StringBuilder *sb)
 	} else {
 		sb->finalized = 1;
 		sb->bufferlen = sb->stringlen;
-		sb->buffer = newptr;
-		return newptr;
+		sb->buffer = (char *)newptr;
+		return (const char *)newptr;
 	}
 }
 
@@ -411,14 +411,14 @@ cJSONStream *cJSON_Stream_New(int maxDepth, int formatted, size_t bufferInitSize
 		return NULL;
 	}
 
-	stream = malloc(sizeof(cJSONStream));
+	stream = (cJSONStream *)malloc(sizeof(cJSONStream));
 	if (!stream) {
 		return NULL;
 	}
 	memset(stream, 0, sizeof(cJSONStream));
 
 	if (maxDepth > 0) {
-		stream->slots = malloc(sizeof(cJSON_StreamStack) * maxDepth);
+		stream->slots = (cJSON_StreamStack *)malloc(sizeof(cJSON_StreamStack) * maxDepth);
 		if (!stream->slots) {
 			free(stream);
 			return NULL;
@@ -1544,7 +1544,7 @@ static int cJSON_Parse_Array(cJSON *item, cJSON_StringStream *ss)
 	}
 	item->type = cJSON_Array;
 
-	item->table = cJSON_malloc(cJSON_ArrayBlockSize * sizeof(cJSON *));
+	item->table = (cJSON_s **)cJSON_malloc(cJSON_ArrayBlockSize * sizeof(cJSON *));
 	item->tablesize = cJSON_ArrayBlockSize;
 
 	cJSON_SS_SkipChar(ss);
@@ -1647,7 +1647,7 @@ static int cJSON_Parse_Object(cJSON *item, cJSON_StringStream *ss)
 	// Create object
 	item->type = cJSON_Object;
 
-	item->table = cJSON_malloc(cJSON_HashTableSize * sizeof(cJSON *));
+	item->table = (cJSON_s **)cJSON_malloc(cJSON_HashTableSize * sizeof(cJSON *));
 	memset(item->table, 0, cJSON_HashTableSize * sizeof(cJSON *));
 	item->tablesize = cJSON_HashTableSize;
 
@@ -2059,7 +2059,7 @@ static int cJSON_ParsePooled_String(cJSON *item, cJSON_StringStream *ss)
 
 	cJSON_SB_Finalize(&sb);	// This will add the null-terminator
 
-	item->valuestring = cJSON_PooledMalloc(item->pool, sb.stringlen);
+	item->valuestring = (char *)cJSON_PooledMalloc(item->pool, sb.stringlen);
 	if (!item->valuestring) {
 		cJSON_SS_ParseError(ss, "Insufficient memory");
 		return 0;
@@ -2146,7 +2146,7 @@ static int cJSON_ParsePooled_Array(cJSON *item, cJSON_StringStream *ss)
 	}
 	
 	// Construct the dynamic array
-	item->table = cJSON_PooledMalloc(item->pool, sizeof(cJSON *) * item->arraysize);
+	item->table = (cJSON_s **)cJSON_PooledMalloc(item->pool, sizeof(cJSON *) * item->arraysize);
 	if (!item->table) {
 		cJSON_SS_ParseError(ss, "Insufficient memory");
 		return 0;
@@ -2181,7 +2181,7 @@ static int cJSON_ParsePooled_Object(cJSON *item, cJSON_StringStream *ss)
 	// Create object
 	item->type = cJSON_Object;
 
-	item->table = cJSON_PooledMalloc(item->pool, cJSON_HashTableSize * sizeof(cJSON *));
+	item->table = (cJSON_s **)cJSON_PooledMalloc(item->pool, cJSON_HashTableSize * sizeof(cJSON *));
 	memset(item->table, 0, cJSON_HashTableSize * sizeof(cJSON *));
 	item->tablesize = cJSON_HashTableSize;
 
@@ -2350,14 +2350,14 @@ cJSON *cJSON_ParsePooled(const char *data, char *error, size_t errorlen)
 		return 0;       /* analysis failed */
 	}
 
-	pool = cJSON_malloc(sizeof(cJSONMemPool_t));
+	pool = (cJSONMemPool_t *)cJSON_malloc(sizeof(cJSONMemPool_t));
 	if (!pool) {
 		if (error) {
 			strncpy(error, "Insufficient memory", errorlen);
 		}
 		return 0;       /* memory fail */
 	}
-	pool->pool = cJSON_malloc(poolsize);
+	pool->pool = (char *)cJSON_malloc(poolsize);
 	if (!pool->pool) {
 		cJSON_free(pool);
 		if (error) {
@@ -2365,7 +2365,7 @@ cJSON *cJSON_ParsePooled(const char *data, char *error, size_t errorlen)
 		}
 		return 0;       /* memory fail */
 	}
-	pool->stringbuf = cJSON_malloc(maxstrlen);
+	pool->stringbuf = (char *)cJSON_malloc(maxstrlen);
 	if (!pool->stringbuf) {
 		cJSON_free(pool->pool);
 		cJSON_free(pool);
@@ -2573,7 +2573,7 @@ void cJSON_AddItemToArray(cJSON *arry, cJSON *item)
 		void *tmp;
 		tmp = cJSON_realloc(arry->table, (arry->tablesize + cJSON_ArrayBlockSize) * sizeof(cJSON *));
 		if (tmp) {
-			arry->table = tmp;
+			arry->table = (cJSON_s **)tmp;
 			arry->tablesize += cJSON_ArrayBlockSize;
 		} else {
 			return;		// Allocation failed
@@ -2618,7 +2618,7 @@ void cJSON_InsertItemInArray(cJSON *arry, cJSON *item, int before)
 		void *tmp;
 		tmp = cJSON_realloc(arry->table, (arry->tablesize + cJSON_ArrayBlockSize) * sizeof(cJSON *));
 		if (tmp) {
-			arry->table = tmp;
+			arry->table = (cJSON_s **)tmp;
 			arry->tablesize += cJSON_ArrayBlockSize;
 		} else {
 			return;		// Allocation failed
@@ -2720,7 +2720,7 @@ cJSON *cJSON_DetachItemFromArray(cJSON *arry, int which)
 		void *tmp;
 		tmp = realloc(arry->table, (arry->tablesize - cJSON_ArrayBlockSize) * sizeof(cJSON *));
 		if (tmp) {
-			arry->table = tmp;
+			arry->table = (cJSON_s **)tmp;
 			arry->tablesize = arry->tablesize - cJSON_ArrayBlockSize;
 		}
 	}
@@ -2812,7 +2812,7 @@ void cJSON_ClearItemsFromArray(cJSON *arry)
 	}
 	tmp = realloc(arry->table, cJSON_ArrayBlockSize * sizeof(cJSON *));
 	if (tmp) {
-		arry->table = tmp;
+		arry->table = (cJSON_s **)tmp;
 		arry->tablesize = cJSON_ArrayBlockSize;
 	}
 	arry->arraysize = 0;
@@ -2922,10 +2922,10 @@ cJSON *cJSON_DuplicateItem(cJSON *item)
 	newitem->valuestring = cJSON_strdup(item->valuestring);
 
 	if (newitem->type == cJSON_Array) {
-		newitem->table = cJSON_malloc(cJSON_ArrayBlockSize * sizeof(cJSON *));
+		newitem->table = (cJSON_s **)cJSON_malloc(cJSON_ArrayBlockSize * sizeof(cJSON *));
 		newitem->tablesize = cJSON_ArrayBlockSize;
 	} else if (item->type == cJSON_Object) {
-		newitem->table = cJSON_malloc(cJSON_HashTableSize * sizeof(cJSON *));
+		newitem->table = (cJSON_s **)cJSON_malloc(cJSON_HashTableSize * sizeof(cJSON *));
 		memset(newitem->table, 0, cJSON_HashTableSize * sizeof(cJSON *));
 		newitem->tablesize = cJSON_HashTableSize;
 	} else {
@@ -3006,7 +3006,7 @@ cJSON *cJSON_CreateArray()
 	cJSON *item = cJSON_New_Item();
 	item->type = cJSON_Array;
 	
-	item->table = cJSON_malloc(cJSON_ArrayBlockSize * sizeof(cJSON *));
+	item->table = (cJSON_s **)cJSON_malloc(cJSON_ArrayBlockSize * sizeof(cJSON *));
 	item->tablesize = cJSON_ArrayBlockSize;
 	return item;
 }
@@ -3016,7 +3016,7 @@ cJSON *cJSON_CreateObject()
 	cJSON *item = cJSON_New_Item();
 	item->type = cJSON_Object;
 
-	item->table = cJSON_malloc(cJSON_HashTableSize * sizeof(cJSON *));
+	item->table = (cJSON_s **)cJSON_malloc(cJSON_HashTableSize * sizeof(cJSON *));
 	memset(item->table, 0, cJSON_HashTableSize * sizeof(cJSON *));
 	item->tablesize = cJSON_HashTableSize;
 	return item;

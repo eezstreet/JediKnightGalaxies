@@ -546,7 +546,10 @@ typedef unsigned char 		byte;
 typedef unsigned short		word;
 typedef unsigned long		ulong;
 
-typedef enum {qfalse, qtrue}	qboolean;
+//typedef enum {qfalse, qtrue}	qboolean;
+#define qboolean	bool
+#define qfalse		false
+#define qtrue		true
 
 typedef union {
 	float f;

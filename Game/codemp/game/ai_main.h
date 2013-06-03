@@ -401,7 +401,7 @@ typedef struct bot_state_s
 	int					botBehave;
 
 	//evade direction
-	qboolean			evadeTime;
+	int					evadeTime;
 	int					evadeDir;
 
 	//Walk flag

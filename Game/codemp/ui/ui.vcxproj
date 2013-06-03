@@ -158,7 +158,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <CompileAs>Default</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
@@ -254,49 +254,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\game\animtable.c" />
-    <ClCompile Include="..\game\bg_ammo.c" />
-    <ClCompile Include="..\game\bg_constants.c" />
-    <ClCompile Include="..\game\bg_lib.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_misc.c" />
-    <ClCompile Include="..\game\bg_vehicleLoad.c" />
-    <ClCompile Include="..\game\bg_weapons.c" />
-    <ClCompile Include="..\game\bg_weapons_load.c" />
-    <ClCompile Include="..\game\jkg_gangwars.c" />
-    <ClCompile Include="..\cgame\jkg_musicengine.c" />
-    <ClCompile Include="jkg_ui_auxlib.c" />
-    <ClCompile Include="..\game\q_math.c" />
-    <ClCompile Include="..\game\q_shared.c" />
-    <ClCompile Include="ui_atoms.c" />
-    <ClCompile Include="ui_crossover.c" />
-    <ClCompile Include="ui_force.c" />
-    <ClCompile Include="ui_gameinfo.c" />
-    <ClCompile Include="ui_jkgscript.c" />
-    <ClCompile Include="ui_main.c" />
-    <ClCompile Include="ui_saber.c" />
-    <ClCompile Include="ui_servercmds.c" />
-    <ClCompile Include="ui_shared.c" />
-    <ClCompile Include="ui_strap.c" />
-    <ClCompile Include="ui_syscalls.c" />
-    <ClCompile Include="jkg_conversations.c" />
-    <ClCompile Include="jkg_gangwars_ui.c" />
-    <ClCompile Include="jkg_inventory.c" />
-    <ClCompile Include="jkg_loot.c" />
-    <ClCompile Include="jkg_partymanager.c" />
-    <ClCompile Include="jkg_pazaak.c" />
-    <ClCompile Include="jkg_shop.c" />
-    <ClCompile Include="jkg_slice.c" />
-    <ClCompile Include="..\libraries\libudis86\decode.c" />
-    <ClCompile Include="..\libraries\libudis86\input.c" />
-    <ClCompile Include="..\libraries\libudis86\itab.c" />
-    <ClCompile Include="..\libraries\libudis86\syn-att.c" />
-    <ClCompile Include="..\libraries\libudis86\syn-intel.c" />
-    <ClCompile Include="..\libraries\libudis86\syn.c" />
-    <ClCompile Include="..\libraries\libudis86\udis86.c" />
+    <ClCompile Include="..\cgame\jkg_musicengine.cpp" />
+    <ClCompile Include="..\game\animtable.cpp" />
+    <ClCompile Include="..\game\bg_ammo.cpp" />
+    <ClCompile Include="..\game\bg_constants.cpp" />
+    <ClCompile Include="..\game\bg_lib.cpp" />
+    <ClCompile Include="..\game\bg_misc.cpp" />
+    <ClCompile Include="..\game\bg_vehicleLoad.cpp" />
+    <ClCompile Include="..\game\bg_weapons.cpp" />
+    <ClCompile Include="..\game\bg_weapons_load.cpp" />
+    <ClCompile Include="..\game\jkg_gangwars.cpp" />
+    <ClCompile Include="..\game\q_math.cpp" />
+    <ClCompile Include="..\game\q_shared.cpp" />
+    <ClCompile Include="ui_atoms.cpp" />
+    <ClCompile Include="ui_crossover.cpp" />
+    <ClCompile Include="ui_force.cpp" />
+    <ClCompile Include="ui_gameinfo.cpp" />
+    <ClCompile Include="ui_jkgscript.cpp" />
+    <ClCompile Include="ui_main.cpp" />
+    <ClCompile Include="ui_saber.cpp" />
+    <ClCompile Include="ui_servercmds.cpp" />
+    <ClCompile Include="ui_shared.cpp" />
+    <ClCompile Include="ui_strap.cpp" />
+    <ClCompile Include="ui_syscalls.cpp" />
+    <ClCompile Include="jkg_conversations.cpp" />
+    <ClCompile Include="jkg_gangwars_ui.cpp" />
+    <ClCompile Include="jkg_inventory.cpp" />
+    <ClCompile Include="jkg_loot.cpp" />
+    <ClCompile Include="jkg_partymanager.cpp" />
+    <ClCompile Include="jkg_pazaak.cpp" />
+    <ClCompile Include="jkg_shop.cpp" />
+    <ClCompile Include="jkg_slice.cpp" />
     <ClCompile Include="..\libraries\json\cJSON.c" />
     <ClCompile Include="..\libraries\encoding\base128.c" />
     <ClCompile Include="..\libraries\encoding\bitstream.c" />
@@ -334,13 +322,6 @@
     <ClInclude Include="jkg_partymanager.h" />
     <ClInclude Include="jkg_pazaak.h" />
     <ClInclude Include="jkg_slice.h" />
-    <ClInclude Include="..\libraries\libudis86\decode.h" />
-    <ClInclude Include="..\libraries\libudis86\extern.h" />
-    <ClInclude Include="..\libraries\libudis86\input.h" />
-    <ClInclude Include="..\libraries\libudis86\itab.h" />
-    <ClInclude Include="..\libraries\libudis86\syn.h" />
-    <ClInclude Include="..\libraries\libudis86\types.h" />
-    <ClInclude Include="..\libraries\libudis86\udis86.h" />
     <ClInclude Include="..\libraries\json\cJSON.h" />
     <ClInclude Include="..\libraries\encoding\base128.h" />
     <ClInclude Include="..\libraries\encoding\bitstream.h" />
@@ -360,8 +341,6 @@
     <ClInclude Include="..\libraries\libexpat\include\xmlrole.h" />
     <ClInclude Include="..\libraries\libexpat\include\xmltok.h" />
     <ClInclude Include="..\libraries\libexpat\include\xmltok_impl.h" />
-    <ClInclude Include="..\cgame\bass.h" />
-    <ClInclude Include="..\cgame\basstest.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ui.def" />

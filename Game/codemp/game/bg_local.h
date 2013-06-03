@@ -122,6 +122,6 @@ int BG_ParseGenericAnimationFile ( animation_t *animset, size_t maxAnimations, c
 
 // Weapons
 void            BG_AddWeaponData ( weaponData_t *weaponData );
-qboolean        BG_LoadWeapons ( weaponData_t *weaponDataTable, int *numLoadedWeapons, int *numWeaponVariations );
+qboolean        BG_LoadWeapons ( weaponData_t *weaponDataTable, unsigned int *numLoadedWeapons, unsigned int *numWeaponVariations );
 
 #include "../namespace_end.h"

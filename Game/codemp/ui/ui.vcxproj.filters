@@ -21,15 +21,6 @@
     <Filter Include="Libraries">
       <UniqueIdentifier>{204db16b-a4b5-4677-9777-7d8c94ecffcb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Libraries\LibUDis86">
-      <UniqueIdentifier>{475ebbbc-4e01-42d2-8ab8-8adbbde8a936}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86\Source Files">
-      <UniqueIdentifier>{3eac8adb-36e6-4cca-852e-11a07d45f51d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libraries\LibUDis86\Header Files">
-      <UniqueIdentifier>{87f303bf-9373-4088-94e4-a2839dcdb6d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Libraries\Json">
       <UniqueIdentifier>{9bf6a445-76d7-46db-8ef0-08ca0d6c0d41}</UniqueIdentifier>
     </Filter>
@@ -63,131 +54,11 @@
     <Filter Include="Libraries\Expat\Header Files">
       <UniqueIdentifier>{76a6b1a0-f96f-453c-a439-bee72eabff79}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Libraries\Bass">
-      <UniqueIdentifier>{9155b6d3-edcb-4e1d-b464-148e2776131a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{95b1cea6-6181-4364-8ae7-de6b93aee462}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\game\animtable.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_ammo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_constants.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_lib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_misc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_vehicleLoad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_weapons.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\bg_weapons_load.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\jkg_gangwars.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cgame\jkg_musicengine.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_ui_auxlib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\q_math.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\game\q_shared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_atoms.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_crossover.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_force.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_gameinfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_jkgscript.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_saber.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_servercmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_shared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_strap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_syscalls.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_conversations.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_gangwars_ui.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_inventory.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_loot.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_partymanager.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_pazaak.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_shop.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="jkg_slice.c">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\decode.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\input.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\itab.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn-att.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn-intel.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\syn.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\libudis86\udis86.c">
-      <Filter>Libraries\LibUDis86\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\libraries\json\cJSON.c">
       <Filter>Libraries\Json\Source Files</Filter>
     </ClCompile>
@@ -196,6 +67,99 @@
     </ClCompile>
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\animtable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_ammo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_constants.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_lib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_vehicleLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_weapons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\bg_weapons_load.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\jkg_gangwars.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cgame\jkg_musicengine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\q_math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\q_shared.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_atoms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_crossover.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_force.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_gameinfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_jkgscript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_saber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_servercmds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_strap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_syscalls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_shared.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_conversations.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_gangwars_ui.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_inventory.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_loot.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_partymanager.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_pazaak.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_shop.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="jkg_slice.cpp">
+      <Filter>Source Files\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -295,27 +259,6 @@
     <ClInclude Include="jkg_slice.h">
       <Filter>Header Files\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\decode.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\extern.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\input.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\itab.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\syn.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\types.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\libudis86\udis86.h">
-      <Filter>Libraries\LibUDis86\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\libraries\json\cJSON.h">
       <Filter>Libraries\Json\Header Files</Filter>
     </ClInclude>
@@ -372,12 +315,6 @@
     </ClInclude>
     <ClInclude Include="..\libraries\libexpat\include\xmltok_impl.h">
       <Filter>Libraries\Expat\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cgame\bass.h">
-      <Filter>Libraries\Bass</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cgame\basstest.h">
-      <Filter>Libraries\Bass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

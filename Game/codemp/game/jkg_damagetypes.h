@@ -62,7 +62,7 @@ typedef struct damageSettings_s
     int                 delay;
     int                 damage;
     int                 damageDelay;
-    damageType_t        damageType;
+    int					damageType;
     penetrationType_t   penetrationType;
     qboolean            planar;
 } damageSettings_t;
