@@ -1474,7 +1474,8 @@ netField_t	playerStateFields[] =
 { PSF(saberCrystal[0]), 16 },
 { PSF(saberCrystal[1]), 16 },
 
-{ PSF(blockPoints), 16 }
+{ PSF(blockPoints), 16 },
+{ PSF(ammo), 16 }
 };
 
 netField_t	pilotPlayerStateFields[] = 
@@ -1652,7 +1653,8 @@ netField_t	pilotPlayerStateFields[] =
 { PSF(saberCrystal[0]), 16 },
 { PSF(saberCrystal[1]), 16 },
 
-{ PSF(blockPoints), 16 }
+{ PSF(blockPoints), 16 },
+{ PSF(ammo), 16 }
 };
 
 netField_t	vehPlayerStateFields[] = 
@@ -1724,7 +1726,8 @@ netField_t	vehPlayerStateFields[] =
 { PSF(vehTurnaroundIndex), GENTITYNUM_BITS },
 { PSF(vehSurfaces), 16 }, //allow up to 16 surfaces in the flag I guess
 { PSF(hyperSpaceAngles[0]), 0 },
-{ PSF(hyperSpaceAngles[2]), 0 }
+{ PSF(hyperSpaceAngles[2]), 0 },
+{ PSF(ammo), 16 },
 };
 
 //=====_OPTIMIZED_VEHICLE_NETWORKING=======================================================================
