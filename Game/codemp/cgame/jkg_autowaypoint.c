@@ -309,8 +309,6 @@ vec4_t	popAlmostBlack	=	{0.16f,0.16f,0.16f,1.0f};
 
 #define POP_HUD_BORDERSIZE 1
 
-#define	Vector4Average(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s)))
-
 /*
 ==============
 CG_HorizontalPercentBar
@@ -356,7 +354,7 @@ void CG_FilledBar(float x, float y, float w, float h, float *startColor, float *
 	}
 
 	if((flags&BAR_BG) && bgColor) {	// BAR_BG set, and color specified, use specified bg color
-		Vector4Copy(bgColor, backgroundcolor);
+		VectorCopy4(bgColor, backgroundcolor);
 	}
 
 	if(flags&BAR_LERP_COLOR) {
@@ -5479,47 +5477,6 @@ int FileLength(FILE *fp)
 	return end;
 } //end of the function FileLength
 /*
-qboolean IsPathDataTooLarge(const char *mapname)
-{
-	// facepalm...really? --eez
-	/*
-	fileHandle_t f;
-	int len;
-
-	len = trap_FS_FOpenFile(va("botroutes/%s.wnt", mapname), &f, FS_READ);
-
-	if (!f || len <= 0)
-	{
-		FILE *fp;
-
-		fp = fopen(va("%s/botroutes/%s.wnt", MOD_DIRECTORY, mapname), "rb");
-
-		if (!fp) 
-			return qfalse;
-
-		len = FileLength(fp);
-
-		if (len >= MAX_ROUTE_FILE_LENGTH)
-			return qtrue;
-
-		return qfalse;
-	}
-
-#ifdef __DOMINANCE__
-	if (len >= MAX_ROUTE_FILE_LENGTH)
-#else //__DOMINANCE__
-	if (len >= 524288)
-#endif //__DOMINANCE__
-	{
-		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^1Created route file exceeds maximum length - Running another optimization!\n");
-		trap_FS_FCloseFile(f);
-		return qtrue;
-	}
-
-	trap_FS_FCloseFile(f);
-
-	return qfalse;
-
 }
 */
 /* */
@@ -6138,15 +6095,6 @@ AIMod_AutoWaypoint_Optimizer ( void )
 	//trap_SendConsoleCommand( "bot_wp_convert_awp\n" );
 
 	//trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-
-	//if (!IsPathDataTooLarge(mapname.string))
-	//{
-	//	optimize_again = qfalse;
-	//}
-	//else
-	//{
-	//	optimize_again = qtrue;
-	//}
 
 	trap_SendConsoleCommand( "!loadAWPnodes\n" );
 }

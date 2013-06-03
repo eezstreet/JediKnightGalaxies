@@ -35,11 +35,6 @@ typedef struct scrollInfo_s {
 	qboolean scrollDir;
 } scrollInfo_t;
 
-#ifdef _XBOX
-//extern void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign);
-//extern void Z_TagFree(memtag_t eTag);
-#endif
-
 
 #ifndef CGAME	// Defined in ui_main.c, not in the namespace
 extern vmCvar_t	ui_char_color_red;
@@ -1617,10 +1612,11 @@ qboolean Script_Hide(itemDef_t *item, char **args)
 	const char *name;
 	if (String_Parse(args, &name)) 
 	{
-		if(item->parent != (void *)0xcccccccc)
-		{
+		// someone is going to get the Bob Barker treatment for doing this --eez
+		//if(item->parent != (void *)0xcccccccc)
+		//{
 			Menu_ShowItemByName((menuDef_t *) item->parent, name, qfalse);
-		}
+		//}
 	}
 	return qtrue;
 }
@@ -3861,28 +3857,6 @@ void Enter_EditField(itemDef_t *item)
 
 // JKG - TextField items are fully recoded to actually work good
 
-static int RE_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale) {
-	// Funnel it right to the engine so we skip the whole syscall thing
-	// So we can use this often without overhead
-	int (* func)(const char*, const int, const float);
-	func = *(void **)0x8AF0C8;
-	if (func) {
-		return func(text, iFontIndex, scale);
-	} else {
-		return 0;
-	}
-}
-
-static void RE_Font_DrawString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale) {
-	// Funnel it right to the engine so we skip the whole syscall thing
-	// So we can use this often without overhead
-	void (* func)(int, int, const char *, const float *, const int, int, const float);
-	func = *(void **)0x8AF0D4;
-	if (func) {
-		func(ox, oy, text, rgba, setIndex, iCharLimit, scale);
-	}
-}
-
 static float Text_GetWidth(const char *text, int iFontIndex, float scale) {
 	// Fixed algorithm to get text length accurately
 	char s[2];
@@ -3905,14 +3879,14 @@ static float Text_GetWidth(const char *text, int iFontIndex, float scale) {
 			}
 		}
 		s[0] = *t;
-		w += ((float)RE_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		w += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		t++;
 	}
 	return w;
 }
 
 static vec4_t tColorTable[10] = {
-	{0, 0, 0, 1}, // ^0
+	{0, 0, 0, 1}, // 0
 	{1, 0, 0, 1}, // ^1
 	{0, 1, 0, 1}, // ^2
 	{1, 1, 0, 1}, // ^3
@@ -3962,7 +3936,8 @@ static int Text_ExtColorCodes(const char *text, vec4_t color) {
 	// we must ensure we use that alpha as well.
 	// So copy the alpha of colorcode 0 (^0) instead of assuming 1.0
 
-	color[3] =*(float *)(0x56DF54 /*0x56DF48 + 12*/);
+	//color[3] =*(float *)(0x56DF54 /*0x56DF48 + 12*/);
+	color[3] = 1.0f;
 	return 1;
 }
 
@@ -3991,8 +3966,8 @@ static void Text_DrawText(int x, int y, const char *text, const float* rgba, int
 			}
 		}
 		s[0] = *t;
-		RE_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
-		xx += ((float)RE_Font_StrLenPixels(s, iFontIndex & 0xFFFF, 1) * scale);
+		trap_R_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
+		xx += ((float)trap_R_Font_StrLenPixels(s, iFontIndex & 0xFFFF, 1) * scale);
 		t++;
 	}
 }
@@ -4032,7 +4007,7 @@ static const char *Text_PrintableText(const char *buff, itemDef_t *item) {
 		}
 		s[0] = *t;
 
-		w += ((float)RE_Font_StrLenPixels(s, item->iMenuFont, 1) * item->textscale);
+		w += (trap_R_Font_StrLenPixels(s, item->iMenuFont, 1) * item->textscale);
 		if (w > maxwidth) {
 			break;
 		}

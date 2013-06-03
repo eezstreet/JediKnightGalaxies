@@ -13,7 +13,6 @@
 #include "../ui/ui_public.h"
 
 // Jedi Knight Galaxies
-#include "cg_crossover.h"
 #include "qcommon/game_version.h"
 
 /*
@@ -220,7 +219,7 @@ static void JKG_ShopConfirm( void )
 		}
 	}
 
-	CO_ShopNotify(1);
+	uiImports->ShopNotify(1);
 }
 
 /*
@@ -1408,16 +1407,8 @@ static void CG_ServerRedirect() {
 	return;
 }
 
-void JKG_SetSabotageState(int state);
-
 /* Enables or disables the engine's self-sabotage mechanism */
 /* When activated, this will randomly crash the player with packet parsing errors */
-
-static void CG_SelfSabotage() {
-	char buff[16];
-	trap_Argv( 1, buff, sizeof(buff) );
-	JKG_SetSabotageState(atoi(buff));
-}
 
 extern void CG_ChatBox_AddString(char *chatStr, int fadeLevel); //cg_draw.c
 void Cin_ProcessCinematic_f();
@@ -1444,36 +1435,9 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-#if 0
-	// never seems to get used -Ste
-	if ( !strcmp( cmd, "spd" ) ) 
-	{
-		const char *ID;
-		int holdInt,count,i;
-		char string[1204];
-
-		count = trap_Argc();
-
-		ID =  CG_Argv(1);
-		holdInt = atoi(ID);
-
-		memset( &string, 0, sizeof( string ) );
-
-		Com_sprintf( string,sizeof(string)," \"%s\"", (const char *) CG_Argv(2));
-
-		for (i=3;i<count;i++)
-		{
-			Com_sprintf( string,sizeof(string)," %s \"%s\"", string, (const char *) CG_Argv(i));
-		}
-
-		trap_SP_Print(holdInt, (byte *)string);
-		return;
-	}
-#endif
-
 	// Jedi Knight Galaxies
 	// Check the crossover
-	if (CO_ServerCommand(cmd))
+	if ( uiImports->HandleServerCommand( cmd ) )
 		return;
 
 	// Check Jedi Knight Galaxies commands (not handled by the UI)
@@ -1484,10 +1448,6 @@ static void CG_ServerCommand( void ) {
 
 	if (!strcmp(cmd, "svr")) { // Server redirect
 		CG_ServerRedirect();
-		return;
-	}
-	if (!strcmp(cmd, "ss")) { /* Self-sabotage controls */
-		CG_SelfSabotage();
 		return;
 	}
 
@@ -1681,7 +1641,7 @@ static void CG_ServerCommand( void ) {
 	        int oldItem = atoi (CG_Argv (2));
 	        
 	        JKG_CG_EquipItem (newItem, oldItem);
-	        CO_InventoryNotify (1);
+	        uiImports->InventoryNotify( 1 );
 	    }
 	    return;
 	}
@@ -1692,7 +1652,7 @@ static void CG_ServerCommand( void ) {
 	    {
 	        int slot = atoi (CG_Argv (1));
 	        JKG_CG_UnequipItem (slot);
-	        CO_InventoryNotify (1);
+	        uiImports->InventoryNotify( 1 );
 	    }
 	    
 	    return;
@@ -1700,7 +1660,7 @@ static void CG_ServerCommand( void ) {
 	if ( !strcmp (cmd, "inventory_update") )
 	{
 		cg.predictedPlayerState.persistant[PERS_CREDITS] = atoi(CG_Argv(1));
-		CO_InventoryNotify (1);
+		uiImports->InventoryNotify (1);
 		return;
 	}
 
@@ -1845,7 +1805,7 @@ static void CG_ServerCommand( void ) {
 	if( !strcmp(cmd, "shopupdate"))
 	{
 		cg.snap->ps.persistant[PERS_CREDITS] = atoi(CG_Argv(1));
-		CO_ShopNotify(1);
+		uiImports->ShopNotify(1);
 		return;
 	}
 
@@ -2063,7 +2023,7 @@ static void CG_ServerCommand( void ) {
 			}
 		}
 		/* Notify UI */
-		CO_PartyMngtNotify(1);
+		uiImports->PartyMngtNotify( 1 );
 		return;
 	}
 
@@ -2084,7 +2044,7 @@ static void CG_ServerCommand( void ) {
 		/* Win cake */
 
 		/* Notify UI */
-		CO_PartyMngtNotify(0);
+		uiImports->PartyMngtNotify( 0 );
 		return;
 	}
 
@@ -2123,7 +2083,7 @@ static void CG_ServerCommand( void ) {
 		cgs.party.members[0].status = 1;
 
 		/* Notify UI */
-		CO_PartyMngtNotify(0);
+		uiImports->PartyMngtNotify( 0 );
 		return;
 	}
 

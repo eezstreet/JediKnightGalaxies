@@ -11,7 +11,6 @@
 #include "../ui/ui_public.h"
 
 // Jedi Knight Galaxies
-#include "cg_postprocess.h"
 #include "jkg_hud.h"
 
 extern float CG_RadiusForCent( centity_t *cent );
@@ -2526,7 +2525,7 @@ float CG_DrawRadar ( float y )
 	{
 		// CLEANME: rewrite this check later. i didn't mean to rescope, honest to goodness --eez
 		vec4_t newColor = {1, 1, 1, 0};
-		float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
+		float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
 		VectorCopy4(newColor, color);
 
 		if(ironSightsPhase > 0)
@@ -3490,8 +3489,8 @@ vec3_t cg_crosshairPos={0,0,0};
 		    }
 		    else
 		    {
-				float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
-				float sprintPhase = JKG_CalculateSprintPhase (&cg.networkState);
+				float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
+				float sprintPhase = JKG_CalculateSprintPhase (&cg.predictedPlayerState);
 				if(ironSightsPhase > 0)
 				{
 					ecolor[3] = 1.0f - ironSightsPhase;
@@ -3727,8 +3726,8 @@ vec3_t cg_crosshairPos={0,0,0};
             // JKG: Crosshair disappears for ironsights
             if ( !cg.renderingThirdPerson )
             {
-                float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.networkState);
-				float sprintPhase = JKG_CalculateSprintPhase (&cg.networkState);
+				float ironSightsPhase = JKG_CalculateIronsightsPhase (&cg.predictedPlayerState);
+				float sprintPhase = JKG_CalculateSprintPhase (&cg.predictedPlayerState);
 				if(ironSightsPhase > 0)
 				{
 					ecolor[3] = 1.0f - ironSightsPhase;
@@ -6381,7 +6380,7 @@ void CG_DrawJetpackCloak(menuDef_t *menuHUD) {
 	// FIXME: what happens if using more than one?
 	if (cg.snap->ps.weapon == WP_SABER)
 	{
-		percent = cg.networkState.blockPoints;
+		percent = cg.predictedPlayerState.blockPoints;
 		pic = trap_R_RegisterShader("gfx/jkghud/ico_cloak.png");
 	}
 
@@ -7627,14 +7626,14 @@ void CG_DrawChatbox() {
 #pragma region h_
 	item = Menu_FindItemByName(menuHUD, "h_local");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
 	}
 	item = Menu_FindItemByName(menuHUD, "h_guild");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
@@ -7642,7 +7641,7 @@ void CG_DrawChatbox() {
 
 	item = Menu_FindItemByName(menuHUD, "h_action");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
@@ -7650,7 +7649,7 @@ void CG_DrawChatbox() {
 
 	item = Menu_FindItemByName(menuHUD, "h_comm");
 	if (item) {
-		Vector4Copy(item->window.foreColor, tmpCol);
+		VectorCopy4(item->window.foreColor, tmpCol);
 		tmpCol[3] *= cg.jkg_HUDOpacity;
 		trap_R_SetColor( tmpCol );
 		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
@@ -7711,7 +7710,6 @@ void CG_DrawChatbox() {
 }
 
 void ChatBox_CloseChat();
-extern void JKG_DoDebugController(void);
 static void CG_Draw2D( void ) {
 	float			inTime = cg.invenSelectTime+WEAPON_SELECT_TIME;
 	float			wpTime = cg.weaponSelectTime+WEAPON_SELECT_TIME;
@@ -7807,8 +7805,6 @@ static void CG_Draw2D( void ) {
 		return;
 	}
 	CinBuild_Visualize2D();
-
-	JKG_DoDebugController();
 
 
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
@@ -8008,11 +8004,8 @@ Perform all drawing needed to completely fill the screen
 =====================
 */
 
-void CalculateColorMod(ppColormod_t *cm);
-int CalculateMotionBlur();
 int Cin_ProcessMB();
 void Cin_ProcessCM();
-void CalculateBlur(ppBlurParams_t *blurParams);
 
 extern vmCvar_t r_bloom_factor;
 extern vmCvar_t r_bloom_threshold;
@@ -8055,8 +8048,6 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	}
 
 	cg.refdef.rdflags |= RDF_DRAWSKYBOX;
-	
-	PP_PreRender();
 
 	// draw 3D view
 	trap_R_RenderScene( &cg.refdef );
@@ -8065,157 +8056,8 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	if ( separation != 0 ) {
 		VectorCopy( baseOrg, cg.refdef.vieworg );
 	}
-	
-	PP_BeginPostProcess();
-	{
-	    ppColormod_t cm;
-	    ppBlurParams_t blurParams;
-#ifndef BLOOM
-		ppBloomParams_t bloomParams;
-#endif
-#ifdef __GL_ANAGLYPH__
-		ppAnaglyphParams_t anaglyphParams;
-#endif //__GL_ANAGLYPH__
-#ifdef __GL_EMBOSS__
-		ppEmbossParams_t embossParams;
-#endif //__GL_EMBOSS__
-
-	    int motionBlurTime;
-	
-	    if (!cg.cinematicState) {
-		    motionBlurTime = CalculateMotionBlur();
-		    CalculateColorMod (&cm);
-	    } else {
-		    // Get the info directly from the cinematic system
-    		motionBlurTime = Cin_ProcessMB();
-		    Cin_ProcessCM(&cm);
-	    }
-    	
-    	PP_DoPass ("motionblur", (const void *)&motionBlurTime);
-    	PP_DoPass ("colormod", (const void *)&cm);
-    	
-	    CalculateBlur(&blurParams);
-        PP_DoPass ("gaussianblur", (const void *)&blurParams);
-
-#ifndef BLOOM
-		bloomParams.bloomFactor = r_bloom_factor.value;
-		bloomParams.brightnessThreshold = r_bloom_threshold.value;
-		PP_DoPass ("bloom", (const void *)&bloomParams);
-#endif
-
-#ifdef __GL_ANAGLYPH__
-		PP_DoPass ("anaglyph", (const void *)&anaglyphParams);
-#endif //__GL_ANAGLYPH__
-
-#ifdef __GL_EMBOSS__
-		embossParams.embossScale = 0.666f;
-		PP_DoPass ("emboss", (const void *)&embossParams);
-#endif //__GL_EMBOSS__
-        
-        PP_EndPostProcess();
-	}
 		
 	// draw status bar and other floating elements
  	CG_Draw2D();
-}
-
-#define BLUR_FADE_TIME (500.0f)
-void CalculateBlur ( ppBlurParams_t *blurParams ) {
-	static int UIBlurStartTime = 0;
-	
-	// 0 - Not blurring
-	// 1 - Blur fade in / keep blurred
-	// 2 - Blur fade out
-	static int UIBlurState = 0;
-	
-	// Check if we have conditions to override this
-	if (!ui_blurbackground.integer) {
-		return;
-	}
-	
-	blurParams->intensity = cg.blurLevel;
-	blurParams->numPasses = cg.blurPasses;
-    
-	if (ui_hidehud.integer) {
-		// We're to hide the HUD
-		if (UIBlurState == 0) {
-			UIBlurStartTime = cg.time;
-			UIBlurState = 1;
-
-			blurParams->intensity = 0;
-			blurParams->numPasses = 0;
-		} else if (cg.time - UIBlurStartTime >= BLUR_FADE_TIME) {
-			blurParams->intensity = 1.0f;
-			blurParams->numPasses = 2;
-		} else {
-			blurParams->intensity = (float)(cg.time - UIBlurStartTime) / BLUR_FADE_TIME;
-			blurParams->numPasses = 2;
-		}
-	} else {
-		if (UIBlurState == 1) {
-			// Time to fade out
-			UIBlurStartTime = cg.time;
-			UIBlurState = 2;
-
-			blurParams->intensity = 1.0f;
-			blurParams->numPasses = 2;
-		} else if (UIBlurState == 2) {
-			// Fading out
-			if (cg.time - UIBlurStartTime >= 500) {
-				blurParams->intensity = 0.0f;
-				blurParams->numPasses = 0;
-				UIBlurState = 0;
-			} else {
-				blurParams->intensity = 1.0f - ((float)(cg.time - UIBlurStartTime) / BLUR_FADE_TIME);
-				blurParams->numPasses = 2;
-			}
-		}
-	}
-}
-
-void CalculateColorMod(ppColormod_t *cm) {
-	memcpy(cm, &cg.colorMod, sizeof(ppColormod_t));
-	if (cg.snap->ps.stats[STAT_HEALTH] < 1 && !cg.deathcamFadeStart) {
-		float phase = (cg.time - cg.deathTime) / 1000.0f;
-		if (phase > 1) phase = 1;
-		if (!cm->active) {
-			cm->red_scale = cm->green_scale = cm->blue_scale = 1;
-			cm->red_bias = cm->green_bias = cm->blue_bias = 0;
-			cm->contrast = 1;
-			cm->brightness = 0;
-			cm->active = 1;
-		}
-		cm->fx = 1;
-		cm->fxbrightness = 1 - (phase*0.5f);
-		cm->fxintensity = phase;
-	} else if (cg.deathcamFadeStart) {
-		if (!cm->active) {
-			cm->red_scale = cm->green_scale = cm->blue_scale = 1;
-			cm->red_bias = cm->green_bias = cm->blue_bias = 0;
-			cm->contrast = 1;
-			cm->brightness = 0;
-			cm->active = 1;
-		}
-		cm->fx = 1;
-		cm->fxbrightness = 1;
-		cm->fxintensity = 1;
-	}
-}
-
-int CalculateMotionBlur() {
-	int MotionBlur = 0;
-	float hpMultiplier = 100.0f / (float)cg.predictedPlayerState.stats[STAT_MAX_HEALTH];
-	float lowHealthPhase = CG_GetLowHealthPhase(0, hpMultiplier);
-	if (cg.snap->ps.stats[STAT_HEALTH] < 1 || cg.deathcamTime) {
-		MotionBlur = 750;
-	} else if (lowHealthPhase != 0.0f) {
-		MotionBlur = 600 * lowHealthPhase; //(30 - cg.snap->ps.stats[STAT_HEALTH]) * 20;
-	}
-	else if ( cg.motionBlurTime > 0 )
-	{
-	    MotionBlur = cg.motionBlurTime;
-	}
-	MotionBlur += (cg.sprintTime * 1800);
-	return MotionBlur;
 }
 

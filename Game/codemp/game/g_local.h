@@ -19,9 +19,6 @@
 #define GAME_INLINE //none
 #endif
 
-void SetWindowTitle(const char *newtitle);
-void UpdateWindowTitle();
-
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 
@@ -215,9 +212,6 @@ struct gentity_s {
 
 	gNPC_t		*NPC;//Only allocated if the entity becomes an NPC
 	int			cantHitEnemyCounter;//HACK - Makes them look for another enemy on the same team if the one they're after can't be hit
-
-	extraState_t x;
-	extraState_t xo;
 
 	qboolean	noLumbar; //see note in cg_local.h
 
@@ -734,8 +728,6 @@ struct gclient_s {
 	// the rest of the structure is private to game
 	clientPersistant_t	pers;
 	clientSession_t		sess;
-
-	networkState_t	ns;
 
 	saberInfo_t	saber[MAX_SABERS];
 	void		*weaponGhoul2[MAX_SABERS];
@@ -2366,14 +2358,6 @@ extern qboolean PATHING_IGNORE_FRAME_TIME;
 int ASTAR_FindPath(int from, int to, int *pathlist);
 int ASTAR_FindPathWithTimeLimit(int from, int to, int *pathlist);
 int ASTAR_FindPathFast(int from, int to, int *pathlist, qboolean shorten);
-
-/**************************************************
-* g_network.c - Second playerstate (:D)
-**************************************************/
-#ifdef QAGAME
-void N_Init();
-void N_Clear();
-#endif
 
 #ifdef _DEBUG
 extern void JKG_AssertFunction(char *file, int linenum, const char *expression);

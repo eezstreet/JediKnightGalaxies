@@ -7,7 +7,6 @@
 // GLua include
 #include "../GLua/glua.h"
 #include "jkg_admin.h"
-#include "g_engine.h"
 #include "jkg_bans.h"
 #include "jkg_damagetypes.h"
 
@@ -391,9 +390,9 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		other->client->ps.stats[STAT_HEALTH] = other->health = 200;
 	}
 
-	if (other->client->ns.forcePower < 100)
+	if (other->client->ps.forcePower < 100)
 	{
-		other->client->ns.forcePower = 100;
+		other->client->ps.forcePower = 100;
 	}
 
 	while (i < NUM_FORCE_POWERS)
@@ -2180,28 +2179,25 @@ restarts.
 ============
 */
 
-static int CompareIPs(int clientnum1, int clientnum2) {
-	const char *ip1, *ip2;
-	if (clientnum1 < 0 || clientnum1 >= MAX_CLIENTS) return 0;
-	if (clientnum2 < 0 || clientnum2 >= MAX_CLIENTS) return 0;
-	ip1 = level.clients[clientnum1].sess.IP;
-	ip2 = level.clients[clientnum2].sess.IP;
-	while (1) {
-		if (*ip1 != *ip2)
-			return 0;
-		if (!*ip1 || *ip1 == ':')
+static qboolean CompareIPs( const char *ip1, const char *ip2 )
+{
+	while ( 1 ) {
+		if ( *ip1 != *ip2 )
+			return qfalse;
+		if ( !*ip1 || *ip1 == ':' )
 			break;
 		ip1++;
 		ip2++;
 	}
-	return 1;
+
+	return qtrue;
 }
 
 extern int NextIDCode;
-extern int ClientConnectionActive[32];
 
 extern vmCvar_t jkg_antifakeplayer;
 extern qboolean g_dontPenalizeTeam; //g_cmds.c
+#define NET_ADDRSTRMAXLEN 48 // maximum length of an IPv6 address string including trailing '\0'
 const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value;
 //	char		*areabits;
@@ -2211,7 +2207,7 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	gentity_t	*te;
 	char *luaresp;
 	const char *banreason;
-	int i;
+	char tmpIP[NET_ADDRSTRMAXLEN] = {0};
 
 	ent = &g_entities[ clientNum ];
 	ent->LuaUsable = 1; // So we can use it in lua (PlayerConnected hook)
@@ -2223,7 +2219,6 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// Once a sequenced packet has been received this goes back to 1
 	// Since q3fill will never do this, it stays at 0
 	// Which causes the server to kick and ban the client after 1 second
-	ClientConnectionActive[clientNum] = 0;		
 
 	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
@@ -2231,10 +2226,11 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	//value = Info_ValueForKey (userinfo, "ip");
 	//Q_strncpyz(TmpIP, value, sizeof(TmpIP)); // Used later
 
-	if ( ( banreason = JKG_Bans_IsBanned( svs->clients[clientNum].netchan.remoteAddress ) ) != NULL ) { /*G_FilterPacket( value )*/
+	// FIXME: Need to replace the ban code
+	/*if ( ( banreason = JKG_Bans_IsBanned( svs->clients[clientNum].netchan.remoteAddress ) ) != NULL ) {
 		return banreason;
 		//return "You are banned from this server.";
-	}
+	}*/
 	if (level.serverInit) {
 		// We're on the init map, deny all connections
 		return "Server is initializing, please wait...";
@@ -2253,6 +2249,31 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 			static char sTemp[1024];
 			Q_strncpyz(sTemp, G_GetStringEdString("MP_SVGAME","INVALID_ESCAPE_TO_MAIN"), sizeof (sTemp) );
 			return sTemp;// return "Invalid password";
+		}
+	}
+
+	value = Info_ValueForKey (userinfo, "ip");
+	Q_strncpyz( tmpIP, isBot ? "Bot" : value, sizeof( tmpIP ) );
+
+	if(jkg_antifakeplayer.integer)
+	{
+		if(firstTime && !isBot)
+		{
+			int i;
+			int count = 0;
+
+			for(i = 0; i < level.maxclients; i++)
+			{
+				if ( level.clients[i].pers.connected != CON_DISCONNECTED && i != clientNum )
+				{
+					if( CompareIPs( tmpIP, level.clients[i].sess.IP ) )
+						count++;
+				}
+			}
+			if(count > 1)
+			{
+				return "Too many connections from the same IP.";
+			}
 		}
 	}
 
@@ -2303,7 +2324,8 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		client->sess.noq3fill = 1;
 	}
 
-	Q_strncpyz(client->sess.IP, NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress), sizeof(client->sess.IP));
+	// FIXME: Need to replace this
+	//Q_strncpyz(client->sess.IP, NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress), sizeof(client->sess.IP));
 
 	if( isBot ) {
 		ent->r.svFlags |= SVF_BOT;
@@ -2321,23 +2343,10 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		return luaresp;
 	}
 
-	if (jkg_antifakeplayer.integer && firstTime && !isBot ) {
-		// Before we let the client in, we do one last check:
-		for (i=0; i < g_maxclients.integer; i++) {
-			if (level.clients[i].pers.connected != CON_DISCONNECTED && i != clientNum) {
-				if (CompareIPs(clientNum, i)) {
-					if (!ClientConnectionActive[i]) {
-						//This IP has a dead connection pending, wait for it to time out
-						client->pers.connected = CON_DISCONNECTED;
-						return "Please wait, another connection from this IP is still pending...";
-					}
-				}
-			}
-		}
-	}
-
 	// get and distribute relevent paramters
-	G_LogPrintf( "ClientConnect: %i. IP: %s\n", clientNum, isBot ? "Bot" : NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress) );
+	// FIXME:
+	//G_LogPrintf( "ClientConnect: %i. IP: %s\n", clientNum, isBot ? "Bot" : NET_AdrToString(svs->clients[clientNum].netchan.remoteAddress) );
+	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 	ClientUserinfoChanged( clientNum );
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
@@ -2363,7 +2372,6 @@ const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 //		client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	TeamInitialize( clientNum );
-	UpdateWindowTitle();
 	
 	client->ps.persistant[PERS_CREDITS] = jkg_startingCredits.integer-1;	// hack to give us our starting gear
 	client->storedCredits = jkg_startingCredits.integer-1;
@@ -2810,7 +2818,7 @@ tryTorso:
 
 		BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, f, &animSpeedScale,
 			self->client->ps.brokenLimbs, SaberStances[self->client->ps.fd.saberAnimLevel].moves[self->client->ps.saberMove].animspeedscale, 
-			self->client->ns.saberSwingSpeed, self->client->ps.saberMove);
+			self->client->ps.saberSwingSpeed, self->client->ps.saberMove);
 
 		if( self->client->ps.weaponstate == WEAPON_RELOADING )
 		{
@@ -3372,7 +3380,7 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	client->ps.cloakFuel = 100;
 
 	// start out with full block points --eez
-	client->ns.blockPoints = 100;
+	client->ps.blockPoints = 100;
 
 	client->pers = saved;
 	client->sess = savedSess;
@@ -3814,7 +3822,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 	// positively link the client, even if the command times are weird
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-		BG_NetworkStateToExtraState( &client->ns, &ent->x );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		trap_LinkEntity( ent );
 	}
@@ -3874,7 +3881,6 @@ void ClientSpawn(gentity_t *ent, qboolean respawn) {
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-	BG_NetworkStateToExtraState( &client->ns, &ent->x );
 
 	//rww - make sure client has a valid icarus instance
 	trap_ICARUS_FreeEnt( ent );
@@ -4044,7 +4050,6 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	G_ClearClientLog(clientNum);
-	UpdateWindowTitle();
 }
 
 

@@ -394,9 +394,6 @@ typedef struct centity_s {
 
 	//from here up must be unified with bgEntity_t -rww
 
-	extraState_t	extraState;
-	extraState_t	oldExtraState;
-
 	entityState_t	nextState;		// from cg.nextFrame, if available
 	qboolean		interpolate;	// true if next is valid to interpolate to
 	qboolean		inLastSnap;		// true if this entity was present in the last snapshot	// JKG
@@ -835,26 +832,12 @@ typedef struct {
 	int				itemNum;
 } powerupInfo_t;
 
-
-#define MAX_SKULLTRAIL		10
-
-typedef struct {
-	vec3_t positions[MAX_SKULLTRAIL];
-	int numpositions;
-} skulltrail_t;
-
-
-#define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
 
 //======================================================================
 
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
-
-#include "cg_postprocess.h"
-
-qboolean JKG_CheckIfIntel(void);
 
 #define MAX_PREDICTED_EVENTS	16
 
@@ -930,7 +913,6 @@ typedef struct {
 	qboolean	hyperspace;				// true if prediction has hit a trigger_teleport
 	playerState_t	predictedPlayerState;
 	playerState_t	predictedVehicleState;
-	networkState_t	networkState;
 
 
 	int lastPurchasedItem;
@@ -969,10 +951,6 @@ typedef struct {
 	// view rendering
 	refdef_t	refdef;
 
-#ifdef _XBOX
-	qboolean widescreen;
-#endif
-
 	// zoom key
 	qboolean	zoomed;
 	int			zoomTime;
@@ -999,9 +977,6 @@ typedef struct {
 	int				spectatorPaintX2;										// current paint x
 	int				spectatorOffset;										// current offset from start
 	int				spectatorPaintLen; 									// current offset from start
-
-	// skull trails
-	skulltrail_t	skulltrails[MAX_CLIENTS];
 
 	// centerprinting
 	int			centerPrintTime;
@@ -1030,13 +1005,6 @@ typedef struct {
 	// attacking player
 	int			attackerTime;
 	int			voiceTime;
-
-	// reward medals
-	int			rewardStack;
-	int			rewardTime;
-	int			rewardCount[MAX_REWARDSTACK];
-	qhandle_t	rewardShader[MAX_REWARDSTACK];
-	qhandle_t	rewardSound[MAX_REWARDSTACK];
 
 	// sound buffer mainly for announcer sounds
 	int			soundBufferIn;
@@ -1155,7 +1123,6 @@ Ghoul2 Insert End
 
 	qboolean            framebufferActive;
 	int					motionBlurTime;
-	ppColormod_t		colorMod;
 	float				blurLevel;
 	int					blurPasses;
 	float				noise_cintensity;
@@ -2949,6 +2916,14 @@ qboolean	trap_G2API_OverrideServer(void *serverInstance);
 
 void		trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf);
 
+void trap_CO_Shutdown( void );
+void trap_Syscall_UI( void );
+void trap_Syscall_CG( void );
+
+void trap_JKG_GetColorTable( float **table );
+float **trap_JKG_GetViewAngles( void );
+void trap_JKG_SetViewAngles( vec3_t viewangles );
+
 #include "../namespace_end.h"
 
 void		CG_Init_CG(void);
@@ -2966,7 +2941,7 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent);
 
 void CG_SetSiegeTimerCvar( int msec );
 
-float JKG_CalculateSprintPhase( const networkState_t *ps );
+float JKG_CalculateSprintPhase( const playerState_t *ps );
 
 void CG_Notifications_Add(char *string, qboolean weapon);
 
@@ -2980,13 +2955,17 @@ extern qboolean CG_SnapRefEntToBone(centity_t *cent, refEntity_t *refEnt, const 
 extern void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlane );
 #endif //__WEAPON_HOLSTER__
 
-// jkg_joystick.c
-void __cdecl JKG_ControllerUpdate(void);
-void __cdecl JKG_CL_JoystickMovement( usercmd_t *cmd );
-void _Hook_CL_JoystickMovement();
-void JKG_DoControllerRumble( int duration, int intensity );
-
 // jkg_cg_damagetypes.c -- UQ1: Moved to stop cg_local.h recursive #include error...
 void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity );
 
+#endif
+
+
+// -------------
+// Crossover API
+// -------------
+
+#ifdef CGAME
+#include "../ui/ui_shared.h"
+extern uiCrossoverExports_t *uiImports;
 #endif

@@ -56,7 +56,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/Dlls\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/ui\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Build/base\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/ui\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../$(Configuration)/Dlls\</OutDir>
@@ -144,7 +144,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\libraries;..\shared; ..\libraries\libexpat\include; ..\game\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libraries;..\shared;..\libraries\libexpat\include;..\game\;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;_USRDLL;WIN32;_WINDOWS;UI_EXPORTS;MISSIONPACK;_JK2; XML_STATIC;UI;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -269,19 +269,14 @@
     <ClCompile Include="..\game\jkg_gangwars.c" />
     <ClCompile Include="..\cgame\jkg_musicengine.c" />
     <ClCompile Include="jkg_ui_auxlib.c" />
-    <ClCompile Include="..\game\networkstate.c" />
     <ClCompile Include="..\game\q_math.c" />
     <ClCompile Include="..\game\q_shared.c" />
-    <ClCompile Include="ui_anticheat.c" />
     <ClCompile Include="ui_atoms.c" />
     <ClCompile Include="ui_crossover.c" />
-    <ClCompile Include="ui_engine.c" />
     <ClCompile Include="ui_force.c" />
     <ClCompile Include="ui_gameinfo.c" />
     <ClCompile Include="ui_jkgscript.c" />
     <ClCompile Include="ui_main.c" />
-    <ClCompile Include="ui_md5check.c" />
-    <ClCompile Include="ui_network.c" />
     <ClCompile Include="ui_saber.c" />
     <ClCompile Include="ui_servercmds.c" />
     <ClCompile Include="ui_shared.c" />
@@ -326,7 +321,6 @@
     <ClInclude Include="..\game\surfaceflags.h" />
     <ClInclude Include="..\shared\qcommon\tags.h" />
     <ClInclude Include="..\cgame\tr_types.h" />
-    <ClInclude Include="ui_crossover.h" />
     <ClInclude Include="ui_force.h" />
     <ClInclude Include="ui_jkgscript.h" />
     <ClInclude Include="ui_local.h" />

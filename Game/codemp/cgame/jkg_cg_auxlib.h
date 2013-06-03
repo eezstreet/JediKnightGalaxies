@@ -39,8 +39,3 @@ typedef struct asyncTask_s {
 
 	struct asyncTask_s *next;		// Used by stacks/queues
 } asyncTask_t;
-
-void JKG_CG_LoadAuxiliaryLibrary();
-void JKG_GLCG_BreakLinkup();
-void JKG_GLCG_ProcessTasks();
-void JKG_GLCG_Task_Test(void (*callback)(asyncTask_t *task));

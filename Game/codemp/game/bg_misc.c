@@ -3805,22 +3805,6 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 //	s->sprintTime = ps->sprintTime;
 }
 
-/*
-=========================
-Extra hax --eez
-=========================
-*/
-
-void BG_NetworkStateToExtraState( networkState_t *ns, extraState_t *x )
-{
-	if(!ns || !x)
-		return;
-
-	x->forcePower = ns->forcePower;
-	x->saberSwingSpeed = ns->saberSwingSpeed;
-	x->saberMoveSwingSpeed = ns->saberMoveSwingSpeed;
-}
-
 
 
 /*

@@ -76,6 +76,10 @@ typedef enum {
 	CG_ERROR,
 	CG_MILLISECONDS,
 
+	// these have to match the definitions in ui_public.h ==eez
+	CG_CO_SYSCALL_UI = 4,
+	CG_CO_SYSCALL_CG = 5,
+
 	//Also for profiling.. do not use for game related tasks.
 	CG_PRECISIONTIMER_START,
 	CG_PRECISIONTIMER_END,
@@ -351,11 +355,20 @@ Ghoul2 Insert Start
 	CG_R_WEATHER_CONTENTS_OVERRIDE,			// DOES NOT WORK (but is called?)
 	CG_R_WORLDEFFECTCOMMAND,
 	//Adding trap to get weather working
-	CG_WE_ADDWEATHERZONE
+	CG_WE_ADDWEATHERZONE,
 
 /*
 Ghoul2 Insert End
 */
+
+	// JKG trap calls --eez
+	CG_CO_INITCROSSOVER,
+	CG_CO_SHUTDOWN,
+
+	CG_JKG_OVERRIDESHADERFRAME,
+	CG_JKG_GETCOLORTABLE,
+	CG_JKG_GETVIEWANGLES,
+	CG_JKG_SETVIEWANGLES
 } cgameImport_t;
 
 
@@ -455,6 +468,9 @@ typedef enum {
 	CG_GET_SORTED_FORCE_POWER,
 
 	CG_FX_CAMERASHAKE,//mcg post-gold added
+
+	// Jedi Knight Galaxies
+	CG_MESSAGEMODE,
 } cgameExport_t;
 
 typedef struct

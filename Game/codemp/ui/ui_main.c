@@ -11,7 +11,7 @@ USER INTERFACE MAIN
 // use this to get a demo build without an explicit demo build, i.e. to get the demo ui files to build
 //#define PRE_RELEASE_TADEMO
 
-#include "ghoul2/G2.h"
+#include "../ghoul2/G2.h"
 #include "ui_local.h"
 #include "qcommon/qfiles.h"
 #include "qcommon/game_version.h"
@@ -21,7 +21,6 @@ USER INTERFACE MAIN
 #include "../game/jkg_gangwars.h"
 
 // JKG
-#include "ui_crossover.h"
 #include "jkg_ui_auxlib.h"
 #include "jkg_conversations.h"
 #include "jkg_pazaak.h"
@@ -288,23 +287,13 @@ siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, con
 const char *JAMD5Check();
 void CheckEngineDll();
 
-void UI_PatchEngine();
-void UI_UnpatchEngine();
-
+extern uiCrossoverExports_t *UI_InitializeCrossoverAPI( cgCrossoverExports_t *cg );
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 	switch ( command ) {
 	case UI_GETAPIVERSION:
 		return UI_API_VERSION;
 
 	case UI_INIT:
-		{
-			const char *res;
-			res = JAMD5Check();
-			if (res)
-				trap_Error(res);
-		}
-
-		UI_PatchEngine();
 		_UI_Init(arg0);
 		return 0;
 
@@ -313,7 +302,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		CG_StopMusic();
 #endif //__MUSIC_ENGINE__
 		_UI_Shutdown();
-		UI_UnpatchEngine();
 		return 0;
 
 	case UI_KEY_EVENT:
@@ -341,11 +329,12 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 	case UI_DRAW_CONNECT_SCREEN:
 		UI_DrawConnectScreen( arg0 );
 		return 0;
-	case UI_HASUNIQUECDKEY: // mod authors need to observe this
-		return qtrue; // bk010117 - change this to qfalse for mods!
 	case UI_MENU_RESET:
 		Menu_Reset();
 		return 0;
+
+	case UI_CROSSOVER_API:
+		return (int)UI_InitializeCrossoverAPI( (cgCrossoverExports_t *)arg0 );
 	}
 
 	return -1;
@@ -1035,8 +1024,6 @@ void _UI_Refresh( int realtime )
 	//	return;
 	//}
 
-	JKG_GLUI_ProcessTasks();
-
 	trap_G2API_SetTime(realtime, 0);
 	trap_G2API_SetTime(realtime, 1);
 	//ghoul2 timer must be explicitly updated during ui rendering.
@@ -1212,9 +1199,6 @@ void _UI_Shutdown( void ) {
 	trap_LAN_SaveCachedServers();
 	UI_CleanupGhoul2();
 	trap_Cvar_Set("connmsg", "");	// Clear the connection message override
-	JKG_GLUI_BreakLinkup();
-	N_CL_Clear();
-	CL_ShutdownMultiMasterServer();
 }
 
 char *defaultMenu = NULL;
@@ -3303,9 +3287,9 @@ static void UI_Version(rectDef_t *rect, float scale, vec4_t color, int iMenuFont
 {
 	int width;
 
-	width = uiInfo.uiDC.textWidth(Q3_VERSION, scale, iMenuFont);
+	width = uiInfo.uiDC.textWidth(JK_VERSION, scale, iMenuFont);
 
-	uiInfo.uiDC.drawText(rect->x - width, rect->y, scale, color, Q3_VERSION, 0, 0, 0, iMenuFont);
+	uiInfo.uiDC.drawText(rect->x - width, rect->y, scale, color, JK_VERSION, 0, 0, 0, iMenuFont);
 }
 
 /*
@@ -7081,7 +7065,7 @@ static int UI_HeadCountByColor() {
 		int gwTeam;
 		if(uiSkinColor == TEAM_BLUE || uiSkinColor == TEAM_RED)
 		{
-			gwTeam = (uiSkinColor == TEAM_RED) ? CO_GetRedTeam() : CO_GetBlueTeam();
+			gwTeam = (uiSkinColor == TEAM_RED) ? cgImports->GetRedTeam() : cgImports->GetBlueTeam();
 			if(bgGangWarsTeams[gwTeam].useTeamColors)
 			{
 				if(uiSkinColor == TEAM_BLUE)
@@ -7975,7 +7959,7 @@ static const char *UI_SelectedTeamHead(int index, int *actual) {
 
 	if(ui_gameType.integer >= GT_TEAM)
 	{
-		gwTeam = (uiSkinColor == TEAM_RED) ? CO_GetRedTeam() : CO_GetBlueTeam();
+		gwTeam = (uiSkinColor == TEAM_RED) ? cgImports->GetRedTeam() : cgImports->GetBlueTeam();
 		*actual = index;
 		return uiInfo.q3HeadNames[index];
 	}
@@ -9104,7 +9088,7 @@ nextSearch:
 	for (j=0; j<numfiles && uiInfo.forceConfigCount < MAX_FORCE_CONFIGS;j++,fileptr+=filelen+1)
 	{
 		filelen = strlen(fileptr);
-		COM_StripExtension(fileptr, configname);
+		COM_StripExtension(fileptr, configname, sizeof(configname));
 
 		if (lightSearch)
 		{
@@ -9196,7 +9180,7 @@ void UI_BuildQ3Model_List( void )
 
 		if(myTeam == TEAM_BLUE || myTeam == TEAM_RED)
 		{
-			gwTeam = (myTeam == TEAM_RED) ? CO_GetRedTeam() : CO_GetBlueTeam();
+			gwTeam = (myTeam == TEAM_RED) ? cgImports->GetRedTeam() : cgImports->GetBlueTeam();
 			if(Q_stricmp(bgGangWarsTeams[gwTeam].modelStore[0], "NULL"))
 			{
 				// Okay. Loop through all the model store entries..
@@ -9232,7 +9216,7 @@ void UI_BuildQ3Model_List( void )
 
 			filelen = strlen(fileptr);
 
-			COM_StripExtension(fileptr,skinname);
+			COM_StripExtension(fileptr,skinname, sizeof(skinname));
 
 			skinLen = strlen(skinname);
 			k = 0;
@@ -9439,7 +9423,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 				}
 
 				filelen = strlen(fileptr);
-				COM_StripExtension(fileptr,skinname);
+				COM_StripExtension(fileptr,skinname, sizeof(skinname));
 
 				if (bIsImageFile(dirptr, skinname))
 				{ //if it exists
@@ -9514,14 +9498,6 @@ UI_Init
 */
 //#define JKG_CLIENTSIDE_VERSION "0.3.25a"
 
-void ApplyNoCD();
-void __inline ClearSelfSabotage() {
-	// Hack: Clear the one-shot self-sabotage switch (0 and 1 are unaffected, 2 (one-shot) goes to 0)
-	*(int *)0xB8D544 &= 1;
-}
-
-#include "ui_crossover.h"
-
 
 
 void _UI_Init( qboolean inGameLoad ) {
@@ -9535,17 +9511,8 @@ void _UI_Init( qboolean inGameLoad ) {
 	// Some knucklehead decided to update client version once we got to the client aux lib,
 	// which is kinda stupid since we can't get there unless we actually connect to a server.
 	// DERP. --eez
-	trap_Cvar_Set("clver", JKG_VERSION);
+	//trap_Cvar_Set("clver", JKG_VERSION); // this is handled in engine now --eez
 
-	// No-cd patch
-	ApplyNoCD();
-	ClearSelfSabotage();
-	N_CL_Init();
-	CL_InitMultiMasterServer();
-
-	JKG_UI_LoadAuxiliaryLibrary();
-	JKG_GLUI_PatchEngine();
-	CO_InitCrossover();
 	// Get the list of possible languages
 	uiInfo.languageCount = trap_SP_GetNumLanguages();	// this does a dir scan, so use carefully
 
@@ -9860,7 +9827,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			//UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
 			return;
 		case UIMENU_INGAME:
-			if (CO_EscapeTrapped()) 
+			if (cgImports->EscapeTrapped()) 
 				return;
 			trap_Cvar_Set( "cl_paused", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );
@@ -10622,24 +10589,6 @@ static void UI_DoServerRefresh( void )
 
 /*
 =================
-JKG_ChangeSupportedProtocol
-=================
-*/
-#define WIN32_LEAN_AND_MEAN
-#ifndef Rectangle
-#include <windows.h>
-#endif
-
-static void JKG_ChangeSupportedProtocol(unsigned char theProtocol)
-{
-	DWORD dummy;
-	VirtualProtect((LPVOID)0x00420093, sizeof(unsigned char), PAGE_EXECUTE_READWRITE, &dummy);
-	*(unsigned char *)0x00420093 = theProtocol;
-	VirtualProtect((LPVOID)0x00420093, sizeof(unsigned char), PAGE_EXECUTE_READ, NULL);
-}
-
-/*
-=================
 UI_StartServerRefresh
 =================
 */
@@ -10674,7 +10623,7 @@ static void UI_StartServerRefresh(qboolean full)
 	}
 
 	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-#ifndef _XBOX	// Optimatch is handled elsewhere
+
 	if( UI_SourceForLAN() != AS_LOCAL && UI_SourceForLAN() != AS_FAVORITES) {
 		if( ui_netSource.integer == AS_GLOBAL ) {
 			i = 1;
@@ -10688,25 +10637,23 @@ static void UI_StartServerRefresh(qboolean full)
 			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s\n", i, ptr));
 		}
 		else {
-			char holdStr[64];
-			strcpy(holdStr, serverFilters[ui_serverFilterType.integer].description);
-			if(!Q_stricmp(holdStr, "JKG"))
+			// cleaned this up slightly --eez
+			if(!Q_stricmp(serverFilters[ui_serverFilterType.integer].description, "JKG"))
 			{
 #ifdef			__PTR
-				JKG_ChangeSupportedProtocol(28);
+				trap_JKG_ChangeProtocol( 28 );
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 28\n", i ) );			// PTR uses protocol 28
 #else
-				JKG_ChangeSupportedProtocol(27);
+				trap_JKG_ChangeProtocol( 27 );
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d 27\n", i ) );			// hax. JKG servers use protocol 27
 #endif
 			}
 			else
 			{
-				JKG_ChangeSupportedProtocol(atoi(UI_Cvar_VariableString("protocol")));
+				trap_JKG_ChangeProtocol( atoi(UI_Cvar_VariableString("protocol")) );
 				trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s\n", i, UI_Cvar_VariableString("protocol") ) );
 			}
 		}
 	}
-#endif
 }
 

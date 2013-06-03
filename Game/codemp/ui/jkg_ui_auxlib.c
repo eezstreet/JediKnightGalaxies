@@ -5,7 +5,7 @@
 //
 // By BobaFett
 //
-
+/*
 #include "aux_ui_exports.h"
 #include "jkg_ui_auxlib.h"
 
@@ -15,35 +15,6 @@ gl_ui_imports_t *gl_ui_imports;
 #undef INFINITE
 
 #include <windows.h>
-static char * FS_BuildOSPath( const char *base, const char *game, const char *qpath )  {
-	__asm {
-		mov		eax, game
-		mov		edx, qpath
-		push	base
-		mov		ebx, 0x43A550
-		call	ebx
-		add		esp, 4
-	}
-}
-
-static int FS_CopyFile(const char *filename) {
-	__asm {
-		mov		eax, filename
-		mov		ebx, 0x450900
-		call	ebx
-	}
-}
-static char *Cvar_VariableString(const char *cvarname) {
-	__asm {
-		mov		edi, cvarname
-		mov		eax, 0x4393B0
-		call	eax
-		test	eax, eax
-		je		badcvar
-		mov		eax, [eax+4]
-badcvar:
-	}
-}
 
 static void (*Com_Error)(int level, const char *fmt, ...) = (void (*)(int,const char*,...))0x437290;
 
@@ -140,3 +111,4 @@ void JKG_GLUI_Task_Login(const char *username, const char *password, void (*call
 	}
 	gl_ui_imports->GL_Task_Login(username, password, callback);
 }
+*/

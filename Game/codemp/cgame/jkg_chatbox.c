@@ -67,39 +67,20 @@ void ChatBox_CloseChat() {
 	}
 }
 
-int RE_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale) {
-	// Funnel it right to the engine so we skip the whole syscall thing
-	// So we can use this often without overhead
-	int (* func)(const char*, const int, const float);
-	func = *(void **)0x8AF0C8;
-	if (func) {
-		return func(text, iFontIndex, scale);
-	} else {
-		return 0;
-	}
-}
-
-void RE_Font_DrawString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale) {
-	// Funnel it right to the engine so we skip the whole syscall thing
-	// So we can use this often without overhead
-	void (* func)(int, int, const char *, const float *, const int, int, const float);
-	func = *(void **)0x8AF0D4;
-	if (func) {
-		func(ox, oy, text, rgba, setIndex, iCharLimit, scale);
-	}
-}
-
 void ChatBox_SetPaletteAlpha(float alpha) {
 	// This modifies the alpha of the JA color palette
 	// As well as the drop shadow color
 	// Always reset this back to 1 after you're done!
 	int i;
+	vec4_t fantasticArray[8];
+
+	trap_JKG_GetColorTable((float **)fantasticArray);
 	for (i=0; i<8; i++) {
 		// Color code palette (vec4_t array)
-		*(float *)(0x56DF48 + (i * 16) + 12) = alpha;
+		fantasticArray[i][3] = alpha;
 	}
 	// Drop shadow color
-	*(float *)(0x5582B8 + 12) = alpha;
+	//*(float *)(0x5582B8 + 12) = alpha;		// FIXME: this address didn't look correct in the first place --eez
 }
 
 float Text_GetWidth(const char *text, int iFontIndex, float scale) {
@@ -124,7 +105,7 @@ float Text_GetWidth(const char *text, int iFontIndex, float scale) {
 			}
 		}
 		s[0] = *t;
-		w += ((float)RE_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		w += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		t++;
 	}
 	return w;
@@ -276,11 +257,11 @@ void Text_DrawText(int x, int y, const char *text, const float* rgba, int iFontI
 	float xx = x;
 
 	s[1] = 0;
-	Vector4Copy(rgba, color);
+	VectorCopy4(rgba, color);
 	while (*t) {
 		if (*t == '^') {
 			if (*(t+1) >= '0' && *(t+1) <= '9') {
-				Vector4Copy(tColorTable[*(t+1) - '0'], color);
+				VectorCopy4(tColorTable[*(t+1) - '0'], color);
 				t+=2;
 				continue;
 			}
@@ -293,8 +274,8 @@ void Text_DrawText(int x, int y, const char *text, const float* rgba, int iFontI
 			}
 		}
 		s[0] = *t;
-		RE_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
-		xx += ((float)RE_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		trap_R_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
+		xx += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		t++;
 	}
 }
@@ -351,7 +332,7 @@ const char *ChatBox_PrintableText(int iFontIndex, float scale) {
 		}
 		s[0] = *t;
 
-		w += ((float)RE_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		w += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		if (w > cb_data.maxwidth) {
 			break;
 		}
@@ -688,12 +669,12 @@ qboolean ChatBox_CanUseChat() {
 void ChatBox_MessageMode() {
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
 
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
 
 	// VERSUS ONLY --eez
@@ -701,36 +682,36 @@ void ChatBox_MessageMode() {
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
 }
 
 void ChatBox_MessageMode2() {
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
 
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
 	cb_chatmode = CHM_TEAM;
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
 }
 
 void ChatBox_MessageMode3() {	// Private chat (aim trace)
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	int target;
 
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	target = CG_CrosshairPlayer();
 	if (target >= 0 && target < MAX_CLIENTS) {
 		ChatBox_InitChat();
@@ -740,45 +721,61 @@ void ChatBox_MessageMode3() {	// Private chat (aim trace)
 	}
 	
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
 }
 
 void ChatBox_MessageMode4() {
 	// Since this gets called from the engine, the VM info might be incorrect
 	// So override it so cgame is active, then restore later on	
-	int ActiveVM = *(int *)0x12A4F18;
+	//int ActiveVM = *(int *)0x12A4F18;
 	if (!ChatBox_CanUseChat()) {
 		return;
 	}
 
 	// VERSUS ONLY --eez
 
-	*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
+	//*(int *)0x12A4F18 = *(int *)0x8AF0FC; // CurrentVm = cgvm;
 	ChatBox_InitChat();
 	cb_chatmode = CHM_ACTION;
 	ChatBox_NewChatMode();
 
 	// Restore the active VM
-	*(int *)0x12A4F18 = ActiveVM;
+	//*(int *)0x12A4F18 = ActiveVM;
 }
 
-
-void *Cmd_EditCommand(const char *cmdname, void *newfunction);
+void ChatBox_UseMessageMode(int whichOne)
+{
+	switch(whichOne)
+	{
+		case 1:
+			ChatBox_MessageMode();
+			break;
+		case 2:
+			ChatBox_MessageMode2();
+			break;
+		case 3:
+			ChatBox_MessageMode3();
+			break;
+		case 4:
+			ChatBox_MessageMode4();
+			break;
+	}
+}
 
 void ChatBox_InitSystem() {
 	// Relink the messagemode<x> commands to our custom functions
-	Cmd_EditCommand("messagemode", ChatBox_MessageMode);
+	/*Cmd_EditCommand("messagemode", ChatBox_MessageMode);
 	Cmd_EditCommand("messagemode2", ChatBox_MessageMode2);
 	Cmd_EditCommand("messagemode3", ChatBox_MessageMode3);
-	Cmd_EditCommand("messagemode4", ChatBox_MessageMode4);
+	Cmd_EditCommand("messagemode4", ChatBox_MessageMode4);*/
 }
 
 void ChatBox_ShutdownSystem() {
 	// Relink the messagemode<x> commands to their engine functions
-	Cmd_EditCommand("messagemode", (void *)0x417040);
+	/*Cmd_EditCommand("messagemode", (void *)0x417040);
 	Cmd_EditCommand("messagemode2", (void *)0x417080);
 	Cmd_EditCommand("messagemode3", (void *)0x4170C0);
-	Cmd_EditCommand("messagemode4", (void *)0x417130);
+	Cmd_EditCommand("messagemode4", (void *)0x417130);*/
 }
 
 void ChatBox_DrawBackdrop(menuDef_t *menu) {

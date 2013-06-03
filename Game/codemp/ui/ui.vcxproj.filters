@@ -104,25 +104,16 @@
     <ClCompile Include="jkg_ui_auxlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\networkstate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\q_math.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\game\q_shared.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ui_anticheat.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ui_atoms.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_crossover.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_engine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_force.c">
@@ -135,9 +126,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_md5check.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ui_saber.c">
@@ -209,9 +197,6 @@
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ui_network.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h">
@@ -269,9 +254,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\cgame\tr_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_crossover.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ui_force.h">

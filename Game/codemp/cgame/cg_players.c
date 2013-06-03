@@ -211,7 +211,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 		return trap_S_RegisterSound( soundName );
 	}
 
-	COM_StripExtension(soundName, lSoundName);
+	COM_StripExtension(soundName, lSoundName, sizeof(lSoundName));
 
 	if ( clientNum < 0 )
 	{
@@ -1080,7 +1080,7 @@ void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded, int clientNum)
 		}
 
 		Com_sprintf(soundName, sizeof(soundName), "%s", s+1);
-		COM_StripExtension(soundName, soundName);
+		COM_StripExtension(soundName, soundName, sizeof(soundName));
 		//strip the extension because we might want .mp3's
 
 		ci->sounds[i] = 0;
@@ -1121,7 +1121,7 @@ void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded, int clientNum)
 			}
 
 			Com_sprintf(soundName, sizeof(soundName), "%s", s+1);
-			COM_StripExtension(soundName, soundName);
+			COM_StripExtension(soundName, soundName, sizeof(soundName));
 			//strip the extension because we might want .mp3's
 
 			ci->siegeSounds[i] = 0;
@@ -1165,7 +1165,7 @@ void CG_LoadCISounds(clientInfo_t *ci, qboolean modelloaded, int clientNum)
 			}
 
 			Com_sprintf(soundName, sizeof(soundName), "%s", s+1);
-			COM_StripExtension(soundName, soundName);
+			COM_StripExtension(soundName, soundName, sizeof(soundName));
 			//strip the extension because we might want .mp3's
 
 			ci->duelSounds[i] = 0;
@@ -3205,7 +3205,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 		BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, cent->currentState.weapon, newAnimation, &animSpeed, 
 			cent->currentState.brokenLimbs, SaberStances[cent->currentState.fireflag].moves[cent->currentState.saberMove].animspeedscale, 
-			cent->extraState.saberSwingSpeed, cent->currentState.saberMove );
+			cent->currentState.saberSwingSpeed, cent->currentState.saberMove );
 
 		if ( cent->currentState.weaponstate == WEAPON_RELOADING )
 		{
@@ -7218,17 +7218,17 @@ CheckTrail:
 								fx.mShader = cgs.media.saberBlurShader;
 							}
 							*/
-							if( cent->extraState.saberCrystal[saberNum] >= 0 &&
-								(saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].trailEffect &&
-								Q_stricmp(saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].trailEffect, "NULL_TRAIL")))
+							if( cent->currentState.saberCrystal[saberNum] >= 0 &&
+								(saberCrystalsLookup[cent->currentState.saberCrystal[saberNum]].trailEffect &&
+								Q_stricmp(saberCrystalsLookup[cent->currentState.saberCrystal[saberNum]].trailEffect, "NULL_TRAIL")))
 							{
-								fx.mShader = trap_R_RegisterShader(va("gfx/lightsabers/rgb_trail_%s", saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].trailEffect));
+								fx.mShader = trap_R_RegisterShader(va("gfx/lightsabers/rgb_trail_%s", saberCrystalsLookup[cent->currentState.saberCrystal[saberNum]].trailEffect));
  							}
 							else
 							{
 								fx.mShader = cgs.media.saberBlurShader;
 							}
-							VectorCopy( saberCrystalsLookup[cent->extraState.saberCrystal[saberNum]].vRGB, rgb1 );
+							VectorCopy( saberCrystalsLookup[cent->currentState.saberCrystal[saberNum]].vRGB, rgb1 );
 							VectorScale( rgb1, 255, rgb1 );
 						}
 
@@ -7335,7 +7335,7 @@ JustDoIt:
 	//CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
 	//	scolor, renderfx, (qboolean)(saberNum==0&&bladeNum==0) );
 	CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
-		cent->extraState.saberCrystal[saberNum], renderfx, (qboolean)(client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
+		cent->currentState.saberCrystal[saberNum], renderfx, (qboolean)(client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
 }
 
 int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int trickIndex4, int client)
@@ -9292,8 +9292,7 @@ GetSelfLegAnimPoint
 float GetSelfLegAnimPoint(void)
 {
 	//[BugFix2]
-	return BG_GetLegsAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex,
-		&cg.networkState);
+	return BG_GetLegsAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex);
 	
 	/*
 	int animindex = cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex;
@@ -9326,8 +9325,7 @@ GetSelfTorsoAnimPoint
 float GetSelfTorsoAnimPoint(void)
 {
 	//[BugFix2]
-	return BG_GetTorsoAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex,
-		&cg.networkState);
+	return BG_GetTorsoAnimPoint(&cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex);
 	
 	/*
 	int animindex = cg_entities[cg.predictedPlayerState.clientNum].localAnimIndex;

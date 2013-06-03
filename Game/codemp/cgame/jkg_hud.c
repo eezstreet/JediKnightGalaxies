@@ -414,7 +414,7 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 
 	// Work out the bar now
 
-	percent = (float)cg.networkState.forcePower / (float)maxForcePower;
+	percent = (float)cg.predictedPlayerState.forcePower / (float)maxForcePower;
 	//percent *= 0.75f; // Range of the bar is 0 to 0.75f
 
 	focusItem = Menu_FindItemByName(menuHUD, "staminabar");
@@ -432,7 +432,7 @@ static void CG_DrawForcePower( menuDef_t *menuHUD )
 	}
 
 	{
-		char *Force = va("%i / %i", cg.networkState.forcePower, maxForcePower);
+		char *Force = va("%i / %i", cg.predictedPlayerState.forcePower, maxForcePower);
 		trap_R_Font_DrawString( focusItem->window.rect.x + (focusItem->window.rect.w / 2) - (trap_R_Font_StrLenPixels(Force, 1, 0.4)/2),
 				focusItem->window.rect.y - 2/* + (trap_R_Font_HeightPixels(1, 1.0)*0.4)*/,
 				Force, colorWhite, 1, -1, 0.4f );

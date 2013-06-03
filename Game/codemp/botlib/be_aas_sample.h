@@ -12,6 +12,9 @@
  *
  *****************************************************************************/
 
+#pragma once
+#include "be_aas_def.h"
+
 #ifdef AASINTERN
 void AAS_InitAASLinkHeap(void);
 void AAS_InitAASLinkedEntities(void);

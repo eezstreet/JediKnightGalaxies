@@ -1,5 +1,4 @@
 #include "ui_local.h"
-#include "ui_crossover.h"
 #include "jkg_inventory.h"
 #include <expat.h>
 //Just for this file since it has a lot of strcpy to const types ~eezstreet
@@ -32,10 +31,9 @@ Given an index, variation and string, it will attempt to find that information
 */
 #ifndef QAGAME
 #define DWORD unsigned long
-extern weaponData_t *CO_GetWeaponDatas ( int weapon, int variation );
 weaponDataGrab_t BG_GetWeaponDataFromStr(int weapon, int variation, char *text)
 {
-	weaponData_t *weaponData = CO_GetWeaponDatas(weapon, variation);
+	weaponData_t *weaponData = cgImports->GetWeaponDatas( weapon, variation );
 	weaponDataGrab_t retVal;
 	memset(&retVal, 0, sizeof(weaponDataGrab_t));
 
@@ -311,15 +309,15 @@ weaponDataGrab_t BG_GetWeaponDataFromStr(int weapon, int variation, char *text)
 void JKG_Inventory_ConstructCreditsText( void )
 {
 	itemDef_t *creditItem = Menu_FindItemByName(inventoryState.menu, "invmain_credits");
-	int credits = (int)CO_InventoryDataRequest (3);
+	int credits = (int)cgImports->InventoryDataRequest( 3 );
 	sprintf(creditItem->text, "%i", credits);
 }
 
 void JKG_Inventory_ConstructWeightText( void )
 {
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 	itemDef_t *weightItem = Menu_FindItemByName(inventoryState.menu, "invmain_weight");
-	int numItems = *(int *)CO_InventoryDataRequest (0);
+	int numItems = *(int *)cgImports->InventoryDataRequest( 0 );
 	int i, weight=0;
 	char completeString[10];
 
@@ -416,7 +414,7 @@ void JKG_Inventory_Arrow ( char **args )
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int max = Item_ListBox_MaxScroll(item);
 	int viewmax = (item->window.rect.w / listPtr->elementWidth);
-	int numItems = *(int *)CO_InventoryDataRequest (0);
+	int numItems = *(int *)cgImports->InventoryDataRequest( 0 );
 	int amount = atoi(args[0]);
 
 	if(numItems <= 0)
@@ -478,7 +476,7 @@ void JKG_Inventory_Arrow_New ( itemDef_t *item, int amount )
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int max = Item_ListBox_MaxScroll(item);
 	int viewmax = (item->window.rect.w / listPtr->elementWidth);
-	int numItems = *(int *)CO_InventoryDataRequest (0);
+	int numItems = *(int *)cgImports->InventoryDataRequest( 0 );
 
 	if(numItems <= 0)
 	{
@@ -530,8 +528,8 @@ void JKG_Inventory_Arrow_New ( itemDef_t *item, int amount )
 
 int JKG_Inventory_FeederCount ( void )
 {
-	int numItems = *(int *)CO_InventoryDataRequest (0);
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+	int numItems = *(int *)cgImports->InventoryDataRequest( 0 );
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 	int c = 0;
 	int i;
 	memset(itemsInFilter, 0, sizeof(itemsInFilter));
@@ -589,8 +587,8 @@ int JKG_Inventory_FeederCount ( void )
 
 static int GetACISlotForWeapon ( int weaponId )
 {
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
-    int *playerACI = (int *)CO_InventoryDataRequest (2);
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
+	int *playerACI = (int *)cgImports->InventoryDataRequest( 2 );
     int i;
     for ( i = 0; i < MAX_ACI_SLOTS; i++ )
     {
@@ -616,8 +614,8 @@ static qboolean IsWeaponInACI ( int weaponId )
 
 static int GetACISlotForItem ( int itemID )
 {
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
-	int *playerACI = (int *)CO_InventoryDataRequest (2);
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
+	int *playerACI = (int *)cgImports->InventoryDataRequest( 2 );
 	int i;
     for ( i = 0; i < MAX_ACI_SLOTS; i++ )
     {
@@ -792,13 +790,13 @@ qboolean JKG_Inventory_FeederSelection ( int index )
 	// Get information on the item
 	if(ui_inventoryFilter.integer == JKGIFILTER_ALL)
 	{
-		inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+		inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 		inventoryState.selectedItem = &inventory[index];
 		inventoryState.selectedItemIndex = index;
 	}
 	else
 	{
-		cgItemInstance_t *inventory2 = (cgItemInstance_t *)CO_InventoryDataRequest(1);
+		cgItemInstance_t *inventory2 = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 		inventory = itemsInFilter;
 		inventoryState.selectedItem = &itemsInFilter[index];
 		inventoryState.selectedItemIndex = index;
@@ -822,7 +820,7 @@ qboolean JKG_Inventory_FeederSelection ( int index )
 
 const char *JKG_Inventory_FeederItemText ( int index, int column, qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3 )
 {
-    int numItems = *(int *)CO_InventoryDataRequest (0);
+	int numItems = *(int *)cgImports->InventoryDataRequest( 0 );
     cgItemInstance_t *inventory;
     
     if ( index < 0 || index >= numItems )
@@ -830,7 +828,7 @@ const char *JKG_Inventory_FeederItemText ( int index, int column, qhandle_t *han
         return NULL;
     }
     
-    inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+	inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
     switch ( column )
     {
         case 0:
@@ -852,13 +850,13 @@ void JKG_Inventory_UpdateNotify(int msg) {
             inventoryState.active = qtrue;
 			inventoryState.inShop = qfalse;
             
-            CO_SysCall_UI();
+            trap_Syscall_UI();
             inventoryState.menu = Menus_FindByName ("jkg_inventory");
             if ( inventoryState.menu && Menus_ActivateByName ("jkg_inventory") )
             {
                 trap_Key_SetCatcher (trap_Key_GetCatcher() | KEYCATCH_UI & ~KEYCATCH_CONSOLE);
             }
-            CO_SysCall_CG();
+			trap_Syscall_CG();
         break;
         
         case 1: // update!
@@ -871,13 +869,13 @@ void JKG_Inventory_UpdateNotify(int msg) {
             inventoryState.active = qtrue;
 			inventoryState.inShop = qtrue;
             
-            CO_SysCall_UI();
+			trap_Syscall_UI();
             inventoryState.menu = Menus_FindByName ("jkg_inventory");
             if ( inventoryState.menu && Menus_ActivateByName ("jkg_inventory") )
             {
                 trap_Key_SetCatcher (trap_Key_GetCatcher() | KEYCATCH_UI & ~KEYCATCH_CONSOLE);
             }
-            CO_SysCall_CG();
+			trap_Syscall_CG();
         break;
     }
 }
@@ -901,7 +899,7 @@ enum inventoryButtons_e
 void JKG_Inventory_ACI_Button ( char **args )
 {
     int slot;
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
     if ( !Int_Parse (args, &slot) )
     {
         return;
@@ -925,11 +923,11 @@ void JKG_Inventory_ACI_Button ( char **args )
 
     if(ui_inventoryFilter.integer != JKGIFILTER_ALL)
 	{
-		CO_InventoryAttachToACI (inventoryState.selectedItem->amount[0], slot, 1);	// eezstreet: cannot simply do item-inventory because filters use different pointers!
+		cgImports->InventoryAttachToACI (inventoryState.selectedItem->amount[0], slot, 1);	// eezstreet: cannot simply do item-inventory because filters use different pointers!
 	}
 	else
 	{
-		CO_InventoryAttachToACI (inventoryState.selectedItem-inventory, slot, 1);
+		cgImports->InventoryAttachToACI (inventoryState.selectedItem-inventory, slot, 1);
 	}
     
     Menu_ShowGroup (inventoryState.menu, "aci_selection", qfalse);
@@ -945,7 +943,7 @@ void JKG_Inventory_ACI_Button ( char **args )
 }
 void JKG_Inventory_ACI_Button_Clean(int slot)
 {
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
     
     if ( slot < 0 || slot >= MAX_ACI_SLOTS )
     {
@@ -963,9 +961,9 @@ void JKG_Inventory_ACI_Button_Clean(int slot)
 	}
     
 	if(ui_inventoryFilter.integer)
-		CO_InventoryAttachToACI (inventoryState.selectedItem->amount[0], slot, 1);	// eezstreet: cannot simply do item-inventory because filters use different pointers!
+		cgImports->InventoryAttachToACI (inventoryState.selectedItem->amount[0], slot, 1);	// eezstreet: cannot simply do item-inventory because filters use different pointers!
 	else
-		CO_InventoryAttachToACI (inventoryState.selectedItem-inventory, slot, 1);
+		cgImports->InventoryAttachToACI (inventoryState.selectedItem-inventory, slot, 1);
     
     Menu_ShowGroup (inventoryState.menu, "aci_selection", qfalse);
     Menu_ClearFocus (inventoryState.menu);
@@ -983,8 +981,8 @@ void JKG_Inventory_ACI_Button_Clean(int slot)
 static void JKG_ACI_GreyBlast(void)
 {
 	int i;
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
-	int *playerACI = (int *)CO_InventoryDataRequest (2);
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
+	int *playerACI = (int *)cgImports->InventoryDataRequest( 2 );
 
 	if(!inventory)
 	{
@@ -1610,18 +1608,18 @@ void JKG_Inventory_Script_Button ( char **args )
         return;
     }
     
-    inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+	inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 	itemSlot = (ui_inventoryFilter.integer == JKGIFILTER_ALL) ? inventoryState.selectedItem - inventory : inventoryState.selectedItem->amount[0];
     switch ( button )
     {
         case INV_BTN_USEITEM:
-			CO_SendClientCommand (va ("inventoryUse %d", itemSlot));
+			cgImports->SendClientCommand(va ("inventoryUse %d", itemSlot));
             UpdateButtonStates();
 			JKG_Inventory_UpdateVisuals();
 			break;
         
         case INV_BTN_EQUIP:
-            CO_SendClientCommand (va ("equip %d", itemSlot));
+			cgImports->SendClientCommand(va ("equip %d", itemSlot));
             UpdateButtonStates();
 			break;
         
@@ -1653,12 +1651,12 @@ void JKG_Inventory_Script_Button ( char **args )
 			break;
         
         case INV_BTN_UNEQUIP:
-            CO_SendClientCommand (va ("unequip %d", itemSlot));
+			cgImports->SendClientCommand(va ("unequip %d", itemSlot));
             UpdateButtonStates();
 			break;
         
         case INV_BTN_UNASSIGN4ACI:
-			CO_InventoryAttachToACI (itemSlot, GetACISlotForItem (inventoryState.selectedItem->id->itemID), 0);
+			cgImports->InventoryAttachToACI( itemSlot, GetACISlotForItem( inventoryState.selectedItem->id->itemID ), 0 );
             UpdateButtonStates();
 			break;
 
@@ -1684,7 +1682,7 @@ void JKG_Inventory_Script_Button ( char **args )
 			break;
 
 		case INV_BTN_DESTROYITEM_CONFIRM:
-			CO_SendClientCommand (va ("inventoryDestroy %d", itemSlot));
+			cgImports->SendClientCommand(va ("inventoryDestroy %d", itemSlot));
 			Menu_ItemDisable (inventoryState.menu, "main_dialog", qfalse);
 			Menu_ShowGroup (inventoryState.menu, "destroyMenu", qfalse);
 			JKG_Inventory_ConstructWeightText(); // Item has been removed, so update weight text
@@ -1718,7 +1716,7 @@ void JKG_Inventory_Script_Button ( char **args )
 			}
 			break;
 		case INV_BTN_SELL_CONFIRM:
-			CO_SendClientCommand (va ("inventorySell %d", itemSlot));
+			cgImports->SendClientCommand(va ("inventorySell %d", itemSlot));
 			Menu_ItemDisable (inventoryState.menu, "main_dialog", qfalse);
 			Menu_ShowGroup (inventoryState.menu, "sellMenu", qfalse);
 			JKG_Inventory_ConstructWeightText(); // Item has been removed, so update weight text
@@ -1740,7 +1738,7 @@ qhandle_t JKG_GetInventoryIcon(unsigned int index)
 	{
 		if(index < MAX_INVENTORY_ITEMS)
 		{
-			return trap_R_RegisterShaderNoMip((char *)CO_InventoryDataRequest (index + 50)); //HACK
+			return trap_R_RegisterShaderNoMip((char *)cgImports->InventoryDataRequest( index + 50 ) ); //HACK
 		}
 		else
 		{
@@ -1751,7 +1749,7 @@ qhandle_t JKG_GetInventoryIcon(unsigned int index)
 	{
 		if(index < MAX_INVENTORY_ITEMS)
 		{
-			return trap_R_RegisterShaderNoMip((char *)CO_InventoryDataRequest (itemsInFilter[index].amount[0] + 50)); //DOUBLE HACK
+			return trap_R_RegisterShaderNoMip((char *)cgImports->InventoryDataRequest( itemsInFilter[index].amount[0] + 50 ));
 		}
 		else
 		{
@@ -1800,7 +1798,7 @@ qboolean JKG_CursorInItem(float cx, float cy, unsigned int feederPos, itemDef_t 
 	cy -= item->window.rect.y;
 	if(ui_inventoryFilter.integer == JKGIFILTER_ALL)
 	{
-		inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+		inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 	}
 	else
 	{
@@ -1911,7 +1909,7 @@ void JKG_Inventory_ConstructToolTip ( int itemNumber, float cX, float cY )
 	//Check for filtering
 	if(ui_inventoryFilter.integer == JKGIFILTER_ALL)
 	{
-		inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+		inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 	}
 	else
 	{
@@ -2033,7 +2031,7 @@ void JKG_Inventory_CheckTooltip ( char **args )
 	if(showToolTip)
 	{
 		cgItemInstance_t *inventory = NULL;
-		inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+		inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 		//Show the tooltip
 		Menu_ShowItemByName(inventoryState.menu, "inventory_tooltest", qtrue);
 		JKG_Inventory_ConstructToolTip((listPtr->startPos > 0) ? (listPtr->startPos+i) : i, DC->cursorx, DC->cursory);
@@ -2100,7 +2098,7 @@ void JKG_Inventory_UpdateVisuals( void )
 {
 	int i;
 	itemDef_t *item = Menu_FindItemByName(inventoryState.menu, "inventory_feederstuff");
-	cgItemInstance_t *inventory = (cgItemInstance_t *)CO_InventoryDataRequest (1);
+	cgItemInstance_t *inventory = (cgItemInstance_t *)cgImports->InventoryDataRequest( 1 );
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int numItems = JKG_Inventory_FeederCount();
 	int maxW = (int)(item->window.rect.w / (listPtr->elementWidth+listPtr->elementSpacingW)); //FIXED

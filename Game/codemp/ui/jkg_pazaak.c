@@ -10,7 +10,6 @@
 
 #include "ui_shared.h"
 #include "ui_local.h"
-#include "ui_crossover.h"
 
 // UI includes
 void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
@@ -985,7 +984,7 @@ void Pazaak_Script_UseCard(char **args) {
 	if (PzkState.hand[card-1].cardid == -1) {
 		return;
 	}
-	CO_SendClientCommand(va("~pzk usecard %i %i", card, PzkState.hand[card-1].param));
+	cgImports->SendClientCommand(va("~pzk usecard %i %i", card, PzkState.hand[card-1].param));
 	PzkState.hand[card-1].cardid = -1;
 	
 	menu = Menus_FindByName("jkg_pazaakholo");
@@ -1106,14 +1105,14 @@ void Pazaak_Script_RemoveSD(char **args) {
 static void Pazaak_Dlg_Exit(int response) {
 	Pazaak_Dialog_Close();
 	if (response == PDLGRESP_YES) {
-		CO_SendClientCommand("~pzk quit");
+		cgImports->SendClientCommand("~pzk quit");
 	}
 }
 
 static void Pazaak_Dlg_Forfeit(int response) {
 	Pazaak_Dialog_Close();
 	if (response == PDLGRESP_YES) {
-		CO_SendClientCommand("~pzk forfeit");
+		cgImports->SendClientCommand("~pzk forfeit");
 	}
 }
 
@@ -1125,7 +1124,7 @@ static void Pazaak_Dlg_Null(int response) {
 static void Pazaak_Dlg_Ok(int response) {
 	Pazaak_Dialog_Close();
 	PzkState.dlgid = 0;
-	CO_SendClientCommand("~pzk acceptdlg");
+	cgImports->SendClientCommand("~pzk acceptdlg");
 }
 
 void Pazaak_Script_OnEsc(char **args) {
@@ -1174,7 +1173,7 @@ static void Pazaak_ConfirmSideDeckDialog(int response) {
 		Menu_ShowItemByName(menu, "sd_buttons", qfalse);
 		Menu_ShowItemByName(menu, "buttons_hitzone", qfalse);
 
-		CO_SendClientCommand(va("~pzk setsd %i %i %i %i %i %i %i %i %i %i",
+		cgImports->SendClientCommand(va("~pzk setsd %i %i %i %i %i %i %i %i %i %i",
 									PzkState.sidedeck[0], PzkState.sidedeck[1],
 									PzkState.sidedeck[2], PzkState.sidedeck[3],
 									PzkState.sidedeck[4], PzkState.sidedeck[5],
@@ -1211,10 +1210,10 @@ void Pazaak_Script_ButtonPress(char **args) {
 	}
 	switch (button) {
 		case PBUTTON_ENDTURN:
-			CO_SendClientCommand("~pzk endturn");
+			cgImports->SendClientCommand("~pzk endturn");
 			break;
 		case PBUTTON_STAND:
-			CO_SendClientCommand("~pzk stand");
+			cgImports->SendClientCommand("~pzk stand");
 			break;
 		case PBUTTON_FORFEIT:
 			PzkState.dlgid = PDLGID_ANY;
@@ -1751,7 +1750,7 @@ void JKG_ProcessPazaak_f() {
 			Menu_ShowItemByName(menu, "sd_buttons", qfalse);
 			Menu_ShowItemByName(menu, "buttons_hitzone", qfalse);
 
-			CO_SendClientCommand(va("~pzk setsdt %i %i %i %i %i %i %i %i %i %i",
+			cgImports->SendClientCommand(va("~pzk setsdt %i %i %i %i %i %i %i %i %i %i",
 										PzkState.sidedeck[0], PzkState.sidedeck[1],
 										PzkState.sidedeck[2], PzkState.sidedeck[3],
 										PzkState.sidedeck[4], PzkState.sidedeck[5],

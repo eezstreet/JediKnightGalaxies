@@ -1,7 +1,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // q_shared.c -- stateless support routines that are included in each code dll
-#include "q_shared.h"
+#include "../game/q_shared.h"
 
 
 #include "../game/jkg_gangwars.h"
@@ -152,13 +152,39 @@ char *COM_SkipPath (char *pathname)
 COM_StripExtension
 ============
 */
-void COM_StripExtension( const char *in, char *out ) {
-	while ( *in && *in != '.' ) {
-		*out++ = *in++;
-	}
-	*out = 0;
+void COM_StripExtension( const char *in, char *out, int destsize )
+{
+	const char *dot = strrchr(in, '.'), *slash;
+	if (dot && (!(slash = strrchr(in, '/')) || slash < dot))
+		Q_strncpyz(out, in, (destsize < dot-in+1 ? destsize : dot-in+1));
+	else
+		Q_strncpyz(out, in, destsize);
 }
 
+/*
+============
+COM_CompareExtension
+
+string compare the end of the strings and return qtrue if strings match
+============
+*/
+qboolean COM_CompareExtension(const char *in, const char *ext)
+{
+	int inlen, extlen;
+
+	inlen = strlen(in);
+	extlen = strlen(ext);
+
+	if(extlen <= inlen)
+	{
+		in += inlen - extlen;
+
+		if(!Q_stricmp(in, ext))
+			return qtrue;
+	}
+
+	return qfalse;
+}
 
 /*
 ==================
@@ -359,7 +385,7 @@ void COM_ParseError( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	Q_vsnprintf (string, 1024, format, argptr);
+	Q_vsnprintf (string, sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string);
@@ -371,7 +397,7 @@ void COM_ParseWarning( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	Q_vsnprintf (string, 1024, format, argptr);
+	Q_vsnprintf (string, sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string);
@@ -852,6 +878,27 @@ int Q_isalpha( int c )
 	return ( 0 );
 }
 
+qboolean Q_isanumber( const char *s )
+{
+	char *p;
+	double ret;
+
+	if( *s == '\0' )
+		return qfalse;
+
+	ret = strtod( s, &p );
+	
+	if ( ret == HUGE_VAL || errno == ERANGE )
+		return qfalse;
+
+	return (qboolean)(*p == '\0');
+}
+
+qboolean Q_isintegral( float f )
+{
+	return (qboolean)( (int)f == f );
+}
+
 char* Q_strrchr( const char* string, char c )
 {
 	char cc = c;
@@ -993,6 +1040,38 @@ void Q_strcat( char *dest, int size, const char *src ) {
 	Q_strncpyz( dest + l1, src, size - l1 );
 }
 
+/*
+* Find the first occurrence of find in s.
+*/
+const char *Q_stristr( const char *s, const char *find)
+{
+  char c, sc;
+  size_t len;
+
+  if ((c = *find++) != 0)
+  {
+    if (c >= 'a' && c <= 'z')
+    {
+      c -= ('a' - 'A');
+    }
+    len = strlen(find);
+    do
+    {
+      do
+      {
+        if ((sc = *s++) == 0)
+          return NULL;
+        if (sc >= 'a' && sc <= 'z')
+        {
+          sc -= ('a' - 'A');
+        }
+      } while (sc != c);
+    } while (Q_stricmpn(s, find, len) != 0);
+    s--;
+  }
+  return s;
+}
+
 
 int Q_PrintStrlen( const char *string ) {
 	int			len;
@@ -1052,42 +1131,83 @@ char *Q_CleanStr( char *string ) {
 	return string;
 }
 
-// Jedi Knight Galaxies, source from OJP Basic
-//[OverflowProtection]
 /*
-============
-Q_vsnprintf
+==================
+Q_StripColor
+ 
+Strips coloured strings in-place using multiple passes: "fgs^^56fds" -> "fgs^6fds" -> "fgsfds"
 
-vsnprintf portability:
-
-C99 standard: vsnprintf returns the number of characters (excluding the trailing
-'\0') which would have been written to the final string if enough space had been available
-snprintf and vsnprintf do not write more than size bytes (including the trailing '\0')
-
-win32: _vsnprintf returns the number of characters written, not including the terminating null character,
-or a negative value if an output error occurs. If the number of characters to write exceeds count, then count 
-characters are written and -1 is returned and no trailing '\0' is added.
-
-Q_vsnprintf: always appends a trailing '\0', returns number of characters written (not including terminal \0)
-or returns -1 on failure or if the buffer would be overflowed.
-============
+(Also strips ^8 and ^9)
+==================
 */
-int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr ) {
-	int ret;
+void Q_StripColor(char *text)
+{
+	qboolean doPass = qtrue;
+	char *read;
+	char *write;
 
-#ifdef _WIN32
-	ret = _vsnprintf( dest, size-1, fmt, argptr );
-#else
-	ret = vsnprintf( dest, size, fmt, argptr );
-#endif
-
-	dest[size-1] = '\0';
-	if ( ret < 0 || ret >= size ) {
-		return -1;
+	while ( doPass )
+	{
+		doPass = qfalse;
+		read = write = text;
+		while ( *read )
+		{
+			if ( Q_IsColorStringExt(read) )
+			{
+				doPass = qtrue;
+				read += 2;
+			}
+			else
+			{
+				// Avoid writing the same data over itself
+				if (write != read)
+				{
+					*write = *read;
+				}
+				write++;
+				read++;
+			}
+		}
+		if ( write < read )
+		{
+			// Add trailing NUL byte if string has shortened
+			*write = '\0';
+		}
 	}
-	return ret;
 }
 
+#ifdef _MSC_VER
+/*
+=============
+Q_vsnprintf
+ 
+Special wrapper function for Microsoft's broken _vsnprintf() function.
+MinGW comes with its own snprintf() which is not broken.
+=============
+*/
+
+int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
+{
+	int retval;
+
+	retval = _vsnprintf(str, size, format, ap);
+
+	if(retval < 0 || retval == size)
+	{
+		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
+		// which states that the return value must be the number of
+		// bytes written if the output string had sufficient length.
+		//
+		// Obviously we cannot determine that value from Microsoft's
+		// implementation, so we have no choice but to return size.
+
+		str[size - 1] = '\0';
+		return size;
+	}
+
+	return retval;
+}
+#endif
 
 //Ensiform provided this version of Com_sprintf, which is supposed to be overflow protected and less hacky.
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
@@ -1140,7 +1260,7 @@ varargs versions of all text functions.
 // Optimized and secure version of va, has 4 buffers (so it can be used 4 times in a row without overwriting old results) and
 // cannot overflow. - By BobaFett
 
-char	* QDECL va( char *format, ... ) {
+char	* QDECL va( const char *format, ... ) {
 	va_list		argptr;
 	#define	MAX_VA_STRING	32000
 	#define MAX_VA_BUFFERS 4
@@ -1519,7 +1639,7 @@ void JKG_NewGenericMemoryObject(GenericMemoryObject *gmo, size_t size)
 {
 	gmo->numElements = 0;
 	
-	gmo->elements = malloc(size);
+	gmo->elements = (void**)malloc(size);
 	gmo->memAllocated = 1;
 	gmo->elementSize = size;
 }
@@ -1540,7 +1660,7 @@ void JKG_GenericMemoryObject_AddElement(GenericMemoryObject *gmo, void *element)
 	if(gmo->memAllocated <= gmo->numElements+1)
 	{
 		gmo->memAllocated *= 2;
-		gmo->elements = realloc(gmo->elements, gmo->memAllocated*gmo->elementSize);
+		gmo->elements = (void **)realloc(gmo->elements, gmo->memAllocated*gmo->elementSize);
 	}
 	gmo->elements[gmo->numElements++] = element;
 }
@@ -1563,7 +1683,7 @@ qboolean Text_IsExtColorCode(const char *text) {
 	const char *r, *g, *b;
 	if ( strlen (text) < 4 )
 	{
-	    return 0;
+	    return qfalse;
 	}
 	
 	r = text+1;
@@ -1571,13 +1691,13 @@ qboolean Text_IsExtColorCode(const char *text) {
 	b = text+3;
 	// Get the color levels (if the numbers are invalid, it'll return -1, which we can use to validate)
 	if ((*r < '0' || *r > '9') && (*r < 'a' || *r > 'f') && (*r < 'A' || *r > 'F')) {
-		return 0;
+		return qfalse;
 	}
 	if ((*g < '0' || *g > '9') && (*g < 'a' || *g > 'f') && (*g < 'A' || *g > 'F')) {
-		return 0;
+		return qfalse;
 	}
 	if ((*b < '0' || *b > '9') && (*b < 'a' || *b > 'f') && (*b < 'A' || *b > 'F')) {
-		return 0;
+		return qfalse;
 	}
-	return 1;
+	return qtrue;
 }

@@ -800,11 +800,11 @@ void CG_UQ_FilledBar(float x, float y, float w, float h, float *startColor, floa
 	}
 
 	if((flags&BAR_BG) && bgColor) {	// BAR_BG set, and color specified, use specified bg color
-		Vector4Copy(bgColor, backgroundcolor);
+		VectorCopy4(bgColor, backgroundcolor);
 	}
 
 	if(flags&BAR_LERP_COLOR) {
-		Vector4Average(startColor, endColor, frac, colorAtPos);
+		Vec4Avg(startColor, endColor, frac, colorAtPos);
 	}
 
 	// background

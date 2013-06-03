@@ -574,7 +574,6 @@ struct bgEntity_s
 typedef struct {
 	// state (in / out)
 	playerState_t	*ps;
-	networkState_t	*ns;
 
 	//rww - shared ghoul2 stuff (not actually the same data, but hey)
 	void		*ghoul2;
@@ -634,6 +633,26 @@ typedef struct {
 
 } pmove_t;
 
+// Jedi Knight Galaxies
+typedef struct {
+	playerState_t *ps;
+	
+	void *ghoul2;
+	vec3_t		modelScale;
+	usercmd_t	cmd;
+	int			tracemask;			// collide against these types of surfaces
+
+	animation_t	*animations;
+	qboolean	isRider;			// always false if we're using the vehicle in question
+
+	//rww - bg entitystate access method
+	bgEntity_t	*baseEnt; //base address of the entity array (g_entities or cg_entities)
+	int			entSize; //size of the struct (gentity_t or centity_t) so things can be dynamic
+
+	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
+	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+} vmove_t;
+
 #include "../namespace_begin.h"
 
 extern	pmove_t		*pm;
@@ -652,6 +671,9 @@ extern	pmove_t		*pm;
 // if a full pmove isn't done on the client, you can just update the angles
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
 void Pmove (pmove_t *pmove);
+
+// vehicle pmove
+void Vmove( vmove_t *vmove );
 
 #include "../namespace_end.h"
 
@@ -1781,8 +1803,8 @@ void BG_G2ATSTAngles(void *ghoul2, int time, vec3_t cent_lerpAngles );
 int BG_AnimLength( int index, animNumber_t anim );
 
 //[BugFix2]
-float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns);
-float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns);
+float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex);
+float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex);
 //[/BugFix2]
 
 qboolean BG_InSpecialJump( int anim );
@@ -1814,7 +1836,7 @@ qboolean BG_InSaberLock( int anim );
 void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken, float saberMoveSwingSpeed, float saberSwingSpeed, int saberMove );
 void JKG_ReloadAnimation( int firingMode, int weaponID, int anim, animation_t *anims, float *animSpeed );
 
-void BG_ForcePowerDrain( playerState_t *ps, networkState_t *ns, forcePowers_t forcePower, int overrideAmt );//???
+void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt );//???
 
 void	BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
@@ -1825,7 +1847,6 @@ void	BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad );
 
 void	BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap );
 void	BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );
-void	BG_NetworkStateToExtraState( networkState_t *ns, extraState_t *x );
 
 qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 
@@ -1861,7 +1882,7 @@ void BG_SI_ActivateTrail ( saberInfo_t *saber, float duration );
 void BG_SI_DeactivateTrail ( saberInfo_t *saber, float duration );
 extern void BG_AttachToRancor( void *ghoul2,float rancYaw,vec3_t rancOrigin,int time,qhandle_t *modelList,vec3_t modelScale,qboolean inMouth,vec3_t out_origin,vec3_t out_angles,vec3_t out_axis[3] );
 
-qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, const networkState_t *ns, qboolean PMOVE  );
+qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, qboolean PMOVE  );
 
 extern int forcePowerDarkLight[NUM_FORCE_POWERS];
 

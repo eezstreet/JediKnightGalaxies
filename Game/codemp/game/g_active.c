@@ -729,7 +729,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		// set up for pmove
 		memset (&pm, 0, sizeof(pm));
 		pm.ps = &client->ps;
-		pm.ns = &client->ns;
 		pm.cmd = *ucmd;
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
 		pm.trace = trap_Trace;
@@ -2319,9 +2318,9 @@ void ClientThink_real( gentity_t *ent ) {
 	} 
 
 	// ironsights related crap here
-	if ( !isNPC && ent->client->ns.ironsightsDebounceStart && ent->client->ns.ironsightsDebounceStart <= level.time )
+	if ( !isNPC && ent->client->ps.ironsightsDebounceStart && ent->client->ps.ironsightsDebounceStart <= level.time )
 	{
-		ent->client->ns.ironsightsDebounceStart = 0;
+		ent->client->ps.ironsightsDebounceStart = 0;
 	}
 
 	if (isNPC && (ucmd->serverTime - client->ps.commandTime) < 1)
@@ -3207,7 +3206,6 @@ void ClientThink_real( gentity_t *ent ) {
 	G_CheckMovingLoopingSounds( ent, ucmd );
 
 	pm.ps = &client->ps;
-	pm.ns = &client->ns;
 	pm.cmd = *ucmd;
 	if ( pm.ps->pm_type == PM_DEAD ) {
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
@@ -3421,45 +3419,29 @@ void ClientThink_real( gentity_t *ent ) {
 	{
 		VectorCopy(ent->r.mins, pm.mins);
 		VectorCopy(ent->r.maxs, pm.maxs);
-#if 1
 		if (ent->s.NPC_class == CLASS_VEHICLE &&
 			ent->m_pVehicle )
 		{
-			if ( ent->m_pVehicle->m_pPilot)
-			{ //vehicles want to use their last pilot ucmd I guess
-				if ((level.time - ent->m_pVehicle->m_ucmd.serverTime) > 2000)
-				{ //Previous owner disconnected, maybe
-					ent->m_pVehicle->m_ucmd.serverTime = level.time;
-					ent->client->ps.commandTime = level.time-100;
-					msec = 100;
-				}
+			vmove_t vm;
 
-				memcpy(&pm.cmd, &ent->m_pVehicle->m_ucmd, sizeof(usercmd_t));
-				
-				//no veh can strafe
-				pm.cmd.rightmove = 0;
-				//no crouching or jumping!
-				pm.cmd.upmove = 0;
+			memcpy(&vm.cmd, &ent->m_pVehicle->m_ucmd, sizeof(usercmd_t));
 
-				//NOTE: button presses were getting lost!
-				assert(g_entities[ent->m_pVehicle->m_pPilot->s.number].client);
-				pm.cmd.buttons = (g_entities[ent->m_pVehicle->m_pPilot->s.number].client->pers.cmd.buttons&(BUTTON_ATTACK/*|BUTTON_ALT_ATTACK*/));
-			}
-			if ( ent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
+			// Vehicles can't move up/right/left/down, only forward
+			vm.cmd.upmove = 0;
+			if(!ent->m_pVehicle->m_pPilot)
 			{
-				if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
-				{//ATST crushes anything underneath it
-					gentity_t	*under = &g_entities[ent->client->ps.groundEntityNum];
-					if ( under && under->health && under->takedamage )
-					{
-						vec3_t	down = {0,0,-1};
-						//FIXME: we'll be doing traces down from each foot, so we'll have a real impact origin
-						G_Damage( under, ent, ent, down, under->r.currentOrigin, 100, 0, MOD_CRUSH );
-					}
-				}
+				vm.cmd.buttons = 0;
 			}
+			else
+			{
+				vm.cmd.buttons = g_entities[ent->m_pVehicle->m_pPilot->s.number].client->pers.cmd.buttons;	// FIXED: give me the full range of buttons, not just a bool
+			}
+
+			vm.ps = &ent->client->ps;
+
+			vm.isRider = qfalse;
+			Vmove(&vm);
 		}
-#endif
 	}
 
 	// Since PM cant access clipammo, we'll put it in STAT_AMMO
@@ -3517,7 +3499,7 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->grenadeCookTime = 0;
 	}
 	
-	if ( BG_IsSprinting (&ent->client->ps, &pm.cmd, &ent->client->ns, qfalse) )
+	if ( BG_IsSprinting (&ent->client->ps, &pm.cmd, qfalse) )
 	{
 	    ent->client->ps.eFlags |= EF_SPRINTING;
     }
@@ -3527,7 +3509,24 @@ void ClientThink_real( gentity_t *ent ) {
     }
 
 	/* Run the Pmove (this will generate bg_pmove events */
-	Pmove (&pm);
+	if( ent->client->ps.m_iVehicleNum >= MAX_CLIENTS &&
+		ent->client->ps.clientNum < MAX_CLIENTS )
+	{
+		vmove_t vm;
+		memcpy(&vm.cmd, &ent->client->pers.cmd, sizeof(usercmd_t));
+		vm.cmd.upmove = 0;
+		
+		vm.ps = &ent->client->ps;
+
+		vm.isRider = qtrue;
+
+		Vmove(&vm);
+
+	}
+	else
+	{
+		Pmove (&pm);
+	}
 
 	if ( GetWeaponAmmoClip( ent->client->ps.weapon, ent->client->ps.weaponVariation ))
 	{
@@ -3729,16 +3728,6 @@ void ClientThink_real( gentity_t *ent ) {
 			{
 				ItemUse_Jetpack(ent);
 				G_AddEvent(ent, EV_USE_ITEM0+HI_JETPACK, 0);
-				/*
-				if (ent->client->ps.zoomMode == 0)
-				{
-					G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 1);
-				}
-				else
-				{
-					G_AddEvent(ent, EV_USE_ITEM0+HI_BINOCULARS, 2);
-				}
-				*/
 			}
 			break;
 		case GENCMD_USE_HEALTHDISP:
@@ -3808,12 +3797,10 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x ); // UQ1: Shouldn't this be here too????
 		//rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 	}
 	else {
 		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x );
 	}
 
 	if (isNPC)
@@ -4207,16 +4194,15 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				ent->client->ps.persistant[PERS_CREDITS] = credits;
 
 				// k, let's do some sort of stuffs
-				ent->client->ns = cl->ns;
 				trap_GetUsercmd(ent - g_entities, &ucmd);
 
 				if(ucmd.buttons & BUTTON_IRONSIGHTS)
 				{
-					ent->client->ns.isInSights = qtrue;
+					ent->client->ps.isInSights = qtrue;
 				}
 				else if(ucmd.buttons & BUTTON_SPRINT)
 				{
-					ent->client->ns.isSprinting = qtrue;
+					ent->client->ps.isSprinting = qtrue;
 				}
 				return;
 			} else {
@@ -4317,12 +4303,10 @@ void ClientEndFrame( gentity_t *ent ) {
 	// set the latest infor
 	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x ); // UQ1: Shouldn't this be here too???
 		//rww - 12-03-02 - Don't snap the origin of players! It screws prediction all up.
 	}
 	else {
 		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qfalse );
-		BG_NetworkStateToExtraState( &ent->client->ns, &ent->x );
 	}
 
 	if (isNPC)

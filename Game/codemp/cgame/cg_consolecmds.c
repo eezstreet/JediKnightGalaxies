@@ -7,8 +7,6 @@
 #include "../ui/ui_shared.h"
 #include "bg_saga.h"
 
-#include "cg_crossover.h"
-
 // TEST
 #include "jkg_cg_auxlib.h"
 #include "json/cJSON.h"
@@ -77,7 +75,7 @@ void CG_TargetCommand_f( void ) {
 }
 
 void CG_OpenPartyManagement_f( void ) {
-	CO_PartyMngtNotify(10);
+	uiImports->PartyMngtNotify( 10 );
 }
 
 /*
@@ -246,128 +244,6 @@ static void CG_StartOrbit_f( void ) {
 	}
 }
 
-/*
-static void CG_Camera_f( void ) {
-	char name[1024];
-	trap_Argv( 1, name, sizeof(name));
-	if (trap_loadCamera(name)) {
-		cg.cameraMode = qtrue;
-		trap_startCamera(cg.time);
-	} else {
-		CG_Printf ("Unable to load camera %s\n",name);
-	}
-}
-*/
-
-
-static void PP_MotionBlurCmd(void) {
-	char buff[10];
-	if (trap_Argc() < 2) return;
-	trap_Argv(1, buff, sizeof(buff));
-	cg.motionBlurTime = atoi(buff);
-}
-
-static void PP_Blur(void) {
-	char buff[10];
-	if (trap_Argc() < 3) return;
-	trap_Argv(1, buff, sizeof(buff));
-	cg.blurPasses = atoi(buff);
-	trap_Argv(2, buff, sizeof(buff));
-	cg.blurLevel = atof(buff);
-
-}
-
-static void PP_Noise(void) {
-	char buff[16];
-	if (trap_Argc() < 3) return;
-	trap_Argv(1, buff, sizeof(buff));
-	cg.noise_cintensity = atof(buff);
-	trap_Argv(2, buff, sizeof(buff));
-	cg.noise_dintensity = atof(buff);
-}
-
-static void PP_ColorModCmd(void) {
-	char buff[10];
-	char buff2[10];
-	float newval;
-	if (trap_Argc() < 2) {
-		Com_Printf("Usage: colormod <off/set> [r/g/b][s/r] or [fx/fxi/fxb] or [b/c/i] <new value>\n");
-		return;
-	}
-	trap_Argv(1, buff, sizeof(buff));
-	if (!Q_stricmp(buff,"off")) {
-		cg.colorMod.active=0;
-		return;
-	}
-	if (!Q_stricmp(buff,"set")) {
-		if (!cg.colorMod.active) {
-			// Init defaults
-			cg.colorMod.red_scale = cg.colorMod.green_scale = cg.colorMod.blue_scale = 1;
-			cg.colorMod.red_bias = cg.colorMod.green_bias = cg.colorMod.blue_bias = 0;
-			cg.colorMod.fx = 0;
-			cg.colorMod.fxintensity = 1;
-			cg.colorMod.fxbrightness = 1;
-			cg.colorMod.brightness = 0;
-			cg.colorMod.inversion = 0;
-			cg.colorMod.contrast = 1;
-			cg.colorMod.active=1;
-		}
-		trap_Argv(2, buff, sizeof(buff));
-		trap_Argv(3, buff2, sizeof(buff2));
-		newval = atof(buff2);
-		if (buff[0] == 'r') {
-			if (buff[1] == 's') {
-				cg.colorMod.red_scale = newval;
-			} else {
-				cg.colorMod.red_bias = newval;
-			}
-			return;
-		}
-		if (buff[0] == 'g') {
-			if (buff[1] == 's') {
-				cg.colorMod.green_scale = newval;
-			} else {
-				cg.colorMod.green_bias = newval;
-			}
-			return;
-			
-		}
-		if (buff[0] == 'b') {
-			if (buff[1] == 's') {
-				cg.colorMod.blue_scale = newval;
-			} else if (!buff[1]) {
-				cg.colorMod.brightness = newval;
-			} else {
-				cg.colorMod.blue_bias = newval;
-			}
-			return;
-		}
-		if (buff[0] == 'c') {
-			cg.colorMod.contrast = newval;
-			return;
-		}
-		if (buff[0] == 'i') {
-			cg.colorMod.inversion = newval;
-			return;
-		}
-		if (!Q_stricmp(buff, "fx")) {
-			cg.colorMod.fx = newval;
-			return;
-		}
-		if (!Q_stricmp(buff, "fxi")) {
-			cg.colorMod.fxintensity = newval;
-			return;
-		}
-		if (!Q_stricmp(buff, "fxb")) {
-			cg.colorMod.fxbrightness = newval;
-			return;
-		}
-		Com_Printf("Invalid target\n");
-		return;
-	}
-	Com_Printf("Invalid instruction\n");
-}
-
 static void CG_StartCinematic(void) {
 	if (cg.cinematicState < 1 || cg.cinematicState > 2) {
 		cg.cinematicState = 1;
@@ -434,18 +310,14 @@ int testMasterFinalFunc (asyncTask_t *task) {
 	return 0;
 }
 
-static void CG_TestMaster(void) {
-	JKG_GLCG_Task_Test(testMasterFinalFunc);
-}
-
 static void JKG_OpenInventoryMenu_f ( void )
 {
-    CO_InventoryNotify (0);
+    uiImports->InventoryNotify (0);
 }
 
 void JKG_OpenShopMenu_f ( void )
 {
-	CO_ShopNotify(0);
+	uiImports->ShopNotify( 0 );
 }
 
 static void JKG_UseACI_f ( void )
@@ -564,10 +436,6 @@ static consoleCommand_t	commands[] = {
 	{ "forcenext", CG_NextForcePower_f },
 	{ "forceprev", CG_PrevForcePower_f },
 	// Jedi Knight Galaxies
-	{ "motionblur", PP_MotionBlurCmd },
-	{ "colormod", PP_ColorModCmd },
-	{ "blur", PP_Blur },
-	{ "noise", PP_Noise },
 	{ "startcin", CG_StartCinematic },
 	{ "stopcin", CG_StopCinematic },
 	{ "reloadhud", CG_ReloadHUD },
@@ -582,9 +450,6 @@ static consoleCommand_t	commands[] = {
 	{ "shop", JKG_OpenShopMenu_f },
 	{ "dumpWeaponList", JKG_DumpWeaponList_f },
 	{ "printWeaponList", JKG_PrintWeaponList_f },
-	
-	// TEST
-	{ "cg_testmaster", CG_TestMaster },
 
 #ifdef __AUTOWAYPOINT__
 	{ "awp", AIMod_AutoWaypoint },

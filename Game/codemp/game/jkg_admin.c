@@ -9,7 +9,6 @@
  ***********************************************/
 
 #include "g_local.h"
-#include "g_engine.h"
 #include "jkg_admin.h"
 #include "jkg_bans.h"
 
@@ -237,7 +236,8 @@ static void AdmCmd_AmPlayers(gentity_t *ent, int clientNum, int rank)
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		if (level.clients[i].pers.connected == CON_CONNECTED) {
-			AddToBuffer(va("^5%-2i ^7| ^5%-40s ^7| ^5%-3i ^7| ^5%-4s ^7| ^5%-4i ^7| ^5%s\n", i, SanitizeName(level.clients[i].pers.netname), 0, adminRanksShort[level.clients[i].sess.adminRank], svs->clients[i].ping, NET_AdrToStringNoPort(svs->clients[i].netchan.remoteAddress) ));
+			// FIXME: This is broken
+			//AddToBuffer(va("^5%-2i ^7| ^5%-40s ^7| ^5%-3i ^7| ^5%-4s ^7| ^5%-4i ^7| ^5%s\n", i, SanitizeName(level.clients[i].pers.netname), 0, adminRanksShort[level.clients[i].sess.adminRank], svs->clients[i].ping, NET_AdrToStringNoPort(svs->clients[i].netchan.remoteAddress) ));
 		}
 	}
 	AddToBuffer("^7---+------------------------------------------+-----+------+------+-----------------\n\n");
@@ -753,7 +753,8 @@ static void AdmCmd_AmSilence(gentity_t *ent, int clientNum, int rank)
 \******************************************************/
 static void AdmCmd_AmBan(gentity_t *ent, int clientNum, int rank)
 {
-	int target;
+	// FIXME: This is broken
+	/*int target;
 	int ret;
 	const char *reason;
 
@@ -793,7 +794,7 @@ static void AdmCmd_AmBan(gentity_t *ent, int clientNum, int rank)
 		G_LogPrintf("Admin: %s has banned %s, duration: '%s' - Ban ID: %i\n", SanitizeName(ent->client->pers.netname), SanitizeName(level.clients[target].pers.netname), Cmd_Argv(2), ret);
 		trap_DropClient(target, "was banned");
 		trap_SendServerCommand(clientNum, va("print \"Player %s has been banned. Ban id: %i\n\"", SanitizeName(level.clients[target].pers.netname), ret));
-	}
+	}*/
 }
 
 /******************************************************\
@@ -1053,7 +1054,7 @@ static void RconCmd_AmCP(void)
 \******************************************************/
 static void RconCmd_AmBan(void)
 {
-	int target;
+	/*int target;
 	const char *reason;
 	int ret;
 	
@@ -1090,7 +1091,7 @@ static void RconCmd_AmBan(void)
 		G_LogPrintf("RconAdmin: (%s) %s has been banned, duration: '%s' - Ban ID: %i\n", NET_RconAdrToString(), SanitizeName(level.clients[target].pers.netname), Cmd_Argv(2), ret);
 		trap_DropClient(target, "was banned");
 		G_Printf("Player %s has been banned. Ban id: %i\n", SanitizeName(level.clients[target].pers.netname), ret);
-	}
+	}*/
 }
 
 /******************************************************\

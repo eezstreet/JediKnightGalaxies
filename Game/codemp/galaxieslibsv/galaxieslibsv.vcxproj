@@ -50,7 +50,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Build\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/GalaxiesLibSv\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../$(Configuration)/Dlls\</OutDir>
@@ -214,14 +214,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gls_bspdecrypter.c" />
-    <ClCompile Include="gls_challenge.c" />
-    <ClCompile Include="gls_crashreport.c" />
-    <ClCompile Include="gls_engine.c" />
-    <ClCompile Include="gls_enginefuncs.c" />
     <ClCompile Include="gls_hrtimer.c" />
     <ClCompile Include="gls_main.c" />
-    <ClCompile Include="gls_stresslevel.c" />
     <ClCompile Include="..\libraries\json\cJSON.c" />
     <ClCompile Include="..\libraries\encoding\base128.c" />
     <ClCompile Include="..\libraries\encoding\bitstream.c" />

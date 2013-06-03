@@ -1008,6 +1008,10 @@ void			trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
 int				trap_RealTime(qtime_t *qtime);
 void			trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
+// crossover
+void			trap_Syscall_UI( void );
+void			trap_Syscall_CG( void );
+
 #include "../namespace_end.h"
 
 //

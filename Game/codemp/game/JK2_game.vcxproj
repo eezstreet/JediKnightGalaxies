@@ -58,7 +58,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/Dlls\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/JK2game\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Build/base\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/JK2game\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
@@ -70,7 +70,7 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jampgamex86</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">gamex86</TargetName>
     <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -207,8 +207,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;../;../libraries/libcurl/include;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;BUILDING_REF_GL;Debug;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;JK2AWARDS;CURL_STATICLIB;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;../;../libraries/libcurl/include;..\libraries;..\shared;..\libraries\Detour\Include;..\libraries\Recast\Include;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;BUILDING_REF_GL;Debug;WIN32;_WINDOWS;MISSIONPACK;QAGAME;_JK2;CURL_STATICLIB;_PHASE1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -239,7 +239,7 @@
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>winmm.lib;ws2_32.lib;libeay32.lib;dbghelp.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)jampgamex86.dll</OutputFile>
+      <OutputFile>$(OutDir)gamex86.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../libraries/libcurl;../libraries/openssl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>.\JK2_game.def</ModuleDefinitionFile>
@@ -284,6 +284,7 @@
     <ClCompile Include="bg_saberLoad.c" />
     <ClCompile Include="bg_slidemove.c" />
     <ClCompile Include="bg_vehicleLoad.c" />
+    <ClCompile Include="bg_vmove.c" />
     <ClCompile Include="bg_weapons.c" />
     <ClCompile Include="bg_weapons_load.c" />
     <ClCompile Include="g_active.c" />
@@ -293,7 +294,6 @@
     <ClCompile Include="g_cmds.c" />
     <ClCompile Include="g_combat.c" />
     <ClCompile Include="g_crash.c" />
-    <ClCompile Include="g_engine.c" />
     <ClCompile Include="g_exphysics.c" />
     <ClCompile Include="g_ICARUScb.c" />
     <ClCompile Include="g_items.c" />
@@ -305,7 +305,6 @@
     <ClCompile Include="g_mover.c" />
     <ClCompile Include="g_nav.c" />
     <ClCompile Include="g_navnew.c" />
-    <ClCompile Include="g_network.c" />
     <ClCompile Include="g_object.c" />
     <ClCompile Include="g_session.c" />
     <ClCompile Include="g_spawn.c" />
@@ -346,7 +345,6 @@
     <ClCompile Include="jkg_threading.c" />
     <ClCompile Include="jkg_threadingsq.c" />
     <ClCompile Include="jkg_utilityfunc.c" />
-    <ClCompile Include="networkstate.c" />
     <ClCompile Include="NPC_AI_Humanoid.c" />
     <ClCompile Include="NPC_Animal.c" />
     <ClCompile Include="NPC_Conversations.c" />
@@ -502,12 +500,10 @@
     <ClInclude Include="chars.h" />
     <ClInclude Include="..\shared\qcommon\disablewarnings.h" />
     <ClInclude Include="..\shared\ghoul2\G2.h" />
-    <ClInclude Include="g_engine.h" />
     <ClInclude Include="g_headers.h" />
     <ClInclude Include="g_ICARUScb.h" />
     <ClInclude Include="g_local.h" />
     <ClInclude Include="g_nav.h" />
-    <ClInclude Include="g_network.h" />
     <ClInclude Include="g_public.h" />
     <ClInclude Include="g_team.h" />
     <ClInclude Include="inv.h" />

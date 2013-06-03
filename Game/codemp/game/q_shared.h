@@ -18,17 +18,25 @@
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
+
 // Include Global Definitions Header...
 #include "../game/z_global_defines.h"
+#define PRODUCT_NAME		"jkgalaxies"
+
+#define CLIENT_WINDOW_TITLE "Jedi Knight Galaxies"
+#define CLIENT_CONSOLE_TITLE "Jedi Knight Galaxies Console"
+#define HOMEPATH_NAME_UNIX ".jkgalaxies"
+#define HOMEPATH_NAME_WIN "JKGalaxies"
+#define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
 
 #define MAX_TEAMNAME 32
 
-#include "qcommon/disablewarnings.h"
+#include "../qcommon/disablewarnings.h"
 
-#include "teams.h" //npc team stuff
+#include "../game/teams.h" //npc team stuff
 #include <time.h>
 
 // vvvv lol --eez
@@ -83,6 +91,11 @@ void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int e
 
 #define VALIDSTRING( a )	( ( a != 0 ) && ( a[0] != 0 ) )
 
+//JAC: Added
+#define ARRAY_LEN( x ) ( sizeof( x ) / sizeof( *(x) ) )
+#define STRING( a ) #a
+#define XSTRING( a ) STRING( a )
+
 /*
 #define G2_EHNANCEMENTS
 
@@ -95,15 +108,6 @@ void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int e
 #define MP_BONECACHE
 #endif
 */
-
-#ifndef FINAL_BUILD
-#define G2_PERFORMANCE_ANALYSIS
-#define _FULL_G2_LEAK_CHECKING
-extern int g_Ghoul2Allocations;
-extern int g_G2ServerAlloc;
-extern int g_G2ClientAlloc;
-extern int g_G2AllocServer;
-#endif
 
 /**********************************************************************
   VM Considerations
@@ -142,262 +146,400 @@ extern int g_G2AllocServer;
 #include <ctype.h>
 #include <limits.h>
 
-// Special min treatment for Xbox C++ version
-
-#ifdef _XBOX
-#define min(x,y) ((x)<(y)?(x):(y))
-#define max(x,y) ((x)>(y)?(x):(y))
-
-#define tvector(T) std::vector< T >
-#define tdeque(T) std::deque< T >
-
-#define tlist(T) std::list< T >
-#define tslist(T) std::slist< T >
-
-#define tset(T) std::set< T, std::less< T > >
-#define tmultiset(T) std::multiset< T, std::less< T > >
-
-#define tcset(T,C) std::set< T, C >
-#define tcmultiset(T,C) std::multiset< T, C >
-
-#define tmap(K,T) std::map< K, T, std::less< K > >
-#define tmultimap(K,T) std::multimap< K, T, std::less< K > >
-
-#define tcmap(K,T,C) std::map< K, T, C >
-#define tcmultimap(K,T,C) std::multimap< K, T, C >
+//Ignore __attribute__ on non-gcc platforms
+#if !defined(__GNUC__) && !defined(__attribute__)
+	#define __attribute__(x)
 #endif
 
+#if defined(__GNUC__)
+	#define UNUSED_VAR __attribute__((unused))
+#else
+	#define UNUSED_VAR
 #endif
 
-#ifdef _WIN32
+#if (defined _MSC_VER)
+	#define Q_EXPORT __declspec(dllexport)
+#elif (defined __SUNPRO_C)
+	#define Q_EXPORT __global
+#elif ((__GNUC__ >= 3) && (!__EMX__) && (!sun))
+	#define Q_EXPORT __attribute__((visibility("default")))
+#else
+	#define Q_EXPORT
+#endif
 
-//#pragma intrinsic( memset, memcpy )
-
+#if defined(__linux__) && !defined(__GCC__)
+#define Q_EXPORT_C// extern "C"
+#else
+#define Q_EXPORT_C
 #endif
 
 // this is the define for determining if we have an asm version of a C function
-#if (defined _M_IX86 || defined __i386__) && !defined __sun__  && !defined __LCC__
-#define id386	1
+#if (defined(_M_IX86) || defined(__i386__)) && !defined(__sun__) && !defined(__LCC__)
+	#define id386	1
 #else
-#define id386	0
+	#define id386	0
 #endif
 
 #if (defined(powerc) || defined(powerpc) || defined(ppc) || defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
-#define idppc	1
+	#define idppc	1
 #else
-#define idppc	0
+	#define idppc	0
+#endif
+
 #endif
 
 // for windows fastcall option
 
-#define	QDECL
+// the mac compiler can't handle >32k of locals, so we
+// just waste space and make big arrays static...
+#define MAC_STATIC //RAZFIXME
 
-short   ShortSwap (short l);
-int		LongSwap (int l);
-float	FloatSwap (const float *f);
+short ShortSwap( short l );
+int LongSwap( int l );
+float FloatSwap( const float *f );
 
-//======================= WIN32 DEFINES =================================
 
+// for windows fastcall option
+#define QDECL
+#define QCALL
+
+// Win64
+#if defined(_WIN64) || defined(__WIN64__)
+
+	#define idx64
+
+	#undef QDECL
+	#define QDECL __cdecl
+
+	#undef QCALL
+	#define QCALL __stdcall
+
+	#if defined(_MSC_VER)
+		#define OS_STRING "win_msvc64"
+	#elif defined(__MINGW64__)
+		#define OS_STRING "win_mingw64"
+	#endif
+
+	#define QINLINE __inline
+	#define PATH_SEP '\\'
+
+	#if defined(__WIN64__)
+		#define ARCH_STRING "x64"
+	#elif defined(_M_ALPHA)
+		#define ARCH_STRING "AXP"
+	#endif
+
+	#define Q3_LITTLE_ENDIAN
+
+	#define DLL_EXT ".dll"
+#endif
+
+// Win32
 #ifdef WIN32
 
-#define	MAC_STATIC
+	#undef QDECL
+	#define	QDECL __cdecl
 
-#undef QDECL
-#define	QDECL	__cdecl
+	#undef QCALL
+	#define QCALL __stdcall
 
-// buildstring will be incorporated into the version string
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define	CPUSTRING	"win-x86"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"win-AXP"
+	#if defined(_MSC_VER)
+		#define OS_STRING "win_msvc"
+	#elif defined(__MINGW32__)
+		#define OS_STRING "win_mingw"
+	#endif
+
+	#define ID_INLINE __inline
+	#define PATH_SEP '\\'
+
+	#if defined(_M_IX86) || defined(__i386__)
+		#define ARCH_STRING "x86"
+	#elif defined _M_ALPHA
+		#define ARCH_STRING "AXP"
+	#endif
+
+	#define Q3_LITTLE_ENDIAN
+
+	#define DLL_EXT ".dll"
+
 #endif
+
+
+// ================================================================
+//
+// MAC OS X DEFINES
+//
+// ================================================================
+
+#ifdef MACOS_X
+
+	#include <sys/mman.h>
+    #include <unistd.h>
+
+	#define __cdecl
+	#define __declspec(x)
+	#define stricmp strcasecmp
+	#define ID_INLINE /*inline*/ 
+
+    #define OS_STRING "MacOSX"
+
+	#ifdef __ppc__
+		#define CPUSTRING "MacOSX-ppc"
+	#elif defined __i386__
+		#define CPUSTRING "MacOSX-i386"
+	#else
+		#define CPUSTRING "MacOSX-other"
+	#endif
+
+	#define	PATH_SEP	'/'
+
+	#define __rlwimi(out, in, shift, maskBegin, maskEnd) asm("rlwimi %0,%1,%2,%3,%4" : "=r" (out) : "r" (in), "i" (shift), "i" (maskBegin), "i" (maskEnd))
+	#define __dcbt(addr, offset) asm("dcbt %0,%1" : : "b" (addr), "r" (offset))
+
+	static inline unsigned int __lwbrx(register void *addr, register int offset) {
+		register unsigned int word;
+
+		asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
+		return word;
+	}
+
+	static inline unsigned short __lhbrx(register void *addr, register int offset) {
+		register unsigned short halfword;
+
+		asm("lhbrx %0,%2,%1" : "=r" (halfword) : "r" (addr), "b" (offset));
+		return halfword;
+	}
+
+	static inline float __fctiw(register float f) {
+		register float fi;
+
+		asm("fctiw %0,%1" : "=f" (fi) : "f" (f));
+		return fi;
+	}
+
+    #if defined(__i386__)
+        #define ARCH_STRING "i386"
+    #elif defined(__x86_64__)
+        #define idx64
+        #define ARCH_STRING "x86_64"
+    #elif defined(__powerpc64__)
+        #define ARCH_STRING "ppc64"
+    #elif defined(__powerpc__)
+        #define ARCH_STRING "ppc"
+    #endif
+
+    #define DLL_EXT ".dylib"
+
+#if BYTE_ORDER == BIG_ENDIAN
+#define Q3_BIG_ENDIAN
 #else
-#ifdef _M_IX86
-#define	CPUSTRING	"win-x86-debug"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"win-AXP-debug"
-#endif
+#define Q3_LITTLE_ENDIAN
 #endif
 
-#define ID_INLINE __inline 
 
-static ID_INLINE short BigShort( short l) { return ShortSwap(l); }
-#define LittleShort
-static ID_INLINE int BigLong(int l) { return LongSwap(l); }
-#define LittleLong
-static ID_INLINE float BigFloat(const float *l) { FloatSwap(l); }
-#define LittleFloat
+#endif // MACOS_X
 
-#define	PATH_SEP '\\'
 
-#endif
-
-//======================= MAC OS X DEFINES =====================
-
-#if defined(MACOS_X)
-
-#define MAC_STATIC
-#define __cdecl
-#define __declspec(x)
-#define stricmp strcasecmp
-#define ID_INLINE inline 
-
-#ifdef __ppc__
-#define CPUSTRING	"MacOSX-ppc"
-#elif defined __i386__
-#define CPUSTRING	"MacOSX-i386"
-#else
-#define CPUSTRING	"MacOSX-other"
-#endif
-
-#define	PATH_SEP	'/'
-
-#define __rlwimi(out, in, shift, maskBegin, maskEnd) asm("rlwimi %0,%1,%2,%3,%4" : "=r" (out) : "r" (in), "i" (shift), "i" (maskBegin), "i" (maskEnd))
-#define __dcbt(addr, offset) asm("dcbt %0,%1" : : "b" (addr), "r" (offset))
-
-static inline unsigned int __lwbrx(register void *addr, register int offset) {
-    register unsigned int word;
-    
-    asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
-    return word;
-}
-
-static inline unsigned short __lhbrx(register void *addr, register int offset) {
-    register unsigned short halfword;
-    
-    asm("lhbrx %0,%2,%1" : "=r" (halfword) : "r" (addr), "b" (offset));
-    return halfword;
-}
-
-static inline float __fctiw(register float f) {
-    register float fi;
-    
-    asm("fctiw %0,%1" : "=f" (fi) : "f" (f));
-
-    return fi;
-}
-
-#define BigShort
-static inline short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-static inline int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-static inline float LittleFloat (const float l) { return FloatSwap(&l); }
-
-#endif
-
-//======================= MAC DEFINES =================================
+// ================================================================
+//
+// MAC DEFINES
+//
+// ================================================================
 
 #ifdef __MACOS__
 
-#include <MacTypes.h>
-#define	MAC_STATIC
-#define ID_INLINE inline 
+	#include <MacTypes.h>
+	#define ID_INLINE inline 
 
-#define	CPUSTRING	"MacOS-PPC"
+	#define	CPUSTRING "MacOS-PPC"
 
-#define	PATH_SEP ':'
+	#define	PATH_SEP ':'
 
-void Sys_PumpEvents( void );
+	void Sys_PumpEvents( void );
 
-#define BigShort
-static inline short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-static inline int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-static inline float LittleFloat (const float l) { return FloatSwap(&l); }
+	#define BigShort
+	static inline short LittleShort( short l ) { return ShortSwap( l ); }
+	#define BigLong
+	static inline int LittleLong( int l ) { return LongSwap( l ); }
+	#define BigFloat
+	static inline float LittleFloat( const float l ) { return FloatSwap( &l ); }
 
-#endif
+	#define DLL_EXT ".dylib"
 
-//======================= LINUX DEFINES =================================
+#endif // __MACOS__
 
-// the mac compiler can't handle >32k of locals, so we
-// just waste space and make big arrays static...
+
+// ================================================================
+//
+// LINUX DEFINES
+//
+// ================================================================
+
 #ifdef __linux__
 
-// bk001205 - from Makefile
-#define stricmp strcasecmp
+	#include <sys/mman.h>
+	#include <unistd.h>
 
-#define	MAC_STATIC // bk: FIXME
-#define ID_INLINE inline 
+	// bk001205 - from Makefile
+	#define stricmp strcasecmp
 
-#ifdef __i386__
-#define	CPUSTRING	"linux-i386"
-#elif defined __axp__
-#define	CPUSTRING	"linux-alpha"
+	#define ID_INLINE /*inline*/
+
+	#define	PATH_SEP '/'
+	#define RAND_MAX 2147483647
+
+	#if defined(__linux__)
+		#define OS_STRING "linux"
+	#else
+		#define OS_STRING "kFreeBSD"
+	#endif
+
+	#ifdef __clang__
+		#define QINLINE static inline
+	#else
+		#define QINLINE inline
+	#endif
+
+	#define PATH_SEP '/'
+
+	#if defined(__i386__)
+		#define ARCH_STRING "i386"
+	#elif defined(__x86_64__)
+		#define idx64
+		#define ARCH_STRING "x86_64"
+	#elif defined(__powerpc64__)
+		#define ARCH_STRING "ppc64"
+	#elif defined(__powerpc__)
+		#define ARCH_STRING "ppc"
+	#elif defined(__s390__)
+		#define ARCH_STRING "s390"
+	#elif defined(__s390x__)
+		#define ARCH_STRING "s390x"
+	#elif defined(__ia64__)
+		#define ARCH_STRING "ia64"
+	#elif defined(__alpha__)
+		#define ARCH_STRING "alpha"
+	#elif defined(__sparc__)
+		#define ARCH_STRING "sparc"
+	#elif defined(__arm__)
+		#define ARCH_STRING "arm"
+	#elif defined(__cris__)
+		#define ARCH_STRING "cris"
+	#elif defined(__hppa__)
+		#define ARCH_STRING "hppa"
+	#elif defined(__mips__)
+		#define ARCH_STRING "mips"
+	#elif defined(__sh__)
+		#define ARCH_STRING "sh"
+	#endif
+
+	#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
+		#define Q3_BIG_ENDIAN
+	#else
+		#define Q3_LITTLE_ENDIAN
+	#endif
+
+	#define DLL_EXT ".so"
+
+#endif
+
+	// BSD
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+
+	#include <sys/types.h>
+	#include <machine/endian.h>
+	
+	#ifndef __BSD__
+		#define __BSD__
+	#endif
+	
+	#if defined(__FreeBSD__)
+		#define OS_STRING "freebsd"
+	#elif defined(__OpenBSD__)
+		#define OS_STRING "openbsd"
+	#elif defined(__NetBSD__)
+		#define OS_STRING "netbsd"
+	#endif
+	
+	#define QINLINE inline
+	#define PATH_SEP '/'
+	
+	#if defined(__i386__)
+		#define ARCH_STRING "i386"
+	#elif defined(__amd64__)
+		#define idx64
+		#define ARCH_STRING "amd64"
+	#elif defined(__axp__)
+		#define ARCH_STRING "alpha"
+	#endif
+	
+	#if BYTE_ORDER == BIG_ENDIAN
+		#define Q3_BIG_ENDIAN
+	#else
+		#define Q3_LITTLE_ENDIAN
+	#endif
+	
+	#define DLL_EXT ".so"
+
+#endif
+// catch missing defines in above blocks
+#if !defined(OS_STRING)
+	#error "Operating system not supported"
+#endif
+#if !defined(ARCH_STRING)
+	#error "Architecture not supported"
+#endif
+#if !defined(ID_INLINE)
+	#error "ID_INLINE not defined"
+#endif
+#if !defined(PATH_SEP)
+	#error "PATH_SEP not defined"
+#endif
+#if !defined(DLL_EXT)
+	#error "DLL_EXT not defined"
+#endif
+
+// endianness
+void CopyShortSwap( void *dest, void *src );
+void CopyLongSwap( void *dest, void *src );
+short ShortSwap( short l );
+int LongSwap( int l );
+float FloatSwap( const float *f );
+
+#if defined(Q3_BIG_ENDIAN) && defined(Q3_LITTLE_ENDIAN)
+	#error "Endianness defined as both big and little"
+#elif defined(Q3_BIG_ENDIAN)
+	#define CopyLittleShort( dest, src )	CopyShortSwap( dest, src )
+	#define CopyLittleLong( dest, src )		CopyLongSwap( dest, src )
+	#define LittleShort( x )				ShortSwap( x )
+	#define LittleLong( x )					LongSwap( x )
+	#define LittleFloat( x )				FloatSwap( &x )
+	#define BigShort
+	#define BigLong
+	#define BigFloat
+#elif defined( Q3_LITTLE_ENDIAN )
+	#define CopyLittleShort( dest, src )	Com_Memcpy(dest, src, 2)
+	#define CopyLittleLong( dest, src )		Com_Memcpy(dest, src, 4)
+	#define LittleShort
+	#define LittleLong
+	#define LittleFloat
+	#define BigShort( x )					ShortSwap( x )
+	#define BigLong( x )					LongSwap( x )
+	#define BigFloat( x )					FloatSwap( &x )
 #else
-#define	CPUSTRING	"linux-other"
+	#error "Endianness not defined"
 #endif
 
-#define	PATH_SEP '/'
 
-// bk001205 - try
-#ifdef Q3_STATIC
-#define	GAME_HARD_LINKED
-#define	CGAME_HARD_LINKED
-#define	UI_HARD_LINKED
-#define	BOTLIB_HARD_LINKED
-#endif
-
-#if !idppc
-inline static short BigShort( short l) { return ShortSwap(l); }
-#define LittleShort
-inline static int BigLong(int l) { return LongSwap(l); }
-#define LittleLong
-inline static float BigFloat(const float *l) { return FloatSwap(l); }
-#define LittleFloat
+// platform string
+#if defined(NDEBUG)
+	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
 #else
-#define BigShort
-inline static short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-inline static int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-inline static float LittleFloat (const float *l) { return FloatSwap(l); }
-#endif
-
-#endif
-
-//======================= FreeBSD DEFINES =====================
-#ifdef __FreeBSD__ // rb010123
-
-#define stricmp strcasecmp
-
-#define MAC_STATIC
-#define ID_INLINE inline 
-
-#ifdef __i386__
-#define CPUSTRING       "freebsd-i386"
-#elif defined __axp__
-#define CPUSTRING       "freebsd-alpha"
-#else
-#define CPUSTRING       "freebsd-other"
-#endif
-
-#define	PATH_SEP '/'
-
-// bk010116 - omitted Q3STATIC (see Linux above), broken target
-
-#if !idppc
-static short BigShort( short l) { return ShortSwap(l); }
-#define LittleShort
-static int BigLong(int l) { LongSwap(l); }
-#define LittleLong
-static float BigFloat(const float *l) { FloatSwap(l); }
-#define LittleFloat
-#else
-#define BigShort
-static short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-static int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-static float LittleFloat (const float *l) { return FloatSwap(l); }
-#endif
-
+	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
 #endif
 
 //=============================================================
-
+// TYPE DEFINITIONS
 //=============================================================
 
 typedef unsigned char 		byte;
@@ -405,8 +547,18 @@ typedef unsigned short		word;
 typedef unsigned long		ulong;
 
 typedef enum {qfalse, qtrue}	qboolean;
-#ifdef _XBOX
-#define	qboolean	int		//don't want strict type checking on the qboolean
+
+typedef union {
+	float f;
+	int i;
+	unsigned int ui;
+} floatint_t;
+
+#ifndef min
+	#define min(x,y) ((x)<(y)?(x):(y))
+#endif
+#ifndef max
+	#define max(x,y) ((x)>(y)?(x):(y))
 #endif
 
 typedef int		qhandle_t;
@@ -415,6 +567,51 @@ typedef int		fxHandle_t;
 typedef int		sfxHandle_t;
 typedef int		fileHandle_t;
 typedef int		clipHandle_t;
+
+//Raz: can't think of a better place to put this atm,
+//		should probably be in the platform specific definitions
+#if defined (_MSC_VER) && (_MSC_VER >= 1600)
+
+	#include <stdint.h>
+
+	// vsnprintf is ISO/IEC 9899:1999
+	// abstracting this to make it portable
+	int Q_vsnprintf( char *str, size_t size, const char *format, va_list args );
+
+#elif defined (_MSC_VER)
+
+	#include <io.h>
+
+	typedef signed __int64 int64_t;
+	typedef signed __int32 int32_t;
+	typedef signed __int16 int16_t;
+	typedef signed __int8  int8_t;
+	typedef unsigned __int64 uint64_t;
+	typedef unsigned __int32 uint32_t;
+	typedef unsigned __int16 uint16_t;
+	typedef unsigned __int8  uint8_t;
+
+	// vsnprintf is ISO/IEC 9899:1999
+	// abstracting this to make it portable
+	int Q_vsnprintf( char *str, size_t size, const char *format, va_list args );
+#else // not using MSVC
+
+	#include <stdint.h>
+
+	#define Q_vsnprintf vsnprintf
+
+#endif
+
+#define PAD(base, alignment)	(((base)+(alignment)-1) & ~((alignment)-1))
+#define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
+
+#define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
+
+#ifdef __GNUC__
+#define QALIGN(x) __attribute__((aligned(x)))
+#else
+#define QALIGN(x)
+#endif
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -563,8 +760,8 @@ typedef enum {
 
 void *Hunk_Alloc( int size, ha_pref preference );
 
-void Com_Memset (void* dest, const int val, const size_t count);
-void Com_Memcpy (void* dest, const void* src, const size_t count);
+#define Com_Memset memset
+#define Com_Memcpy memcpy
 
 #define CIN_system	1
 #define CIN_loop	2
@@ -601,6 +798,18 @@ typedef	int	fixed16_t;
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
+#endif
+
+#if defined(_MSC_VER)
+static __inline long Q_ftol(float f)
+{
+	return (long)f;
+}
+#else
+static inline long Q_ftol(float f)
+{
+	return (long)f;
+}
 #endif
 
 
@@ -1248,6 +1457,8 @@ extern	vec4_t		colorDkBlue;
 #define Q_COLOR_ESCAPE	'^'
 // you MUST have the last bit on here about colour strings being less than 7 or taiwanese strings register as colour!!!!
 #define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE && *((p)+1) <= '9' && *((p)+1) >= '0' )
+// Correct version of the above for Q_StripColor
+#define Q_IsColorStringExt(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isdigit(*((p)+1))) // ^[0-9]
 
 
 #define COLOR_BLACK		'0'
@@ -1330,6 +1541,32 @@ void ByteToDir( int b, vec3_t dir );
 #define minimum(x,y) ((x)<(y)?(x):(y))
 #define maximum(x,y) ((x)>(y)?(x):(y))
 
+#define				VectorAddM( vec1, vec2, vecOut )		((vecOut)[0]=(vec1)[0]+(vec2)[0], (vecOut)[1]=(vec1)[1]+(vec2)[1], (vecOut)[2]=(vec1)[2]+(vec2)[2])
+#define				VectorSubtractM( vec1, vec2, vecOut )	((vecOut)[0]=(vec1)[0]-(vec2)[0], (vecOut)[1]=(vec1)[1]-(vec2)[1], (vecOut)[2]=(vec1)[2]-(vec2)[2])
+#define				VectorScaleM( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale))
+#define				VectorScale4M( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale), (vecOut)[3]=(vecIn)[3]*(scale))
+#define				VectorMAM( vec1, scale, vec2, vecOut )	((vecOut)[0]=(vec1)[0]+(vec2)[0]*(scale), (vecOut)[1]=(vec1)[1]+(vec2)[1]*(scale), (vecOut)[2]=(vec1)[2]+(vec2)[2]*(scale))
+#define				VectorLengthM( vec )					VectorLength( vec )
+#define				VectorLengthSquaredM( vec )				VectorLengthSquared( vec )
+#define				DistanceM( vec )						Distance( vec )
+#define				DistanceSquaredM( p1, p2 )				DistanceSquared( p1, p2 )
+#define				VectorNormalizeFastM( vec )				VectorNormalizeFast( vec )
+#define				VectorNormalizeM( vec )					VectorNormalize( vec )
+#define				VectorNormalize2M( vec, vecOut )		VectorNormalize2( vec, vecOut )
+#define				VectorCopyM( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2])
+#define				VectorCopy4M( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2], (vecOut)[3]=(vecIn)[3])
+#define				VectorSetM( vec, x, y, z )				((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z))
+#define				VectorSet4M( vec, x, y, z, w )			((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w))
+#define				VectorSet5M( vec, x, y, z, w, u )		((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w), (vec)[4]=(u))
+#define				VectorClearM( vec )						((vec)[0]=(vec)[1]=(vec)[2]=0)
+#define				VectorClear4M( vec )					((vec)[0]=(vec)[1]=(vec)[2]=(vec)[3]=0)
+#define				VectorIncM( vec )						((vec)[0]+=1.0f, (vec)[1]+=1.0f, (vec)[2]+=1.0f)
+#define				VectorDecM( vec )						((vec)[0]-=1.0f, (vec)[1]-=1.0f, (vec)[2]-=1.0f)
+#define				VectorInverseM( vec )					((vec)[0]=-(vec)[0], (vec)[1]=-(vec)[1], (vec)[2]=-(vec)[2])
+#define				CrossProductM( vec1, vec2, vecOut )		((vecOut)[0]=((vec1)[1]*(vec2)[2])-((vec1)[2]*(v2)[1]), (vecOut)[1]=((vec1)[2]*(vec2)[0])-((vec1)[0]*(vec2)[2]), (vecOut)[2]=((vec1)[0]*(vec2)[1])-((vec1)[1]*(vec2)[0]))
+#define				DotProductM( x, y )						((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#define				VectorCompareM( vec1, vec2 )			(!!((vec1)[0]==(vec2)[0] && (vec1)[1]==(vec2)[1] && (vec1)[2]==(vec2)[2]))
+
 #define DotProduct(x,y)					((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSubtract(a,b,c)			((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
 #define VectorAdd(a,b,c)				((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
@@ -1362,14 +1599,25 @@ typedef struct {
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define VectorSet5(v,x,y,z,a,b)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z), (v)[3]=(a), (v)[4]=(b)) //rwwRMG - added
 
-#define Vector2Set(v, x, y)			((v)[0]=(x),(v)[1]=(y)) // UQ1: Added
-#define Vector2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1]) // UQ1: Added
-#define Vector2Subtract(a,b,c)		((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1]) // UQ1: Added
+#define Vec2Set(v, x, y)			((v)[0]=(x),(v)[1]=(y)) // UQ1: Added	// renamed because conflicts with FX --eez
+#define Vec2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1]) // UQ1: Added	// renamed because conflicts with FX --eez
+#define Vec2Subtract(a,b,c)		((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1]) // UQ1: Added	// renamed because conflicts with FX --eez
 
-#define Vector4Set(v, x, y, z, n)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(n)) // UQ1: Added
-#define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
-#define	Vector4MA(v, s, b, o)		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s)) // UQ1: Added
-#define	Vector4Average(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s))) // UQ1: Added
+#define Vec4Set(v, x, y, z, n)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(n)) // UQ1: Added	// renamed because conflicts with FX --eez
+#define VectorCopy4(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+#define	Vec4MA(v, s, b, o)		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s)) // UQ1: Added // renamed because conflicts with FX --eez
+#define	Vec4Avg(v, b, s, o)	((o)[0]=((v)[0]*(1-(s)))+((b)[0]*(s)),(o)[1]=((v)[1]*(1-(s)))+((b)[1]*(s)),(o)[2]=((v)[2]*(1-(s)))+((b)[2]*(s)),(o)[3]=((v)[3]*(1-(s)))+((b)[3]*(s))) // UQ1: Added
+
+#ifndef ENGINE
+// ugly I know, but it was necessary to undo some damage
+#define Vector2Set(v,x,y)			Vec2Set(v,x,y)
+#define Vector4Copy(a,b)			VectorCopy4(a,b)
+#define Vector4Average(v, b, s, o)	Vec4Avg(v, b, s, o)
+
+#define	BUMP(val, min)				if(val < min) val = min;
+#define CAP(val, max)				if(val > max) val = max;
+#define CLAMP(val, min, max)		BUMP(val, min) else CAP(val, max);
+#endif
 static ID_INLINE void Vector4Clear ( vec4_t v )
 {
     v[0] = v[1] = v[2] = v[3] = 0.0f;
@@ -1570,8 +1818,9 @@ int Com_Clampi( int min, int max, int value ); //rwwRMG - added
 float Com_Clamp( float min, float max, float value );
 
 char	*COM_SkipPath( char *pathname );
-void	COM_StripExtension( const char *in, char *out );
+void	COM_StripExtension( const char *in, char *out, int destsize );
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
+qboolean COM_CompareExtension(const char *in, const char *ext);
 
 void	COM_BeginParseSession( const char *name );
 int		COM_GetCurrentParseLine( void );
@@ -1618,7 +1867,6 @@ void Parse1DMatrix (const char **buf_p, int x, float *m);
 void Parse2DMatrix (const char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (const char **buf_p, int z, int y, int x, float *m);
 
-int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
 void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...);
 
 
@@ -1642,6 +1890,8 @@ int Q_isprint( int c );
 int Q_islower( int c );
 int Q_isupper( int c );
 int Q_isalpha( int c );
+qboolean Q_isanumber( const char *s );
+qboolean Q_isintegral( float f );
 
 // portable case insensitive compare
 int		Q_stricmp (const char *s1, const char *s2);
@@ -1656,10 +1906,13 @@ qboolean	Q_stratt( char *dest, unsigned int iSize, char *source );
 void		Q_strncpyz( char *dest, const char *src, int destsize );
 void		Q_strcat( char *dest, int size, const char *src );
 
+const char *Q_stristr( const char *s, const char *find);
+
 // strlen that discounts Quake color sequences
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
+void Q_StripColor(char *text);
 
 //=============================================
 
@@ -1711,7 +1964,7 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	* QDECL va(char *format, ...);
+char	* QDECL va(const char *format, ...);
 
 //=============================================
 
@@ -1742,6 +1995,7 @@ default values.
 ==========================================================
 */
 
+#define CVAR_NONE			0x00000000
 #define	CVAR_ARCHIVE		0x00000001		// set to cause it to be saved to vars.rc
 											// used for system variables, not for player
 											// specific configurations
@@ -1762,6 +2016,12 @@ default values.
 #define CVAR_NORESTART		0x00000400		// do not clear when a cvar_restart is issued
 #define CVAR_INTERNAL		0x00000800		// cvar won't be displayed, ever (for passwords and such)
 #define	CVAR_PARENTAL		0x00001000		// lets cvar system know that parental stuff needs to be updated
+#define CVAR_SERVER_CREATED	0x2000			// cvar was created by a server the client connected to.
+#define CVAR_VM_CREATED		0x4000			// cvar was created exclusively in one of the VMs.
+#define CVAR_PROTECTED		0x8000			// prevent modifying this var from VMs or the server
+// These flags are only returned by the Cvar_Flags() function
+#define CVAR_MODIFIED		0x40000000		// Cvar was modified
+#define CVAR_NONEXISTENT	0x80000000		// Cvar doesn't exist.
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s {
@@ -1774,8 +2034,16 @@ typedef struct cvar_s {
 	int			modificationCount;	// incremented each time the cvar is changed
 	float		value;				// atof( string )
 	int			integer;			// atoi( string )
+	qboolean	validate;
+	qboolean	integral;
+	float		min;
+	float		max;
+
 	struct cvar_s *next;
+	struct cvar_s *prev;
 	struct cvar_s *hashNext;
+	struct cvar_s *hashPrev;
+	int			hashIndex;
 } cvar_t;
 
 #define	MAX_CVAR_VALUE_STRING	256
@@ -2392,31 +2660,38 @@ typedef struct playerState_s {
 	//keeps track of cloak fuel
 	int			cloakFuel;
 
-	//rww - spare values specifically for use by mod authors.
-	//See psf_overrides.txt if you want to increase the send
-	//amount of any of these above 1 bit.
+	// JKG SPECIFIC
 
-#ifndef _XBOX
 	unsigned char	weaponVariation;
 	unsigned char	weaponId;
 	unsigned char   shotsRemaining;
 	unsigned char	sprintMustWait;
 	
-	int				saberActionFlags;			// Unused1
-	unsigned int    unused2;			// Unused; this used to be the iron sights stuff.
-	unsigned int	unused3;			// Unused; this used to be the sprint stuff. got migrated to second playerstate.
+	short			saberActionFlags;
 
 	int 			damageTypeFlags;
 	int 			freezeTorsoAnim;
 	int 			freezeLegsAnim;
 
-	int				userInt1;
 	unsigned char	firingMode;
-	unsigned char	userByte1;
-	unsigned char	userByte2;
-	unsigned char	userByte3;
-	vec3_t			userVec1;
-#endif
+	unsigned int	ironsightsTime;
+	unsigned int	ironsightsDebounceStart;
+	qboolean		isInSights;
+
+	unsigned int	sprintTime;
+	int				sprintDebounceTime;
+	qboolean		isSprinting;
+
+	signed short	forcePower;
+	float			saberSwingSpeed;
+	float			saberMoveSwingSpeed;
+
+	short			saberPommel[2];
+	short			saberShaft[2];
+	short			saberEmitter[2];
+	short			saberCrystal[2];
+
+	signed short	blockPoints;
 
 #ifdef _ONEBIT_COMBO
 	int			deltaOneBits;
@@ -2671,7 +2946,6 @@ typedef struct {
 // Different eTypes may use the information in different ways
 // The messages are delta compressed, so it doesn't really matter if
 // the structure size is fairly large
-#ifndef _XBOX	// First, real version for the PC, with all members 32-bits
 
 typedef struct entityState_s {
 	int		number;			// entity index
@@ -2831,7 +3105,6 @@ typedef struct entityState_s {
 	unsigned char	weaponVariation;
 	unsigned char	firingMode;
 	unsigned char	weaponstate;
-	unsigned char	userByte1;
 
 	int 			damageTypeFlags;
 
@@ -2840,168 +3113,16 @@ typedef struct entityState_s {
 	int 			freezeLegsAnim;
 
 	unsigned int	saberActionFlags;
-	unsigned int	userInt2;
-	unsigned int    userInt3;
-	unsigned int	userInt4;
-	vec3_t			userVec2;
+
+	signed short	forcePower;	// ugly I know but whatever --eez
+	float			saberSwingSpeed;
+	float			saberMoveSwingSpeed;
+
+	unsigned short	saberPommel[2];
+	unsigned short	saberShaft[2];
+	unsigned short	saberEmitter[2];
+	unsigned short	saberCrystal[2];
 } entityState_t;
-
-#else
-// Now, XBOX version with members packed in tightly to save gobs of memory
-// This is rather confusing. All members are in 1, 2, or 4 bytes, and then
-// re-ordered within the structure to keep everything aligned.
-
-#pragma pack(push, 1)
-
-typedef struct entityState_s {
-	// Large (32-bit) fields first
-
-	int		number;			// entity index
-	int		eFlags;
-
-	trajectory_t	pos;	// for calculating position
-	trajectory_t	apos;	// for calculating angles
-
-	int		time;
-	int		time2;
-
-	vec3_t	origin;
-	vec3_t	origin2;
-
-	vec3_t	angles;
-	vec3_t	angles2;
-
-	float	speed;
-
-	int		genericenemyindex;
-
-	int		emplacedOwner;
-
-	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
-	int		forcePowersActive;
-
-	int		solid;			// for client side prediction, trap_linkentity sets this properly
-
-	byte	customRGBA[4];
-
-	int		surfacesOn; //a bitflag of corresponding surfaces from a lookup table. These surfaces will be forced on.
-	int		surfacesOff; //same as above, but forced off instead.
-
-	//I.. feel bad for doing this, but NPCs really just need to
-	//be able to control this sort of thing from the server sometimes.
-	//At least it's at the end so this stuff is never going to get sent
-	//over for anything that isn't an NPC.
-	vec3_t	boneAngles1; //angles of boneIndex1
-	vec3_t	boneAngles2; //angles of boneIndex2
-	vec3_t	boneAngles3; //angles of boneIndex3
-	vec3_t	boneAngles4; //angles of boneIndex4
-
-
-	// Now, the 16-bit members
-
-
-	word	bolt2;
-	word	trickedentindex; //0-15
-
-	word	trickedentindex2; //16-32
-	word	trickedentindex3; //33-48
-
-	word	trickedentindex4; //49-64
-	word	otherEntityNum;	// shotgun sources, etc
-
-	word	otherEntityNum2;
-	word	groundEntityNum;	// -1 = in air
-
-	short	modelindex;
-	word	clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
-
-	word	frame;
-	word	saberEntityNum;
-
-	word	event;			// impulse events -- muzzle flashes, footsteps, etc
-	word	owner; // so crosshair knows what it's looking at
-
-	word	powerups;		// bit flags
-	word	legsAnim;
-
-	word	torsoAnim;
-	word	forceFrame;		//if non-zero, force the anim frame
-
-	word	ragAttach; //attach to ent while ragging
-	short	iModelScale; //rww - transfer a percentage of the normal scale in a single int instead of 3 x-y-z scale values
-
-	word	lookTarget;
-	word	health;
-
-	word	maxhealth; //so I know how to draw the stupid health bar
-	word	npcSaber1;
-
-	word	npcSaber2;
-	word	boneOrient; //packed with x, y, z orientations for bone angles
-
-	//If non-0, this is the index of the vehicle a player/NPC is riding.
-	word	m_iVehicleNum;
-
-
-	// Now, the 8-bit members. These start out two bytes off, thanks to the above word
-
-
-	byte	eType;			// entityType_t
-	byte	eFlags2;		// EF2_??? used much less frequently
-
-	byte	bolt1;
-	byte	fireflag;
-	byte	activeForcePass;
-	byte	loopSound;		// constantly loop this sound
-
-	byte	loopIsSoundset; //qtrue if the loopSound index is actually a soundset index
-	byte	soundSetIndex;
-	byte	modelGhoul2;
-	byte	g2radius;
-
-	byte	modelindex2;
-	byte	saberInFlight;
-	byte	saberMove;
-	byte	isJediMaster;
-	byte	saberHolstered;//sent in only 2 bytes, should be 0, 1 or 2
-
-	byte	isPortalEnt; //this needs to be seperate for all entities I guess, which is why I couldn't reuse another value.
-	byte	eventParm;
-	byte	teamowner;
-	byte	shouldtarget;
-
-	byte	weapon;			// determines weapon and flash model, etc
-	byte	legsFlip; //set to opposite when the same anim needs restarting, sent over in only 1 bit. Cleaner and makes porting easier than having that god forsaken ANIM_TOGGLEBIT.
-	byte	torsoFlip;
-	byte	generic1;
-
-	byte	heldByClient; //can only be a client index - this client should be holding onto my arm using IK stuff.
-	byte	brokenLimbs;
-	byte	boltToPlayer; //set to index of a real client+1 to bolt the ent to that client. Must be a real client, NOT an NPC.
-	byte	hasLookTarget; //for looking at an entity's origin (NPCs and players)
-
-	//index values for each type of sound, gets the folder the sounds
-	//are in. I wish there were a better way to do this,
-	byte	csSounds_Std;
-	byte	csSounds_Combat;
-	byte	csSounds_Extra;
-	byte	csSounds_Jedi;
-
-	//Allow up to 4 PCJ lookup values to be stored here.
-	//The resolve to configstrings which contain the name of the
-	//desired bone.
-	byte	boneIndex1;
-	byte	boneIndex2;
-	byte	boneIndex3;
-	byte	boneIndex4;
-
-	byte	NPC_class; //we need to see what it is on the client for a few effects.
-	byte	alignPad[3];
-} entityState_t;
-
-#pragma pack(pop)
-
-#endif
 
 typedef enum {
 	CA_UNINITIALIZED,
@@ -3084,15 +3205,8 @@ enum _flag_status {
 };
 typedef int flagStatus_t;
 
-
-
-#ifdef _XBOX
-#define	MAX_GLOBAL_SERVERS			50
-#define	MAX_OTHER_SERVERS			16
-#else
 #define	MAX_GLOBAL_SERVERS			2048
 #define	MAX_OTHER_SERVERS			128
-#endif
 #define MAX_PINGREQUESTS			32
 #define MAX_SERVERSTATUSREQUESTS	16
 
@@ -3199,6 +3313,300 @@ typedef struct SSkinGoreData_s
 /*
 ========================================================================
 
+Trap Calls
+
+========================================================================
+*/
+
+// Call API version... increment if we change the below because mismatch is badness
+//#define CGAME_API_VERSION	1
+//#define UI_API_VERSION		1
+//#define	SV_API_VERSION		1
+
+/*typedef struct
+{
+
+} cgImports_t;
+
+typedef struct
+{
+
+} uiImports_t;
+
+typedef struct
+{
+	void	(*Printf)( const char *fmt );
+	void	(*Error)( const char *fmt );
+	int		(*Milliseconds)( void );
+	void	(*PrecisionTimer_Start)( void **theTimer );
+	int		(*PrecisionTimer_End)( void *theTimer );
+
+	void	(*Cvar_Register)( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
+	void	(*Cvar_Update)( vmCvar_t *cvar );
+	void	(*Cvar_Set)( const char *var_name, const char *value );
+	int		(*Cvar_VariableIntegerValue)( const char *var_name );
+	void	(*Cvar_VariableStringBuffer)( const char *var_name, char *buffer, int bufsize );
+
+	int		(*Argc)( void );
+	void	(*Argv)( int n, char *buffer, int bufferLength );
+	
+	int		(*FS_FOpenFile)( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	void	(*FS_Read)( void *buffer, int len, fileHandle_t f );
+	void	(*FS_Write)( const void *buffer, int len, fileHandle_t f );
+	void	(*FS_FCloseFile)( fileHandle_t f );
+	int		(*FS_GetFileList)( const char *path, const char *extension, char *listbuf, int bufsize );
+	
+	void	(*SendConsoleCommand)( int exec_when, const char *text );
+	void	(*LocateGameData)(	void *gEnts, int numGEntities, int sizeofGEntity_t,
+								playerState_t *clients, int sizeofGClient );
+	void	(*DropClient)( int clientNum, const char *reason );
+	void	(*SendServerCommand)( int clientNum, const char *cmd );
+	void	(*SetConfigstring)( int num, const char *string );
+	void	(*GetConfigstring)( int num, char *buffer, int bufferSize );
+	void	(*GetUserinfo)( int num, char *buffer, int bufferSize );
+	void	(*SetUserinfo)( int num, const char *buffer );
+	void	(*GetServerinfo)( char *buffer, int bufferSize );
+	
+	void	(*SetServerCull)(float cullDistance);
+	void	(*SetBrushModel)( void *ent, const char *name );
+	void	(*Trace)(	trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						int passEntityNum, int contentMask );
+	void	(*TraceCapsule)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						int passEntityNum, int contentMask );
+	void	(*G2Trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+						int passEntityNum, int contentmask, int g2TraceType, int traceLod );
+	int		(*PointContents)( const vec3_t point, int passEntityNum );
+	qboolean (*InPVS)( const vec3_t p1, const vec3_t p2 );
+	qboolean (*InPVSIgnorePortals)( const vec3_t p1, const vec3_t p2 );
+	void	(*AdjustAreaPortalState)( void *ent, qboolean open );
+	qboolean (*AreasConnected)( int area1, int area2 );
+	
+	void	(*LinkEntity)( void *ent );
+	void	(*UnlinkEntity)( void *ent );
+	int		(*EntitiesInBox)( const vec3_t mins, const vec3_t maxs, int *list, int maxcount );
+	qboolean (*EntityContactCapsule)( const vec3_t mins, const vec3_t maxs, const void *ent );
+	int		(*BotAllocateClient)( void );
+	void	(*BotFreeClient)( int clientNum );
+	void	(*GetUsercmd)( int clientNum, usercmd_t *cmd );
+	qboolean (*GetEntityToken)( char *buffer, int bufferSize );
+
+	int		(*DebugPolygonCreate)( int color, int numPoints, vec3_t *points );
+	void	(*DebugPolygonDelete)( int id );
+
+	int		(*RealTime)( qtime_t *qtime );
+	void	(*SnapVector)( float *v );
+
+	void	(*SV_RegisterSharedMemory)( char *memory );
+
+	int		(*SP_GetStringTextString)( const char *text, char *buffer, int bufferLength );
+
+	qboolean (*ROFF_Clean)( void );
+	void	(*ROFF_UpdateEntities)( void );
+	int		(*ROFF_Cache)( char *file );
+	qboolean (*ROFF_Play)( int entID, int roffID, qboolean doTranslation );
+	qboolean (*ROFF_Purge_Ent)( int entID );
+
+	void	(*TrueMalloc)(void **ptr, int size);
+	void	(*TrueFree)(void **ptr);
+
+	int		(*ICARUS_RunScript)( void *ent, const char *name );
+	qboolean (*ICARUS_RegisterScript)( const char *name, qboolean bCalledDuringInterrogate );
+	void	(*ICARUS_Init)( void );
+	qboolean (*ICARUS_ValidEnt)( void *ent );
+	qboolean (*ICARUS_IsInitialized)( int entID );
+	qboolean (*ICARUS_MaintainTaskManager)( int entID );
+	qboolean (*ICARUS_IsRunning)( int entID );
+	qboolean (*ICARUS_TaskIDPending)( void *ent, int taskID );
+	void	(*ICARUS_InitEnt)( void *ent );
+	void	(*ICARUS_FreeEnt)( void *ent );
+	void	(*ICARUS_AssociateEnt)( void *ent );
+	void	(*ICARUS_Shutdown)( void );
+	void	(*ICARUS_TaskIDSet)( void *ent, int taskType, int taskID );
+	void	(*ICARUS_TaskIDComplete)( void *ent, int taskType );
+	void	(*ICARUS_SetVar)( int taskID, int entID, const char *type_name, const char *data );
+	int		(*ICARUS_VariableDeclared)( const char *type_name);
+	int		(*ICARUS_GetFloatVariable)( const char *name, float *value );
+	int		(*ICARUS_GetStringVariable)( const char *name, const char *value );
+	int		(*ICARUS_GetVectorVariable)( const char *name, const vec3_t value );
+
+	void	(*NAV_Init)( void );
+	void	(*NAV_Free)( void );
+	qboolean (*NAV_Load)( const char *filename, int checksum );
+	qboolean (*NAV_Save)( const char *filename, int checksum );
+	int		(*NAV_AddRawPoint)( vec3_t point, int flags, int radius );
+	void	(*NAV_CalculatePaths)( qboolean recalc );
+	void	(*NAV_HardConnect)( int first, int second );
+	void	(*NAV_ShowNodes)( void );
+	void	(*NAV_ShowEdges)( void );
+	void	(*NAV_ShowPath)( int start, int end );
+	void	(*NAV_GetNearestNode)( void *ent, int lastID, int flags, int targetID );
+	int		(*NAV_GetBestNode)( int startID, int endID, int rejectID );
+	int		(*NAV_GetNodePosition)( int nodeID, vec3_t out );
+	int		(*NAV_GetNodeNumEdges)( int nodeID );
+	int		(*NAV_GetNumNodes)( void );
+	qboolean (*NAV_Connected)( int startID, int endID );
+	int		(*NAV_GetPathCost)( int startID, int endID );
+	int		(*NAV_GetEdgeCost)( int startID, int endID );
+	int		(*NAV_GetProjectedNode)( vec3_t origin, int nodeID );
+	void	(*NAV_AddFailedNode)( void *ent, int nodeID );
+	void	(*NAV_NodeFailed)( void *ent, int nodeID );
+	qboolean (*NAV_NodesAreNeighbors)( int startID, int endID );
+//	void	(*NAV_ClearFailedEdge)( failedEdge_t *failedEdge );
+	void	(*NAV_ClearAllFailedEdges)( void );
+	int		(*NAV_EdgeFailed)( int startID, int endID );
+	void	(*NAV_AddFailedEdge)( int entID, int startID, int endID );
+//	qboolean (*NAV_CheckFailedEdge)( failedEdge_t *failedEdge );
+	void	(*NAV_CheckAllFailedEdges)( void );
+	qboolean (*NAV_RouteBlocked)( int startID, int testEdgeID, int endID, int rejectRank );
+	int		(*NAV_GetBestNodeAltRoute)( int startID, int endID, int *pathCost, int rejectID );
+	int		(*NAV_GetBestNodeAltRoute2)( int startID, int endID, int rejectID );
+	int		(*NAV_GetBestPathBetweenEnts)( void *ent, void *goal, int flags );
+	int		(*NAV_GetNodeRadius)( int nodeID );
+	void	(*NAV_CheckBlockedEdges)( void );
+	void	(*NAV_ClearCheckedNodes)( void );
+	int		(*NAV_CheckedNode)(int wayPoint, int ent);
+	void	(*NAV_SetCheckedNode)(int wayPoint, int ent, int value);
+	void	(*NAV_FlagAllNodes)( int newFlag );
+	qboolean (*NAV_GetPathsCalculated)( void );
+	void	(*NAV_SetPathsCalculated)(qboolean newVal);
+
+	int		(*BotLibSetup)( void );
+	int		(*BotLibShutdown)( void );
+	int		(*BotGetSnapshotEntity)( int clientNum, int sequence );
+	int		(*BotGetServerCommand)( int clientNum, char *message, int size );
+	void	(*BotUserCommand)( int clientNum, usercmd_t *ucmd );
+	void	(*AAS_EntityInfo)( int entnum, void *info );
+
+	void	(*EA_Attack)( int client );
+	void	(*EA_Alt_Attack)( int client );
+	void	(*EA_ForcePower)( int client );
+	void	(*EA_Use)( int client );
+	void	(*EA_Crouch)( int client );
+	void	(*EA_MoveUp)( int client );
+	void	(*EA_MoveDown)( int client );
+	void	(*EA_MoveForward)( int client );
+	void	(*EA_MoveBack)( int client );
+	void	(*EA_MoveLeft)( int client );
+	void	(*EA_MoveRight)( int client );
+	void	(*EA_SelectWeapon)( int client, int weapon );
+	void	(*EA_Jump)( int client );
+	void	(*EA_DelayedJump)( int client );
+	void	(*EA_Move)( int client, vec3_t dir, float speed );
+	void	(*EA_View)( int client, vec3_t viewangles );
+	void	(*EA_GetInput)( int client, float thinktime, void *input );
+	void	(*EA_ResetInput)( int client );
+
+	void	(*BotResetGoalState)( int goalstate );
+	void	(*BotResetAvoidGoals)( int goalstate );
+	void	(*BotUpdateEntityItems)( void );
+	void	(*BotAllocGoalState)( int state );
+	void	(*BotFreeGoalState)( int handle );
+	void	(*BotResetMoveState)( int movestate );
+	void	(*BotResetAvoidReach)( int movestate );
+	int		(*BotAllocMoveState)( void );
+	void	(*BotFreeMoveState)( int handle );
+	int		(*BotAllocWeaponState)( void );
+	void	(*BotFreeWeaponState)( int weaponstate );
+	void	(*BotResetWeaponState)( int weaponstate );
+	
+	int		(*PC_LoadSource)( const char *filename );
+	int		(*PC_FreeSource)( int handle );
+	int		(*PC_ReadToken)( int handle, pc_token_t *pc_token );
+	int		(*PC_SourceFileAndLine)( int handle, char *filename, int *line );
+
+	qhandle_t (*R_RegisterSkin)( const char *name );
+
+	void	(*G2_ListModelBones)( void *ghlInfo, int frame );
+	void	(*G2_ListModelSurfaces)( void *ghlInfo );
+	qboolean (G2_HaveWeGhoul2Models)( void *ghoul2 );
+	void	(*G2_SetGhoul2ModelIndexes)( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
+
+	qboolean (*G2API_GetBoltMatrix)(	void *ghoul2, const int modelIndex, const int boltIndex,
+										mdxaBone_t *matrix, const vec3_t angles, const vec3_t position,
+										const int frameNum, qhandle_t *modelList, vec3_t scale );
+	qboolean (*G2API_GetBoltMatrix_NoReconstruct)(	void *ghoul2, const int modelIndex, const int boltIndex,
+													mdxaBone_t *matrix, const vec3_t angles, const vec3_t position,
+													const int frameNum, qhandle_t *modelList, vec3_t scale );
+	//Same as above but force it to not reconstruct the skeleton before getting the bolt position
+	qboolean (*G2API_GetBoltMatrix_NoRecNoRot)	(	void *ghoul2, const int modelIndex, const int boltIndex,
+													mdxaBone_t *matrix, const vec3_t angles, const vec3_t position,
+													const int frameNum, qhandle_t *modelList, vec3_t scale );
+	//Same as above but force it to not reconstruct the skeleton before getting the bolt position
+	int		 (*G2API_InitGhoul2Model)(	void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin,
+										qhandle_t customShader, int modelFlags, int lodBias );
+	qboolean (*G2API_SetSkin)(			void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
+	int		 (*G2API_Ghoul2Size)	 (	void *ghlInfo );
+	int		 (*G2API_AddBolt)(			void *ghoul2, int modelIndex, const char *boneName );
+	void	 (*G2API_SetBoltInfo)(		void *ghoul2, int modelIndex, int boltInfo );
+	qboolean (*G2API_SetBoneAngles)(	void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles,
+										const int flags, const int up, const int right, const int forward,
+										qhandle_t *modelList, int blendTime, int currentTime );
+	qboolean (*G2API_SetBoneAnim)(		void *ghoul2, const int modelIndex, const char *boneName, const int startFrame,
+										const int endFrame, const int flags, const float animSpeed, const int currentTime,
+										const float setFrame, const int blendTime );
+	qboolean (*G2API_GetBoneAnim)(		void *ghoul2, const char *boneName, const int currentTime, float *currentFrame,
+										int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList,
+										const int modelIndex );
+	void	 (*G2API_GetGLAName)(		void *ghoul2, int modelIndex, char *fillBuf );
+	int		 (*G2API_CopyG2Instance)(	void *g2From, void *g2To, int modelIndex );
+	void	 (*G2API_CopySpecificG2)(	void *g2From, int modelFrom, void *g2To, int modelTo );
+	void	 (*G2API_DuplicateG2Instance)(void *g2From, void **g2To );
+	qboolean (*G2API_HasG2ModelOnIndex)(void *ghlInfo, int modelIndex );
+	qboolean (*G2API_RemoveG2Model)(	void *ghlInfo, int modelIndex );
+	qboolean (*G2API_RemoveG2Models)(	void *ghlInfo );
+	void	 (*G2API_CleanG2Models)(	void **ghoul2Ptr );
+	void	 (*G2_CollisionDetect)(		CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position,
+										int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags,
+										int useLod, float fRadius );
+	void	 (*G2_CollisionDetectCache)(CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position,
+										int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags,
+										int useLod, float fRadius );
+	void	 (*G2API_GetSurfaceName)(	void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
+	qboolean (*G2API_SetRootSurface)(	void *ghoul2, const int modelIndex, const char *surfaceName );
+	qboolean (*G2API_SetSurfaceOnOff)(	void *ghoul2, const char *surfaceName, const int flags );
+	qboolean (*G2API_SetNewOrigin)(		void *ghoul2, const int boltIndex );
+	//check if a bone exists on skeleton without actually adding to the bone list -rww
+	qboolean (*G2API_DoesBoneExist)(	void *ghoul2, int modelIndex, const char *boneName);
+	int		 (*G2_GetSurfaceRenderStatus)(void *ghoul2, const int modelIndex, const char *surfaceName );
+	void	 (*G2API_AbsurdSmoothing)(	void *ghoul2, qboolean status );
+
+	//rww - RAGDOLL_BEGIN
+	void	 (*G2API_SetRagDoll)(		void *ghoul2, sharedRagDollParams_t *params );
+	void	 (*G2API_AnimateG2Models)(	void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
+	//additional ragdoll options -rww
+	qboolean (*G2API_RagPCJConstraint)(	void *ghoul2, const char *boneName, vec3_t min, vec3_t max ); //override default pcj bonee constraints
+	qboolean (*G2API_RagPCJGradientSpeed)( void *ghoul2, const char *boneName, const float speed );
+	qboolean (*G2API_RagEffectorGoal)(	void *ghoul2, const char *boneName, vec3_t pos );
+	qboolean (*G2API_GetRagBonePos)(	void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles,
+										vec3_t entPos, vec3_t entScale ); //current position of said bone is put into pos (world coordinates)
+	qboolean (*G2API_RagEffectorKick)(	void *ghoul2, const char *boneName, vec3_t velocity ); //add velocity to a rag bone
+	qboolean (*G2API_RagForceSolve)(	void *ghoul2, qboolean force ); //make sure we are actively performing solve/settle routines, if desired
+	qboolean (*G2API_SetBoneIKState)(	void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
+	qboolean (*G2API_IKMove)(			void *ghoul2, int time, sharedIKMoveParams_t *params );
+	qboolean (*G2API_RemoveBone)(		void *ghoul2, const char *boneName, int modelIndex );
+	//rww - Stuff to allow association of ghoul2 instances to entity numbers.
+	//This way, on listen servers when both the client and server are doing
+	//ghoul2 operations, we can copy relevant data off the client instance
+	//directly onto the server instance and slash the transforms and whatnot
+	//right in half.
+	void (*G2_AttachInstanceToEntNum )( void *ghoul2, int entityNum, qboolean server );
+	void (*G2_ClearAttachedInstance )( int entityNum );
+	void (*G2_CleanEntAttachments )( void );
+	void (*G2_OverrideServer )( void *serverInstance );
+
+
+
+	void (*SetActiveSubBSP)( int index );
+	int	 (*CM_RegisterTerrain)( const char *config );
+	void (*RMG_Init)( int terrainID );
+	void (*Bot_UpdateWaypoints)( int wpnum, wpobject_t **wps );
+	void (*Bot_CalculatePaths)( int rmg );
+
+} gImports_t;
+*/
+/*
+========================================================================
+
 String ID Tables
 
 ========================================================================
@@ -3237,10 +3645,10 @@ enum {
 };
 
 // HERE BE MACROS
-#define BUMP(x,y)	if(x < y) x = y
+/*#define BUMP(x,y)	if(x < y) x = y
 #define  CAP(x,y)	if(x > y) x = y
 #define CLAMP( var, min, max )			BUMP( var,		min );	CAP( var,		max)
-#define CLAMPVEC( vec, idx, min, max )	BUMP( vec[idx], min );	CAP( vec[idx],	max)
+#define CLAMPVEC( vec, idx, min, max )	BUMP( vec[idx], min );	CAP( vec[idx],	max)*/
 
 double coslerp(
    double start,double end,
@@ -3248,23 +3656,6 @@ double coslerp(
 
 #define	FLOAT_INT_BITS	13
 #define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
-
-typedef struct {
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
-	qboolean	oob;			// set to true if the buffer size failed (with allowoverflow set)
-	byte	*data;
-	int		maxsize;
-	int		cursize;
-	int		readcount;
-	int		bit;				// for bitwise reads and writes
-} msg_t;
-
-typedef struct {
-	char	*name;
-	int		offset;
-	int		bits;		// 0 = float
-} netField_t;
 
 // Be sure to change networkStateFields in networkstate.c
 typedef enum {
@@ -3274,211 +3665,6 @@ typedef enum {
 	SAF_KICK,
 	SAF_ENDBLOCK,
 } saberActionFlag_e;
-
-#pragma pack(4)
-// align 4 for these two structs and for the structs below them, regardless of whether this is a debug build or not
-
-// Be sure to change networkStateFields in networkstate.c
-typedef struct networkState_s
-{
-	int start;
-	unsigned int ironsightsTime; // The MSB is used to tell whether the last change was to bring the ironsights up or down.
-	                                // 0 = take down, 1 = bring up
-
-	unsigned int	sprintTime;		// The MSB is used to determine whether we're starting or ending sprinting
-	int sprintDebounceTime;
-
-	signed short	forcePower;
-	float			saberSwingSpeed;
-	float			saberMoveSwingSpeed;
-
-	int saberPommel[2];
-	int saberShaft[2];
-	int saberEmitter[2];
-	int saberCrystal[2];
-
-	unsigned int ironsightsDebounceStart;	// Just the next time we can bring ironsights back up.
-											// brought this up because people were going into ironsights
-											// at really tacky/awkward times (such as while reloading)
-
-	qboolean		isSprinting;			// Only used for spectators.
-	qboolean		isInSights;				// Only used for spectators.
-
-	signed short	blockPoints;
-
-	// This code always exists on at least one gametype --eez
-	// Put this in the second playerstate (networkstate) so that clients can see their lives display
-#ifdef __JKG_NINELIVES__
-	unsigned char iLivesLeft;
-#elif defined __JKG_TICKETING__
-	unsigned char iLivesLeft;
-#elif defined __JKG_ROUNDBASED__
-	unsigned char iLivesLeft;
-#endif
-}networkState_t;
-
-
-
-// Be sure to change extraStateFields in networkstate.c
-typedef struct extraState_s
-{
-	int		number;
-	int		testInt;
-	float	testFloat;
-
-	signed short forcePower;
-	float saberSwingSpeed;
-	float saberMoveSwingSpeed;
-
-	int saberPommel[2];
-	int saberShaft[2];
-	int saberEmitter[2];
-	int saberCrystal[2];
-}extraState_t;
-
-#pragma pack()
-
-typedef struct {
-	int				areabytes;
-	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
-	playerState_t	ps;
-	playerState_t	vps;
-	int				num_entities;
-	int				first_entity;		// into the circular sv_packet_entities[]
-										// the entities MUST be in increasing state number
-										// order, otherwise the delta compression will fail
-	int				messageSent;		// time the message was transmitted
-	int				messageAcked;		// time the message was acked
-	int				messageSize;		// used to rate drop packets
-} clientSnapshot_t;
-
-// snapshots are a view of the server at a given time
-typedef struct {
-	qboolean		valid;			// cleared if delta parsing was invalid
-	int				snapFlags;		// rate delayed and dropped commands
-
-	int				serverTime;		// server time the message is valid for (in msec)
-
-	int				messageNum;		// copied from netchan->incoming_sequence
-	int				deltaNum;		// messageNum the delta is from
-	int				ping;			// time from when cmdNum-1 was sent to time packet was reeceived
-	byte			areamask[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
-
-	int				cmdNum;			// the next cmdNum the server is expecting
-	playerState_t	ps;						// complete information about the current player at this time
-	playerState_t	vps;	//vehicle I'm riding's playerstate (if applicable) -rww
-
-	int				numEntities;			// all of the entities that need to be presented
-	int				parseEntitiesNum;		// at the time of this snapshot
-
-	int				serverCommandNum;		// execute all commands up to this before
-											// making the snapshot current
-} clSnapshot_t;
-
-
-// using the stringizing operator to save typing...
-#define	NSF(x) #x,(int)&((networkState_t*)0)->x
-
-#ifdef __JKG_NINELIVES__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_TICKETING__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#elif defined __JKG_ROUNDBASED__
-extern netField_t	networkStateFields[8];		// increment count whenever you change the number of fields.
-#else
-extern netField_t	networkStateFields[19];		// increment count whenever you change the number of fields.
-#endif
-extern netField_t	extraStateFields[14];		// increment count whenever you change the number of fields.
-extern int numNetworkStateFields;
-extern int numExtraStateFields;
-
-#define ESF(x) #x,(int)&((extraState_t*)0)->x
-
-// Here is the best way to explain how this works.
-// First, a little referenc portion:
-// float = 0 bytes (for our sake) / 0
-// char/byte = 1 byte / 8
-// short = 2 bytes / 16
-// int = 4 bytes / 32
-
-// With this in mind, let's take an overview of what the playerState does for the client.
-// Basically, the game networks data to the client in the form of the playerState. You might
-// have seen this already in various instances, such as ent->client->ps."whatever" << this accesses the
-// player state.
-
-// Each player has exactly 1 player state (and a second one while in vehicles). This player state gets
-// replaced by the person you're spectating when you're in spectator mode. Clients cannot see each others
-// playerState, only their own.
-
-// So what's an entityState then? Simple. It's for every single entity, and it can be seen by all the clients.
-// You might store stuff which is more generic for all kinds of entities, and not just players. You might also
-// want to store stuff there that needs to be seen be all clients, which is why I did that for saberPommel, etc.
-// You might have seen this with ent->s."whatever"
-
-// Right. So, the main problem that we as coders have been having for quite some time is that it's impossible
-// to edit these structs at all. And that really freaking blows. So, what Scooper came up with was pretty nifty.
-// Basically, it's a second playerState/entityState for everything that needs it, and it fills the exact same
-// niche.
-
-// second playerState = networkState
-// second entityState = extraState
-
-// These can be accessed on the serverside with ent->client->ns and ent->x, respectively.
-// They can be accessed on the client with cg.networkState, cg.extraState (for yourself) or cent->extraState (for a cent)
-// Remember, you can only access your own networkState, and the networkState is sometimes invalid (such as when in a vehicle)
-// There's another drawback too. As it turns out, there's no form of snapshotting for this (so stuff isn't smoothened out properly)
-// This makes it not ideal at all to network things which need extreme precision through this method.
-
-// ---Editing it---
-
-// In networkstate.c, you should see something sorta similar to these:
-//netField_t extraStateFields[] =
-//{
-//	{ ESF(number), GENTITYNUM_BITS },
-//	{ ESF(testInt), 32 },				
-//	{ ESF(testFloat), 0 }
-//};
-
-//netField_t	networkStateFields[] = 
-//{
-//{ NSF(testInt), 32 },				
-//{ NSF(testFloat), 0 }
-//};
-
-// Basically, this is pretty simple. You'll add your new field to the end of, say networkState_t.
-
-//	int someStupidField;
-
-// Since this is an int, and it's at the end, we'll add it to the end of the networkStateFields thusly:
-//netField_t	networkStateFields[] = 
-//{
-//{ NSF(testInt), 32 },				
-//{ NSF(testFloat), 0 },
-//{ NSF(someStupidField), 32 },
-//};
-// THE ORDER MATTERS HERE. IT MUST MATCH THE NETWORKSTATE/EXTRASTATE! otherwise, you will encounter many issues
-
-// One more step. You need to edit the declaration of networkStateFields in q_shared.h, above where I'm typing this.
-// So before this, it would read:
-// netField_t networkStateFields[2];
-// Since before, there were only two fields. Now since there's 3, we need to change it to a 3. Otherwise, you'll get the
-// "too many initializers" error that I've got in the error log right now.
-
-// Now you're pretty much good. I think there's one more step to make sure that stuff gets PERFECTLY sent across. Lemme check.
-// Ya, okay.
-// In bg_misc.c, there's a function called BG_NetworkStateToExtraState. If you have a field in both extraState and networkState,
-// you need to make sure to add on to that function there appropriately.
-
-// That's pretty much it. This shouldn't be used as a first step at all, it should be considered only when it's necessary to do
-// something like this (don't let U1Q1 tell ya differently...trap_SendServerCommand has its uses ;) )
-
-// any questions? you know this is realy a cool way to cut it out eez, i did see you count the stuff in the netwotkstate bit wise so i could see you would need to 
-// somthing wiht it in the end mhm. i forgot to mention one big thing real quick
-// Shall we see if this baby here works :D ? sure, i'll be doing some work on my SP SDK in the meantime
-// how is that going btw `? :P
-// i have to actually map out the playerState, quite ironically. otherwise, it's going pretty well
-// awesome :D looking forward to see this :) anyhow, yeah, you test it and then PM me on IRC how it goes
-
 
 typedef struct
 {
@@ -3551,5 +3737,26 @@ qboolean StringContainsWord(const char *haystack, const char *needle);
 /*==============================================*/
 
 #define BLANK_FUNCTION( R, N, A ) typedef R (*N) A
+
+#ifndef ENGINE
+typedef enum {
+	NA_BOT,
+	NA_BAD,					// an address lookup failed
+	NA_LOOPBACK,
+	NA_BROADCAST,
+	NA_IP,
+	NA_IPX,
+	NA_BROADCAST_IPX
+} netadrtype_t;
+
+typedef struct {
+	netadrtype_t	type;
+
+	byte	ip[4];
+	byte	ipx[10];
+
+	unsigned short	port;
+} netadr_t;
+#endif // engine
 
 #endif	// __Q_SHARED_H

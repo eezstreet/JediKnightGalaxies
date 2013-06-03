@@ -1,0 +1,857 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="botlib\be_aas_bspq3.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_cluster.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_debug.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_entity.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_file.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_main.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_move.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_optimize.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_reach.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_route.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_routealt.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_aas_sample.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ai_char.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ai_chat.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ai_gen.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ai_goal.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ai_move.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ai_weap.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ai_weight.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_ea.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\be_interface.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\blockstream.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_draw.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_load.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_patch.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_polylib.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_trace.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_randomterrain.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_shader.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_terrain.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cm_test.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cmd_common.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cmd_pc.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\common.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\cvar.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\files_common.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\files_pc.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\G2_surfaces.cpp">
+      <Filter>Ghoul2</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\G2_API.cpp">
+      <Filter>Ghoul2</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\G2_bolts.cpp">
+      <Filter>Ghoul2</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\G2_bones.cpp">
+      <Filter>Ghoul2</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\G2_misc.cpp">
+      <Filter>Ghoul2</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\genericparser2.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="server\NPCNav\gameCallbacks.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\gameinterface.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\huffman.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\instance.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\interface.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\l_crc.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\l_libvar.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\l_log.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\l_memory.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\l_precomp.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\l_script.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="botlib\l_struct.cpp">
+      <Filter>Botlib</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\matcomp.cpp">
+      <Filter>Ghoul2</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\md4.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\memory.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\msg.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="server\NPCNav\navigator.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\net_chan.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="null\null_client.cpp">
+      <Filter>NULL</Filter>
+    </ClCompile>
+    <ClCompile Include="null\null_snddma.cpp">
+      <Filter>NULL</Filter>
+    </ClCompile>
+    <ClCompile Include="null\null_input.cpp">
+      <Filter>NULL</Filter>
+    </ClCompile>
+    <ClCompile Include="null\null_renderer.cpp">
+      <Filter>NULL</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\q3_interface.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\q3_registers.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\q_math.cpp">
+      <Filter>Modcode</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\q_shared.cpp">
+      <Filter>Modcode</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_area.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_instance.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_instance_bsp.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_instance_group.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_instance_random.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_instance_void.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_instancefile.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_manager.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_mission.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_objective.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_path.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="RMG\rm_terrain.cpp">
+      <Filter>RMG</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\RoffSystem.cpp">
+      <Filter>Client</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\png\rpng.cpp">
+      <Filter>Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\sequence.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\sequencer.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="sys\snapvector.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\stringed_ingame.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\stringed_interface.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_bot.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_world.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_ccmds.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_client.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_game.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_init.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_main.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_net_chan.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_snapshot.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="icarus\taskmanager.cpp">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_backend.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_ghoul2.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_image.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_init.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_main.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_mesh.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_model.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="rd-dedicated\tr_shader.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\vm.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\vm_x86.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\vm_interpreted.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_shared.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="null\win_main.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_net.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\z_memman_pc.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\png.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngerror.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngget.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngmem.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngpread.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngread.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngrio.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngrtran.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngrutil.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngset.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngtrans.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngwio.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngwrite.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngwtran.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\libpng\pngwutil.c">
+      <Filter>Libraries\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\adler32.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\compress.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\crc32.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\deflate.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzclose.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzlib.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzread.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\gzwrite.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\infback.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inffast.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inflate.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\inftrees.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\ioapi.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\trees.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\uncompr.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib\zutil.c">
+      <Filter>Libraries\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\unzip.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="game\be_aas.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_interface.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_bsp.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_cluster.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_debug.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_def.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_entity.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_file.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_funcs.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_main.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_move.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_optimize.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_reach.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_route.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_routealt.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_aas_sample.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\be_ai_char.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\be_ai_chat.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\be_ai_gen.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\be_ai_goal.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\be_ai_move.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\be_ai_weap.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\be_ai_weight.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\be_ea.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\aasfile.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="game\anims.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="game\bg_public.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="game\bg_weapons.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="game\botlib.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\blockstream.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="cgame\cg_public.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="client\client.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_public.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_draw.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_landscape.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_local.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_patch.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_polylib.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_randomterrain.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\cm_terrainmap.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\chash.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\disablewarnings.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ghoul2\G2.h">
+      <Filter>Ghoul2</Filter>
+    </ClInclude>
+    <ClInclude Include="ghoul2\G2_gore.h">
+      <Filter>Ghoul2</Filter>
+    </ClInclude>
+    <ClInclude Include="ghoul2\G2_local.h">
+      <Filter>Ghoul2</Filter>
+    </ClInclude>
+    <ClInclude Include="game\g_public.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\game_version.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\GenericParser2.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ghoul2\ghoul2_shared.h">
+      <Filter>Ghoul2</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\GameInterface.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\icarus.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\interpreter.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\instance.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\interface.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\keycodes.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\keys.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_utils.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_crc.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_libvar.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_log.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_memory.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_precomp.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_script.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="botlib\l_struct.h">
+      <Filter>Botlib</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\matcomp.h">
+      <Filter>Ghoul2</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\mdx_format.h">
+      <Filter>Ghoul2</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\MiniHeap.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="server\NPCNav\navigator.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\Q3_Registers.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\Q3_Interface.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\qfiles.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\q_shared.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\qcommon.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Terrain.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Area.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Headers.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Instance.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Instance_BSP.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Instance_Group.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Instance_Random.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Instance_Void.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_InstanceFile.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Manager.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Mission.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Objective.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="RMG\RM_Path.h">
+      <Filter>RMG</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\RoffSystem.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\sequencer.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\sequence.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="server\server.h">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="client\snd_public.h">
+      <Filter>Client</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\sstring.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\stringed_interface.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\stringed_ingame.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="game\surfaceflags.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\tags.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\taskmanager.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\timing.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="icarus\tokenizer.h">
+      <Filter>Libraries\ICARUS</Filter>
+    </ClInclude>
+    <ClInclude Include="cgame\tr_types.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="rd-dedicated\tr_local.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\tr_public.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_public.h">
+      <Filter>Modcode</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\vm_local.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\win_local.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\libpng\png.h">
+      <Filter>Libraries\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\libpng\pngconf.h">
+      <Filter>Libraries\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\libpng\pngstruct.h">
+      <Filter>Libraries\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\crc32.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\deflate.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\gzguts.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inffast.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inffixed.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inflate.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\inftrees.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\ioapi.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\trees.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zconf.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zlib.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib\zutil.h">
+      <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\unzip.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Botlib">
+      <UniqueIdentifier>{63b40a5a-d39b-4fdb-b1b7-e6c5db92b280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{ccee72a8-4778-4b58-928f-92f4be47d0fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\zlib">
+      <UniqueIdentifier>{a1149db8-6242-41d5-96ea-8e774ff73534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\ICARUS">
+      <UniqueIdentifier>{e78d2aed-109d-4ac8-b6a1-016d49b55026}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modcode">
+      <UniqueIdentifier>{79592376-c2b9-40c7-a52f-27485df64c01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Client">
+      <UniqueIdentifier>{2cc7bf4e-3469-4611-a5d9-bbd58acc3e40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{31fbc0cb-a0a0-42b2-bd86-03972a99e2ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ghoul2">
+      <UniqueIdentifier>{c3024645-2628-4028-93bd-7053cae792bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Server">
+      <UniqueIdentifier>{60b14548-3ef5-483e-a40b-bda59f539181}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{490ecebb-b3e2-4ea0-bfa7-1cf34343acf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NULL">
+      <UniqueIdentifier>{47e8718c-4893-4859-949c-8935858388f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RMG">
+      <UniqueIdentifier>{de63cac7-15d5-468a-a512-eebbcddc342a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\png">
+      <UniqueIdentifier>{818994be-d722-4fcf-8314-38c1745347c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\libpng">
+      <UniqueIdentifier>{4471be4c-98c4-4d4e-b79b-59255e253b29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Win32">
+      <UniqueIdentifier>{4fd25470-49f3-4e0a-9e37-2219b135bd20}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="win32\openjkded.rc">
+      <Filter>Win32</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

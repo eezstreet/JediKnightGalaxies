@@ -12,15 +12,12 @@
  *
  *****************************************************************************/
 
+#pragma once
+
 //debugging on
 #define AAS_DEBUG
 
-// these are also in q_shared.h - argh (rjr)
-#ifdef _XBOX
-#define MAX_CLIENTS			16
-#else
 #define MAX_CLIENTS			64
-#endif
 #define MAX_RADAR_ENTITIES	MAX_GENTITIES
 #define	MAX_MODELS			512		// these are sent over the net as 8 bits
 #define	MAX_SOUNDS			256		// so they cannot be blindly increased

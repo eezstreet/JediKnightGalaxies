@@ -16,7 +16,6 @@
 #include "../GLua/glua.h"
 #include "json/cJSON.h"
 #include "jkg_admin.h"
-#include "g_engine.h"	// Include is required for jkg_bans.h
 #include "jkg_bans.h"
 //#include "jkg_navmesh_creator.h"
 #include "jkg_damagetypes.h"
@@ -25,7 +24,7 @@
 
 #include <assert.h>
 
-int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
+int Q_vsnprintf( char *dest, size_t size, const char *fmt, va_list argptr );
 
 level_locals_t	level;
 
@@ -1066,7 +1065,6 @@ static void JKG_RegisteServerCallback ( asyncTask_t *task )
 extern void RemoveAllWP(void);
 extern void BG_ClearVehicleParseParms(void);
 extern void JKG_InitItems(void);
-void JKG_PatchEngine();
 void ActivateCrashHandler();
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
@@ -1080,20 +1078,16 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 #endif
 
-	JKG_LoadAuxiliaryLibrary();
-	JKG_GLS_PatchEngine();
-	JKG_PatchEngine();
-	SetWindowTitle("Jedi Knight Galaxies Server - Initializing...");
+	//JKG_LoadAuxiliaryLibrary();
+	//JKG_GLS_PatchEngine();
 	OpenSSL_add_all_algorithms();
 
 	// Initialize Threading System
-	JKG_InitThreading();
+	//JKG_InitThreading();
 
 	// Initialize admin commands
 	JKG_Admin_Init();
 	//JKG_Nav_Init();
-
-	N_Init();
 
 	//Init RMG to 0, it will be autoset to 1 if there is terrain on the level.
 	trap_Cvar_Set("RMG", "0");
@@ -1337,8 +1331,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	/* TEMP - Stress level logging */
 	trap_FS_FOpenFile("stresslog.log", &stressfile, FS_APPEND);
 	lastStressLog = levelTime;
-
-	UpdateWindowTitle();
 }
 
 
@@ -1348,7 +1340,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 G_ShutdownGame
 =================
 */
-void JKG_UnpatchEngine();
 void DeactivateCrashHandler();
 void G_ShutdownGame( int restart ) {
 	int i = 0;
@@ -1445,11 +1436,8 @@ void G_ShutdownGame( int restart ) {
 	JKG_Easy_DIMA_Cleanup();
 	G_TerminateMemory(); // wipe all allocs made with G_Alloc
 	//JKG_Nav_Shutdown();
-	JKG_UnpatchEngine();
 	JKG_GLS_BreakLinkup();
-	N_Clear();
 	EVP_cleanup();
-	SetWindowTitle("Jedi Knight Galaxies Server");
 }
 
 
@@ -2447,19 +2435,6 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	//vsprintf( string +7 , fmt,argptr );
 	//[/OverflowProtection]
 	va_end( argptr );
-
-	/* If message redirecting is not enabled, display the log message in the server console too */
-	/* To determine this, we check if rd_flush != NULL */
-#ifdef __linux__
-	if ( g_dedicated.integer  && !*(void **)0x81E90C8 ) {
-#else
-	if ( g_dedicated.integer  && !*(void **)0x4DC73C ) {
-#endif
-		//[OverflowProtection]
-		G_Printf( "%s", string + l );
-		//G_Printf( "%s", string + 7 );
-		//[/OverflowProtection]
-	}
 
 
 	if ( !level.logFile ) {
@@ -3838,8 +3813,6 @@ qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 
 int g_siegeRespawnCheck = 0;
 
-extern int ClientConnectionActive[32];
-
 int FRAME_TIME = 0;
 
 void G_RunFrame( int levelTime ) {
@@ -3863,9 +3836,11 @@ void G_RunFrame( int levelTime ) {
 	FRAME_TIME = trap_Milliseconds();
 
 	// Run the main thread task poller (calling final callback functions that need to be on the main thread)
-	JKG_MainThreadPoller();
+	//JKG_MainThreadPoller();
 
 	// Jedi Knight Galaxies
+	// FIXME:
+	/*
 	if (jkg_fakeplayerban.integer && jkg_antifakeplayer.integer ) {
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			cl = &level.clients[i];
@@ -3875,11 +3850,11 @@ void G_RunFrame( int levelTime ) {
 			}
 			if (cl->pers.connected != CON_DISCONNECTED) {
 				if (!cl->sess.noq3fill && level.time > (cl->sess.connTime + 8000) ) {
-					/*if (!Q_stricmp(cl->sess.IP, "localhost")) {
+					if (!Q_stricmp(cl->sess.IP, "localhost")) {
 						// Local host (this is the guy that did Create Server.. which isn't possible.., anyway, dont kick)
 						cl->sess.noq3fill = 1;
 						continue;
-					}*/
+					}
 					if (!ClientConnectionActive[i]) {
 						// Dead connection
 						if (jkg_fakeplayerbantime.string[0]) {
@@ -3895,6 +3870,7 @@ void G_RunFrame( int levelTime ) {
 			}
 		}
 	}
+	*/
 	// Run lua timers
 	GLua_Timer();
 	GLua_Thread();
@@ -4250,13 +4226,13 @@ void G_RunFrame( int levelTime ) {
 			}
 
 			#define JKG_BLOCK_POINT_REGENERATION_RATE	200
-			if( ent->client->ns.blockPoints < 100 )
+			if( ent->client->ps.blockPoints < 100 )
 			{
 				if(ent->client->ps.weapon == WP_SABER)
 				{
 					if(ent->client->saberBPDebRecharge < level.time)
 					{
-						ent->client->ns.blockPoints++;
+						ent->client->ps.blockPoints++;
 						if( ent->client->ps.saberActionFlags & (1 << SAF_BLOCKING) )
 						{
 							ent->client->saberBPDebRecharge = level.time + 175;

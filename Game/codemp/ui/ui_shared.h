@@ -682,14 +682,52 @@ qboolean	trap_G2API_IKMove(void *ghoul2, int time, sharedIKMoveParams_t *params)
 
 void		trap_G2API_GetSurfaceName(void *ghoul2, int surfNumber, int modelIndex, char *fillBuf);
 
-void N_CL_Init();
-void N_CL_Clear();
 void CL_InitMultiMasterServer(void);
 void CL_ShutdownMultiMasterServer(void);
+
+void trap_JKG_ChangeProtocol( int whatProtocol );
 
 #include "../namespace_end.h"
 
 /*
 Ghoul2 Insert End
 */
+
+/*
+========================================================================
+
+Crossover API
+
+========================================================================
+*/
+
+// The crossover API allows cgame and UI to communicate
+#include "bg_weapons.h"
+
+typedef struct
+{
+	qboolean		(*HandleServerCommand)( const char *command );
+	void			(*SetEscapeTrap)( qboolean activate );
+
+	void			(*PartyMngtNotify)( int msg );
+	void			(*InventoryNotify)( int msg );
+	void			(*ShopNotify)( int msg );
+} uiCrossoverExports_t;
+
+typedef struct
+{
+	void			(*SendClientCommand)( const char *command );
+	qboolean		(*EscapeTrapped)( void );
+
+	void*			(*PartyMngtDataRequest)( int data );
+	void*			(*InventoryDataRequest)( int data );
+	void			(*InventoryAttachToACI)( int itemNum, int slot, int attach );
+	weaponData_t*	(*GetWeaponDatas)( unsigned char weapon, unsigned char variation );
+	int				(*GetRedTeam)( void );
+	int				(*GetBlueTeam)( void );
+} cgCrossoverExports_t;
+
+#ifdef UI_EXPORTS
+extern cgCrossoverExports_t *cgImports;
+#endif
 #endif

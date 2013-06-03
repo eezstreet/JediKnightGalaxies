@@ -57,7 +57,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/Dlls\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">../$(Configuration)/JK2cgame\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Dlls\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/Build/base\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../$(Configuration)/JK2cgame\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
@@ -235,7 +235,7 @@
     </PreLinkEvent>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;winmm.lib;jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)cgamex86.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\gameswf\dependencies\jpeglib\lib;..\gameswf\dependencies\SDL\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -274,6 +274,7 @@
     <ClCompile Include="..\game\bg_saberLoad.c" />
     <ClCompile Include="..\game\bg_slidemove.c" />
     <ClCompile Include="..\game\bg_vehicleLoad.c" />
+    <ClCompile Include="..\game\bg_vmove.c" />
     <ClCompile Include="..\game\bg_weapons.c" />
     <ClCompile Include="..\game\bg_weapons_load.c" />
     <ClCompile Include="..\game\NPC_Animal.c" />
@@ -286,7 +287,6 @@
     <ClCompile Include="cg_draw.c" />
     <ClCompile Include="cg_drawtools.c" />
     <ClCompile Include="cg_effects.c" />
-    <ClCompile Include="cg_engine.c" />
     <ClCompile Include="cg_ents.c" />
     <ClCompile Include="cg_event.c" />
     <ClCompile Include="cg_info.c" />
@@ -297,7 +297,6 @@
     <ClCompile Include="cg_newDraw.c" />
     <ClCompile Include="cg_players.c" />
     <ClCompile Include="cg_playerstate.c" />
-    <ClCompile Include="cg_postprocess.c" />
     <ClCompile Include="cg_predict.c" />
     <ClCompile Include="cg_scoreboard.c" />
     <ClCompile Include="cg_servercmds.c" />
@@ -317,9 +316,6 @@
     <ClCompile Include="fx_force.c" />
     <ClCompile Include="fx_heavyrepeater.c" />
     <ClCompile Include="fx_rocketlauncher.c" />
-    <ClCompile Include="jkg_antidebug.c" />
-    <ClCompile Include="jkg_cg_auxlib.c" />
-    <ClCompile Include="jkg_cg_crafting.c" />
     <ClCompile Include="jkg_cg_damagetypes.c" />
     <ClCompile Include="jkg_cg_items.c" />
     <ClCompile Include="jkg_cg_weaponholster.c" />
@@ -327,21 +323,15 @@
     <ClCompile Include="jkg_chatcmds.c" />
     <ClCompile Include="jkg_cinbuild.c" />
     <ClCompile Include="jkg_custombounds.c" />
-    <ClCompile Include="jkg_engine.c" />
-    <ClCompile Include="jkg_framebuffers.c" />
     <ClCompile Include="..\game\jkg_gangwars.c" />
-    <ClCompile Include="jkg_glcommon.c" />
     <ClCompile Include="jkg_hud.c" />
-    <ClCompile Include="jkg_joystick.cpp" />
     <ClCompile Include="jkg_minimaps.c" />
     <ClCompile Include="jkg_musicengine.c" />
     <ClCompile Include="jkg_navmesh_visualiser.cpp" />
     <ClCompile Include="jkg_patcher.c" />
-    <ClCompile Include="jkg_pixelshaders.c" />
     <ClCompile Include="jkg_splinepaths.c" />
     <ClCompile Include="jkg_autowaypoint.c" />
     <ClCompile Include="jkg_wpindicators.c" />
-    <ClCompile Include="..\game\networkstate.c" />
     <ClCompile Include="..\game\q_math.c" />
     <ClCompile Include="..\game\q_shared.c" />
     <ClCompile Include="..\ui\ui_shared.c" />
@@ -358,18 +348,6 @@
     <ClCompile Include="..\libraries\libudis86\syn.c" />
     <ClCompile Include="..\libraries\libudis86\udis86.c" />
     <ClCompile Include="..\libraries\json\cJSON.c" />
-    <ClCompile Include="..\libraries\zlib\adler32.c" />
-    <ClCompile Include="..\libraries\zlib\compress.c" />
-    <ClCompile Include="..\libraries\zlib\crc32.c" />
-    <ClCompile Include="..\libraries\zlib\deflate.c" />
-    <ClCompile Include="..\libraries\zlib\gzio.c" />
-    <ClCompile Include="..\libraries\zlib\infback.c" />
-    <ClCompile Include="..\libraries\zlib\inffast.c" />
-    <ClCompile Include="..\libraries\zlib\inflate.c" />
-    <ClCompile Include="..\libraries\zlib\inftrees.c" />
-    <ClCompile Include="..\libraries\zlib\trees.c" />
-    <ClCompile Include="..\libraries\zlib\uncompr.c" />
-    <ClCompile Include="..\libraries\zlib\zutil.c" />
     <ClCompile Include="..\libraries\encoding\base128.c" />
     <ClCompile Include="..\libraries\encoding\bitstream.c" />
     <ClCompile Include="..\libraries\Detour\Source\DetourAlloc.cpp" />
@@ -393,65 +371,18 @@
     <ClCompile Include="..\libraries\RDDebugUtils\Source\DetourDebugDraw.cpp" />
     <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDebugDraw.cpp" />
     <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDump.cpp" />
-    <ClCompile Include="..\libraries\glew\src\glew.c" />
-    <ClCompile Include="..\gameswf\gameswf_action.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_button.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_cgame_interface.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_dlist.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_font.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_fontlib.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_impl.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_log.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_morph.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_morph2.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_parser.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_processor.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_render.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_render_handler_ogl.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_render_handler_xbox.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_shape.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_sound.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_sound_handler_mp3.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_sound_handler_sdl.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_stream.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_styles.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_tesselate.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_text.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_tools.cpp" />
-    <ClCompile Include="..\gameswf\gameswf_types.cpp" />
-    <ClCompile Include="..\gameswf\swfparse.cpp" />
-    <ClCompile Include="..\gameswf\base\component_hackery.cpp" />
-    <ClCompile Include="..\gameswf\base\config.cpp" />
-    <ClCompile Include="..\gameswf\base\container.cpp" />
-    <ClCompile Include="..\gameswf\base\dlmalloc.c" />
-    <ClCompile Include="..\gameswf\base\image.cpp" />
-    <ClCompile Include="..\gameswf\base\image_filters.cpp" />
-    <ClCompile Include="..\gameswf\base\jpeg.cpp" />
-    <ClCompile Include="..\gameswf\base\ogl.cpp" />
-    <ClCompile Include="..\gameswf\base\postscript.cpp" />
-    <ClCompile Include="..\gameswf\base\test_ogl.cpp" />
-    <ClCompile Include="..\gameswf\base\tu_file.cpp" />
-    <ClCompile Include="..\gameswf\base\tu_file_SDL.cpp" />
-    <ClCompile Include="..\gameswf\base\tu_random.cpp" />
-    <ClCompile Include="..\gameswf\base\tu_types.cpp" />
-    <ClCompile Include="..\gameswf\base\utf8.cpp" />
-    <ClCompile Include="..\gameswf\base\utility.cpp" />
-    <ClCompile Include="..\gameswf\base\zlib_adapter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h" />
     <ClInclude Include="animtable.h" />
-    <ClInclude Include="aux_cg_exports.h" />
     <ClInclude Include="..\game\bg_ammo.h" />
     <ClInclude Include="..\game\bg_items.h" />
     <ClInclude Include="..\game\bg_local.h" />
     <ClInclude Include="..\game\bg_public.h" />
     <ClInclude Include="..\game\bg_strap.h" />
     <ClInclude Include="..\game\bg_weapons.h" />
-    <ClInclude Include="cg_crossover.h" />
     <ClInclude Include="cg_lights.h" />
     <ClInclude Include="cg_local.h" />
-    <ClInclude Include="cg_postprocess.h" />
     <ClInclude Include="cg_public.h" />
     <ClInclude Include="cg_weapons.h" />
     <ClInclude Include="..\shared\qcommon\disablewarnings.h" />
@@ -463,13 +394,10 @@
     <ClInclude Include="jkg_cg_items.h" />
     <ClInclude Include="jkg_chatcmds.h" />
     <ClInclude Include="jkg_eshader.h" />
-    <ClInclude Include="jkg_framebuffers.h" />
     <ClInclude Include="..\game\jkg_gangwars.h" />
-    <ClInclude Include="jkg_glcommon.h" />
     <ClInclude Include="jkg_hud.h" />
     <ClInclude Include="jkg_navmesh_visualiser.h" />
     <ClInclude Include="jkg_patcher.h" />
-    <ClInclude Include="jkg_pixelshaders.h" />
     <ClInclude Include="..\ui\keycodes.h" />
     <ClInclude Include="..\..\JKGalaxies\ui\menudef.h" />
     <ClInclude Include="..\game\q_shared.h" />
@@ -496,17 +424,6 @@
     <ClInclude Include="..\libraries\libudis86\types.h" />
     <ClInclude Include="..\libraries\libudis86\udis86.h" />
     <ClInclude Include="..\libraries\json\cJSON.h" />
-    <ClInclude Include="..\libraries\zlib\crc32.h" />
-    <ClInclude Include="..\libraries\zlib\deflate.h" />
-    <ClInclude Include="..\libraries\zlib\inffast.h" />
-    <ClInclude Include="..\libraries\zlib\inffixed.h" />
-    <ClInclude Include="..\libraries\zlib\inflate.h" />
-    <ClInclude Include="..\libraries\zlib\inftrees.h" />
-    <ClInclude Include="..\libraries\zlib\trees.h" />
-    <ClInclude Include="..\libraries\zlib\zconf.h" />
-    <ClInclude Include="..\libraries\zlib\zconf.in.h" />
-    <ClInclude Include="..\libraries\zlib\zlib.h" />
-    <ClInclude Include="..\libraries\zlib\zutil.h" />
     <ClInclude Include="..\libraries\encoding\base128.h" />
     <ClInclude Include="..\libraries\encoding\bitstream.h" />
     <ClInclude Include="..\libraries\Detour\Include\DetourAlloc.h" />
@@ -525,99 +442,11 @@
     <ClInclude Include="..\libraries\RDDebugUtils\Include\DetourDebugDraw.h" />
     <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDebugDraw.h" />
     <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDump.h" />
-    <ClInclude Include="..\libraries\glew\include\GL\glew.h" />
-    <ClInclude Include="..\libraries\glew\include\GL\glxew.h" />
-    <ClInclude Include="..\libraries\glew\include\GL\wglew.h" />
     <ClInclude Include="bass.h" />
     <ClInclude Include="basstest.h" />
-    <ClInclude Include="..\gameswf\compatibility_include.h" />
-    <ClInclude Include="..\gameswf\gameswf.h" />
-    <ClInclude Include="..\gameswf\gameswf_action.h" />
-    <ClInclude Include="..\gameswf\gameswf_button.h" />
-    <ClInclude Include="..\gameswf\gameswf_dlist.h" />
-    <ClInclude Include="..\gameswf\gameswf_font.h" />
-    <ClInclude Include="..\gameswf\gameswf_fontlib.h" />
-    <ClInclude Include="..\gameswf\gameswf_impl.h" />
-    <ClInclude Include="..\gameswf\gameswf_log.h" />
-    <ClInclude Include="..\gameswf\gameswf_morph.h" />
-    <ClInclude Include="..\gameswf\gameswf_morph2.h" />
-    <ClInclude Include="..\gameswf\gameswf_render.h" />
-    <ClInclude Include="..\gameswf\gameswf_shape.h" />
-    <ClInclude Include="..\gameswf\gameswf_sound.h" />
-    <ClInclude Include="..\gameswf\gameswf_stream.h" />
-    <ClInclude Include="..\gameswf\gameswf_styles.h" />
-    <ClInclude Include="..\gameswf\gameswf_tesselate.h" />
-    <ClInclude Include="..\gameswf\gameswf_types.h" />
-    <ClInclude Include="..\gameswf\base\config.h" />
-    <ClInclude Include="..\gameswf\base\container.h" />
-    <ClInclude Include="..\gameswf\base\cschema.h" />
-    <ClInclude Include="..\gameswf\base\dlmalloc.h" />
-    <ClInclude Include="..\gameswf\base\image.h" />
-    <ClInclude Include="..\gameswf\base\jpeg.h" />
-    <ClInclude Include="..\gameswf\base\ogl.h" />
-    <ClInclude Include="..\gameswf\base\postscript.h" />
-    <ClInclude Include="..\gameswf\base\smart_ptr.h" />
-    <ClInclude Include="..\gameswf\base\tu_config.h" />
-    <ClInclude Include="..\gameswf\base\tu_file.h" />
-    <ClInclude Include="..\gameswf\base\tu_math.h" />
-    <ClInclude Include="..\gameswf\base\tu_opengl_includes.h" />
-    <ClInclude Include="..\gameswf\base\tu_random.h" />
-    <ClInclude Include="..\gameswf\base\tu_swap.h" />
-    <ClInclude Include="..\gameswf\base\tu_types.h" />
-    <ClInclude Include="..\gameswf\base\utf8.h" />
-    <ClInclude Include="..\gameswf\base\utility.h" />
-    <ClInclude Include="..\gameswf\base\zlib_adapter.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\begin_code.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\close_code.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_active.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_audio.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_byteorder.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_cdrom.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_dreamcast.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_macos.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_macosx.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_minimal.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_nds.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_os2.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_symbian.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_config_win32.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_copying.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_cpuinfo.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_endian.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_error.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_events.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_getenv.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_joystick.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_keyboard.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_keysym.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_loadso.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_main.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_mouse.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_mutex.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_name.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_opengl.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_platform.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_quit.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_rwops.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_stdinc.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_syswm.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_thread.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_timer.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_types.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_version.h" />
-    <ClInclude Include="..\gameswf\dependencies\SDL\include\SDL_video.h" />
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jconfig.h" />
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jerror.h" />
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jmorecfg.h" />
-    <ClInclude Include="..\gameswf\dependencies\jpeglib\include\jpeglib.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="JK2_cgame.def" />
-    <None Include="..\gameswf\gameswf_parser.exe" />
-    <None Include="..\gameswf\gameswf_processor.exe" />
-    <None Include="..\gameswf\gameswf_test_ogl.exe" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\win32\JK2cgame.rc" />

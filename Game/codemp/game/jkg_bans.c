@@ -29,7 +29,6 @@
 \*/
 
 #include "g_local.h"
-#include "g_engine.h"
 #include <json/cJSON.h>
 
 typedef struct banentry_s {

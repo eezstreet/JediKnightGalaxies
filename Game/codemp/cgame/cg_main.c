@@ -13,8 +13,6 @@ displayContextDef_t cgDC;
 #endif
 
 // Jedi Knight Galaxies
-#include "cg_crossover.h"
-#include "cg_postprocess.h"
 #include "cg_weapons.h"
 #include "jkg_gangwars.h"
 #include "bg_items.h"
@@ -225,6 +223,8 @@ extern qboolean CLIENT_FORCED_SHUTDOWN;
 extern void CG_ClearRecordedLights();
 #endif //__EXPERIMENTAL_SHADOWS__
 
+extern void ChatBox_UseMessageMode(int whichOne);
+
 /*
 ================
 vmMain
@@ -357,7 +357,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 #ifdef __MUSIC_ENGINE__
 				CG_StopMusic();
 #endif //__MUSIC_ENGINE__
-		        PP_TerminatePostProcess();
 		        return 1;
 		    }
 		}
@@ -433,6 +432,10 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 			
 			CG_DoCameraShake( data->mOrigin, data->mIntensity, data->mRadius, data->mTime );
 		}
+		return 0;
+
+	case CG_MESSAGEMODE:
+		ChatBox_UseMessageMode(arg0);
 		return 0;
 
 	default:
@@ -1010,7 +1013,6 @@ vmCvar_t	ui_blurbackground;	// Blur the background when UI is active?
 
 vmCvar_t	jkg_simpleHUD;
 
-extern vmCvar_t	jkg_postprocess;
 extern vmCvar_t	jkg_nokillmessages;
 
 #ifdef __SWF__
@@ -1245,7 +1247,6 @@ Ghoul2 Insert End
 */
 // Jedi Knight Galaxies
 	{ &jkg_noletterbox, "jkg_noletterbox", "0", CVAR_ARCHIVE },
-	{ &jkg_postprocess, "jkg_postprocess", "1", CVAR_ARCHIVE | CVAR_LATCH },
 
 #ifdef __SWF__
 	{ &jkg_swf, "jkg_swf", "0", CVAR_ARCHIVE },
@@ -4050,10 +4051,7 @@ Will perform callbacks to make the loading info screen update.
 =================
 */
 
-void (__cdecl * CL_WritePacket)(void) = (void (__cdecl *)(void))0x41A470;
 void CinBuild_Init();
-void PatchEngine();
-void JKG_PatchEngine();
 void ChatBox_InitSystem();
 void MiniMap_Init();
 void JKG_WeaponIndicators_Init();
@@ -4062,12 +4060,12 @@ void JKG_WeaponIndicators_Init();
 #include "jkg_chatcmds.h"
 
 static void CG_OpenPartyManagement( void ) {
-	CO_PartyMngtNotify(10);
+	uiImports->PartyMngtNotify( 10 );
 }
 
 static void CG_OpenInventory ( void )
 {
-    CO_InventoryNotify (0);
+	uiImports->InventoryNotify( 0 );
 }
 
 void CG_SetupChatCmds() {
@@ -4077,6 +4075,7 @@ void CG_SetupChatCmds() {
 
 extern void JKG_CG_InitItems( void );
 extern void JKG_CG_InitArmor( void );
+extern void CG_InitializeCrossoverAPI( void );
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 {
 	static gitem_t *item;
@@ -4087,26 +4086,17 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 	cgame_initializing = qtrue;
 
 	// Do the engine patches
-	PatchEngine();
-	JKG_PatchEngine();
 	ChatBox_InitSystem();
-	JKG_CG_LoadAuxiliaryLibrary();
 	trap_Cvar_Set("connmsg", ""); // Clear connection message override
 
 	BG_InitAnimsets(); //clear it out
 
 	trap_CG_RegisterSharedMemory(cg.sharedBuffer);
 
-	// Jedi Knight Galaxies
-	// Tell the server that we're a valid client
-	// Moved to UI: Engine hook
-	// trap_SendClientCommand("~svrValidateClient");
-	// Force the game to send it
-	//CL_WritePacket();
-	//CL_WritePacket();
-
 	//Load external vehicle data
 	BG_VehicleLoadParms();
+
+	CG_InitializeCrossoverAPI();
 
 	// clear everything
 /*
@@ -4283,17 +4273,6 @@ Ghoul2 Insert End
 	trap_GetGlconfig( &cgs.glconfig );
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
-	
-	// JKGalaxies - Setup in the post-processing system.
-	if(JKG_CheckIfIntel())
-	{
-		jkg_postprocess.integer = 0;
-		trap_Cvar_Set("jkg_postprocess", "0");
-	}
-	if(jkg_postprocess.integer)
-	{
-		PP_InitPostProcess();
-	}
 
 	// get the gamestate from the client system
 	trap_GetGameState( &cgs.gameState );
@@ -4384,9 +4363,6 @@ Ghoul2 Insert End
 	//now get all the cgame only cents
 	CG_SpawnCGameOnlyEnts();
 
-	// Init crossover
-	CO_InitCrossover();
-
 	/* Initialize the party list table */
 	for ( i = 0; i < MAX_CLIENTS; i++ )
 	{
@@ -4467,8 +4443,6 @@ CG_Shutdown
 Called before every level change or subsystem restart
 =================
 */
-void UnpatchEngine();
-void JKG_UnpatchEngine();
 
 void CG_Shutdown( void ) 
 {
@@ -4477,8 +4451,7 @@ void CG_Shutdown( void )
     CG_DestroyAllGhoul2();
 
 	// Jedi Knight Galaxies, terminate the crossover
-	CO_Shutdown();
-	PP_TerminatePostProcess(); // And Post Processing
+	trap_CO_Shutdown();
 
 //	Com_Printf("... FX System Cleanup\n");
 	trap_FX_FreeSystem();
@@ -4499,11 +4472,6 @@ void CG_Shutdown( void )
 
 	// some mods may need to do cleanup work here,
 	// like closing files or archiving session data
-
-	// Remove engine patches
-	JKG_GLCG_BreakLinkup();
-	UnpatchEngine();
-	JKG_UnpatchEngine();
 }
 
 /*

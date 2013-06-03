@@ -2,7 +2,6 @@
 
 #include "ui_shared.h"
 #include "ui_local.h"
-#include "ui_crossover.h"
 
 #define KEYWORDHASH_SIZE	512
 
@@ -106,7 +105,7 @@ void JKAG_LoginAcc(void) {
 	Menu_ShowItemByName(menu, "backdrops", qfalse);
 	Menu_ShowItemByName(menu, "login_back", qtrue);
 	Menu_ShowItemByName(menu, "login_msg", qtrue);
-	CO_SendClientCommand(va("~clLogin \"%s\" \"%s\"", username, password));
+	cgImports->SendClientCommand(va("~clLogin \"%s\" \"%s\"", username, password));
 	//trap_Cmd_ExecuteText(EXEC_NOW, va("~clLogin \"%s\" \"%s\"", username, password));
 }
 
@@ -132,7 +131,7 @@ void JKAG_RegisterAcc() {
 	Menu_ShowItemByName(menu, "reg2", qfalse);
 	Menu_ShowItemByName(menu, "backdrops", qfalse);
 	Menu_ShowItemByName(menu, "reg_msg", qfalse);
-	CO_SendClientCommand(va("~clRegister \"%s\" \"%s\" \"%s\"", username, password, email));
+	cgImports->SendClientCommand(va("~clRegister \"%s\" \"%s\" \"%s\"", username, password, email));
 	//trap_Cmd_ExecuteText(EXEC_NOW, va("~clRegister \"%s\" \"%s\" \"%s\"", username, password, email));
 }
 
@@ -261,9 +260,9 @@ void JKAG_Cmd_clLoginResp() {
 	if (buff[0] == 's') {
 		// Success
 		Menus_CloseByName("JKAG_login");
-		CO_SysCall_UI();
+		trap_Syscall_UI();
 		trap_Print("Login successful!\n");
-		CO_SysCall_CG();
+		trap_Syscall_CG();
 	} else {
 		// Failed
 		Menu_ShowItemByName(menu, "login_msg", qfalse);
@@ -304,7 +303,7 @@ void JKAG_Cmd_clRegisterResp() {
 }*/
 
 void JKG_SendEscape(char ** args) {
-	CO_EscapeTrapped();
+	cgImports->EscapeTrapped();
 }
 
 #include "jkg_conversations.h"
@@ -437,11 +436,11 @@ qboolean UI_RunSvCommand(const char *command) {
 	// Only called by cgame, dont use trap calls inside this or nested functions!
 	JKGkeywordHashSv_t *cmd = JKGKeywordHashSv_Find(JKGCmdsHash, ( char * ) command);
 	if (!cmd || !cmd->func) return qfalse;
-	CO_SysCall_UI();
+	trap_Syscall_UI();
 	// Inside this function trap calls are safe to be used
 	// RIP Boba's hack!
 	//((void (*)(void)) ( *((void (**)())&cmd->func) ))();
 	cmd->func();
-	CO_SysCall_CG();
+	trap_Syscall_CG();
 	return qtrue;
 }

@@ -6,7 +6,6 @@
 
 #include "ui_shared.h"
 #include "ui_local.h"
-#include "ui_crossover.h"
 
 
 // Text entry bits
@@ -515,7 +514,7 @@ void Conv_Script_ProcessChoice(char **args) {
 	int choice;
 	if (Int_Parse(args, &choice)) {
 		choice += ConvoData.choiceScroll;
-		CO_SendClientCommand(va("~convresp %i", choice));
+		cgImports->SendClientCommand(va("~convresp %i", choice));
 	}
 }
 
@@ -534,7 +533,7 @@ void Conv_Script_ProcessTextEntry(char **args) {
 		item = Menu_FindItemByName(menu, "te_text");
 		edit = (editFieldDef_t *)item->typeData;
 
-		CO_SendClientCommand(va("~convteresp %i \"%s\"", choice, &edit->buffer[0]));
+		cgImports->SendClientCommand(va("~convteresp %i \"%s\"", choice, &edit->buffer[0]));
 	}
 }
 
@@ -557,7 +556,7 @@ void Item_RunScript(itemDef_t *item, const char *s);
 
 qboolean Conv_HandleKey_KeyHandler(int flags, float *special, int key) {
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER || key == A_SPACE ) {
-		CO_EscapeTrapped();
+		cgImports->EscapeTrapped();
 		Menu_NoDefaultKeyBehaviour();
 	}
 	return qfalse;
@@ -623,7 +622,7 @@ qboolean Conv_HandleKey_Options(int choice, int flags, float *special, int key) 
 	} else if (key >= A_1 && key <= A_9) {
 		// Manually picked an option there, see if the item exists, and if so, select it
 		if (ConvoData.choicecount >= (key - A_1 + 1)) {
-			CO_SendClientCommand(va("~convresp %i", (key - A_1 + 1)));
+			cgImports->SendClientCommand(va("~convresp %i", (key - A_1 + 1)));
 		}
 		Menu_NoDefaultKeyBehaviour();
 	}

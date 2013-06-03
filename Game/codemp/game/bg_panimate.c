@@ -3010,7 +3010,7 @@ PM_SetAnimFinal
 qboolean PM_RunningAnim( int anim );
 qboolean PM_WalkingAnim( int anim );
 
-void BG_SetAnimFinal(playerState_t *ps, networkState_t *ns, animation_t *animations,
+void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 					 int setAnimParts,int anim,int setAnimFlags,
 					 int blendTime)		// default blendTime=350
 {
@@ -3027,16 +3027,8 @@ void BG_SetAnimFinal(playerState_t *ps, networkState_t *ns, animation_t *animati
 	//NOTE: Setting blendTime here breaks actual blending..
 	blendTime = 0;
 
-	if(ns)
-	{
-		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs, 
-			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ns->saberSwingSpeed, ps->saberMove);
-	}
-	else
-	{
-		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs, SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale,
-			1.0f, ps->saberMove);
-	}
+	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs, 
+		SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ps->saberSwingSpeed, ps->saberMove);
 
 	// Set torso anim
 	if (setAnimParts & SETANIM_TORSO)
@@ -3205,7 +3197,7 @@ setAnimDone:
 void PM_SetAnimFinal(int setAnimParts,int anim,int setAnimFlags,
 					 int blendTime)		// default blendTime=350
 {
-	BG_SetAnimFinal(pm->ps, pm->ns, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
+	BG_SetAnimFinal(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
 
 
@@ -3257,7 +3249,7 @@ int BG_PickAnim( int animIndex, int minAnim, int maxAnim )
 //of a pmove too so I have ported it to true BGishness.
 //Please do not reference pm in this function or any functions that it calls,
 //or I will cry. -rww
-void BG_SetAnim(playerState_t *ps, networkState_t *ns, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime)
+void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime)
 {
 	if (!animations)
 	{
@@ -3312,12 +3304,12 @@ void BG_SetAnim(playerState_t *ps, networkState_t *ns, animation_t *animations, 
 		}
 	}
 
-	BG_SetAnimFinal(ps, ns, animations, setAnimParts, anim, setAnimFlags, blendTime);
+	BG_SetAnimFinal(ps, animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
 
 void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags, int blendTime)
 {	
-	BG_SetAnim(pm->ps, pm->ns, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
+	BG_SetAnim(pm->ps, pm->animations, setAnimParts, anim, setAnimFlags, blendTime);
 }
 
 //[BugFix2]
@@ -3327,7 +3319,7 @@ void PM_SetAnim(int setAnimParts,int anim,int setAnimFlags, int blendTime)
 
 //Get the point in the animation and return a percentage of the current point in the anim between 0 and the total anim length (0.0f - 1.0f)
 //This function assumes that your animation timer is set to the exact length of the animation
-float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns)
+float BG_GetTorsoAnimPoint(playerState_t *ps, int AnimIndex)
 {
 	float attackAnimLength = 0;
 	float currentPoint = 0;
@@ -3337,16 +3329,8 @@ float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns
 	//animSpeedFactor *= ns->saberSwingSpeed;
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
-	if(ns)
-	{
-		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->torsoAnim, &animSpeedFactor, ps->brokenLimbs, 
-			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ns->saberSwingSpeed, ps->saberMove);
-	}
-	else
-	{
-		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->torsoAnim, &animSpeedFactor, ps->brokenLimbs, 
-			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, 1.0f, ps->saberMove);
-	}
+	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->torsoAnim, &animSpeedFactor, ps->brokenLimbs, 
+		SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ps->saberSwingSpeed, ps->saberMove);
 
 	if( animSpeedFactor > 0 )
 	{
@@ -3377,7 +3361,7 @@ float BG_GetTorsoAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns
 }
 
 
-float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns)
+float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex)
 {
 	float attackAnimLength = 0;
 	float currentPoint = 0;
@@ -3385,16 +3369,8 @@ float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex, networkState_t *ns)
 	float animPercentage = 0;
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
-	if(ns)
-	{
-		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->legsAnim, &animSpeedFactor, ps->brokenLimbs, 
-			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ns->saberSwingSpeed, ps->saberMove);
-	}
-	else
-	{
-		BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->legsAnim, &animSpeedFactor, ps->brokenLimbs, 
-			SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, 1.0f, ps->saberMove);
-	}
+	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, ps->legsAnim, &animSpeedFactor, ps->brokenLimbs, 
+		SaberStances[ps->fd.saberAnimLevel].moves[ps->saberMove].animspeedscale, ps->saberSwingSpeed, ps->saberMove);
 
 	if( animSpeedFactor > 0 )
 	{

@@ -37,11 +37,11 @@ extern void CG_RecordLightPosition( vec3_t org );
 // position between normal position and ironsights
 // position.
 //=========================================================
-float JKG_CalculateIronsightsPhase ( const networkState_t *ns )
+float JKG_CalculateIronsightsPhase ( const playerState_t *ps )
 {
     double phase;
-    unsigned int time = ns->ironsightsTime & ~IRONSIGHTS_MSB;
-    if ( ns->ironsightsTime & IRONSIGHTS_MSB )
+    unsigned int time = ps->ironsightsTime & ~IRONSIGHTS_MSB;
+    if ( ps->ironsightsTime & IRONSIGHTS_MSB )
     {
         phase = CubicBezierInterpolate (min (cg.time - time, IRONSIGHTS_TIME) / (double)IRONSIGHTS_TIME, 0.0, 0.0, 1.0, 1.0);
         cg.ironsightsBlend = min (1.0f, max (0.0f, phase));
@@ -95,11 +95,11 @@ qboolean JKG_FiringModeAnimsAreTheSame( int transition )
 // full. All values in between are some position between 
 // normal position and full-on sprinting.
 //=========================================================
-float JKG_CalculateSprintPhase( const networkState_t *ns )
+float JKG_CalculateSprintPhase( const playerState_t *ps )
 {
 	double phase;
-    unsigned int time = ns->sprintTime & ~SPRINT_MSB;
-    if ( ns->sprintTime & SPRINT_MSB )
+    unsigned int time = ps->sprintTime & ~SPRINT_MSB;
+    if ( ps->sprintTime & SPRINT_MSB )
     {
         phase = CubicBezierInterpolate (min (cg.time - time, SPRINT_TIME) / (double)SPRINT_TIME, 0.0, 0.0, 1.0, 1.0);
         cg.sprintBlend = min (1.0f, max (0.0f, phase));
@@ -417,7 +417,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	float	swayscale;
 	int		delta;
 	float	fracsin;
-	float	sprintPhase = JKG_CalculateSprintPhase(&cg.networkState);
+	float	sprintPhase = JKG_CalculateSprintPhase(&cg.predictedPlayerState);
 	vec3_t defaultAngles, defaultOrigin;
 	weaponData_t *weaponData = GetWeaponData(cg.predictedPlayerState.weapon, cg.predictedPlayerState.weaponVariation);
 	weaponData_t *prevWeaponData = BG_GetWeaponDataByIndex(cg.lastFiringModeGun);
@@ -433,7 +433,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	}
 
 	// idle drift
-	if(JKG_CalculateIronsightsPhase(&cg.networkState) < 0.4)
+	if(JKG_CalculateIronsightsPhase(&cg.predictedPlayerState) < 0.4)
 	{	// EDIT 9/11/12: Don't do this when we're in ironsights. Looks bad, man.
 		swayscale = cg.xyspeed + 40;
 		fracsin = sin( cg.time * 0.001 );
@@ -585,7 +585,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		VectorMA( origin, sprintYAdd * sprintPhase, cg.refdef.viewaxis[1], origin );
 		VectorMA( origin, sprintZAdd * sprintPhase, cg.refdef.viewaxis[2], origin );
 
-		if(JKG_CalculateSprintPhase(&cg.networkState) > 0.001)
+		if(JKG_CalculateSprintPhase(&cg.predictedPlayerState) > 0.001)
 		{
 			float bobPitchAdd = /*jkg_debugSprintBobPitch.value*/ 0;
 			float bobYawAdd = /*jkg_debugSprintBobYaw.value*/ 0;
@@ -1626,7 +1626,7 @@ void CG_NextWeapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -1718,7 +1718,7 @@ void CG_PrevWeapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -1823,7 +1823,7 @@ void CG_Weapon_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -1917,7 +1917,7 @@ void CG_WeaponClean_f( void ) {
 		int current = trap_GetCurrentCmdNumber();
 		usercmd_t ucmd;
 		trap_GetUserCmd(current, &ucmd);
-		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, &cg.networkState, qfalse))
+		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
 		}
@@ -1991,6 +1991,10 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	entityState_t *ent;
 	int				c;
 	weaponInfo_t	*weap;
+	vec3_t			dummy = {0, 0, 0};
+	vec3_t			*viewangles = &dummy;
+
+	trap_JKG_GetViewAngles(viewangles);
 	
 
 	ent = &cent->currentState;
@@ -2011,11 +2015,10 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 
 		if ( fRecoil )
 		{
-			/* This used pointer (0x97DF88) is the base address of cl.viewangles. Therefore this is PITCH and +4 is YAW */
 			float fYawRecoil = flrand( 0.15 * fRecoil, 0.25 * fRecoil );
 			CGCam_Shake( flrand( 0.85 * fRecoil, 0.15 * fRecoil), 100 );
-			*(( float * ) 0x97DF8C ) += Q_irand( 0, 1 ) ? -fYawRecoil : fYawRecoil; // yaw
-			*(( float * ) 0x97DF88 ) -= fRecoil; // pitch
+			(*viewangles)[YAW] += Q_irand( 0, 1 ) ? -fYawRecoil : fYawRecoil; // yaw
+			(*viewangles)[PITCH] -= fRecoil; // pitch
 		}
 		
 		/*
@@ -2125,6 +2128,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 			}
 		}
 	}
+	//trap_JKG_SetViewAngles(viewangles);
 }
 
 qboolean CG_VehicleWeaponImpact( centity_t *cent )
@@ -2553,21 +2557,26 @@ void CG_InitG2Weapons(void)
 	    for ( j = 0; j < numVariations; j++ )
 	    {
 	        const weaponData_t *weaponData = GetWeaponData (i, j);
-	        void *ghoul2 = NULL;
+
+			if( weaponData && weaponData->classname && weaponData->classname[0] &&			// stop with these goddamn asserts...
+				weaponData->visuals.world_model && weaponData->visuals.world_model[0])		// hard to code with all this background noise going on --eez
+			{
+				void *ghoul2 = NULL;
 	        
-	        trap_G2API_InitGhoul2Model (&g2WeaponInstances[id].ghoul2, weaponData->visuals.world_model, 0, 0, 0, 0, 0);
+				trap_G2API_InitGhoul2Model (&g2WeaponInstances[id].ghoul2, weaponData->visuals.world_model, 0, 0, 0, 0, 0);
 	        
-	        ghoul2 = g2WeaponInstances[id].ghoul2;
+				ghoul2 = g2WeaponInstances[id].ghoul2;
 	        
-	        if ( trap_G2_HaveWeGhoul2Models (ghoul2) )
-	        {
-	            trap_G2API_SetBoltInfo (ghoul2, 0, 0);
-	            trap_G2API_AddBolt (ghoul2, 0, i == WP_SABER ? "*blade1" : "*flash");
+				if ( trap_G2_HaveWeGhoul2Models (ghoul2) )
+				{
+					trap_G2API_SetBoltInfo (ghoul2, 0, 0);
+					trap_G2API_AddBolt (ghoul2, 0, i == WP_SABER ? "*blade1" : "*flash");
 	            
-	            g2WeaponInstances[id].weaponNum = i;
-	            g2WeaponInstances[id].weaponVariation = j;
-	            id++;
-	        }
+					g2WeaponInstances[id].weaponNum = i;
+					g2WeaponInstances[id].weaponVariation = j;
+					id++;
+				}
+			}
 	    }
 	}
 	
@@ -2963,12 +2972,13 @@ weaponInfo_t *CG_NextFreeWeaponInfo ( void )
 //=========================================================
 // Weapon event handling functions
 //=========================================================
-#define VIEWANGLES_YAW_ADDRESS (0x97DF8C)
-#define VIEWANGLES_PITCH_ADDRESS (0x97DF88)
 static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode )
 {
     const entityState_t *s = &cent->currentState;
     const weaponData_t *thisWeaponData = GetWeaponData (cg.snap->ps.weapon, cg.snap->ps.weaponVariation);
+	vec3_t *viewangles;
+
+	viewangles = (vec3_t *)trap_JKG_GetViewAngles();
 
     // Update the muzzle flash time, so we know to draw it in the render function.
     if ( (cent->shotCount + 1) == UINT_MAX )
@@ -2999,8 +3009,8 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
 			
 			CGCam_Shake (flrand (0.85f * pitchRecoil, 0.15f * pitchRecoil), 100);
 			
-			*(float *)VIEWANGLES_YAW_ADDRESS += yawRecoil;
-			*(float *)VIEWANGLES_PITCH_ADDRESS -= pitchRecoil;
+			(*viewangles)[YAW] += yawRecoil;
+			(*viewangles)[PITCH] -= pitchRecoil;
 		}
     }
     
@@ -3015,6 +3025,8 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
         
         trap_S_StartSound (NULL, s->number, channel, weaponData->weaponFire.generic.fireSound[index]);
     }
+
+	trap_JKG_SetViewAngles(viewangles);
 }
 
 static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDrawData_t *weaponData )
@@ -3548,7 +3560,6 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
     const playerState_t *ps = &cg.predictedPlayerState;
     centity_t *cent = &cg_entities[ps->clientNum];
     const entityState_t *s = &cent->currentState;
-	const networkState_t *ns = &cg.networkState;
     
     const weaponInfo_t *weapon = NULL;
     
@@ -3598,7 +3609,7 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
     gunPosition[2] = abs (cg_gun_z.value) > FLT_EPSILON ? cg_gun_z.value : weapon->gunPosition[2];
     
     {
-        float phase = JKG_CalculateIronsightsPhase (ns);
+        float phase = JKG_CalculateIronsightsPhase (ps);
         vec3_t s;
         VectorSubtract (weapon->ironsightsPosition, gunPosition, s);
         
@@ -4317,7 +4328,6 @@ void JKG_FireWeapon ( centity_t *cent, qboolean altFire )
 		float damageModifier = (weaponData->firemodes[s->firingMode].baseDamage)/100.0f;
 
 		CLAMP(damageModifier, 0.3f, 1.0f);
-		JKG_DoControllerRumble( weaponData->firemodes[s->firingMode].delay / 2, damageModifier * 65535 );
 	}
     
     weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);

@@ -293,7 +293,6 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
         drawData->explosiveArm.armSound = trap_S_RegisterSound (fireModeVisuals->explosiveArm.armSound);
 }
 
-qhandle_t CG_FindShader(const char *name);
 void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weaponData )
 {
     static const char *barrelSuffixes[] = {
@@ -311,13 +310,13 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
     {
         if ( weaponVisuals->groupedIndicatorShaders[i][0] )
         {
-            weaponInfo->groupedIndicators[i] = CG_FindShader (weaponVisuals->groupedIndicatorShaders[i]);
+            weaponInfo->groupedIndicators[i] = trap_R_RegisterShader (weaponVisuals->groupedIndicatorShaders[i]);
         }
     }
     
     if ( weaponVisuals->firemodeIndicatorShader[0] )
     {
-        weaponInfo->fireModeIndicator = CG_FindShader (weaponVisuals->firemodeIndicatorShader);
+        weaponInfo->fireModeIndicator = trap_R_RegisterShader (weaponVisuals->firemodeIndicatorShader);
     }
     
     VectorClear (weaponInfo->gunPosition);
@@ -346,7 +345,7 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
         }
     }
     memset (weaponInfo->barrelModels, NULL_HANDLE, sizeof (weaponInfo->barrelModels));
-    COM_StripExtension (weaponVisuals->view_model, extensionlessModel);
+    COM_StripExtension (weaponVisuals->view_model, extensionlessModel, sizeof(extensionlessModel));
     
     for ( i = 0; i < 4; i++ )
     {
@@ -516,7 +515,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	if (weaponNum != WP_SABER)
 	{
 		strcpy( path, weaponData->visuals.view_model );
-		COM_StripExtension( path, path );
+		COM_StripExtension( path, path, sizeof(path) );
 		strcat( path, "_hand.md3" );
 		weaponInfo->handsModel = trap_R_RegisterModel( path );
 	}

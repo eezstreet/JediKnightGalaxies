@@ -6,6 +6,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommandArguments>+set fs_cdpath "C:\Games\JKG\GameData\" +set fs_game "JKG" +exec server.cfg </LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>../Debug/DLLs</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>../Debug/Build</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 </Project>

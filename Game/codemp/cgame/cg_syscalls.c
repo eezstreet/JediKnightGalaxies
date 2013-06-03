@@ -284,7 +284,7 @@ qhandle_t trap_R_RegisterFont( const char *fontName )
 	return syscall( CG_R_REGISTERFONT, fontName);
 }
 
-int	trap_R_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale)
+int trap_R_Font_StrLenPixels(const char *text, const int iFontIndex, const float scale)
 {
 	return syscall( CG_R_FONT_STRLENPIXELS, text, iFontIndex, PASSFLOAT(scale));
 }
@@ -1131,4 +1131,56 @@ void trap_WE_AddWeatherZone( const vec3_t mins, const vec3_t maxs )
 Ghoul2 Insert End
 */
 
+/*
+===========================
+
+JKG Syscalls - Temporary until new import table is done
+
+===========================
+*/
+
+#include "../ui/ui_shared.h"
+uiCrossoverExports_t *trap_CO_InitCrossover( cgCrossoverExports_t *uiImports )
+{
+	return (uiCrossoverExports_t *)syscall(CG_CO_INITCROSSOVER, uiImports);
+}
+
+void trap_CO_Shutdown( void )
+{
+	syscall(CG_CO_SHUTDOWN);
+}
+
+#include "../ui/ui_public.h"
+
+// make sure you use the appropriate follow-up, otherwise i will feed your dog to a carnivorous antelope --eez
+void trap_Syscall_UI( void )
+{
+	syscall(CG_CO_SYSCALL_UI);
+}
+
+void trap_Syscall_CG( void )
+{
+	syscall(UI_SYSCALL_CG);
+}
+
+void trap_JKG_OverrideShaderFrame( qhandle_t shader, int frame, int time )
+{
+	syscall(CG_JKG_OVERRIDESHADERFRAME, shader, frame, time );
+}
+
+// WARNING: float *table is actually a vec4_t [8]!!
+void trap_JKG_GetColorTable( float **table )
+{
+	syscall(CG_JKG_GETCOLORTABLE, table);
+}
+
+float **trap_JKG_GetViewAngles( void )
+{
+	return (float**)syscall(CG_JKG_GETVIEWANGLES);
+}
+
+void trap_JKG_SetViewAngles( vec3_t viewangles )
+{
+	syscall(CG_JKG_SETVIEWANGLES, viewangles);
+}
 #include "../namespace_end.h"

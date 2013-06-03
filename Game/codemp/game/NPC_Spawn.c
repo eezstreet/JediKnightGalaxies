@@ -405,7 +405,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		WP_SaberInitBladeData( ent );
 		ent->client->ps.saberHolstered = 0;
 		//Stoiss add Npc blockpoint
-		ent->client->ns.blockPoints = 150;//Stoiss add: give npcs Block point as well as players, should be higher then 100 to keep them give the player a good fight
+		ent->client->ps.blockPoints = 150;//Stoiss add: give npcs Block point as well as players, should be higher then 100 to keep them give the player a good fight
 
 	//	G_CreateG2AttachedWeaponModel( ent, ent->client->ps.saber[0].model, ent->handRBolt, 0 );
 	//	if ( ent->client->ps.dualSabers )

@@ -6,9 +6,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Side Module (game)",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "User Interface Module (ui)", "ui\ui.vcxproj", "{2DDA2041-6A68-4754-B342-14039CC91695}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client Auxiliary Library (galaxieslib)", "galaxieslib\galaxieslib.vcxproj", "{13EE074D-17E3-48AE-A7F5-64248369F986}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine (openjk)", "openjk.vcxproj", "{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server Auxiliary Library (galaxieslibsv)", "galaxieslibsv\galaxieslibsv.vcxproj", "{49025D66-F014-4493-9A4C-12B9A0D0A99D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dedicated Server (openjkded)", "openjkded.vcxproj", "{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "'Vanilla' Renderer (rd-vanilla)", "rd-vanilla\rd-vanilla.vcxproj", "{518BD884-C233-4B86-ACEA-79534A3CEC01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,18 +37,24 @@ Global
 		{2DDA2041-6A68-4754-B342-14039CC91695}.Final|Win32.Build.0 = Final|Win32
 		{2DDA2041-6A68-4754-B342-14039CC91695}.Release|Win32.ActiveCfg = Release|Win32
 		{2DDA2041-6A68-4754-B342-14039CC91695}.Release|Win32.Build.0 = Release|Win32
-		{13EE074D-17E3-48AE-A7F5-64248369F986}.Debug|Win32.ActiveCfg = Debug|Win32
-		{13EE074D-17E3-48AE-A7F5-64248369F986}.Debug|Win32.Build.0 = Debug|Win32
-		{13EE074D-17E3-48AE-A7F5-64248369F986}.Final|Win32.ActiveCfg = Final|Win32
-		{13EE074D-17E3-48AE-A7F5-64248369F986}.Final|Win32.Build.0 = Final|Win32
-		{13EE074D-17E3-48AE-A7F5-64248369F986}.Release|Win32.ActiveCfg = Release|Win32
-		{13EE074D-17E3-48AE-A7F5-64248369F986}.Release|Win32.Build.0 = Release|Win32
-		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Debug|Win32.Build.0 = Debug|Win32
-		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Final|Win32.ActiveCfg = Final|Win32
-		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Final|Win32.Build.0 = Final|Win32
-		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Release|Win32.ActiveCfg = Release|Win32
-		{49025D66-F014-4493-9A4C-12B9A0D0A99D}.Release|Win32.Build.0 = Release|Win32
+		{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}.Debug|Win32.Build.0 = Debug|Win32
+		{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}.Final|Win32.ActiveCfg = Release|Win32
+		{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}.Final|Win32.Build.0 = Release|Win32
+		{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}.Release|Win32.ActiveCfg = Release|Win32
+		{940CECBC-C6E6-DBE5-B493-0A64D54AFDF6}.Release|Win32.Build.0 = Release|Win32
+		{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}.Debug|Win32.Build.0 = Debug|Win32
+		{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}.Final|Win32.ActiveCfg = Release|Win32
+		{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}.Final|Win32.Build.0 = Release|Win32
+		{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}.Release|Win32.ActiveCfg = Release|Win32
+		{C9FF332F-6CFA-8DBC-3385-47EAEEF314A9}.Release|Win32.Build.0 = Release|Win32
+		{518BD884-C233-4B86-ACEA-79534A3CEC01}.Debug|Win32.ActiveCfg = Debug|Win32
+		{518BD884-C233-4B86-ACEA-79534A3CEC01}.Debug|Win32.Build.0 = Debug|Win32
+		{518BD884-C233-4B86-ACEA-79534A3CEC01}.Final|Win32.ActiveCfg = Release|Win32
+		{518BD884-C233-4B86-ACEA-79534A3CEC01}.Final|Win32.Build.0 = Release|Win32
+		{518BD884-C233-4B86-ACEA-79534A3CEC01}.Release|Win32.ActiveCfg = Release|Win32
+		{518BD884-C233-4B86-ACEA-79534A3CEC01}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

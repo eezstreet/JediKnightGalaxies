@@ -184,7 +184,7 @@ typedef struct weaponEventsHandler_s
     void (*ProjectileDeflected) ( const weaponDrawData_t *weaponData, const vec3_t origin, const vec3_t normal );
 } weaponEventsHandler_t;
 
-float JKG_CalculateIronsightsPhase ( const networkState_t *ps );
+float JKG_CalculateIronsightsPhase ( const playerState_t *ps );
 
 void CG_InitWeapons ( void );
 weaponInfo_t *CG_WeaponInfo ( unsigned int weaponNum, unsigned int variation );

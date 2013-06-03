@@ -1,7 +1,6 @@
 #include "../game/bg_items.h"
 #include "../game/bg_weapons.h"
 #include "ui_local.h"
-#include "ui_crossover.h"
 #include "jkg_inventory.h"
 #include <expat.h>
 
@@ -35,7 +34,7 @@ XML Parsing
 #pragma region XML Element Start
 static void XMLCALL JKG_ShopXML_StartElement(void *userData, const XML_Char *name, const XML_Char **atts)
 {
-	cgItemData_t *lookupTable = (cgItemData_t *)CO_InventoryDataRequest(6);
+	cgItemData_t *lookupTable = (cgItemData_t *)cgImports->InventoryDataRequest(6);
 	int *depthPtr = (int *)userData;
 	if(*depthPtr == 0)
 	{
@@ -121,7 +120,7 @@ static void XMLCALL JKG_ShopXML_StartElement(void *userData, const XML_Char *nam
 static void XMLCALL JKG_ShopXML_EndElement(void *userData, const XML_Char *name)
 {
 	int *depthPtr = (int *)userData;
-	cgItemData_t *lookupTable = (cgItemData_t *)CO_InventoryDataRequest(6);
+	cgItemData_t *lookupTable = (cgItemData_t *)cgImports->InventoryDataRequest(6);
 	itemDef_t *item = Menu_FindItemByName(shopState.menu, va("shop_examineCat%i_text%i", lastCat, lastDepth2));
 	if(*depthPtr == 2)
 	{
@@ -232,7 +231,7 @@ void JKG_Shop_XMLHandle(void)
 	fileHandle_t f;
 	char buffer[MAX_XML_BUFFER_SIZE];
 	int depth = 0;
-	cgItemData_t *lookupTable = (cgItemData_t *)CO_InventoryDataRequest(6);
+	cgItemData_t *lookupTable = (cgItemData_t *)cgImports->InventoryDataRequest(6);
 	int IDofSelectedItem = UIshopItems[shopState.selectedShopItem-1];
 	XML_Parser parse = XML_ParserCreate(NULL);
 	if(!lookupTable[IDofSelectedItem].xml)
@@ -359,15 +358,15 @@ void JKG_Shop_UpdateShopStuff(int filterVal)
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int numElements = listPtr->elementHeight;
 	int i;
-	cgItemData_t *lookupTable = (cgItemData_t *)CO_InventoryDataRequest(6);
+	cgItemData_t *lookupTable = (cgItemData_t *)cgImports->InventoryDataRequest(6);
 
 	//Clear the crapola
 	memset(UIshopItems, 0, sizeof(UIshopItems));
 	UInumShopItems = 0;
 
 	//Update the filters, first and foremost
-	memcpy(UIunfilteredShopItems, CO_InventoryDataRequest( 4 ), sizeof(UIunfilteredShopItems));
-	UInumUnfilteredShopItems = (int)CO_InventoryDataRequest( 5 );
+	memcpy(UIunfilteredShopItems, cgImports->InventoryDataRequest( 4 ), sizeof(UIunfilteredShopItems));
+	UInumUnfilteredShopItems = (int)cgImports->InventoryDataRequest( 5 );
 
 	//if(ui_inventoryFilter.integer != JKGIFILTER_ALL)
 	{
@@ -454,7 +453,7 @@ void JKG_Shop_UpdateShopStuff(int filterVal)
 		item2 = Menu_FindItemByName(shopState.menu, va("shop_feederBO%i", i+1));
 		if(item2)
 		{
-			int credits = (int)CO_InventoryDataRequest (3);
+			int credits = (int)cgImports->InventoryDataRequest( 3 );
 			if(credits < lookupTable[UIshopItems[i+shopMenuPosition]].cost)
 			{
 				Menu_ShowItemByName(shopState.menu, va("shop_feederBO%i", i+1), qtrue);
@@ -540,7 +539,7 @@ hideItAll:
 void JKG_Shop_UpdateCreditDisplay(void)
 {
 	itemDef_t *item = Menu_FindItemByName(shopState.menu, "shopmain_credits");
-	int credits = (int)CO_InventoryDataRequest (3);
+	int credits = (int)cgImports->InventoryDataRequest( 3 );
 	if(!item)
 	{
 		return;
@@ -558,21 +557,21 @@ void JKG_Shop_UpdateNotify(int msg)
 			memset(&shopState, 0, sizeof(shopState));
 			shopState.active = qtrue;
 
-			CO_SysCall_UI();
+			trap_Syscall_UI();
 			shopState.menu = Menus_FindByName("jkg_shop");
 			if(shopState.menu && Menus_ActivateByName("jkg_shop"))
 			{
 				trap_Key_SetCatcher (trap_Key_GetCatcher() | KEYCATCH_UI & ~KEYCATCH_CONSOLE);
 			}
 			shopState.selectedShopItem = 0;
-			CO_SysCall_CG();
+			trap_Syscall_CG();
 			break;
 		case 1:
 			{
-				CO_SysCall_UI();
+				trap_Syscall_UI();
 				JKG_Shop_UpdateShopStuff(ui_inventoryFilter.integer);
 				JKG_Shop_UpdateCreditDisplay();
-				CO_SysCall_CG();
+				trap_Syscall_CG();
 			}
 			break;
 	}
@@ -604,8 +603,8 @@ void JKG_Shop_ItemSelect(char **args)
 {
 	itemDef_t *item = Menu_FindItemByName(shopState.menu, "shop_dummyFeeder");
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
-	cgItemData_t *lookupTable = (cgItemData_t *)CO_InventoryDataRequest(6);
-	int credits = (int)CO_InventoryDataRequest (3);
+	cgItemData_t *lookupTable = (cgItemData_t *)cgImports->InventoryDataRequest( 6 );
+	int credits = (int)cgImports->InventoryDataRequest( 3 );
 	int arg0 = atoi(args[0]);
 	int desiredItemID = UIshopItems[shopMenuPosition+arg0-1];
 	if(arg0 <= 0)
@@ -757,7 +756,7 @@ void JKG_Shop_BuyConfirm_Yes(char **args)
 	{
 		// Here's a thought...why not send the item ID _instead_ of the selected index?
 		// 100% guaranteed to work then --eez
-		CO_SendClientCommand(va("buyVendor %i", UIshopItems[shopState.selectedShopItem-1]));
+		cgImports->SendClientCommand(va("buyVendor %i", UIshopItems[shopState.selectedShopItem-1]));
 	}
 	Menu_ItemDisable(shopState.menu, "shop_preview", qfalse);
 	Menu_ItemDisable(shopState.menu, "shop_feederSel", qfalse);
@@ -780,7 +779,7 @@ void JKG_Shop_BuyConfirm_Display(char **args)
 {
 	//This sets the text on the display
 	itemDef_t *item = Menu_FindItemByName(shopState.menu, "shop_buyconfirm_text");
-	cgItemData_t *lookupTable = (cgItemData_t *)CO_InventoryDataRequest(6);
+	cgItemData_t *lookupTable = (cgItemData_t *)cgImports->InventoryDataRequest( 6 );
 	if(item)
 	{
 		int desiredItemID = UIshopItems[shopState.selectedShopItem-1];
