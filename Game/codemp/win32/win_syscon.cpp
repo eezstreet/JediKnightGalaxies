@@ -114,7 +114,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		if ( ( HWND ) lParam == s_wcd.hwndBuffer )
 		{
 			SetBkColor( ( HDC ) wParam, RGB( 0, 0, 0 ) );
-			SetTextColor( ( HDC ) wParam, RGB( 249, 249, 000 ) );
+			SetTextColor( ( HDC ) wParam, RGB( 113, 181, 220 ) );
 			return ( long ) s_wcd.hbrEditBackground;
 		}
 		else if ( ( HWND ) lParam == s_wcd.hwndErrorBox )
@@ -266,6 +266,10 @@ void Sys_CreateConsole( void )
 	int nHeight;
 	int swidth, sheight;
 	int DEDSTYLE = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
+	HFONT buttonFont = CreateFont( 14, 0, 0, 0, FW_LIGHT, 0, 0, 0, DEFAULT_CHARSET,
+									OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+									FF_MODERN | FIXED_PITCH,
+									"Segoe UI" );
 
 	memset( &wc, 0, sizeof( wc ) );
 
@@ -355,6 +359,7 @@ void Sys_CreateConsole( void )
 												( HMENU ) COPY_ID,	// child window ID
 												g_wv.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonCopy, WM_SETTEXT, 0, ( LPARAM ) "Copy" );
+	SendMessage( s_wcd.hwndButtonCopy, WM_SETFONT, (WPARAM)buttonFont, MAKELPARAM(TRUE, 0));
 
 	s_wcd.hwndButtonClear = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON | WS_TABSTOP,
 												82, 425, 72, 24,
@@ -362,6 +367,7 @@ void Sys_CreateConsole( void )
 												( HMENU ) CLEAR_ID,	// child window ID
 												g_wv.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonClear, WM_SETTEXT, 0, ( LPARAM ) "Clear" );
+	SendMessage( s_wcd.hwndButtonClear, WM_SETFONT, (WPARAM)buttonFont, MAKELPARAM(TRUE, 0));
 
 	s_wcd.hwndButtonQuit = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON | WS_TABSTOP,
 												s_wcd.windowWidth-92, 425, 72, 24,
@@ -369,6 +375,7 @@ void Sys_CreateConsole( void )
 												( HMENU ) QUIT_ID,	// child window ID
 												g_wv.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonQuit, WM_SETTEXT, 0, ( LPARAM ) "Quit" );
+	SendMessage( s_wcd.hwndButtonQuit, WM_SETFONT, (WPARAM)buttonFont, MAKELPARAM(TRUE, 0));
 
 
 	//
