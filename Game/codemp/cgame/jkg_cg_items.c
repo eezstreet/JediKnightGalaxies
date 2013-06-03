@@ -128,7 +128,6 @@ static void JKG_CompactInventory ( cgItemInstance_t *inventory )
 	}
 }
 
-extern void CO_InventoryNotify(int msg);
 void JKG_CG_DeltaFeed ( const char *mode )
 {
 	//This is part of something greater, which Boba calls a "delta feed".
@@ -260,7 +259,7 @@ void JKG_CG_DeltaFeed ( const char *mode )
 	else if(!Q_stricmp(mode, "open"))
 	{
 		// Opens the inventory. Self-explanatory.
-		CO_InventoryNotify( 0 );
+		uiImports->InventoryNotify( 0 );
 		return;
 	}
 	else
