@@ -1174,8 +1174,13 @@ void trap_JKG_GetColorTable( float **table )
 	syscall(CG_JKG_GETCOLORTABLE, table);
 }
 
-void trap_JKG_GetViewAngles( float **viewangles )
+float **trap_JKG_GetViewAngles( void )
 {
-	syscall(CG_JKG_GETVIEWANGLES, viewangles);
+	return (float**)syscall(CG_JKG_GETVIEWANGLES);
+}
+
+void trap_JKG_SetViewAngles( vec3_t viewangles )
+{
+	syscall(CG_JKG_SETVIEWANGLES, viewangles);
 }
 #include "../namespace_end.h"

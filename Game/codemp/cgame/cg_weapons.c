@@ -1991,9 +1991,10 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	entityState_t *ent;
 	int				c;
 	weaponInfo_t	*weap;
-	vec3_t			viewangles;
+	vec3_t			dummy = {0, 0, 0};
+	vec3_t			*viewangles = &dummy;
 
-	trap_JKG_GetViewAngles((float **)&viewangles);
+	trap_JKG_GetViewAngles(viewangles);
 	
 
 	ent = &cent->currentState;
@@ -2016,8 +2017,8 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 		{
 			float fYawRecoil = flrand( 0.15 * fRecoil, 0.25 * fRecoil );
 			CGCam_Shake( flrand( 0.85 * fRecoil, 0.15 * fRecoil), 100 );
-			viewangles[YAW] += Q_irand( 0, 1 ) ? -fYawRecoil : fYawRecoil; // yaw
-			viewangles[PITCH] -= fRecoil; // pitch
+			(*viewangles)[YAW] += Q_irand( 0, 1 ) ? -fYawRecoil : fYawRecoil; // yaw
+			(*viewangles)[PITCH] -= fRecoil; // pitch
 		}
 		
 		/*
@@ -2127,6 +2128,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 			}
 		}
 	}
+	//trap_JKG_SetViewAngles(viewangles);
 }
 
 qboolean CG_VehicleWeaponImpact( centity_t *cent )
@@ -2974,9 +2976,9 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
 {
     const entityState_t *s = &cent->currentState;
     const weaponData_t *thisWeaponData = GetWeaponData (cg.snap->ps.weapon, cg.snap->ps.weaponVariation);
-	vec3_t viewangles;
+	vec3_t *viewangles;
 
-	trap_JKG_GetViewAngles((float **)&viewangles);
+	viewangles = (vec3_t *)trap_JKG_GetViewAngles();
 
     // Update the muzzle flash time, so we know to draw it in the render function.
     if ( (cent->shotCount + 1) == UINT_MAX )
@@ -3007,8 +3009,8 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
 			
 			CGCam_Shake (flrand (0.85f * pitchRecoil, 0.15f * pitchRecoil), 100);
 			
-			viewangles[YAW] += yawRecoil;
-			viewangles[PITCH] -= pitchRecoil;
+			(*viewangles)[YAW] += yawRecoil;
+			(*viewangles)[PITCH] -= pitchRecoil;
 		}
     }
     
@@ -3023,6 +3025,8 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
         
         trap_S_StartSound (NULL, s->number, channel, weaponData->weaponFire.generic.fireSound[index]);
     }
+
+	trap_JKG_SetViewAngles(viewangles);
 }
 
 static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDrawData_t *weaponData )

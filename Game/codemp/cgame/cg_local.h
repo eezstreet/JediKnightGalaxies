@@ -2921,7 +2921,8 @@ void trap_Syscall_UI( void );
 void trap_Syscall_CG( void );
 
 void trap_JKG_GetColorTable( float **table );
-void trap_JKG_GetViewAngles( float **viewangles );
+float **trap_JKG_GetViewAngles( void );
+void trap_JKG_SetViewAngles( vec3_t viewangles );
 
 #include "../namespace_end.h"
 

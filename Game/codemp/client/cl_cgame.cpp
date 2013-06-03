@@ -1701,7 +1701,10 @@ Ghoul2 Insert End
 		return 0;
 
 	case CG_JKG_GETVIEWANGLES:
-		*(float **)VMA(1) = (float *)cl.viewangles;
+		return (int)(float **)&cl.viewangles;
+
+	case CG_JKG_SETVIEWANGLES:
+		VectorCopy((float*)VMA(1), cl.viewangles);
 		return 0;
 
 	default:
