@@ -1137,7 +1137,7 @@ void Cin_ProcessCinematicBinary_f() {
 	char arg[1024] = {0};
 	char data[840];
 	unsigned int temp;
-	int len;
+	unsigned int len;
 
 	int i;
 	CamData_Union_t *CamData;
@@ -1145,8 +1145,8 @@ void Cin_ProcessCinematicBinary_f() {
 
 	trap_Argv(1, arg, 1024);
 
-	len = Base128_DecodeLength(strlen(arg));
-	Base128_Decode(arg, strlen(arg), data, 840);
+	len = Base128_DecodeLength((unsigned int)strlen(arg));
+	Base128_Decode((const char *)arg, (unsigned int)strlen(arg), (void *)data, (unsigned int)840);
 
 
 	BitStream_Init(&stream, (unsigned char *)data, len);

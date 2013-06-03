@@ -3074,7 +3074,9 @@ defaultCmd:
 	CinBuild_Visualize();
 	
 	// JKG Nav Mesh visualisation
+#ifdef __DISABLED
 	JKG_Nav_VisualizeMesh();
+#endif
 
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );

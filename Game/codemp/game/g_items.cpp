@@ -514,7 +514,7 @@ void pas_fire( gentity_t *ent )
 
 	ent->s.weapon			= WP_BLASTER;
 	ent->s.weaponVariation	= 0;
-	WP_FireGenericMissile( ent, qfalse, myOrg, fwd );
+	WP_FireGenericMissile( ent, 0, myOrg, fwd );
 	G_RunObject( ent );
 }
 

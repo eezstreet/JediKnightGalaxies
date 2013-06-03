@@ -10129,7 +10129,7 @@ void WP_SaberBlock( gentity_t *playerent, vec3_t hitloc, qboolean missileBlock )
 }
 // not toching the mouse :P under here we have the fuction there handle our block on proj blocking and blocking saber
 // int? should be qboolean methinks
-qboolean WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, qboolean projectile, int attackStr, bool YOLOSWAG = false) // FIXME
+qboolean WP_SaberCanBlock(gentity_t *self, vec3_t point, int dflags, int mod, qboolean projectile, int attackStr)
 {
 	qboolean thrownSaber = qfalse;
 	float blockFactor = 0;

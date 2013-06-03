@@ -197,7 +197,7 @@ A respawn happened this snapshot
 ================
 */
 
-float CG_GetLowHealthPhase(int reset);
+float CG_GetLowHealthPhase(int reset, float multiplier);
 
 void ChatBox_CloseChat();
 
@@ -212,7 +212,7 @@ void CG_Respawn( void ) {
 	cg.weaponSelect = cg.snap->ps.weaponId;
 	
 	// Reset the low health blur
-	CG_GetLowHealthPhase(1);
+	CG_GetLowHealthPhase(1, 1.0f);
 	ChatBox_CloseChat();
 	trap_Cvar_Set( "cflag", "" );
 }

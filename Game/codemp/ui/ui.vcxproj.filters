@@ -62,9 +62,6 @@
     <ClCompile Include="..\libraries\json\cJSON.c">
       <Filter>Libraries\Json\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\libraries\encoding\base128.c">
-      <Filter>Libraries\Base128\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
     </ClCompile>
@@ -160,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="jkg_slice.cpp">
       <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\encoding\base128.cpp">
+      <Filter>Libraries\Base128\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -21,9 +21,6 @@
     <Filter Include="Header Files\GLua">
       <UniqueIdentifier>{249e46fc-b567-4ddb-8433-95139d94dc41}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Network">
-      <UniqueIdentifier>{3a066acc-bd5c-4ffa-b743-3b6b82d7c087}</UniqueIdentifier>
-    </Filter>
     <Filter Include="win32">
       <UniqueIdentifier>{361d6a3a-71a2-49df-96e1-0ff2e813fa77}</UniqueIdentifier>
     </Filter>
@@ -202,9 +199,6 @@
     </ClCompile>
     <ClCompile Include="..\libraries\Lua\print.c">
       <Filter>Libraries\Lua\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\encoding\base128.c">
-      <Filter>Libraries\Base128\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\encoding\base64.c">
       <Filter>Libraries\Base64\Source Files</Filter>
@@ -455,9 +449,6 @@
     <ClCompile Include="g_combat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="g_crash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="g_exphysics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -668,6 +659,9 @@
     <ClCompile Include="q_shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\libraries\encoding\base128.cpp">
+      <Filter>Libraries\Base128\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="JK2_game.def">
@@ -790,9 +784,6 @@
     <ClInclude Include="jkg_asmdefines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="jkg_auxlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="jkg_bans.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -888,30 +879,6 @@
     </ClInclude>
     <ClInclude Include="..\GLua\glua.h">
       <Filter>Header Files\GLua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ByteBuffer.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\Common.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\NetworkData.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\NetworkServices.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ServerGame.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ServerNetwork.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\stdafx.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\targetver.h">
-      <Filter>Header Files\Network</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\json\cJSON.h">
       <Filter>Libraries\Json\Header Files</Filter>

@@ -90,7 +90,7 @@ unsigned int Base64_DecodeLength(unsigned int length, const char *base64, int ur
 |* are replaced by - _ and . respectively
 \*/
 int Base64_Encode(const char *data, unsigned int length, char *base64, unsigned int base64len);
-int Base64_EncodeURL(const char *data, unsigned int length, char *base64, unsigned int base64len);
+int Base64_EncodeURL(const unsigned char *data, unsigned int length, char *base64, unsigned int base64len);
 
 /***********************
 |*

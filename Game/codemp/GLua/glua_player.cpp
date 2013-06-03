@@ -1866,7 +1866,7 @@ static int GLua_Players_GetByName(lua_State *L) {
 
 // This one is to make it easier to write commands that accept players as an argument
 // This combines GetByID and GetByName, depending on the argument provided
-int G_ClientNumberFromArg ( char* name);
+int G_ClientNumberFromArg ( const char *name);
 static int GLua_Players_GetByArg(lua_State *L) {
 	if (lua_gettop(L) < 1) {
 		return 0;

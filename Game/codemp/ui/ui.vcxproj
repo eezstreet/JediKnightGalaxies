@@ -266,6 +266,7 @@
     <ClCompile Include="..\game\jkg_gangwars.cpp" />
     <ClCompile Include="..\game\q_math.cpp" />
     <ClCompile Include="..\game\q_shared.cpp" />
+    <ClCompile Include="..\libraries\encoding\base128.cpp" />
     <ClCompile Include="ui_atoms.cpp" />
     <ClCompile Include="ui_crossover.cpp" />
     <ClCompile Include="ui_force.cpp" />
@@ -286,7 +287,6 @@
     <ClCompile Include="jkg_shop.cpp" />
     <ClCompile Include="jkg_slice.cpp" />
     <ClCompile Include="..\libraries\json\cJSON.c" />
-    <ClCompile Include="..\libraries\encoding\base128.c" />
     <ClCompile Include="..\libraries\encoding\bitstream.c" />
   </ItemGroup>
   <ItemGroup>

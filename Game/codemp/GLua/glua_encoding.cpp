@@ -62,7 +62,7 @@ static int GLua_Encoding_EncodeBase64URL(lua_State *L) {
 	if (!b64) {
 		return 0;
 	}
-	Base64_EncodeURL(data, len, b64, encodelen);
+	Base64_EncodeURL((const unsigned char *)data, len, b64, encodelen);
 	lua_pushstring(L, b64);
 	free(b64);
 	return 1;
@@ -117,7 +117,7 @@ static int GLua_Encoding_DecodeBase128(lua_State *L) {
 	if (!data) {
 		return 0;
 	}
-	Base128_Decode(b128, len, data, decodelen);
+	Base128_Decode(b128, len, (void *)data, decodelen);
 	lua_pushlstring(L, data, decodelen);
 	free(data);
 	return 1;

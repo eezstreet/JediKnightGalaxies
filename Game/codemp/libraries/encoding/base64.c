@@ -27,6 +27,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include "base64.h"
+
 // Encoder characters
 static unsigned char *bec64 = (unsigned char *)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static unsigned char *bec64url = (unsigned char *)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";

@@ -34,6 +34,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include "base128.h"
+
 // Encoder characters
                                                //---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|-------+
 static unsigned char *b128ec = (unsigned char *)"!#$^&'()*+,-.0123456789:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_`abcdefghjiklmnopqrstuvwxyz[]{|}~РСТУФХЦЧШЩЪЫЬЭЮЯабвгдежийклмнорстуфхцщш";

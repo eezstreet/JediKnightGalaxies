@@ -9689,7 +9689,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 }
 //[/TrueView]
 
-vmCvar_t jkg_debugBBox;
+extern vmCvar_t jkg_debugBBox;
 void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha );
 void CG_DrawPlayerBBox ( const centity_t *cent )
 {

@@ -197,11 +197,11 @@ void JKG_RenderWeaponWorldModel ( centity_t *cent, const vec3_t angles );
 void JKG_RenderWeaponViewModel ( void );
 
 void JKG_RenderTraceline ( const centity_t *cent, const vec3_t start, const vec3_t end, qboolean altFire );
-void JKG_BounceGrenade ( const centity_t *cent, qboolean altFire );
+void JKG_BounceGrenade ( const centity_t *cent, unsigned char firingMode );
 
 void JKG_BlowExplosive ( const centity_t *cent, qboolean altFire );
 void JKG_RenderExplosive ( const centity_t *cent, unsigned char firingMode );
-void JKG_ArmExplosive ( const centity_t *cent, qboolean altFire );
+void JKG_ArmExplosive ( const centity_t *cent, unsigned char firingMode );
 
 void JKG_RenderProjectile ( const centity_t *cent, unsigned char firingMode );
 void JKG_RenderProjectileMiss ( const centity_t *cent, const vec3_t origin, const vec3_t direction, qboolean altFire );

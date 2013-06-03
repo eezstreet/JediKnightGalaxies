@@ -34,7 +34,7 @@ static __inline qboolean PlayerIsReloading()
     return (qboolean)(cg.reloadTimeStart && cg.time <= (cg.reloadTimeStart + cg.reloadTimeDuration));
 }
 
-void JKG_WeaponIndicators_Update(centity_t *cent, playerState_t *ps) {
+void JKG_WeaponIndicators_Update(const centity_t *cent, const playerState_t *ps) {
 	int h,t,o;
 	int ammo;
 	weaponInfo_t *weaponInfo = CG_WeaponInfo (cent->currentState.weapon, cent->currentState.weaponVariation);

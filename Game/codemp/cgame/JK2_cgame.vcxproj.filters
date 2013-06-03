@@ -9,9 +9,6 @@
       <UniqueIdentifier>{3c227821-7ba6-4e51-ac7b-a09f31fda13b}</UniqueIdentifier>
       <Extensions>h</Extensions>
     </Filter>
-    <Filter Include="Header Files\Network">
-      <UniqueIdentifier>{7cf3dbdc-821d-47bc-973b-f1ce1ac5cb12}</UniqueIdentifier>
-    </Filter>
     <Filter Include="win32">
       <UniqueIdentifier>{4d2ca2b5-90d0-4d93-835a-3e1cba931f7b}</UniqueIdentifier>
     </Filter>
@@ -66,6 +63,18 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{29543637-6fb7-4e89-b0e1-a61a61e46a50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Libraries\Detour">
+      <UniqueIdentifier>{8d12443a-6fb8-4360-8032-1c3af041f423}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Detour\Include">
+      <UniqueIdentifier>{af723ac4-da3b-4c13-a1d5-2f9973fe6ba2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\Detour\Source">
+      <UniqueIdentifier>{c7808deb-d0b5-4444-b0ec-118da90ec429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\DetourTileCache">
+      <UniqueIdentifier>{6c96ba7b-39a1-4fdd-bc72-a42c50a0e8b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="jkg_navmesh_visualiser.cpp">
@@ -73,9 +82,6 @@
     </ClCompile>
     <ClCompile Include="..\libraries\json\cJSON.c">
       <Filter>Libraries\Json\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libraries\encoding\base128.c">
-      <Filter>Libraries\Base128\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\encoding\bitstream.c">
       <Filter>Libraries\BitStream\Source Files</Filter>
@@ -335,6 +341,30 @@
     <ClCompile Include="cg_servercmds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourAlloc.cpp">
+      <Filter>Libraries\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourCommon.cpp">
+      <Filter>Libraries\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMesh.cpp">
+      <Filter>Libraries\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshBuilder.cpp">
+      <Filter>Libraries\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshQuery.cpp">
+      <Filter>Libraries\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp">
+      <Filter>Libraries\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.cpp">
+      <Filter>Libraries\DetourTileCache</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\encoding\base128.cpp">
+      <Filter>Libraries\Base128\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h">
@@ -442,30 +472,6 @@
     <ClInclude Include="..\game\z_global_defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\network\ByteBuffer.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ClientGame.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\ClientNetwork.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\Common.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\NetworkData.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\NetworkServices.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\stdafx.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\network\targetver.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
     <ClInclude Include="..\libraries\json\cJSON.h">
       <Filter>Libraries\Json\Header Files</Filter>
     </ClInclude>
@@ -495,6 +501,33 @@
     </ClInclude>
     <ClInclude Include="..\libraries\RDDebugUtils\Include\RecastDump.h">
       <Filter>Libraries\RDDebugUtils\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourAlloc.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourAssert.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourCommon.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMesh.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshBuilder.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshQuery.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourNode.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\Detour\Include\DetourStatus.h">
+      <Filter>Libraries\Detour\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.h">
+      <Filter>Libraries\DetourTileCache</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

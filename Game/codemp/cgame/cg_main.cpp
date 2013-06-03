@@ -4294,7 +4294,9 @@ Ghoul2 Insert End
 //	CG_LoadingString( "collision map" );
 	trap_CM_LoadMap( cgs.mapname, qfalse );
 	
+#ifdef __DISABLED
 	JKG_Nav_Init (cgs.mapname);
+#endif
 
 	String_Init();
 
@@ -4456,8 +4458,9 @@ void CG_Shutdown( void )
 //	Com_Printf("... FX System Cleanup\n");
 	trap_FX_FreeSystem();
 	trap_ROFF_Clean();
-	
+#ifdef __DISABLED
 	JKG_Nav_Destroy();
+#endif
 
 	if (cgWeatherOverride)
 	{

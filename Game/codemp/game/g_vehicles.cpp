@@ -1031,7 +1031,7 @@ void RegisterAssets( Vehicle_t *pVeh )
 {
 }
 
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, int newWeapon, int newVariation );
 
 // Initialize the vehicle.
 qboolean Initialize( Vehicle_t *pVeh )

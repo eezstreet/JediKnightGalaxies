@@ -3151,14 +3151,16 @@ Q3_SetWeapon
   Argument		: const char *wp_name
 ============
 */
-extern void ChangeWeapon( gentity_t *ent, int newWeapon );
+extern void ChangeWeapon( gentity_t *ent, int newWeapon, int newVariation );
 static void Q3_SetWeapon (int entID, const char *wp_name)
 {
-	gentity_t	*ent  = &g_entities[entID];
+	/*gentity_t	*ent  = &g_entities[entID];
 	int		wp = GetIDForString( WPTable, wp_name );
 
+	weaponData_t wp;
 	ent->client->ps.stats[STAT_WEAPONS] = (1<<wp);
-	ChangeWeapon( ent, wp );
+	ChangeWeapon( ent, wp );*/
+	// FIXME: If we're going with ICARUS, this crap needs to be fixed properly --eez
 }
 
 /*

@@ -276,6 +276,14 @@
     <ClCompile Include="..\game\NPC_Fighter.cpp" />
     <ClCompile Include="..\game\NPC_Speeder.cpp" />
     <ClCompile Include="..\game\NPC_Walker.cpp" />
+    <ClCompile Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourAlloc.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourCommon.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMesh.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshBuilder.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNavMeshQuery.cpp" />
+    <ClCompile Include="..\libraries\Detour\Source\DetourNode.cpp" />
+    <ClCompile Include="..\libraries\encoding\base128.cpp" />
     <ClCompile Include="cg_cinematics.cpp" />
     <ClCompile Include="cg_consolecmds.cpp" />
     <ClCompile Include="cg_crossover.cpp" />
@@ -330,7 +338,6 @@
     <ClCompile Include="..\game\q_shared.cpp" />
     <ClCompile Include="..\ui\ui_shared.cpp" />
     <ClCompile Include="..\libraries\json\cJSON.c" />
-    <ClCompile Include="..\libraries\encoding\base128.c" />
     <ClCompile Include="..\libraries\encoding\bitstream.c" />
     <ClCompile Include="..\libraries\Recast\Source\Recast.cpp" />
     <ClCompile Include="..\libraries\Recast\Source\RecastAlloc.cpp" />
@@ -349,6 +356,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\anims.h" />
+    <ClInclude Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourAlloc.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourAssert.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourCommon.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMesh.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshBuilder.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshQuery.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourNode.h" />
+    <ClInclude Include="..\libraries\Detour\Include\DetourStatus.h" />
     <ClInclude Include="animtable.h" />
     <ClInclude Include="..\game\bg_ammo.h" />
     <ClInclude Include="..\game\bg_items.h" />
@@ -383,14 +399,6 @@
     <ClInclude Include="tr_types.h" />
     <ClInclude Include="..\ui\ui_shared.h" />
     <ClInclude Include="..\game\z_global_defines.h" />
-    <ClInclude Include="..\network\ByteBuffer.h" />
-    <ClInclude Include="..\network\ClientGame.h" />
-    <ClInclude Include="..\network\ClientNetwork.h" />
-    <ClInclude Include="..\network\Common.h" />
-    <ClInclude Include="..\network\NetworkData.h" />
-    <ClInclude Include="..\network\NetworkServices.h" />
-    <ClInclude Include="..\network\stdafx.h" />
-    <ClInclude Include="..\network\targetver.h" />
     <ClInclude Include="..\libraries\json\cJSON.h" />
     <ClInclude Include="..\libraries\encoding\base128.h" />
     <ClInclude Include="..\libraries\encoding\bitstream.h" />

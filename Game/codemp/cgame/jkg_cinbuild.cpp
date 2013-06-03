@@ -644,20 +644,20 @@ void CinBuild_Cmd_f() {
 // Modified to improve readability, and to make it compatible with JKG
 // start cubic spline interpolation code (parts are converted from javascript at http://people.hofstra.edu/faculty/Stefan_Waner/realworld/tutorialsf1/scriptpivot2.html)
 
-double splMatrix[50*4][50*4+1];
+double csplMatrix[50*4][50*4+1];
 
 static void Cin_Spl_pivot( int rows, int cols, int theRow, int theCol ) {
-	double thePivot = splMatrix[theRow][theCol];
+	double thePivot = csplMatrix[theRow][theCol];
 	int i, j;
 	for( i=0; i<cols; i++ )
-		splMatrix[theRow][i] = splMatrix[theRow][i]/thePivot;
+		csplMatrix[theRow][i] = csplMatrix[theRow][i]/thePivot;
 
 	for( i=0; i<rows; i++ )
-		if( ( i!=theRow ) && ( splMatrix[i][theCol]!=0 ) )
+		if( ( i!=theRow ) && ( csplMatrix[i][theCol]!=0 ) )
 		{
-			double factr = splMatrix[i][theCol];
+			double factr = csplMatrix[i][theCol];
 			for( j=0; j<cols; j++ )
-				splMatrix[i][j] = splMatrix[i][j] - factr*splMatrix[theRow][j];	
+				csplMatrix[i][j] = csplMatrix[i][j] - factr*csplMatrix[theRow][j];	
 		}
 }
 
@@ -666,9 +666,9 @@ static void Cin_Spl_swapRows( int p, int q, int numCols ) {
 	int j;
 	for( j=0; j<numCols; j++ )
 	{
-		rowHold = splMatrix[p][j];
-		splMatrix[p][j] = splMatrix[q][j];
-		splMatrix[q][j] = rowHold;
+		rowHold = csplMatrix[p][j];
+		csplMatrix[p][j] = csplMatrix[q][j];
+		csplMatrix[q][j] = rowHold;
 	}
 }
 
@@ -681,9 +681,9 @@ static void Cin_Spl_rowReduce(int numRows, int numCols) {
 		theCol = -1;
 		for( j=0; j<numCols; j++ )
 		{
-			double theNum = splMatrix[i][j];
+			double theNum = csplMatrix[i][j];
 			if( theNum * ( theNum > 0 ? 1 : -1 ) <= theSmallestNumber )
-				splMatrix[i][j] = 0;
+				csplMatrix[i][j] = 0;
 			else { 
 				theCol = j;
 				break; 
@@ -695,7 +695,7 @@ static void Cin_Spl_rowReduce(int numRows, int numCols) {
 	
 	for( j=0; j<numCols; j++ ) {
 		for( i=theRow; i<numRows; i++ ) {
-			if( splMatrix[i][j] != 0 )
+			if( csplMatrix[i][j] != 0 )
 			{
 				if( i==theRow ) {
 					theRow++;
@@ -726,85 +726,85 @@ static void Cin_DoCubicSplineInterpolation() {
 	for( k=0; k<3; k++ )
 	{
 		curRow = 0;
-		memset( splMatrix[0], 0, sizeof( splMatrix ) );
+		memset( csplMatrix[0], 0, sizeof( csplMatrix ) );
 		for( i=0; i<CamCount-1; i++ )
 		{
 			deltaT = (double)(pd[i+1].offset - pd[i].offset);
 			deltaD = (double)(pd[i+1].origin[k] - pd[i].origin[k]);
 			j=0;
 			//runs through first point
-			splMatrix[curRow][i*4+j++] = 0;//(((double)cam[i].time)/TIMEDIV)*(((double)cam[i].time)/TIMEDIV)*(((double)cam[i].time)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 0;//(((double)cam[i].time)/TIMEDIV)*(((double)cam[i].time)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 0;//(((double)cam[i].time)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 1;
-			splMatrix[curRow++][(CamCount-1)*4+4] = 0;//cam[i].origin[k];
+			csplMatrix[curRow][i*4+j++] = 0;//(((double)cam[i].time)/TIMEDIV)*(((double)cam[i].time)/TIMEDIV)*(((double)cam[i].time)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 0;//(((double)cam[i].time)/TIMEDIV)*(((double)cam[i].time)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 0;//(((double)cam[i].time)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 1;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = 0;//cam[i].origin[k];
 			
 			j=0;
 			//runs through second point
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 1;
-			splMatrix[curRow++][(CamCount-1)*4+4] = deltaD;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 1;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = deltaD;
 			
 			j=0;
 			//first derivitives are equal
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*2;
-			splMatrix[curRow][i*4+j++] = 1;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
-			splMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*2;
-			splMatrix[curRow][i*4+j++] = -1;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*2;
+			csplMatrix[curRow][i*4+j++] = 1;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
+			csplMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*2;
+			csplMatrix[curRow][i*4+j++] = -1;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 			
 			j=0;
 			//second derivitives are equal
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*6;
-			splMatrix[curRow][i*4+j++] = 2;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*6;
-			splMatrix[curRow][i*4+j++] = -2;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*6;
+			csplMatrix[curRow][i*4+j++] = 2;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*6;
+			csplMatrix[curRow][i*4+j++] = -2;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 		}
 		//4 more equations are needed to have a solvable matrix (there should be n-1 splines)
 		
 		j=0;
 		//second derivitive at the end is zero
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)pd[CamCount].offset-pd[CamCount-1].offset)/TIMEDIV)*6;
-		splMatrix[curRow][(CamCount-1)*4+j++] = 2;
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;
-		splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)pd[CamCount].offset-pd[CamCount-1].offset)/TIMEDIV)*6;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 2;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 		
 		j=0;
 		//second derivitive at the beginning is zero
-		splMatrix[curRow][j++] = 0;//(((double)cam[0].time)/TIMEDIV)*6;
-		splMatrix[curRow][j++] = 2;
-		splMatrix[curRow][j++] = 0;
-		splMatrix[curRow][j++] = 0;
-		splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+		csplMatrix[curRow][j++] = 0;//(((double)cam[0].time)/TIMEDIV)*6;
+		csplMatrix[curRow][j++] = 2;
+		csplMatrix[curRow][j++] = 0;
+		csplMatrix[curRow][j++] = 0;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 		
 		j=0;
 		//runs through first point
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)cam[CamCount-1].time)/TIMEDIV)*(((double)cam[CamCount-1].time)/TIMEDIV)*(((double)cam[CamCount-1].time)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)cam[CamCount-1].time)/TIMEDIV)*(((double)cam[CamCount-1].time)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)cam[CamCount-1].time)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 1;
-		splMatrix[curRow++][(CamCount-1)*4+4] = 0;//cam[(CamCount-1)].origin[k];
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)cam[CamCount-1].time)/TIMEDIV)*(((double)cam[CamCount-1].time)/TIMEDIV)*(((double)cam[CamCount-1].time)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)cam[CamCount-1].time)/TIMEDIV)*(((double)cam[CamCount-1].time)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)cam[CamCount-1].time)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 1;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = 0;//cam[(CamCount-1)].origin[k];
 		
 		deltaT = (double)(pd[CamCount].offset - pd[CamCount-1].offset);
 		j=0;
 		//runs through second point
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 1;
-		splMatrix[curRow++][(CamCount-1)*4+4] = pd[CamCount].origin[k] - pd[CamCount-1].origin[k];
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 1;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = pd[CamCount].origin[k] - pd[CamCount-1].origin[k];
 		
 		numRows = curRow;
 		numCols = CamCount*4+1;
@@ -812,17 +812,17 @@ static void Cin_DoCubicSplineInterpolation() {
 		
 		for( i=0; i<CamCount; i++ )
 		{
-			pd[i].csi_coeff[k][0] = splMatrix[i*4][CamCount*4];
-			pd[i].csi_coeff[k][1] = splMatrix[i*4+1][CamCount*4];
-			pd[i].csi_coeff[k][2] = splMatrix[i*4+2][CamCount*4];
-			pd[i].csi_coeff[k][3] = splMatrix[i*4+3][CamCount*4];
+			pd[i].csi_coeff[k][0] = csplMatrix[i*4][CamCount*4];
+			pd[i].csi_coeff[k][1] = csplMatrix[i*4+1][CamCount*4];
+			pd[i].csi_coeff[k][2] = csplMatrix[i*4+2][CamCount*4];
+			pd[i].csi_coeff[k][3] = csplMatrix[i*4+3][CamCount*4];
 		}
 	}
 	
 	for( k=0; k<3; k++ )
 	{
 		curRow = 0;
-		memset( splMatrix[0], 0, sizeof( splMatrix ) );
+		memset( csplMatrix[0], 0, sizeof( csplMatrix ) );
 		for( i=0; i<CamCount-1; i++ )
 		{
 			deltaT = (double)(pd[i+1].offset - pd[i].offset);
@@ -830,79 +830,79 @@ static void Cin_DoCubicSplineInterpolation() {
 			j=0;
 			//runs through first point
 			//guess what? ive decided it's (0,0) kthx.
-			splMatrix[curRow][i*4+j++] = 0;//(((double)pd[i].offset)/TIMEDIV)*(((double)pd[i].offset)/TIMEDIV)*(((double)pd[i].offset)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 0;//(((double)pd[i].offset)/TIMEDIV)*(((double)pd[i].offset)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 0;//(((double)pd[i].offset)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 1;
-			splMatrix[curRow++][(CamCount-1)*4+4] = 0;//pd[i].origin[k];
+			csplMatrix[curRow][i*4+j++] = 0;//(((double)pd[i].offset)/TIMEDIV)*(((double)pd[i].offset)/TIMEDIV)*(((double)pd[i].offset)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 0;//(((double)pd[i].offset)/TIMEDIV)*(((double)pd[i].offset)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 0;//(((double)pd[i].offset)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 1;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = 0;//pd[i].origin[k];
 			
 			j=0;
 			//runs through second point
 			//doodz we're makin dese thangs unit doodz so it b leeter :>
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV);
-			splMatrix[curRow][i*4+j++] = 1;
-			splMatrix[curRow++][(CamCount-1)*4+4] = deltaD;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV);
+			csplMatrix[curRow][i*4+j++] = 1;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = deltaD;
 			
 			j=0;
 			//first derivitives are equal
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*2;
-			splMatrix[curRow][i*4+j++] = 1;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
-			splMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*2;
-			splMatrix[curRow][i*4+j++] = -1;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*2;
+			csplMatrix[curRow][i*4+j++] = 1;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*3;
+			csplMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*2;
+			csplMatrix[curRow][i*4+j++] = -1;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 			
 			j=0;
 			//second derivitives are equal
-			splMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*6;
-			splMatrix[curRow][i*4+j++] = 2;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*6;
-			splMatrix[curRow][i*4+j++] = -2;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow][i*4+j++] = 0;
-			splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+			csplMatrix[curRow][i*4+j++] = (((double)deltaT)/TIMEDIV)*6;
+			csplMatrix[curRow][i*4+j++] = 2;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;//-(((double)deltaT)/TIMEDIV)*6;
+			csplMatrix[curRow][i*4+j++] = -2;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow][i*4+j++] = 0;
+			csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 		}
 		//4 more equations are needed to have a solvable matrix (there should be n-1 splines)
 		
 		j=0;
 		//second derivitive at the end is zero
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)pd[CamCount].offset-pd[CamCount-1].offset)/TIMEDIV)*6;
-		splMatrix[curRow][(CamCount-1)*4+j++] = 2;
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;
-		splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)pd[CamCount].offset-pd[CamCount-1].offset)/TIMEDIV)*6;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 2;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 		
 		j=0;
 		//second derivitive at the beginning is zero
-		splMatrix[curRow][j++] = 0;//(((double)pd[0].offset)/TIMEDIV)*6;
-		splMatrix[curRow][j++] = 2;
-		splMatrix[curRow][j++] = 0;
-		splMatrix[curRow][j++] = 0;
-		splMatrix[curRow++][(CamCount-1)*4+4] = 0;
+		csplMatrix[curRow][j++] = 0;//(((double)pd[0].offset)/TIMEDIV)*6;
+		csplMatrix[curRow][j++] = 2;
+		csplMatrix[curRow][j++] = 0;
+		csplMatrix[curRow][j++] = 0;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = 0;
 		
 		j=0;
 		//runs through first point
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)pd[CamCount-1].offset)/TIMEDIV)*(((double)pd[CamCount-1].offset)/TIMEDIV)*(((double)pd[CamCount-1].offset)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)pd[CamCount-1].offset)/TIMEDIV)*(((double)pd[CamCount-1].offset)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)pd[CamCount-1].offset)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 1;
-		splMatrix[curRow++][(CamCount-1)*4+4] = 0;//pd[(CamCount-1)].origin[k];
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)pd[CamCount-1].offset)/TIMEDIV)*(((double)pd[CamCount-1].offset)/TIMEDIV)*(((double)pd[CamCount-1].offset)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)pd[CamCount-1].offset)/TIMEDIV)*(((double)pd[CamCount-1].offset)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 0;//(((double)pd[CamCount-1].offset)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 1;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = 0;//pd[(CamCount-1)].origin[k];
 		
 		deltaT = (double)(pd[CamCount].offset - pd[CamCount-1].offset);
 		j=0;
 		//runs through second point
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV);
-		splMatrix[curRow][(CamCount-1)*4+j++] = 1;
-		splMatrix[curRow++][(CamCount-1)*4+4] = pd[CamCount].angles[k] - pd[CamCount-1].angles[k];
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV)*(((double)deltaT)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = (((double)deltaT)/TIMEDIV);
+		csplMatrix[curRow][(CamCount-1)*4+j++] = 1;
+		csplMatrix[curRow++][(CamCount-1)*4+4] = pd[CamCount].angles[k] - pd[CamCount-1].angles[k];
 		
 		numRows = curRow;
 		numCols = CamCount*4+1;
@@ -910,10 +910,10 @@ static void Cin_DoCubicSplineInterpolation() {
 		
 		for( i=0; i<CamCount; i++ )
 		{
-			pd[i].csi_coeff[k+3][0] = splMatrix[i*4][CamCount*4];
-			pd[i].csi_coeff[k+3][1] = splMatrix[i*4+1][CamCount*4];
-			pd[i].csi_coeff[k+3][2] = splMatrix[i*4+2][CamCount*4];
-			pd[i].csi_coeff[k+3][3] = splMatrix[i*4+3][CamCount*4];
+			pd[i].csi_coeff[k+3][0] = csplMatrix[i*4][CamCount*4];
+			pd[i].csi_coeff[k+3][1] = csplMatrix[i*4+1][CamCount*4];
+			pd[i].csi_coeff[k+3][2] = csplMatrix[i*4+2][CamCount*4];
+			pd[i].csi_coeff[k+3][3] = csplMatrix[i*4+3][CamCount*4];
 		}
 	}
 }

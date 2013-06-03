@@ -35,7 +35,7 @@ extern bgEntity_t *pm_entVeh;
 
 //vehicle impact stuff continued...
 #ifndef QAGAME //kind of hacky
-extern void trap_FX_PlayEffectID( int id, vec3_t org, vec3_t fwd, int vol, int rad );
+extern void trap_FX_PlayEffectID( int id, const vec3_t org, const vec3_t fwd, int vol, int rad );
 #endif
 
 #ifdef QAGAME

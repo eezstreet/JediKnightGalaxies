@@ -5980,7 +5980,7 @@ char *saberSingleHiltInfo [MAX_SABER_HILTS];
 char *saberStaffHiltInfo [MAX_SABER_HILTS];
 
 qboolean UI_SaberProperNameForSaber( const char *saberName, char *saberProperName );
-void UI_SaberGetHiltInfo( char *singleHilts[MAX_SABER_HILTS],char *staffHilts[MAX_SABER_HILTS] );
+void UI_SaberGetHiltInfo( const char *singleHilts[MAX_SABER_HILTS], const char *staffHilts[MAX_SABER_HILTS] );
 
 
 static void UI_UpdateCharacter( qboolean changedModel )
@@ -6297,7 +6297,7 @@ static void UI_RunMenuScript(char **args)
 		}
 		else if (Q_stricmp(name, "getsaberhiltinfo") == 0) 
 		{
-			UI_SaberGetHiltInfo(saberSingleHiltInfo,saberStaffHiltInfo);
+			UI_SaberGetHiltInfo(const_cast<const char **>(saberSingleHiltInfo), const_cast<const char **>(saberStaffHiltInfo));
 		}
 		else if (Q_stricmp(name, "updatevideosetup") == 0)
 		{

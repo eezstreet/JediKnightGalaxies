@@ -2167,7 +2167,7 @@ float JKG_GroundDistance(playerState_t *ps, vec3_t mins, vec3_t maxs, int conten
 }
 
 extern vmCvar_t jkg_deathTimer;
-gentity_t *WP_FireGenericGrenade( gentity_t *ent, qboolean altFire, vec3_t origin, vec3_t dir );
+gentity_t *WP_FireGenericGrenade( gentity_t *ent, int firemode, vec3_t origin, vec3_t dir );
 void ClientThink_real( gentity_t *ent ) {
 	gclient_t	*client;
 	pmove_t		pm;

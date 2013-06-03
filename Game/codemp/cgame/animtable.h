@@ -23,6 +23,6 @@
 #include "../game/anims.h"
 #include "../game/q_shared.h"
 
-stringID_table_t animTable[MAX_ANIMATIONS+1];
+extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
 #endif

@@ -2019,63 +2019,6 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 			(*viewangles)[YAW] += Q_irand( 0, 1 ) ? -fYawRecoil : fYawRecoil; // yaw
 			(*viewangles)[PITCH] -= fRecoil; // pitch
 		}
-		
-		/*
-		if ( cg.predictedPlayerState.weapon
-		if ((ent->weapon == WP_BRYAR_PISTOL && altFire) ||
-			(ent->weapon == WP_BRYAR_OLD && altFire) ||
-			(ent->weapon == WP_BOWCASTER && !altFire) ||
-			(ent->weapon == WP_DEMP2 && altFire))
-		{
-			float val = ( cg.time - cent->currentState.constantLight ) * 0.001f;
-
-			if (val > 3)
-			{
-				val = 3;
-			}
-			if (val < 0.2)
-			{
-				val = 0.2;
-			}
-
-			val *= 2;
-
-			CGCam_Shake( val, 250 );
-		}
-		else if (ent->weapon == WP_ROCKET_LAUNCHER ||
-			(ent->weapon == WP_REPEATER && altFire) ||
-			ent->weapon == WP_FLECHETTE ||
-			(ent->weapon == WP_CONCUSSION && !altFire))
-		{
-			if (ent->weapon == WP_CONCUSSION)
-			{
-				if (!cg.renderingThirdPerson )//gives an advantage to being in 3rd person, but would look silly otherwise
-				{//kick the view back
-					cg.kick_angles[PITCH] = flrand( -10, -15 );
-					cg.kick_time = cg.time;
-				}
-			}
-			else if (ent->weapon == WP_ROCKET_LAUNCHER)
-			{
-				CGCam_Shake(flrand(2, 3), 350);
-			}
-			else if (ent->weapon == WP_REPEATER)
-			{
-				CGCam_Shake(flrand(2, 3), 350);
-			}
-			else if (ent->weapon == WP_FLECHETTE)
-			{
-				if (altFire)
-				{
-					CGCam_Shake(flrand(2, 3), 350);
-				}
-				else
-				{
-					CGCam_Shake(1.5, 250);
-				}
-			}
-		}
-		*/
 	}
 	// lightning gun only does this this on initial press
 	if ( ent->weapon == WP_DEMP2 ) {
@@ -2127,7 +2070,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 			}
 		}
 	}
-	//trap_JKG_SetViewAngles(viewangles);
+	trap_JKG_SetViewAngles(*viewangles);
 }
 
 qboolean CG_VehicleWeaponImpact( centity_t *cent )
@@ -2971,7 +2914,7 @@ weaponInfo_t *CG_NextFreeWeaponInfo ( void )
 //=========================================================
 // Weapon event handling functions
 //=========================================================
-extern void trap_JKG_SetViewAngles( vec3_t *viewangles ); // RAGE... holy fuck intellisense is being beyond fucking retarded. Keep this line if you want to fix that --eez
+extern void trap_JKG_SetViewAngles( vec3_t viewangles ); // RAGE... holy fuck intellisense is being beyond fucking retarded. Keep this line if you want to fix that --eez
 static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode )
 {
     const entityState_t *s = &cent->currentState;
@@ -3026,7 +2969,7 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
         trap_S_StartSound (NULL, s->number, channel, weaponData->weaponFire.generic.fireSound[index]);
     }
 
-	trap_JKG_SetViewAngles(viewangles);
+	trap_JKG_SetViewAngles(*viewangles);
 }
 
 static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDrawData_t *weaponData )

@@ -1184,7 +1184,7 @@ void NPC_BSST_Patrol( void )
 #ifdef __WTF_RAVEN__ // UQ1: LOL. Need I say more????
 		if ( NPC->client->ps.weapon != WP_NONE )
 		{
-			ChangeWeapon( NPC, WP_NONE );
+			ChangeWeapon( NPC, WP_NONE, 0 );
 			NPC->client->ps.weapon = WP_NONE;
 			NPC->client->ps.weaponVariation = 0;
 			NPC->client->ps.weaponstate = WEAPON_READY;

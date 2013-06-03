@@ -288,7 +288,6 @@
     <ClCompile Include="g_client.cpp" />
     <ClCompile Include="g_cmds.cpp" />
     <ClCompile Include="g_combat.cpp" />
-    <ClCompile Include="g_crash.cpp" />
     <ClCompile Include="g_exphysics.cpp" />
     <ClCompile Include="g_ICARUScb.cpp" />
     <ClCompile Include="g_items.cpp" />
@@ -427,7 +426,7 @@
     <ClCompile Include="..\libraries\Lua\lvm.c" />
     <ClCompile Include="..\libraries\Lua\lzio.c" />
     <ClCompile Include="..\libraries\Lua\print.c" />
-    <ClCompile Include="..\libraries\encoding\base128.c" />
+    <ClCompile Include="..\libraries\encoding\base128.cpp" />
     <ClCompile Include="..\libraries\encoding\base64.c" />
     <ClCompile Include="..\libraries\encoding\bitstream.c" />
     <ClCompile Include="..\libraries\Recast\Source\Recast.cpp" />
@@ -490,7 +489,6 @@
     <ClInclude Include="inv.h" />
     <ClInclude Include="jkg_admin.h" />
     <ClInclude Include="jkg_asmdefines.h" />
-    <ClInclude Include="jkg_auxlib.h" />
     <ClInclude Include="jkg_bans.h" />
     <ClInclude Include="jkg_chatcmds.h" />
     <ClInclude Include="jkg_crafting.h" />
@@ -523,14 +521,6 @@
     <ClInclude Include="..\shared\icarus\Q3_Interface.h" />
     <ClInclude Include="..\shared\icarus\Q3_Registers.h" />
     <ClInclude Include="..\GLua\glua.h" />
-    <ClInclude Include="..\network\ByteBuffer.h" />
-    <ClInclude Include="..\network\Common.h" />
-    <ClInclude Include="..\network\NetworkData.h" />
-    <ClInclude Include="..\network\NetworkServices.h" />
-    <ClInclude Include="..\network\ServerGame.h" />
-    <ClInclude Include="..\network\ServerNetwork.h" />
-    <ClInclude Include="..\network\stdafx.h" />
-    <ClInclude Include="..\network\targetver.h" />
     <ClInclude Include="..\libraries\json\cJSON.h" />
     <ClInclude Include="..\libraries\Lua\lapi.h" />
     <ClInclude Include="..\libraries\Lua\lauxlib.h" />

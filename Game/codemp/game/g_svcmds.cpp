@@ -448,9 +448,6 @@ ConsoleCommand
 =================
 */
 
-void Cmd_DisAsmDirect_f();
-#include "jkg_auxlib.h"
-
 int testMasterFinalFunc (struct asyncTask_s *task) {
 	cJSON *data = (cJSON *)task->finalData;
 
@@ -498,15 +495,18 @@ qboolean	ConsoleCommand( void ) {
 	// Check for admin commands
 	if (JKG_Admin_ExecuteRcon(cmd)) return qtrue;
 
+#if 0
 	if (!Q_stricmp (cmd, "disasm")) {
 		Cmd_DisAsmDirect_f();
 		return qtrue;
 	}
 
+
 	if (!Q_stricmp (cmd, "stresslevel")) {
 		JKG_GLS_StressLevelInfo();
 		return qtrue;
 	}
+#endif
 
 	if (GLua_RconCommand(cmd))
 		return qtrue;

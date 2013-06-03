@@ -3,7 +3,7 @@
 
 #include "g_local.h"
 
-void JKG_Nav_Init ( void );
+void JKG_Nav_Init ( const char *mapname );
 void JKG_Nav_Shutdown ( void );
 void JKG_Nav_Editor_Run ( void );
 

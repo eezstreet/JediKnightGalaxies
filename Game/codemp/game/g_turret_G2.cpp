@@ -364,7 +364,7 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 		ent->s.weapon			= WP_BLASTER;
 		ent->s.weaponVariation	= 0;
 
-		WP_FireGenericMissile( ent, qfalse, start, dir );
+		WP_FireGenericMissile( ent, 0, start, dir );
 		if ( ent->alt_fire )
 		{
 			TurboLaser_SetBoneAnim( ent, 2, 3 );

@@ -1042,8 +1042,6 @@ G_InitGame
 ============
 */
 
-#include "jkg_auxlib.h"
-
 static void JKG_RegisteServerCallback ( asyncTask_t *task )
 {
 	cJSON *data;
@@ -1436,7 +1434,6 @@ void G_ShutdownGame( int restart ) {
 	JKG_Easy_DIMA_Cleanup();
 	G_TerminateMemory(); // wipe all allocs made with G_Alloc
 	//JKG_Nav_Shutdown();
-	JKG_GLS_BreakLinkup();
 	EVP_cleanup();
 }
 
