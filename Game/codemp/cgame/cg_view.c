@@ -2737,7 +2737,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 			trap_Cvar_Set ( "ui_myteam", va("%i", cg.snap->ps.persistant[PERS_TEAM]) );
 	}
 
-	JKG_AntiDebug();	// >:)
 	// update cvars
 	CG_UpdateCvars();
 
