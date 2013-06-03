@@ -355,6 +355,7 @@
     <ClCompile Include="..\libraries\RDDebugUtils\Source\RecastDump.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\client\FxScheduler.h" />
     <ClInclude Include="..\game\anims.h" />
     <ClInclude Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.h" />
     <ClInclude Include="..\libraries\Detour\Include\DetourAlloc.h" />
@@ -365,6 +366,7 @@
     <ClInclude Include="..\libraries\Detour\Include\DetourNavMeshQuery.h" />
     <ClInclude Include="..\libraries\Detour\Include\DetourNode.h" />
     <ClInclude Include="..\libraries\Detour\Include\DetourStatus.h" />
+    <ClInclude Include="..\renderer\tr_types.h" />
     <ClInclude Include="animtable.h" />
     <ClInclude Include="..\game\bg_ammo.h" />
     <ClInclude Include="..\game\bg_items.h" />
@@ -396,7 +398,6 @@
     <ClInclude Include="..\win32\resource.h" />
     <ClInclude Include="..\game\surfaceflags.h" />
     <ClInclude Include="..\shared\qcommon\tags.h" />
-    <ClInclude Include="tr_types.h" />
     <ClInclude Include="..\ui\ui_shared.h" />
     <ClInclude Include="..\game\z_global_defines.h" />
     <ClInclude Include="..\libraries\json\cJSON.h" />

@@ -3512,9 +3512,4 @@ void NPC_LoadParms( void )
 		}
 	}
 
-#ifdef _XBOX
-	Z_Free(npcParseBuffer);
-	npcParseBuffer = NULL;
-#endif
-
 }

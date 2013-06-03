@@ -603,6 +603,11 @@ extern int CL_GetValueForHidden(const char *s); //cl_parse.cpp
 
 extern qboolean cl_bUseFighterPitch; //cl_input.cpp
 
+// FxScheduler.cpp
+extern void *CFxExport_GetEffectCopy( fxHandle_t fxHandle, fxHandle_t *newHandle );
+extern void *CFxExport_GetEffectCopy( const char *fileName, fxHandle_t *newHandle );
+extern void *CFxExport_GetPrimitiveCopy( void *primitiveHandle, const char *componentName );
+
 //qcommon/vm.cpp
 extern vm_t *currentVM;
 
@@ -1706,6 +1711,22 @@ Ghoul2 Insert End
 	case CG_JKG_SETVIEWANGLES:
 		VectorCopy((float*)VMA(1), cl.viewangles);
 		return 0;
+
+	// FX crap --eez
+
+	case CG_FX_GETSHAREDMEM:
+		return (int)cl.mSharedMemory;
+
+	case CG_FX_ADDMINIREFENTITY:
+		re.AddMiniRefEntityToScene((const miniRefEntity_t *)VMA(1));
+		return 0;
+
+	case CG_FX_GETEFFECTCOPY1:
+		return (int)CFxExport_GetEffectCopy( (fxHandle_t)VMA(1), (fxHandle_t *)VMA(2) );
+	case CG_FX_GETEFFECTCOPY2:
+		return (int)CFxExport_GetEffectCopy( (const char *)VMA(1), (fxHandle_t *)VMA(2) );
+	case CG_FX_GETPRIMITIVECOPY:
+		return (int)CFxExport_GetPrimitiveCopy( (void *)VMA(1), (const char *)VMA(2) );
 
 	default:
 	    assert( !"Bad cgame system trap" ); // Better looking --eez

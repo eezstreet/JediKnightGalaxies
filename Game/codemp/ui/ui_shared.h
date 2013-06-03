@@ -18,7 +18,7 @@
 
 
 #include "../game/q_shared.h"
-#include "../cgame/tr_types.h"
+#include "../renderer/tr_types.h"
 #include "keycodes.h"
 
 #include "../../JKGalaxies/ui/menudef.h"

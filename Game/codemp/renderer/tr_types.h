@@ -12,6 +12,7 @@
 #define	REFENTITYNUM_WORLD	((1<<REFENTITYNUM_BITS) - 1)
 
 #define	MAX_MINI_ENTITIES	1024
+#define MAX_ENTITIES		2048
 
 // renderfx flags
 #define	RF_MINLIGHT			0x00001	// allways have some light (viewmodel, some items)

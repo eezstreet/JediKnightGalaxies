@@ -16,7 +16,7 @@
 #define CG_LOCAL_H
 
 #include "../game/q_shared.h"
-#include "tr_types.h"
+#include "../renderer/tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
 
@@ -2924,6 +2924,13 @@ void trap_JKG_GetColorTable( float **table );
 float **trap_JKG_GetViewAngles( void );
 void trap_JKG_SetViewAngles( vec3_t viewangles );
 
+// FX stuff --eez
+char *trap_FX_GetSharedMemory( void );
+void trap_R_AddMiniRefEntityToScene( miniRefEntity_t *ent );
+#ifndef UI_EXPORTS
+int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  );
+#endif
+
 #include "../namespace_end.h"
 
 void		CG_Init_CG(void);
@@ -2958,9 +2965,6 @@ extern void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float sha
 // jkg_cg_damagetypes.c -- UQ1: Moved to stop cg_local.h recursive #include error...
 void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity );
 
-#endif
-
-
 // -------------
 // Crossover API
 // -------------
@@ -2968,4 +2972,15 @@ void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity );
 #ifdef CGAME
 #include "../ui/ui_shared.h"
 extern uiCrossoverExports_t *uiImports;
+#endif
+
+// -------------
+// NEW CRAPOLA
+// -------------
+// CPlusPlus edit
+#ifdef __cplusplus
+#include "../ghoul2/ghoul2_shared.h"
+#include "../client/FxSystem.h"
+#endif
+
 #endif

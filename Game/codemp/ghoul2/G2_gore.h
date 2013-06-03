@@ -26,7 +26,11 @@ struct GoreTextureCoordinates
 				extern int g_goreTexAllocs;
 				g_goreTexAllocs--;
 #endif
+#ifdef ENGINE
 				Z_Free(tex[i]);
+#else
+				free(tex[i]);
+#endif
 				tex[i] = 0;
 			}
 		}

@@ -75,6 +75,9 @@
     <Filter Include="Libraries\DetourTileCache">
       <UniqueIdentifier>{6c96ba7b-39a1-4fdd-bc72-a42c50a0e8b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FX">
+      <UniqueIdentifier>{d3230432-aacc-410f-b0a0-07b6e1b8beb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="jkg_navmesh_visualiser.cpp">
@@ -463,9 +466,6 @@
     <ClInclude Include="..\shared\qcommon\tags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tr_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\ui\ui_shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -528,6 +528,12 @@
     </ClInclude>
     <ClInclude Include="..\libraries\DetourTileCache\DetourTileCacheBuilder.h">
       <Filter>Libraries\DetourTileCache</Filter>
+    </ClInclude>
+    <ClInclude Include="..\client\FxScheduler.h">
+      <Filter>FX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderer\tr_types.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
 #include "cg_local.h"
+#include "../client/FxScheduler.h"
 
 static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
 
@@ -1182,5 +1183,30 @@ float **trap_JKG_GetViewAngles( void )
 void trap_JKG_SetViewAngles( vec3_t viewangles )
 {
 	syscall(CG_JKG_SETVIEWANGLES, viewangles);
+}
+
+char *trap_FX_GetSharedMemory( void )
+{
+	return (char *)syscall(CG_FX_GETSHAREDMEM);
+}
+
+void trap_R_AddMiniRefEntityToScene( miniRefEntity_t *ent )
+{
+	syscall(CG_FX_ADDMINIREFENTITY, ent);
+}
+
+SEffectTemplate *trap_FX_GetEffectCopy( fxHandle_t handle, fxHandle_t *newHandle )
+{
+	return (SEffectTemplate *)syscall(CG_FX_GETEFFECTCOPY1, handle, newHandle);
+}
+
+SEffectTemplate *trap_FX_GetEffectCopy( const char *file, fxHandle_t *newHandle )
+{
+	return (SEffectTemplate *)syscall(CG_FX_GETEFFECTCOPY2, file, newHandle);
+}
+
+CPrimitiveTemplate *trap_FX_GetPrimitiveCopy( SEffectTemplate *efxFile, const char *componentName )
+{
+	return (CPrimitiveTemplate *)syscall(CG_FX_GETPRIMITIVECOPY, efxFile, componentName);
 }
 #include "../namespace_end.h"

@@ -21,11 +21,6 @@
 #endif
 #endif
 
-#ifdef _XBOX
-extern void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign);
-extern void Z_Free(void *pvAddress);
-#endif
-
 #ifdef QAGAME
 extern void Q3_SetParm (int entID, int parmNum, const char *parmValue);
 #endif

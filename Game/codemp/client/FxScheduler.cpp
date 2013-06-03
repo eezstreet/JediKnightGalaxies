@@ -1748,3 +1748,22 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, SScheduledEffect *sched
 	PlayEffect( fx->mPlayFxHandles.GetHandle(), scheduledFx->mOrigin, scheduledFx->mAxis, boltInfo );
 }
 
+//------------------------------------------------------
+// Exported to CGame via the use of void pointers...
+// Pretty nasty but they should get the job done --eez
+//------------------------------------------------------
+
+void *CFxExport_GetEffectCopy( fxHandle_t fxHandle, fxHandle_t *newHandle )
+{
+	return (void *)theFxScheduler.GetEffectCopy( (int)fxHandle, (int *)newHandle );
+}
+
+void *CFxExport_GetEffectCopy( const char *fileName, fxHandle_t *newHandle )
+{
+	return (void *)theFxScheduler.GetEffectCopy( fileName, (int *)newHandle);
+}
+
+void *CFxExport_GetPrimitiveCopy( void *primitiveHandle, const char *componentName )
+{
+	return (void *)theFxScheduler.GetPrimitiveCopy( (SEffectTemplate *)primitiveHandle, componentName );
+}

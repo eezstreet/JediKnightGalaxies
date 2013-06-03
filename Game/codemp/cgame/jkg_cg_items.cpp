@@ -703,6 +703,7 @@ void JKG_CG_SetModelSurfacesFlags ( void *g2, const char *surfaces, int flags )
 	}
 }
 
+#ifndef __cplusplus
 typedef struct mdxmHeader_s {
 	// 
 	// ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
@@ -723,6 +724,7 @@ typedef struct mdxmHeader_s {
 
 	int			ofsEnd;				// EOF, which of course gives overall file size
 } mdxmHeader_t;
+#endif
 
 //=========================================================
 // JKG_G2_GetNumberOfSurfaces
