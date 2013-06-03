@@ -316,7 +316,6 @@
     <ClCompile Include="fx_force.c" />
     <ClCompile Include="fx_heavyrepeater.c" />
     <ClCompile Include="fx_rocketlauncher.c" />
-    <ClCompile Include="jkg_antidebug.c" />
     <ClCompile Include="jkg_cg_damagetypes.c" />
     <ClCompile Include="jkg_cg_items.c" />
     <ClCompile Include="jkg_cg_weaponholster.c" />

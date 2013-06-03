@@ -242,9 +242,6 @@
     <ClCompile Include="fx_rocketlauncher.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_antidebug.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jkg_cg_damagetypes.c">
       <Filter>Source Files</Filter>
     </ClCompile>

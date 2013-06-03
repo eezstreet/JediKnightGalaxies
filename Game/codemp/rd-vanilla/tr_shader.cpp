@@ -4810,6 +4810,6 @@ void R_OverrideShaderFrame( qhandle_t shader, int desiredFrame, int time )
 		}
 	}
 
-	desiredTime = ( 1 / animFrequency ) * ( desiredFrame + 0.5 );
+	desiredTime = ( 1 / animFrequency ) * ( (float)desiredFrame + 0.5 );
 	sh->timeOffset = floattime - desiredTime;
 }
