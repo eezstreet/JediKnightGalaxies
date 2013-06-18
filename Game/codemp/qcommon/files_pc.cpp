@@ -2231,7 +2231,7 @@ void FS_Path_f( void ) {
 	searchpath_t	*s;
 	int				i;
 
-	Com_Printf ("Current search path:\n");
+	Com_Printf ("Current search paths:\n");
 	for (s = fs_searchpaths; s; s = s->next) {
 		if (s->pack) {
 			Com_Printf ("%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles);
@@ -2687,7 +2687,14 @@ void FS_Startup( const char *gameName ) {
 		missingFiles = fopen( "\\missing.txt", "ab" );
 	}
 #endif
-	Com_Printf( "%d files in pk3 files\n", fs_packFiles );
+	if( fs_packFiles <= 0 )
+	{
+		Com_Error( ERR_FATAL, "No assets detected, aborting...");
+	}
+	else
+	{
+		Com_Printf( "%d files in pk3 files\n", fs_packFiles );
+	}
 }
 
 /*
