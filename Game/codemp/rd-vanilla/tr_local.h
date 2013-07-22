@@ -475,6 +475,7 @@ typedef struct shader_s {
 
   int shaderStates[MAX_STATES_PER_SHADER];          // index to valid shader states
 */
+	int frameOverride;	// for animmaps, we want to override the frame if not -1
 
 	struct shader_s *remappedShader;                  // current shader this one is remapped too
 	struct	shader_s	*next;

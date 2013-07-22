@@ -243,7 +243,11 @@ void R_BindAnimatedImage( textureBundle_t *bundle ) {
 		index = Q_ftol( tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
 		index >>= FUNCTABLE_SIZE2;
 
-		if ( index < 0 ) {
+		if ( tess.shader->frameOverride != -1 )
+		{
+			index = tess.shader->frameOverride;
+		}
+		else if ( index < 0 ) {
 			index = 0;	// may happen with shader time offsets
 		}
 	}
@@ -256,10 +260,10 @@ void R_BindAnimatedImage( textureBundle_t *bundle ) {
 			index = bundle->numImageAnimations - 1;
 		}
 	}
-	else
+	else if( tess.shader->frameOverride == -1 )
 	{
 		// loop
-		index %= bundle->numImageAnimations;
+		index %= bundle->numImageAnimations; // but wot about this.. irrelevant.
 	}
 
 	GL_Bind( *((image_t**)bundle->image + index) );
