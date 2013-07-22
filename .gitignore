@@ -4,6 +4,8 @@
 */ipch/*
 */[Dd]ebug/*
 */[Rr]elease/*
+Game/codemp/Debug/*
+Game/codemp/ipch/*
 *.user
 *.suo
 
