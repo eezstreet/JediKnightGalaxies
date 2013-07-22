@@ -1567,6 +1567,7 @@ void JKG_Inventory_Examine_Button ( int forceOff )
 				break;
 			case ITEM_BUFF:
 			case ITEM_UNKNOWN:
+			case ITEM_CONSUMABLE:
 				{
 					itemDef_t *item = Menu_FindItemByName(inventoryState.menu, "examine3_title");
 					item->textRect.w = 0;
@@ -1958,6 +1959,7 @@ void JKG_Inventory_ConstructToolTip ( int itemNumber, float cX, float cY )
 			JKG_Inventory_Tooltip_AddLine(toolTipItem,  va("Clothing"));
 			break;
 		case ITEM_BUFF:
+		case ITEM_CONSUMABLE:
 			JKG_Inventory_Tooltip_AddLine(toolTipItem,  va("Consumable"));
 			break;
 	}
