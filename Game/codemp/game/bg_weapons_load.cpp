@@ -470,6 +470,9 @@ static void BG_ParseWeaponStats ( weaponData_t *weaponData, cJSON *statsNode )
     
     node = cJSON_GetObjectItem (statsNode, "zoomtime");
     weaponData->zoomTime = cJSON_ToIntegerOpt (node, 2000);
+
+	node = cJSON_GetObjectItem (statsNode, "ironsightsTime");
+	weaponData->ironsightsTime = cJSON_ToIntegerOpt (node, IRONSIGHTS_TIME);
 }
 
 static void BG_ParseAnimationObject ( cJSON *animationNode, int *torsoAnimation, int *legsAnimation )

@@ -62,7 +62,7 @@
 
 #define MAX_CLIENT_SCORE_SEND 20
 
-// Xy: time to bring ironsights up		//TODO: make this weapon based?
+// Xy: time to bring ironsights up
 #define IRONSIGHTS_TIME     (200)
 
 // Sprint animation time --eez

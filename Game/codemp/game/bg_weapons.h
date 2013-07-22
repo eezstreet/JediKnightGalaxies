@@ -399,6 +399,7 @@ typedef struct
 	float           speedModifier;          // Modifier to apply to player's speed when weapon in use. 1.0f for default speed.
 	float           reloadModifier;         // Modifier to apply to player's speed when reloading. 1.0f for no change.
 
+	unsigned char	ironsightsTime;			// How long it takes to bring the weapon up to ironsights
 
 	weaponAnimationReplacements_t anims;
 

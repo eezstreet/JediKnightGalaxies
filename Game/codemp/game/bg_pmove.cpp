@@ -8979,11 +8979,12 @@ void PM_AdjustAttackStates( pmove_t *pm )
 
 	if ( weapon->zoomType != ZOOM_NONE )
 	{
+		weaponData_t *wp = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation );
 		if ( pm->ps->weaponstate == WEAPON_READY || pm->ps->weaponstate == WEAPON_FIRING )
 	    {
 			if ( (pm->cmd.buttons & BUTTON_IRONSIGHTS || pm->ps->isInSights) &&
 		            (pm->ps->ironsightsTime & IRONSIGHTS_MSB) &&
-		            (((pm->ps->ironsightsTime & ~IRONSIGHTS_MSB) + IRONSIGHTS_TIME + 50) <= pm->cmd.serverTime && pm->ps->weapon != WP_SABER) )
+					(((pm->ps->ironsightsTime & ~IRONSIGHTS_MSB) + wp->ironsightsTime + 50) <= pm->cmd.serverTime && pm->ps->weapon != WP_SABER) )
 		    {
 			    // We just pressed the alt-fire key
 			    if ( !pm->ps->zoomMode && pm->ps->pm_type != PM_DEAD )

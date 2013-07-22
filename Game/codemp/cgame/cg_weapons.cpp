@@ -41,14 +41,15 @@ float JKG_CalculateIronsightsPhase ( const playerState_t *ps )
 {
     double phase;
     unsigned int time = ps->ironsightsTime & ~IRONSIGHTS_MSB;
+	weaponData_t *wp = BG_GetWeaponDataByIndex( ps->weaponId );
     if ( ps->ironsightsTime & IRONSIGHTS_MSB )
     {
-        phase = CubicBezierInterpolate (min (cg.time - time, IRONSIGHTS_TIME) / (double)IRONSIGHTS_TIME, 0.0, 0.0, 1.0, 1.0);
+		phase = CubicBezierInterpolate (min (cg.time - time, wp->ironsightsTime) / (double)wp->ironsightsTime, 0.0, 0.0, 1.0, 1.0);
         cg.ironsightsBlend = min (1.0f, max (0.0f, phase));
     }
     else
     {
-        phase = cg.ironsightsBlend - CubicBezierInterpolate (min (cg.time - time, IRONSIGHTS_TIME * cg.ironsightsBlend) / (double)(IRONSIGHTS_TIME * cg.ironsightsBlend), 0.0, 0.0, 1.0, 1.0);
+		phase = cg.ironsightsBlend - CubicBezierInterpolate (min (cg.time - time, wp->ironsightsTime * cg.ironsightsBlend) / (double)(wp->ironsightsTime * cg.ironsightsBlend), 0.0, 0.0, 1.0, 1.0);
     }
     
     return min (1.0f, max (0.0f, phase));
@@ -68,8 +69,9 @@ float JKG_CalculateFireModePhase ( void )
 {
     double phase;
 	unsigned int time = cg.fireModeChangeTime;
+	weaponData_t *wp = BG_GetWeaponDataByIndex( cg.predictedPlayerState.weaponId );
 
-	phase = min(cg.time - time, IRONSIGHTS_TIME)/(double)IRONSIGHTS_TIME;
+	phase = min(cg.time - time, wp->ironsightsTime)/(double)wp->ironsightsTime;
     
     return min (1.0f, max (0.0f, phase));
 }
