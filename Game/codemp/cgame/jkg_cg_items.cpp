@@ -629,12 +629,12 @@ static qboolean JKG_CG_LoadArmor(void)
 		}
 
 		if(armorMasterTable[armor.id].id)
-			CG_Printf("^3Warning: Duplicate armor ID %i", armor.id);
+			CG_Printf("^3Warning: Duplicate armor ID %i\n", armor.id);
 		armorMasterTable[armor.id] = armor;
 
 		armorFile += strlen(armorFile)+1;
 	}
-	CG_Printf("Armor Loaded: %i successful, %i failed", successful, failed);
+	CG_Printf("Armor Loaded: %i successful, %i failed\n", successful, failed);
 
 	return (qboolean)(successful > 0);
 }
