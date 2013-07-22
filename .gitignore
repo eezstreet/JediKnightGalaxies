@@ -1,8 +1,9 @@
 # More crap that needs to be ignored --eez
 *.opensdf
 *.sdf
-Game/codemp/ipch/*
-/Game/codemp/[Dd]ebug/*
+*/ipch/*
+*/[Dd]ebug/*
+*/[Rr]elease/*
 *.user
 *.suo
 
@@ -23,3 +24,12 @@ Game/codemp/ipch/*
 *.exe
 *.out
 *.app
+
+# Qt
+*/[Gg]enerated[Ff]iles/[Rr]elease/*
+*/[Gg]enerated[Ff]iles/[Dd]ebug/*
+
+# even more bullshit (tm)
+*.tlog
+*.obj
+*.cache
