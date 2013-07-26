@@ -389,8 +389,41 @@ static void BG_ParseWeaponFireMode ( weaponFireModeStats_t *fireModeStats, cJSON
     node = cJSON_GetObjectItem (fireModeNode, "recoil");
     fireModeStats->recoil = (float)cJSON_ToNumberOpt (node, 0.0);
     
-    node = cJSON_GetObjectItem (fireModeNode, "spread");
-    fireModeStats->spread = (float)cJSON_ToNumberOpt (node, 0.0);
+    //node = cJSON_GetObjectItem (fireModeNode, "spread");
+    //fireModeStats->spread = (float)cJSON_ToNumberOpt (node, 0.0);
+
+	node = cJSON_GetObjectItem (fireModeNode, "accuracy");
+	if( node )
+	{
+		cJSON *child = NULL;
+
+		child = cJSON_GetObjectItem( node, "accuracyRating" );
+		fireModeStats->weaponAccuracy.accuracyRating = (vec_t)cJSON_ToNumberOpt( child, 5.0f );
+
+		child = cJSON_GetObjectItem( node, "crouchModifier" );
+		fireModeStats->weaponAccuracy.crouchModifier = (float)cJSON_ToNumberOpt( child, 0.8f );
+
+		child = cJSON_GetObjectItem( node, "runModifier" );
+		fireModeStats->weaponAccuracy.runModifier = (float)cJSON_ToNumberOpt( child, 2.0f );
+
+		child = cJSON_GetObjectItem( node, "sightsModifier" );
+		fireModeStats->weaponAccuracy.sightsModifier = (float)cJSON_ToNumberOpt( child, 0.2f );
+
+		child = cJSON_GetObjectItem( node, "walkModifier" );
+		fireModeStats->weaponAccuracy.walkModifier = (float)cJSON_ToNumberOpt( child, 1.55f );
+
+		child = cJSON_GetObjectItem( node, "inAirModifier" );
+		fireModeStats->weaponAccuracy.inAirModifier = (float)cJSON_ToNumberOpt( child, 3.0f );
+	}
+	else
+	{
+		fireModeStats->weaponAccuracy.accuracyRating = 5.0f;
+		fireModeStats->weaponAccuracy.crouchModifier = 0.8f;
+		fireModeStats->weaponAccuracy.runModifier = 2.0f;
+		fireModeStats->weaponAccuracy.sightsModifier = 0.2f;
+		fireModeStats->weaponAccuracy.walkModifier = 1.55f;
+		fireModeStats->weaponAccuracy.inAirModifier = 3.0f;
+	}
     
     node = cJSON_GetObjectItem (fireModeNode, "projectilespeed");
     fireModeStats->speed = (float)cJSON_ToNumberOpt (node, 0.0);

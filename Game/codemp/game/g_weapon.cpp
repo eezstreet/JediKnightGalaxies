@@ -3415,1099 +3415,1122 @@ void SP_emplaced_gun( gentity_t *ent )
 }
 
 
-	//// LITTLE STUB
-	void FireWeapon( gentity_t *ent, int firingMode )
+//// LITTLE STUB
+void FireWeapon( gentity_t *ent, int firingMode )
+{
+	WP_FireGenericWeapon( ent, firingMode );
+}
+//// END LITTLE STUB
+
+/**************************************************
+* WP_CalculateAngles
+*
+* Calculates the angles for the current weapon.
+* This also handles emplaced weaponary and vehicle
+* weaponary. The angles are calculated before the
+* muzzle. It must be done in this order!
+**************************************************/
+
+void WP_CalculateAngles( gentity_t *ent )
+{
+	if ( ent->s.weapon == WP_EMPLACED_GUN && ent->client->ps.emplacedIndex)
 	{
-		WP_FireGenericWeapon( ent, firingMode );
-	}
-	//// END LITTLE STUB
+		gentity_t *emp = &g_entities[ent->client->ps.emplacedIndex];
 
-	/**************************************************
-	* WP_CalculateAngles
-	*
-	* Calculates the angles for the current weapon.
-	* This also handles emplaced weaponary and vehicle
-	* weaponary. The angles are calculated before the
-	* muzzle. It must be done in this order!
-	**************************************************/
-
-	void WP_CalculateAngles( gentity_t *ent )
-	{
-		if ( ent->s.weapon == WP_EMPLACED_GUN && ent->client->ps.emplacedIndex)
+		if ( emp->inuse )
 		{
-			gentity_t *emp = &g_entities[ent->client->ps.emplacedIndex];
+			float	fYaw;
+			vec3_t	viewAngCap;
 
-			if ( emp->inuse )
+			VectorCopy( ent->client->ps.viewangles, viewAngCap );
+			viewAngCap[PITCH] = ( viewAngCap[PITCH] > 40 ) ? 40 : viewAngCap[PITCH];
+
+			if ( BG_EmplacedView( ent->client->ps.viewangles, emp->s.angles, &fYaw, emp->s.origin2[0] ))
 			{
-				float	fYaw;
-				vec3_t	viewAngCap;
-
-				VectorCopy( ent->client->ps.viewangles, viewAngCap );
-				viewAngCap[PITCH] = ( viewAngCap[PITCH] > 40 ) ? 40 : viewAngCap[PITCH];
-
-				if ( BG_EmplacedView( ent->client->ps.viewangles, emp->s.angles, &fYaw, emp->s.origin2[0] ))
-				{
-					viewAngCap[YAW] = fYaw;
-				}
-
-				AngleVectors( viewAngCap, forward, vright, up );
-			}
-			else
-			{
-				AngleVectors( ent->client->ps.viewangles, forward, vright, up );
-			}
-		}
-		else if ( ent->s.number < MAX_CLIENTS && ent->client->ps.m_iVehicleNum && ent->s.weapon == WP_BLASTER )
-		{
-			vec3_t		 vehTurnAngles;
-			gentity_t	*vehEnt = &g_entities[ent->client->ps.m_iVehicleNum];
-
-			if ( vehEnt->inuse && vehEnt->client && vehEnt->m_pVehicle )
-			{
-				VectorCopy(vehEnt->m_pVehicle->m_vOrientation, vehTurnAngles);
-				vehTurnAngles[PITCH] = ent->client->ps.viewangles[PITCH];
-			}
-			else
-			{
-				VectorCopy(ent->client->ps.viewangles, vehTurnAngles);
+				viewAngCap[YAW] = fYaw;
 			}
 
-			if ( ent->client->pers.cmd.rightmove > 0 )
-			{ 
-				vehTurnAngles[YAW] -= 90.0f;
-			}
-			else if ( ent->client->pers.cmd.rightmove < 0 )
-			{
-				vehTurnAngles[YAW] += 90.0f;
-			}
-
-			AngleVectors( vehTurnAngles, forward, vright, up );
+			AngleVectors( viewAngCap, forward, vright, up );
 		}
 		else
 		{
 			AngleVectors( ent->client->ps.viewangles, forward, vright, up );
 		}
 	}
-
-	/**************************************************
-	* WP_CalculateMuzzlePoint
-	*
-	* Calculates the muzzle point for the currently
-	* equiped weapon. Uses bolt information to calculate
-	* the proper muzzle. A client side version is available
-	* in cg_weapons.c, so update that if you update this
-	* (for dynamic crosshair entity scanning)!
-	**************************************************/
-
-	void WP_CalculateMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) 
+	else if ( ent->s.number < MAX_CLIENTS && ent->client->ps.m_iVehicleNum && ent->s.weapon == WP_BLASTER )
 	{
-		int			 iBolt;
-		void		*pGhoul;
-		mdxaBone_t   muzzleMatrix;
+		vec3_t		 vehTurnAngles;
+		gentity_t	*vehEnt = &g_entities[ent->client->ps.m_iVehicleNum];
 
-		/* Get the bolt index and the ghoul model to retrieve the muzzle point */
-		pGhoul		= ent->client->weaponGhoul2[0];					/* Use secondary hand muzzle when shooting with that! */
-		iBolt		= trap_G2API_AddBolt( pGhoul, 0, "*flash" );	/* Use the *flash tag as muzzle point, it's rather accurate */
-
-		/* These weapons dont have a proper muzzle bolt, don't crash the client but fake the muzzle */
-		if ( pGhoul == NULL /*|| iBolt == -1*/ )
+		if ( vehEnt->inuse && vehEnt->client && vehEnt->m_pVehicle )
 		{
-			VectorCopy( ent->r.currentOrigin, ent->client->ps.viewangles );
-			muzzlePoint[2] += ent->client->ps.viewheight;
+			VectorCopy(vehEnt->m_pVehicle->m_vOrientation, vehTurnAngles);
+			vehTurnAngles[PITCH] = ent->client->ps.viewangles[PITCH];
 		}
 		else
 		{
-			/* Get the muzzle point by getting the bolt origin. Add the view height to compensate for the player height */
-			vec3_t viewAngles, viewOrg;
-			VectorClear( viewAngles );
-
-			viewAngles[YAW] = ent->client->ps.viewangles[YAW];
-
-			trap_G2API_GetBoltMatrix( pGhoul, 0, iBolt, &muzzleMatrix, ent->client->ps.viewangles, ent->r.currentOrigin, level.time, NULL, ent->modelScale );
-			muzzlePoint[0] = muzzleMatrix.matrix[0][3];
-			muzzlePoint[1] = muzzleMatrix.matrix[1][3];
-			muzzlePoint[2] = muzzleMatrix.matrix[2][3] + ent->client->ps.viewheight;
-
-			// Client could be rendering in first person, so put it just a little bit away from the camera so it doesn't clip into the player's view.
-
-			AngleVectors( viewAngles, viewOrg, NULL, NULL );
-			VectorScale( viewOrg, 5, viewOrg );
-
-			VectorAdd( muzzlePoint, viewOrg, muzzlePoint );
-
-			/* Snap the vector to save some bandwidth */
-			SnapVector( muzzlePoint );
+			VectorCopy(ent->client->ps.viewangles, vehTurnAngles);
 		}
+
+		if ( ent->client->pers.cmd.rightmove > 0 )
+		{ 
+			vehTurnAngles[YAW] -= 90.0f;
+		}
+		else if ( ent->client->pers.cmd.rightmove < 0 )
+		{
+			vehTurnAngles[YAW] += 90.0f;
+		}
+
+		AngleVectors( vehTurnAngles, forward, vright, up );
 	}
-
-	/**************************************************
-	* WP_FireGenericMissile
-	*
-	* Fires a generic grenade for the currently equiped
-	* weapon. It utilizes the weapon table to get all
-	* the required information. Supports any missile
-	* type with any box size, bounce count, charge,
-	* gravity, range, speed, splash and more. Then it
-	* calculates specific grenade values to make it work.
-	**************************************************/
-
-	gentity_t *WP_FireGenericGrenade( gentity_t *ent, int firemode, vec3_t origin, vec3_t dir )
+	else
 	{
-		gentity_t *bolt				 = WP_FireGenericMissile( ent, firemode, origin, dir );
-		float fCharge				 = 0;
-		float fSpeed				 = WP_GetWeaponSpeed( ent, firemode );		
-		int	  iTime					 = GetWeaponData( ent->s.weapon, ent->s.weaponVariation )->weaponReloadTime;
+		AngleVectors( ent->client->ps.viewangles, forward, vright, up );
+	}
+}
 
-		/* Rolling the grenade instead of throwing it, lower the speed considerably */
-		if ( firemode ) fSpeed *= 0.5;
+/**************************************************
+* WP_CalculateMuzzlePoint
+*
+* Calculates the muzzle point for the currently
+* equiped weapon. Uses bolt information to calculate
+* the proper muzzle. A client side version is available
+* in cg_weapons.c, so update that if you update this
+* (for dynamic crosshair entity scanning)!
+**************************************************/
 
-		/* Calculate the charge for this grenade */
-		fCharge = (( ent->client ) ? ( level.time - ent->client->ps.weaponChargeTime ) : 1.0f ) / fSpeed;
-		fCharge = ( fCharge > 1.0f ) ? 1.0f : (( fCharge < 0.15f ) ? 0.15f : fCharge );
+void WP_CalculateMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) 
+{
+	int			 iBolt;
+	void		*pGhoul;
+	mdxaBone_t   muzzleMatrix;
 
-		/* Set the physics object and make the grenade think (when to explode) */
-		bolt->flags                  |= FL_BOUNCE_HALF | FL_BOUNCE;
-		bolt->physicsObject			 = qtrue;
-		bolt->think					 = thermalThinkStandard;
-		bolt->nextthink				 = level.time;
-		if(WP_GetGrenadeBounce( ent, firemode ))
-		{
-			bolt->parent				= ent;
-			bolt->genericValue9			= WP_GetGrenadeBounceDamage ( ent, firemode );
-			bolt->genericValue10		= qtrue;
-			//bolt->touch					= touch_GrenadeWithBouce;
-			bolt->touch					 = touch_NULL;
-		}
-		else
-		{
-			bolt->touch					 = touch_NULL;
-		}
-		bolt->genericValue5			 = ( ent->grenadeCookTime ) ? ent->grenadeCookTime : level.time + iTime;
+	/* Get the bolt index and the ghoul model to retrieve the muzzle point */
+	pGhoul		= ent->client->weaponGhoul2[0];					/* Use secondary hand muzzle when shooting with that! */
+	iBolt		= trap_G2API_AddBolt( pGhoul, 0, "*flash" );	/* Use the *flash tag as muzzle point, it's rather accurate */
 
-		/* Scale the direction with the speed as the delta (movement starts) */
-		VectorScale( dir, fSpeed * fCharge, bolt->s.pos.trDelta );
-		if ( !firemode ) bolt->s.pos.trDelta[2] += 140.0f;
+	/* These weapons dont have a proper muzzle bolt, don't crash the client but fake the muzzle */
+	if ( pGhoul == NULL /*|| iBolt == -1*/ )
+	{
+		VectorCopy( ent->r.currentOrigin, ent->client->ps.viewangles );
+		muzzlePoint[2] += ent->client->ps.viewheight;
+	}
+	else
+	{
+		/* Get the muzzle point by getting the bolt origin. Add the view height to compensate for the player height */
+		vec3_t viewAngles, viewOrg;
+		VectorClear( viewAngles );
 
-		/* Set the sounds (static for now) for this weapon */
-		bolt->s.loopSound			 = G_SoundIndex( "sound/weapons/thermal/thermloop.wav" );
-		bolt->s.loopIsSoundset		 = qfalse;
+		viewAngles[YAW] = ent->client->ps.viewangles[YAW];
+
+		trap_G2API_GetBoltMatrix( pGhoul, 0, iBolt, &muzzleMatrix, ent->client->ps.viewangles, ent->r.currentOrigin, level.time, NULL, ent->modelScale );
+		muzzlePoint[0] = muzzleMatrix.matrix[0][3];
+		muzzlePoint[1] = muzzleMatrix.matrix[1][3];
+		muzzlePoint[2] = muzzleMatrix.matrix[2][3] + ent->client->ps.viewheight;
+
+		// Client could be rendering in first person, so put it just a little bit away from the camera so it doesn't clip into the player's view.
+
+		AngleVectors( viewAngles, viewOrg, NULL, NULL );
+		VectorScale( viewOrg, 5, viewOrg );
+
+		VectorAdd( muzzlePoint, viewOrg, muzzlePoint );
+
+		/* Snap the vector to save some bandwidth */
+		SnapVector( muzzlePoint );
+	}
+}
+
+/**************************************************
+* WP_FireGenericMissile
+*
+* Fires a generic grenade for the currently equiped
+* weapon. It utilizes the weapon table to get all
+* the required information. Supports any missile
+* type with any box size, bounce count, charge,
+* gravity, range, speed, splash and more. Then it
+* calculates specific grenade values to make it work.
+**************************************************/
+
+gentity_t *WP_FireGenericGrenade( gentity_t *ent, int firemode, vec3_t origin, vec3_t dir )
+{
+	gentity_t *bolt				 = WP_FireGenericMissile( ent, firemode, origin, dir );
+	float fCharge				 = 0;
+	float fSpeed				 = WP_GetWeaponSpeed( ent, firemode );		
+	int	  iTime					 = GetWeaponData( ent->s.weapon, ent->s.weaponVariation )->weaponReloadTime;
+
+	/* Rolling the grenade instead of throwing it, lower the speed considerably */
+	if ( firemode ) fSpeed *= 0.5;
+
+	/* Calculate the charge for this grenade */
+	fCharge = (( ent->client ) ? ( level.time - ent->client->ps.weaponChargeTime ) : 1.0f ) / fSpeed;
+	fCharge = ( fCharge > 1.0f ) ? 1.0f : (( fCharge < 0.15f ) ? 0.15f : fCharge );
+
+	/* Set the physics object and make the grenade think (when to explode) */
+	bolt->flags                  |= FL_BOUNCE_HALF | FL_BOUNCE;
+	bolt->physicsObject			 = qtrue;
+	bolt->think					 = thermalThinkStandard;
+	bolt->nextthink				 = level.time;
+	if(WP_GetGrenadeBounce( ent, firemode ))
+	{
+		bolt->parent				= ent;
+		bolt->genericValue9			= WP_GetGrenadeBounceDamage ( ent, firemode );
+		bolt->genericValue10		= qtrue;
+		//bolt->touch					= touch_GrenadeWithBouce;
+		bolt->touch					 = touch_NULL;
+	}
+	else
+	{
+		bolt->touch					 = touch_NULL;
+	}
+	bolt->genericValue5			 = ( ent->grenadeCookTime ) ? ent->grenadeCookTime : level.time + iTime;
+
+	/* Scale the direction with the speed as the delta (movement starts) */
+	VectorScale( dir, fSpeed * fCharge, bolt->s.pos.trDelta );
+	if ( !firemode ) bolt->s.pos.trDelta[2] += 140.0f;
+
+	/* Set the sounds (static for now) for this weapon */
+	bolt->s.loopSound			 = G_SoundIndex( "sound/weapons/thermal/thermloop.wav" );
+	bolt->s.loopIsSoundset		 = qfalse;
 	
-		/* Copy the base origin, snap the vector, and copy the current origin */
-		VectorCopy( muzzle, bolt->s.pos.trBase );
-		SnapVector( bolt->s.pos.trDelta );
-		VectorCopy( muzzle, bolt->r.currentOrigin );
-		VectorCopy( muzzle, bolt->pos2 );
+	/* Copy the base origin, snap the vector, and copy the current origin */
+	VectorCopy( muzzle, bolt->s.pos.trBase );
+	SnapVector( bolt->s.pos.trDelta );
+	VectorCopy( muzzle, bolt->r.currentOrigin );
+	VectorCopy( muzzle, bolt->pos2 );
 		
-		// Make the player 'reload' the weapon
-		//ent->client->ps.weaponstate = WEAPON_DROPPING;
-		G_SetAnim (ent, NULL, SETANIM_TORSO, TORSO_DROPWEAP1, SETANIM_FLAG_OVERRIDE, 0);
+	// Make the player 'reload' the weapon
+	//ent->client->ps.weaponstate = WEAPON_DROPPING;
+	G_SetAnim (ent, NULL, SETANIM_TORSO, TORSO_DROPWEAP1, SETANIM_FLAG_OVERRIDE, 0);
 
-		return bolt;
+	return bolt;
+}
+
+/**************************************************
+* WP_FireGenericMissile
+*
+* Fires a generic missile for the currently equiped
+* weapon. It utilizes the weapon table to get all
+* the required information. Supports any missile
+* type with any box size, bounce count, charge,
+* gravity, range, speed, splash and more.
+**************************************************/
+
+gentity_t *WP_FireGenericMissile( gentity_t *ent, int firemode, vec3_t origin, vec3_t dir )
+{
+	float		 fBoxSize			 = WP_GetWeaponBoxSize( ent, firemode );
+	int			 iBounce			 = WP_GetWeaponBounce( ent, firemode );
+	char		*zClassname			 = WP_GetWeaponClassname( ent, firemode );
+	int			 iCharge			 = WP_GetWeaponCharge( ent, firemode );
+	int			 iDamage			 = WP_GetWeaponDamage( ent, firemode );
+	qboolean	 bGravity			 = WP_GetWeaponGravity( ent, firemode );
+	int			 iMOD				 = WP_GetWeaponMOD( ent, firemode );
+	int			 iSplashMOD			 = WP_GetWeaponSplashMOD( ent, firemode );
+	float		 fRange				 = WP_GetWeaponRange( ent, firemode );
+	float		 fSpeed				 = WP_GetWeaponSpeed( ent, firemode );
+	float		 fSplashRange		 = WP_GetWeaponSplashRange( ent, firemode );
+	gentity_t	*missile			 = NULL;
+
+	/* Create the missile, fill in the name weapon, owner, methodOfDeath and such */
+	missile							 = CreateMissile( origin, dir, fSpeed, 10000, ent, firemode /* FIXME: This will always be primary fire when firemodes is done */ );
+	missile->classname				 = zClassname;
+	missile->s.weapon				 = ent->s.weapon;
+	missile->s.weaponVariation		 = ent->s.weaponVariation;
+	missile->r.ownerNum				 = ent->s.number;
+	missile->s.time					 = level.time; /* For client-side prediction */
+	missile->parent					 = ent;
+	missile->methodOfDeath			 = iMOD;
+
+	/* Set the appropriate range for the bullet */
+	if ( fRange >= 0.0f )
+	{
+		//missile->s.eventParm		 = fRange;
+		// Xycaleth: casual hi-jacking of some random variable. It's so random you'd have
+		// thought it wasn't out of place at all in Raven's code! :D
+		missile->s.apos.trBase[0]   = fRange;
 	}
 
-	/**************************************************
-	* WP_FireGenericMissile
-	*
-	* Fires a generic missile for the currently equiped
-	* weapon. It utilizes the weapon table to get all
-	* the required information. Supports any missile
-	* type with any box size, bounce count, charge,
-	* gravity, range, speed, splash and more.
-	**************************************************/
-
-	gentity_t *WP_FireGenericMissile( gentity_t *ent, int firemode, vec3_t origin, vec3_t dir )
+	/* If this missile uses gravity, and if such give a slighty boost and set the movement type */
+	if ( bGravity )
 	{
-		float		 fBoxSize			 = WP_GetWeaponBoxSize( ent, firemode );
-		int			 iBounce			 = WP_GetWeaponBounce( ent, firemode );
-		char		*zClassname			 = WP_GetWeaponClassname( ent, firemode );
-		int			 iCharge			 = WP_GetWeaponCharge( ent, firemode );
-		int			 iDamage			 = WP_GetWeaponDamage( ent, firemode );
-		qboolean	 bGravity			 = WP_GetWeaponGravity( ent, firemode );
-		int			 iMOD				 = WP_GetWeaponMOD( ent, firemode );
-		int			 iSplashMOD			 = WP_GetWeaponSplashMOD( ent, firemode );
-		float		 fRange				 = WP_GetWeaponRange( ent, firemode );
-		float		 fSpeed				 = WP_GetWeaponSpeed( ent, firemode );
-		float		 fSplashRange		 = WP_GetWeaponSplashRange( ent, firemode );
-		gentity_t	*missile			 = NULL;
-
-		/* Create the missile, fill in the name weapon, owner, methodOfDeath and such */
-		missile							 = CreateMissile( origin, dir, fSpeed, 10000, ent, firemode /* FIXME: This will always be primary fire when firemodes is done */ );
-		missile->classname				 = zClassname;
-		missile->s.weapon				 = ent->s.weapon;
-		missile->s.weaponVariation		 = ent->s.weaponVariation;
-		missile->r.ownerNum				 = ent->s.number;
-		missile->s.time					 = level.time; /* For client-side prediction */
-		missile->parent					 = ent;
-		missile->methodOfDeath			 = iMOD;
-
-		/* Set the appropriate range for the bullet */
-		if ( fRange >= 0.0f )
-		{
-			//missile->s.eventParm		 = fRange;
-			// Xycaleth: casual hi-jacking of some random variable. It's so random you'd have
-			// thought it wasn't out of place at all in Raven's code! :D
-			missile->s.apos.trBase[0]   = fRange;
-		}
-
-		/* If this missile uses gravity, and if such give a slighty boost and set the movement type */
-		if ( bGravity )
-		{
-			missile->s.pos.trType		 = TR_GRAVITY;
-			missile->s.pos.trDelta[2]	+= 40.0f;
-			missile->physicsObject		 = qtrue;
-		}
-
-		/* If this was fired using alt fire, set the flag so we can render accordingly */
-		/*if ( firemode )
-		{
-			missile->s.eFlags			|= EF_ALT_FIRING;
-		}*/
-
-		missile->s.firingMode = firemode;
-
-		/* If charging, set the charge in the generic1 field so we render accordingly */
-		if ( iCharge )
-		{
-			// Disabled for now. Its silly and causes shit for the grenades (otherwise overrule boxsize again)
-	//		missile->s.generic1			 = iCharge;
-	//		fBoxSize					*= ( iCharge / 2 );
-		}
-		
-		/* If this missile has a splash range, set the method of death, the damage and the radius */
-		if ( fSplashRange )
-		{
-			missile->splashDamage		 = iDamage;
-			missile->splashRadius		 = fSplashRange;
-			missile->splashMethodOfDeath = iSplashMOD;
-		}
-
-		/* Set the ordinary hit damage, the damage flags and clip mask */
-		missile->damage					 = iDamage;
-		missile->dflags					 = DAMAGE_DEATH_KNOCKBACK;
-		missile->clipmask				 = MASK_SHOT | CONTENTS_LIGHTSABER;
-
-		/* If this missile can bounce, set the flag accordingly */
-		if ( iBounce )
-		{
-			missile->bounceCount		 = iBounce;
-			missile->flags				|= FL_BOUNCE;
-			missile->flags				|= FL_BOUNCE_HALF;
-		}
-
-		/* Set the angles in the enity state and set the box size */
-		vectoangles( dir, missile->s.angles );
-		VectorSet( missile->r.maxs,  fBoxSize,  fBoxSize,  fBoxSize );
-		VectorSet( missile->r.mins, -fBoxSize, -fBoxSize, -fBoxSize );
-		return missile;
+		missile->s.pos.trType		 = TR_GRAVITY;
+		missile->s.pos.trDelta[2]	+= 40.0f;
+		missile->physicsObject		 = qtrue;
 	}
 
-	/**************************************************
-	* WP_FireGenericTraceLine
-	*
-	* Fires the generic trace line function, utilizes
-	* the weapon table for the weapon statistics. This
-	* function does an instant attack and renders using
-	* the DISRUPTOR events.
-	**************************************************/
-
-	void WP_FireGenericTraceLine( gentity_t *ent, int firemode )
+	/* If this was fired using alt fire, set the flag so we can render accordingly */
+	/*if ( firemode )
 	{
-		int			 iDamage		 = WP_GetWeaponDamage( ent, firemode );
-		float		 fRange			 = WP_GetWeaponRange( ent, firemode );
-		int			 iSkip			 = ent->s.number;
+		missile->s.eFlags			|= EF_ALT_FIRING;
+	}*/
 
-		gentity_t	*traceEnt, *tent;
-		trace_t		 tr;
-		vec3_t		 start, end;
+	missile->s.firingMode = firemode;
 
-		/* Client will use the weapon muzzle */
-		if ( ent->client )
+	/* If charging, set the charge in the generic1 field so we render accordingly */
+	if ( iCharge )
+	{
+		// Disabled for now. Its silly and causes shit for the grenades (otherwise overrule boxsize again)
+//		missile->s.generic1			 = iCharge;
+//		fBoxSize					*= ( iCharge / 2 );
+	}
+		
+	/* If this missile has a splash range, set the method of death, the damage and the radius */
+	if ( fSplashRange )
+	{
+		missile->splashDamage		 = iDamage;
+		missile->splashRadius		 = fSplashRange;
+		missile->splashMethodOfDeath = iSplashMOD;
+	}
+
+	/* Set the ordinary hit damage, the damage flags and clip mask */
+	missile->damage					 = iDamage;
+	missile->dflags					 = DAMAGE_DEATH_KNOCKBACK;
+	missile->clipmask				 = MASK_SHOT | CONTENTS_LIGHTSABER;
+
+	/* If this missile can bounce, set the flag accordingly */
+	if ( iBounce )
+	{
+		missile->bounceCount		 = iBounce;
+		missile->flags				|= FL_BOUNCE;
+		missile->flags				|= FL_BOUNCE_HALF;
+	}
+
+	/* Set the angles in the enity state and set the box size */
+	vectoangles( dir, missile->s.angles );
+	VectorSet( missile->r.maxs,  fBoxSize,  fBoxSize,  fBoxSize );
+	VectorSet( missile->r.mins, -fBoxSize, -fBoxSize, -fBoxSize );
+	return missile;
+}
+
+/**************************************************
+* WP_FireGenericTraceLine
+*
+* Fires the generic trace line function, utilizes
+* the weapon table for the weapon statistics. This
+* function does an instant attack and renders using
+* the DISRUPTOR events.
+**************************************************/
+
+void WP_FireGenericTraceLine( gentity_t *ent, int firemode )
+{
+	int			 iDamage		 = WP_GetWeaponDamage( ent, firemode );
+	float		 fRange			 = WP_GetWeaponRange( ent, firemode );
+	int			 iSkip			 = ent->s.number;
+
+	gentity_t	*traceEnt, *tent;
+	trace_t		 tr;
+	vec3_t		 start, end;
+
+	/* Client will use the weapon muzzle */
+	if ( ent->client )
+	{
+		VectorCopy( ent->client->ps.origin, start );
+		start[2] += ent->client->ps.viewheight;
+	}
+	/* NPC will use their own origin and use the eye coördinates */
+	else
+	{
+		VectorCopy( ent->r.currentOrigin, start );
+		start[2] += 24;
+	}
+
+	while( iDamage > 0 )
+	{
+		/* Set the range forward to the end */
+		VectorMA( start, fRange, forward, end );
+
+		/* Start the trace until we hit something */
+		trap_G2Trace( &tr, start, NULL, NULL, end, iSkip, MASK_SHOT, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, 3 );
+
+		/* We have found an entity, check what it is */
+		traceEnt = &g_entities[tr.entityNum];
+
+		/* Ghoul tracing, used for dismemberment to indicate that blows off */
+		if ( traceEnt->inuse && traceEnt->client )
 		{
-			VectorCopy( ent->client->ps.origin, start );
-			start[2] += ent->client->ps.viewheight;
+			/* Since we used G2TRFLAG_GETSURFINDEX, tr.surfaceFlags will actually contain the index of the surface on the ghoul2 model we collided with */
+			if ( traceEnt->inuse && traceEnt->client && traceEnt->ghoul2 )
+			{ 
+				traceEnt->client->g2LastSurfaceHit	= tr.surfaceFlags;
+				traceEnt->client->g2LastSurfaceTime	= level.time;
+			}
+
+			/* Clear the surface flags after, since we actually care about them in here */
+			if ( traceEnt->ghoul2 )
+			{
+				tr.surfaceFlags = 0;
+			}
 		}
-		/* NPC will use their own origin and use the eye coördinates */
-		else
+
+		/* We have hit a dueler or a Jedi who is able to dodge the shot completely (which is a bit sad really) */
+		if (( traceEnt && traceEnt->client && traceEnt->client->ps.duelInProgress && traceEnt->client->ps.duelIndex != ent->s.number )
+			|| NPC_Humanoid_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation( traceEnt, tr.endpos )))
 		{
-			VectorCopy( ent->r.currentOrigin, start );
-			start[2] += 24;
-		}
+			/* Calculate the vector difference to decrease the maximum range */
+			vec3_t difference;
+			VectorSubtract( tr.endpos, start, difference );
 
-		while( iDamage > 0 )
-		{
-			/* Set the range forward to the end */
-			VectorMA( start, fRange, forward, end );
-
-			/* Start the trace until we hit something */
-			trap_G2Trace( &tr, start, NULL, NULL, end, iSkip, MASK_SHOT, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, 3 );
-
-			/* We have found an entity, check what it is */
-			traceEnt = &g_entities[tr.entityNum];
-
-			/* Ghoul tracing, used for dismemberment to indicate that blows off */
-			if ( traceEnt->inuse && traceEnt->client )
-			{
-				/* Since we used G2TRFLAG_GETSURFINDEX, tr.surfaceFlags will actually contain the index of the surface on the ghoul2 model we collided with */
-				if ( traceEnt->inuse && traceEnt->client && traceEnt->ghoul2 )
-				{ 
-					traceEnt->client->g2LastSurfaceHit	= tr.surfaceFlags;
-					traceEnt->client->g2LastSurfaceTime	= level.time;
-				}
-
-				/* Clear the surface flags after, since we actually care about them in here */
-				if ( traceEnt->ghoul2 )
-				{
-					tr.surfaceFlags = 0;
-				}
-			}
-
-			/* We have hit a dueler or a Jedi who is able to dodge the shot completely (which is a bit sad really) */
-			if (( traceEnt && traceEnt->client && traceEnt->client->ps.duelInProgress && traceEnt->client->ps.duelIndex != ent->s.number )
-				|| NPC_Humanoid_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation( traceEnt, tr.endpos )))
-			{
-				/* Calculate the vector difference to decrease the maximum range */
-				vec3_t difference;
-				VectorSubtract( tr.endpos, start, difference );
-
-				/* Substract the range, set the skip entity and copy the end position as the start */
-				fRange	= fRange - VectorNormalize( difference );
-				iSkip	= tr.entityNum;
-				VectorCopy( tr.endpos, start );
-				continue;
-			}
-			
-			/* Always render a shot beam from the muzzle to where we hit, the beam will continue if the shot continues */
-			tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_MAIN_SHOT );
-			VectorCopy( muzzle, tent->s.origin2 );
-			tent->s.eventParm = DirToByte (tr.plane.normal);
-			tent->s.otherEntityNum = ENTITYNUM_NONE;
-			tent->s.shouldtarget = qtrue;
-			tent->s.owner = ent->s.number;
-			tent->s.weapon = ent->client->ps.weapon;
-			tent->s.weaponVariation = ent->client->ps.weaponVariation;
-			if ( firemode )
-			{
-			    tent->s.eFlags |= EF_ALT_FIRING;
-			}
-
-			/* The traced entity is a client with saber defense 3 so we must check if we can manage to block this attack */
-			if ( traceEnt && traceEnt->client && traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3 )
-			{
-				if ( WP_SaberCanBlock( traceEnt, tr.endpos, 0, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR, qtrue, 0 ))
-				{
-					gentity_t *te = NULL;
-
-					/* Create a saber block event as the Jedi just blocked */
-					te = G_TempEntity( tr.endpos, EV_SABER_BLOCK );
-					VectorCopy( tr.endpos, te->s.origin );
-					VectorCopy( tr.plane.normal, te->s.angles );
-
-					/* If all the angles are 0, set one to 1 */
-					if ( !te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2] )
-					{
-						te->s.angles[1] = 1;
-					}
-
-					/* Clear the event parameters */
-					te->s.eventParm	= 0;
-					te->s.weapon	= 0;
-					te->s.legsAnim	= 0;
-					break;
-				}
-			}
-
-			/* We hit something where we can't draw an impact, let's bail */
-			if ( tr.surfaceFlags & SURF_NOIMPACT )
-			{
-				break;
-			}
-			
-			tent->s.otherEntityNum = tr.entityNum;
-
-			/* This entity is capable of taking damage and is a client! Uses a different event */
-			if ( traceEnt->takedamage && traceEnt->client )
-			{
-				//tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
-				//tent->s.otherEntityNum = traceEnt->s.number;
-				//tent->s.eventParm = DirToByte( tr.plane.normal );
-				//tent->s.eFlags |= EF_ALT_FIRING;
-			} 
-			else 
-			{
-				/* This isn't a client but can take damage, is a mover or a glass brush. Smash it up! */
-				if ( traceEnt->r.svFlags & SVF_GLASS_BRUSH || traceEnt->takedamage || traceEnt->s.eType == ET_MOVER )
-				{
-					if ( traceEnt->takedamage )
-					{
-					    const weaponFireModeStats_t *fireMode = GetEntsCurrentFireMode (ent);
-					    if ( fireMode->damageTypeHandle )
-					    {
-					        JKG_DoDirectDamage (fireMode->damageTypeHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
-					    }
-					    else
-					    {
-					        G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
-					    }
-					    
-					    if ( fireMode->secondaryDmgHandle )
-					    {
-					        JKG_DoDirectDamage (fireMode->secondaryDmgHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
-					    }
-						//G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( altFire ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
-						//tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_HIT );
-						//tent->s.eventParm = DirToByte( tr.plane.normal );
-					}
-				}
-				/* This always shows the sniper miss event, it's used for both primary and secondary fire. */
-				else
-				{
-					//tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_MISS );
-					//tent->s.eventParm = DirToByte( tr.plane.normal );
-					break;
-				}
-			}
-
-			/* Stop already, this thing is shielded for some reason */
-			if ( traceEnt->flags & FL_SHIELDED )
-			{
-				break;
-			}
-
-			/* Okay, this client can take damage so prepare to disintegrate him (if we have enough damage) */
-			if ( traceEnt->takedamage )
-			{
-				vec3_t	preAng;
-				int		preHealth	= traceEnt->health;
-				int		preLegs		= 0;
-				int		preTorso	= 0;
-				const weaponFireModeStats_t *fireMode = GetEntsCurrentFireMode (ent);
-
-				/* Remember the legs/torse stance and client angles */
-				if ( traceEnt->client )
-				{
-					preLegs		= traceEnt->client->ps.legsAnim;
-					preTorso	= traceEnt->client->ps.torsoAnim;
-					VectorCopy( traceEnt->client->ps.viewangles, preAng );
-				}
-
-				/* Throw the damage at the client, we'll be able to see if we're disintegrating him after this! */
-				if ( fireMode->damageTypeHandle )
-			    {
-			        JKG_DoDirectDamage (fireMode->damageTypeHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
-			    }
-			    else
-			    {
-			        G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
-			    }
-			    
-			    if ( fireMode->secondaryDmgHandle )
-			    {
-			        JKG_DoDirectDamage (fireMode->secondaryDmgHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
-			    }
-				//G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( altFire ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
-
-				/* This client had health, is now dead and we can disruptify this client! */
-				/*if ( traceEnt->client && preHealth > 0 && traceEnt->health <= 0 && ( !ent || !ent->inuse || !ent->client || ent->s.eType != ET_NPC || ent->s.NPC_class != CLASS_VEHICLE || !ent->m_pVehicle || ent->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL ))
-				{
-					// JKG - Disintegration suppressor
-					if (!traceEnt->client->noDisintegrate) {
-						VectorCopy( preAng, traceEnt->client->ps.viewangles );
-						VectorCopy( tr.endpos, traceEnt->client->ps.lastHitLoc );
-						VectorClear( traceEnt->client->ps.velocity );
-
-						traceEnt->client->ps.eFlags		|= EF_DISINTEGRATION;
-						traceEnt->client->ps.legsAnim	 = preLegs;
-						traceEnt->client->ps.torsoAnim	 = preTorso;
-						traceEnt->r.contents			 = 0;
-					}
-				}*/
-
-				/* Remove the amount of damage hit on this client from our trace, this way even normal disruptor shots can continue! */
-				iDamage = iDamage - preHealth;
-
-				/* Create the event to show that this was a successful hit! */
-				if ( ent->s.weapon == WP_DISRUPTOR )
-				{
-					//tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_HIT );
-					//tent->s.eventParm = DirToByte( tr.plane.normal );
-					//if ( traceEnt->client ) tent->s.weapon = 1;
-				}
-			}
-			/* We hit an entity that can't take damage.. therefore, show the mark and stop tracing */
-			else
-			{
-				/*tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_HIT );
-				tent->s.eventParm = DirToByte( tr.plane.normal );*/
-				//tent->s.otherEntityNum = tr.entityNum;
-				return;
-			}
-
-			/* Copy the end position and prepare for another trace! */
+			/* Substract the range, set the skip entity and copy the end position as the start */
+			fRange	= fRange - VectorNormalize( difference );
+			iSkip	= tr.entityNum;
 			VectorCopy( tr.endpos, start );
-			iSkip = tr.entityNum;
+			continue;
 		}
-	}
-
-	/**************************************************
-	* WP_GetWeaponAttackDisruption
-	*
-	* Gets the disruption bool for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	qboolean WP_GetWeaponIsHitscan( gentity_t* ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-        return thisWeaponData->firemodes[firemode].hitscan;
-	}
-	
-	qboolean WP_IsWeaponGrenade ( const gentity_t *ent, int firemode )
-	{
-	    const weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-	    return thisWeaponData->firemodes[firemode].isGrenade;
-	}
-
-	/**************************************************
-	* WP_GetWeaponBoxSize
-	*
-	* Gets the box size for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	float WP_GetWeaponBoxSize( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if ( thisWeaponData->firemodes[firemode].boxSize )
-		{
-			return thisWeaponData->firemodes[firemode].boxSize;
-		}
-
-		return 1.0f;
-	}
-
-	/**************************************************
-	* WP_GetWeaponBounce
-	*
-	* Gets the bounce count for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	int WP_GetWeaponBounce( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if ( thisWeaponData->firemodes[firemode].bounceCount )
-		{
-			return thisWeaponData->firemodes[firemode].bounceCount;
-		}
-
-		return 0;
-	}
-
-	/**************************************************
-	* WP_GetWeaponCharge
-	*
-	* Gets the charge level for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information. This will
-	* calculate the charge tier level. This gets called
-	* from the WP_GetWeaponDamage function to formulate
-	* the charge into the weapon damage.
-	**************************************************/
-
-	int WP_GetWeaponCharge( gentity_t *ent, int firemode )
-	{
-		weaponData_t	*thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if ( thisWeaponData->firemodes[firemode].chargeTime )
-		{
-			int current = ( level.time - ent->client->ps.weaponChargeTime ) / thisWeaponData->firemodes[firemode].chargeTime;
-			float maximum = thisWeaponData->firemodes[firemode].chargeMaximum / thisWeaponData->firemodes[firemode].chargeTime;
-
-			if ( current > maximum ) current = maximum;
-			return current;
-		}
-
-		return 0;
-	}
-
-	/**************************************************
-	* WP_GetWeaponClassname
-	*
-	* Gets the weapon projectile class for the currently 
-	* selected weapon with the appropriate mode. This 
-	* references the weapon table for this information.
-	**************************************************/
-
-	char *WP_GetWeaponClassname( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		return thisWeaponData->firemodes[firemode].weaponClass;
-	}
-
-	/**************************************************
-	* WP_GetWeaponDamage
-	*
-	* Gets the weapon damage for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	int WP_GetWeaponDamage( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-		int damage = 0;
-
-		if ( thisWeaponData->firemodes[firemode].chargeTime )
-		{
-			int chargeDamage = thisWeaponData->firemodes[firemode].baseDamage * WP_GetWeaponCharge( ent, firemode ) * thisWeaponData->firemodes[firemode].chargeMultiplier;
-			damage = ( thisWeaponData->firemodes[firemode].baseDamage > chargeDamage ) ? thisWeaponData->firemodes[firemode].baseDamage : chargeDamage;
-		}
-		else
-		{
-			damage = thisWeaponData->firemodes[firemode].baseDamage;
-		}
-		
-		if ( thisWeaponData->firemodes[firemode].ammo )
-		{
-		    damage *= thisWeaponData->firemodes[firemode].ammo->damageModifier;
-		}
-		
-		return damage;
-	}
-
-	/**************************************************
-	* WP_GetWeaponDirection
-	*
-	* Gets the splash damage for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	vec3_t *WP_GetWeaponDirection( gentity_t *ent, int firemode, vec3_t forward )
-	{
-		weaponData_t	*thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-		int				 fKnockBack		= ( float )thisWeaponData->firemodes[firemode].baseDamage;
-		float			 fSpread		= 0;
-		static vec3_t	 fDirection;
-		vec3_t			 fAngles;
-		
-		/* Convert the forward to angle's to be able to modify it */
-		vectoangles( forward, fAngles );
-
-		/* Check if we're firing secondary fire and have a weapon spread */
-		if ( thisWeaponData->firemodes[firemode].spread )
-		{
-			fSpread = thisWeaponData->firemodes[firemode].spread;
-		}
-
-		if ( ent->client )
-		{
-			// Jumping				= Where are the bullets?!
-			// Running				= Very Sloppy
-			// Walking				= Slightly Sloppy
-			// Crouching			= Slightly Accurate
-			// Stationary			= Very Accurate
-			// Stationary + Crouch	= Pinpoint Accuracy
-
-			qboolean bIsCrouching	= ent->client->ps.pm_flags & PMF_DUCKED;
-			qboolean bIsMoving		= ( ent->client->pers.cmd.forwardmove || ent->client->pers.cmd.rightmove || ent->client->pers.cmd.upmove > 0 );
-			qboolean bIsWalking		= (ent->client->pers.cmd.buttons & BUTTON_WALKING) && !BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, qfalse);
-			qboolean bInIronsights  = (ent->client->pers.cmd.buttons & BUTTON_IRONSIGHTS);
-
-			/* Client is in air, might be using a jetpack or something, add some slop! */
-			if ( ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
-			{
-				fSpread		*= 3.00f;
-				fKnockBack	*= 3.00f;
-			}
-			/* Client is currently running and not walking and/or crouching, a different slop value */
-			else if ( !bIsCrouching && bIsMoving && !bIsWalking )
-			{
-				fSpread		*= 2.00f;
-				fKnockBack	*= 2.00f;
-			}
-			/* Client is walking around and is not crouching, somewhat better accuracy then running */
-			else if ( bIsMoving && bIsWalking && !bIsCrouching )
-			{
-				fSpread		*= 1.55f;
-				fKnockBack	*= 1.55f;
-			}
-			/* Client is crouching, even less spread. */
-			else if ( bIsMoving && bIsWalking && bIsCrouching )
-			{
-				fSpread		*= 1.35f;
-				fKnockBack	*= 1.35f;
-			}
-			/* Client is stationary and not crouching. Very good accuracy. */
-			else if ( !bIsCrouching )
-			{
-				fSpread		*= 1.10f;
-				fKnockBack	*= 1.10f;
-			}
-			/* Client is crouching and stationary, pinpoint accuracy. Code for demonstrative purposes only! */
-			else
-			{
-				fSpread		*= 1.0f;
-				fKnockBack	*= 1.0f;
-			}
 			
-			/* Additional stabilising factor is in ironsights */
-			if ( !bIsMoving && !(ent->client->ps.groundEntityNum == ENTITYNUM_NONE) &&
-			    bInIronsights )
-			{
-			    fSpread     *= 0.8f;
-			    fKnockBack  *= 0.8f;
-			}
+		/* Always render a shot beam from the muzzle to where we hit, the beam will continue if the shot continues */
+		tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_MAIN_SHOT );
+		VectorCopy( muzzle, tent->s.origin2 );
+		tent->s.eventParm = DirToByte (tr.plane.normal);
+		tent->s.otherEntityNum = ENTITYNUM_NONE;
+		tent->s.shouldtarget = qtrue;
+		tent->s.owner = ent->s.number;
+		tent->s.weapon = ent->client->ps.weapon;
+		tent->s.weaponVariation = ent->client->ps.weaponVariation;
+		if ( firemode )
+		{
+			tent->s.eFlags |= EF_ALT_FIRING;
+		}
 
-			/* We have some extra slop to add, so let's add it now */
-			if ( fSpread > 1.0f )
+		/* The traced entity is a client with saber defense 3 so we must check if we can manage to block this attack */
+		if ( traceEnt && traceEnt->client && traceEnt->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] >= FORCE_LEVEL_3 )
+		{
+			if ( WP_SaberCanBlock( traceEnt, tr.endpos, 0, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR, qtrue, 0 ))
 			{
-				fAngles[PITCH]	+= ( 2.5 * ( random() - 0.5 )) * fSpread;
-				fAngles[YAW]	+= ( 2.5 * ( random() - 0.5 )) * fSpread;
+				gentity_t *te = NULL;
+
+				/* Create a saber block event as the Jedi just blocked */
+				te = G_TempEntity( tr.endpos, EV_SABER_BLOCK );
+				VectorCopy( tr.endpos, te->s.origin );
+				VectorCopy( tr.plane.normal, te->s.angles );
+
+				/* If all the angles are 0, set one to 1 */
+				if ( !te->s.angles[0] && !te->s.angles[1] && !te->s.angles[2] )
+				{
+					te->s.angles[1] = 1;
+				}
+
+				/* Clear the event parameters */
+				te->s.eventParm	= 0;
+				te->s.weapon	= 0;
+				te->s.legsAnim	= 0;
+				break;
 			}
 		}
 
-		/* See if we have a decent knockback on this weapon! */
-		if ( thisWeaponData->hasKnockBack )
+		/* We hit something where we can't draw an impact, let's bail */
+		if ( tr.surfaceFlags & SURF_NOIMPACT )
 		{
-			vec3_t dir;
-
-			/* Get the forward angle vector for this client */
-			AngleVectors( ent->client->ps.viewangles, dir, NULL, NULL );
-			VectorMA( ent->client->ps.velocity, -fKnockBack, dir, ent->client->ps.velocity );
-			dir[YAW] = -dir[YAW];
+			break;
+		}
 			
-			if ( fKnockBack > 280.0f )
+		tent->s.otherEntityNum = tr.entityNum;
+
+		/* This entity is capable of taking damage and is a client! Uses a different event */
+		if ( traceEnt->takedamage && traceEnt->client )
+		{
+			//tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
+			//tent->s.otherEntityNum = traceEnt->s.number;
+			//tent->s.eventParm = DirToByte( tr.plane.normal );
+			//tent->s.eFlags |= EF_ALT_FIRING;
+		} 
+		else 
+		{
+			/* This isn't a client but can take damage, is a mover or a glass brush. Smash it up! */
+			if ( traceEnt->r.svFlags & SVF_GLASS_BRUSH || traceEnt->takedamage || traceEnt->s.eType == ET_MOVER )
 			{
-				Jetpack_Off( ent );
-				G_Knockdown( ent, NULL, dir, fKnockBack, qtrue );
-				G_Damage( ent, ent, ent, dir, ent->client->ps.origin, fKnockBack / 20, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_ARMOR, MOD_UNKNOWN );
-			}
-		}
-
-		/* Convert the angles back to a diretion and return the new value */
-		AngleVectors( fAngles, fDirection, NULL, NULL );
-		return &fDirection;
-	}
-
-	/**************************************************
-	* WP_GetWeaponGravity
-	*
-	* Gets the gravity bool for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information. This will
-	* make projectiles be affected by gravity, such
-	* as grenades, rockets and slugs.
-	**************************************************/
-
-	qboolean WP_GetWeaponGravity( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		return thisWeaponData->firemodes[firemode].applyGravity;
-	}
-
-	/**************************************************
-	* WP_GetWeaponMOD
-	*
-	* Gets the weapon means of death for the currently 
-	* selected weapon with the appropriate mode. This 
-	* references the weapon table for this information.
-	**************************************************/
-
-	int WP_GetWeaponMOD( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		return thisWeaponData->firemodes[firemode].weaponMOD;
-	}
-
-	/**************************************************
-	* WP_GetWeaponSplashMOD
-	*
-	* Gets the splash means of deathe for the currently 
-	* selected weapon with the appropriate mode. This 
-	* references the weapon table for this information.
-	**************************************************/
-
-	int WP_GetWeaponSplashMOD( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		return thisWeaponData->firemodes[firemode].weaponSplashMOD;
-	}
-
-	/**************************************************
-	* GetWeaponRange
-	*
-	* Gets the weapon range for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	float WP_GetWeaponRange( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if ( thisWeaponData->firemodes[firemode].range )
-		{
-			return thisWeaponData->firemodes[firemode].range;
-		}
-
-		return WPR_M;
-	}
-
-	/**************************************************
-	* WP_GetWeaponShotCount
-	*
-	* Gets the shot count for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information. Recursive
-	* function keeps calling the fire weapon function
-	* to generate the required amount of shots.
-	**************************************************/
-
-	qboolean WP_GetWeaponShotCount( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-		char *pShotCount = &thisWeaponData->firemodes[firemode].shotCount;
-
-		/* This weapon has multiple shots, generate the fire events */
-		if ( *pShotCount >= 2 )
-		{
-			/* Get the shot count and clear it to avoid recursive infinite loop */
-			int iShotCount	= *pShotCount;
-			int i			= 0;
-			*pShotCount		= 0;
-
-			/* Run through each and fire every shot count */
-			for ( i = 0; i < iShotCount; i++ )
-			{
-				WP_FireGenericWeapon( ent, firemode );
-			}
-
-			/* Reset the table structure so the data has been preserved */
-			*pShotCount	= iShotCount;
-			return qtrue;
-		}
-
-		/* Nothing strange about it, let the original continue */
-		return qfalse;
-	}
-
-
-	/**************************************************
-	* WP_GetWeaponSpeed
-	*
-	* Gets the projectile speed for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	float WP_GetWeaponSpeed( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if(!thisWeaponData)
-		{
-			// Some additional NULL checking here. You can never be too careful.
-			return 5125.0f;
-		}
-
-		if ( thisWeaponData->firemodes[firemode].speed )
-		{
-			return thisWeaponData->firemodes[firemode].speed;
-		}
-
-		return 5125.0f;
-	}
-
-	/**************************************************
-	* WP_GetGrenadeBounce
-	*
-	* Gets the qboolean stating whether this weapon
-	* bounces off of living entities.
-	**************************************************/
-	qboolean WP_GetGrenadeBounce( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if(thisWeaponData)
-			return thisWeaponData->firemodes[firemode].grenadeBounces;
-		
-		return qtrue;
-	}
-
-	/**************************************************
-	* WP_GetGrenadeBounceDamage
-	*
-	* Gets the damage that a grenade weapon does
-	* whenever it hits a living target.
-	**************************************************/
-	int WP_GetGrenadeBounceDamage( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if(thisWeaponData)
-			return thisWeaponData->firemodes[firemode].grenadeBounceDMG;
-		
-		return 10;
-	}
-
-	/**************************************************
-	* WP_GetWeaponSplashRange
-	*
-	* Gets the splash damage for the currently selected
-	* weapon with the appropriate mode. This references
-	* the weapon table for this information.
-	**************************************************/
-
-	float WP_GetWeaponSplashRange( gentity_t *ent, int firemode )
-	{
-		weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
-
-		if(!thisWeaponData)
-		{
-			return 0.0f;
-		}
-
-		if ( thisWeaponData->firemodes[firemode].rangeSplash )
-		{
-			return thisWeaponData->firemodes[firemode].rangeSplash;
-		}
-
-		return 0.0f;
-	}
-
-	/**************************************************
-	* WP_FireGenericWeapon
-	*
-	* This is the main weapon fire routine, nearly every
-	* weapon in the game is routed through the weapon
-	* generic functions to use the weapon table. This
-	* in turn provides us with an accurate and simple
-	* place to get weapon information.
-	**************************************************/
-extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
-	void WP_FireGenericWeapon( gentity_t *ent, int firemode )
-	{
-		BG_SetTorsoAnimTimer(&ent->client->ps, 200);
-
-		if ( ent && ent->client && ent->client->NPC_class == CLASS_VEHICLE )
-		{
-			FireVehicleWeapon( ent, firemode );
-			return;
-		}
-		else if ( ent->s.eType == ET_NPC 
-			&& ent->s.weapon != WP_SABER 
-			&& ent->enemy
-			&& Distance(ent->enemy->r.currentOrigin, ent->r.currentOrigin) <= 72)
-		{// UQ1: Added... At close range NPCs can hit you with their rifle butt...
-			WP_FireMelee( ent, firemode );
-
-			/* Reset the grenade cook timer, if any (with the proper weapon) */
-			if ( ent->grenadeCookTime && ent->s.weapon == ent->grenadeWeapon && ent->s.weaponVariation == ent->grenadeVariation )
-			{
-				ent->grenadeCookTime = 0;
-			}
-			return;
-		}
-		else
-		{
-			if ( WP_GetWeaponShotCount( ent, firemode ))
-			{
-				return;
-			}
-
-			WP_CalculateAngles( ent );
-			WP_CalculateMuzzlePoint( ent, forward, vright, up, muzzle );
-
-			switch( ent->s.weapon )
-			{
-				case WP_NONE:
+				if ( traceEnt->takedamage )
 				{
-					break;
-				}
-
-				case WP_STUN_BATON:
-				{
-					WP_FireStunBaton( ent, firemode );
-					break;
-				}
-
-				case WP_MELEE:
-				{
-					WP_FireMelee( ent, firemode );
-					break;
-				}
-
-				case WP_SABER:
-				{
-					break;
-				}
-
-				case WP_THERMAL:
-				{
-					WP_FireGenericGrenade( ent, firemode, muzzle, *WP_GetWeaponDirection( ent, firemode, forward ) );
-					break;
-				}
-
-				//// REPLACE ME
-				case WP_TRIP_MINE:
-				{
-					WP_PlaceLaserTrap( ent, firemode );
-					break;
-				}
-
-				case WP_DET_PACK:
-				{
-					WP_DropDetPack( ent, firemode );
-					break;
-				}
-
-				case WP_EMPLACED_GUN:
-				{
-					if ( ent->client && ent->client->ewebIndex )
-					{ 
-						break;
-					}
-
-					WP_FireEmplaced( ent, !!firemode );
-					break;
-				}
-				//// END REPLACE ME
-
-				default:
-				{
-					if ( WP_GetWeaponIsHitscan( ent, firemode ))
+					const weaponFireModeStats_t *fireMode = GetEntsCurrentFireMode (ent);
+					if ( fireMode->damageTypeHandle )
 					{
-						ent->client->ps.torsoTimer += 100;
-						WP_FireGenericTraceLine( ent, firemode );
-					}
-					else if ( WP_IsWeaponGrenade (ent, firemode) )
-					{
-					    WP_FireGenericGrenade( ent, firemode, muzzle, *WP_GetWeaponDirection( ent, firemode, forward ) );
+					    JKG_DoDirectDamage (fireMode->damageTypeHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
 					}
 					else
 					{
-						ent->client->ps.torsoTimer += 100;
-						WP_FireGenericMissile( ent, firemode, muzzle, *WP_GetWeaponDirection( ent, firemode, forward ));
+					    G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
 					}
+					    
+					if ( fireMode->secondaryDmgHandle )
+					{
+					    JKG_DoDirectDamage (fireMode->secondaryDmgHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
+					}
+					//G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( altFire ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
+					//tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_HIT );
+					//tent->s.eventParm = DirToByte( tr.plane.normal );
 				}
 			}
-
-			/* Reset the grenade cook timer, if any (with the proper weapon) */
-			if ( ent->grenadeCookTime && ent->s.weapon == ent->grenadeWeapon && ent->s.weaponVariation == ent->grenadeVariation )
+			/* This always shows the sniper miss event, it's used for both primary and secondary fire. */
+			else
 			{
-				ent->grenadeCookTime = 0;
+				//tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_MISS );
+				//tent->s.eventParm = DirToByte( tr.plane.normal );
+				break;
 			}
 		}
+
+		/* Stop already, this thing is shielded for some reason */
+		if ( traceEnt->flags & FL_SHIELDED )
+		{
+			break;
+		}
+
+		/* Okay, this client can take damage so prepare to disintegrate him (if we have enough damage) */
+		if ( traceEnt->takedamage )
+		{
+			vec3_t	preAng;
+			int		preHealth	= traceEnt->health;
+			int		preLegs		= 0;
+			int		preTorso	= 0;
+			const weaponFireModeStats_t *fireMode = GetEntsCurrentFireMode (ent);
+
+			/* Remember the legs/torse stance and client angles */
+			if ( traceEnt->client )
+			{
+				preLegs		= traceEnt->client->ps.legsAnim;
+				preTorso	= traceEnt->client->ps.torsoAnim;
+				VectorCopy( traceEnt->client->ps.viewangles, preAng );
+			}
+
+			/* Throw the damage at the client, we'll be able to see if we're disintegrating him after this! */
+			if ( fireMode->damageTypeHandle )
+			{
+			    JKG_DoDirectDamage (fireMode->damageTypeHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
+			}
+			else
+			{
+			    G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
+			}
+			    
+			if ( fireMode->secondaryDmgHandle )
+			{
+			    JKG_DoDirectDamage (fireMode->secondaryDmgHandle, traceEnt, ent, ent, forward, tr.endpos, DAMAGE_NO_KNOCKBACK, ( firemode ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR);
+			}
+			//G_Damage( traceEnt, ent, ent, forward, tr.endpos, iDamage, DAMAGE_NO_KNOCKBACK, ( altFire ) ? MOD_DISRUPTOR_SNIPER : MOD_DISRUPTOR );
+
+			/* This client had health, is now dead and we can disruptify this client! */
+			/*if ( traceEnt->client && preHealth > 0 && traceEnt->health <= 0 && ( !ent || !ent->inuse || !ent->client || ent->s.eType != ET_NPC || ent->s.NPC_class != CLASS_VEHICLE || !ent->m_pVehicle || ent->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL ))
+			{
+				// JKG - Disintegration suppressor
+				if (!traceEnt->client->noDisintegrate) {
+					VectorCopy( preAng, traceEnt->client->ps.viewangles );
+					VectorCopy( tr.endpos, traceEnt->client->ps.lastHitLoc );
+					VectorClear( traceEnt->client->ps.velocity );
+
+					traceEnt->client->ps.eFlags		|= EF_DISINTEGRATION;
+					traceEnt->client->ps.legsAnim	 = preLegs;
+					traceEnt->client->ps.torsoAnim	 = preTorso;
+					traceEnt->r.contents			 = 0;
+				}
+			}*/
+
+			/* Remove the amount of damage hit on this client from our trace, this way even normal disruptor shots can continue! */
+			iDamage = iDamage - preHealth;
+
+			/* Create the event to show that this was a successful hit! */
+			if ( ent->s.weapon == WP_DISRUPTOR )
+			{
+				//tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_HIT );
+				//tent->s.eventParm = DirToByte( tr.plane.normal );
+				//if ( traceEnt->client ) tent->s.weapon = 1;
+			}
+		}
+		/* We hit an entity that can't take damage.. therefore, show the mark and stop tracing */
+		else
+		{
+			/*tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_HIT );
+			tent->s.eventParm = DirToByte( tr.plane.normal );*/
+			//tent->s.otherEntityNum = tr.entityNum;
+			return;
+		}
+
+		/* Copy the end position and prepare for another trace! */
+		VectorCopy( tr.endpos, start );
+		iSkip = tr.entityNum;
 	}
+}
+
+/**************************************************
+* WP_GetWeaponAttackDisruption
+*
+* Gets the disruption bool for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+qboolean WP_GetWeaponIsHitscan( gentity_t* ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+    return thisWeaponData->firemodes[firemode].hitscan;
+}
+	
+qboolean WP_IsWeaponGrenade ( const gentity_t *ent, int firemode )
+{
+	const weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	return thisWeaponData->firemodes[firemode].isGrenade;
+}
+
+/**************************************************
+* WP_GetWeaponBoxSize
+*
+* Gets the box size for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+float WP_GetWeaponBoxSize( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if ( thisWeaponData->firemodes[firemode].boxSize )
+	{
+		return thisWeaponData->firemodes[firemode].boxSize;
+	}
+
+	return 1.0f;
+}
+
+/**************************************************
+* WP_GetWeaponBounce
+*
+* Gets the bounce count for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+int WP_GetWeaponBounce( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if ( thisWeaponData->firemodes[firemode].bounceCount )
+	{
+		return thisWeaponData->firemodes[firemode].bounceCount;
+	}
+
+	return 0;
+}
+
+/**************************************************
+* WP_GetWeaponCharge
+*
+* Gets the charge level for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information. This will
+* calculate the charge tier level. This gets called
+* from the WP_GetWeaponDamage function to formulate
+* the charge into the weapon damage.
+**************************************************/
+
+int WP_GetWeaponCharge( gentity_t *ent, int firemode )
+{
+	weaponData_t	*thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if ( thisWeaponData->firemodes[firemode].chargeTime )
+	{
+		int current = ( level.time - ent->client->ps.weaponChargeTime ) / thisWeaponData->firemodes[firemode].chargeTime;
+		float maximum = thisWeaponData->firemodes[firemode].chargeMaximum / thisWeaponData->firemodes[firemode].chargeTime;
+
+		if ( current > maximum ) current = maximum;
+		return current;
+	}
+
+	return 0;
+}
+
+/**************************************************
+* WP_GetWeaponClassname
+*
+* Gets the weapon projectile class for the currently 
+* selected weapon with the appropriate mode. This 
+* references the weapon table for this information.
+**************************************************/
+
+char *WP_GetWeaponClassname( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	return thisWeaponData->firemodes[firemode].weaponClass;
+}
+
+/**************************************************
+* WP_GetWeaponDamage
+*
+* Gets the weapon damage for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+int WP_GetWeaponDamage( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+	int damage = 0;
+
+	if ( thisWeaponData->firemodes[firemode].chargeTime )
+	{
+		int chargeDamage = thisWeaponData->firemodes[firemode].baseDamage * WP_GetWeaponCharge( ent, firemode ) * thisWeaponData->firemodes[firemode].chargeMultiplier;
+		damage = ( thisWeaponData->firemodes[firemode].baseDamage > chargeDamage ) ? thisWeaponData->firemodes[firemode].baseDamage : chargeDamage;
+	}
+	else
+	{
+		damage = thisWeaponData->firemodes[firemode].baseDamage;
+	}
+		
+	if ( thisWeaponData->firemodes[firemode].ammo )
+	{
+		damage *= thisWeaponData->firemodes[firemode].ammo->damageModifier;
+	}
+		
+	return damage;
+}
+
+/**************************************************
+* WP_CalculateSpread
+*
+* Calculate the spread of the weapon in pitch/yaw,
+* given the gun's accuracy rating and pitch/yaw
+* supplied as angles
+**************************************************/
+
+void WP_CalculateSpread( float *pitch, float *yaw, float accuracyRating, float modifier )
+{
+	float radius = (accuracyRating/2)*modifier;
+	float pitchValue = (Q_irand(0,1) == 0) ? flrand(0,radius) : flrand(0,radius)*-1;
+	float yawValue = (Q_irand(0,1) == 0) ? flrand(0,radius) : flrand(0,radius)*-1;
+
+	*pitch = acos(pitchValue / 100);
+	*yaw = acos(yawValue / 100);
+}
+
+/**************************************************
+* WP_GetWeaponDirection
+*
+* Gets the splash damage for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+vec3_t *WP_GetWeaponDirection( gentity_t *ent, int firemode, vec3_t forward )
+{
+	weaponData_t	*thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+	int				 fKnockBack		= ( float )thisWeaponData->firemodes[firemode].baseDamage;
+	static vec3_t	 fDirection;
+	float			 fAccuracyRating = thisWeaponData->firemodes[firemode].weaponAccuracy.accuracyRating;
+	float			 fSpreadModifiers = 1.0f;
+	vec3_t			 fAngles;
+		
+	/* Convert the forward to angle's to be able to modify it */
+	vectoangles( forward, fAngles );
+
+	if ( ent->client )
+	{
+		// Jumping				= Where are the bullets?!
+		// Running				= Very Sloppy
+		// Walking				= Slightly Sloppy
+		// Crouching			= Slightly Accurate
+		// Stationary			= Very Accurate
+		// Stationary + Crouch	= Pinpoint Accuracy
+
+		bool bIsCrouching	= ent->client->ps.pm_flags & PMF_DUCKED;
+		bool bIsMoving		= ( ent->client->pers.cmd.forwardmove || ent->client->pers.cmd.rightmove || ent->client->pers.cmd.upmove > 0 );
+		bool bIsWalking		= (ent->client->pers.cmd.buttons & BUTTON_WALKING) && !BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, qfalse);
+		bool bInIronsights  = (ent->client->pers.cmd.buttons & BUTTON_IRONSIGHTS);
+		bool bIsInAir		= (ent->client->ps.groundEntityNum == ENTITYNUM_NONE);
+
+		/* Client is in air, might be using a jetpack or something, add some slop! */
+		if ( bIsInAir )
+		{
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.inAirModifier;
+			fKnockBack	*= 3.00f;
+		}
+		/* Client is currently running and not walking and/or crouching, a different slop value */
+		else if ( !bIsCrouching && bIsMoving && !bIsWalking )
+		{
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.crouchModifier;
+			fKnockBack	*= 2.00f;
+		}
+		/* Client is walking around and is not crouching, somewhat better accuracy then running */
+		else if ( bIsMoving && bIsWalking && !bIsCrouching )
+		{
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.walkModifier;
+			fKnockBack	*= 1.55f;
+		}
+		/* Client is crouching, even less spread. */
+		else if ( bIsMoving && bIsWalking && bIsCrouching )
+		{
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.crouchModifier;
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.walkModifier;
+			fKnockBack	*= 1.35f;
+		}
+		/* Client is stationary and not crouching. Very good accuracy. */
+		else if ( !bIsCrouching )
+		{
+			fKnockBack	*= 1.10f;
+		}
+		/* Client is crouching and stationary, pinpoint accuracy. Code for demonstrative purposes only! */
+		else
+		{
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.crouchModifier;
+			fKnockBack	*= 1.0f;
+		}
+			
+		/* Additional stabilising factor is in ironsights */
+		if ( !bIsMoving && !bIsInAir &&
+			bInIronsights )
+		{
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.sightsModifier;
+			fKnockBack  *= 0.8f;
+		}
+		else if( !bIsInAir && bInIronsights )
+		{
+			fSpreadModifiers *= thisWeaponData->firemodes[firemode].weaponAccuracy.sightsModifier;
+		}
+
+		/* We have some extra slop to add, so let's add it now */
+		if( fAccuracyRating )
+		{
+			float pitch = 1.0f; // just putting in a dummy value here
+			float yaw = 1.0f;	// just putting in a dummy value here
+
+			WP_CalculateSpread( &pitch, &yaw, fAccuracyRating, fSpreadModifiers );
+
+			fAngles[PITCH] += pitch;
+			fAngles[YAW] += yaw;
+		}
+	}
+
+	/* See if we have a decent knockback on this weapon! */
+	if ( thisWeaponData->hasKnockBack )
+	{
+		vec3_t dir;
+
+		/* Get the forward angle vector for this client */
+		AngleVectors( ent->client->ps.viewangles, dir, NULL, NULL );
+		VectorMA( ent->client->ps.velocity, -fKnockBack, dir, ent->client->ps.velocity );
+		dir[YAW] = -dir[YAW];
+			
+		if ( fKnockBack > 280.0f )
+		{
+			Jetpack_Off( ent );
+			G_Knockdown( ent, NULL, dir, fKnockBack, qtrue );
+			G_Damage( ent, ent, ent, dir, ent->client->ps.origin, fKnockBack / 20, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_ARMOR, MOD_UNKNOWN );
+		}
+	}
+
+	/* Convert the angles back to a diretion and return the new value */
+	AngleVectors( fAngles, fDirection, NULL, NULL );
+	return &fDirection;
+}
+
+/**************************************************
+* WP_GetWeaponGravity
+*
+* Gets the gravity bool for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information. This will
+* make projectiles be affected by gravity, such
+* as grenades, rockets and slugs.
+**************************************************/
+
+qboolean WP_GetWeaponGravity( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	return thisWeaponData->firemodes[firemode].applyGravity;
+}
+
+/**************************************************
+* WP_GetWeaponMOD
+*
+* Gets the weapon means of death for the currently 
+* selected weapon with the appropriate mode. This 
+* references the weapon table for this information.
+**************************************************/
+
+int WP_GetWeaponMOD( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	return thisWeaponData->firemodes[firemode].weaponMOD;
+}
+
+/**************************************************
+* WP_GetWeaponSplashMOD
+*
+* Gets the splash means of deathe for the currently 
+* selected weapon with the appropriate mode. This 
+* references the weapon table for this information.
+**************************************************/
+
+int WP_GetWeaponSplashMOD( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	return thisWeaponData->firemodes[firemode].weaponSplashMOD;
+}
+
+/**************************************************
+* GetWeaponRange
+*
+* Gets the weapon range for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+float WP_GetWeaponRange( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if ( thisWeaponData->firemodes[firemode].range )
+	{
+		return thisWeaponData->firemodes[firemode].range;
+	}
+
+	return WPR_M;
+}
+
+/**************************************************
+* WP_GetWeaponShotCount
+*
+* Gets the shot count for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information. Recursive
+* function keeps calling the fire weapon function
+* to generate the required amount of shots.
+**************************************************/
+
+qboolean WP_GetWeaponShotCount( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+	char *pShotCount = &thisWeaponData->firemodes[firemode].shotCount;
+
+	/* This weapon has multiple shots, generate the fire events */
+	if ( *pShotCount >= 2 )
+	{
+		/* Get the shot count and clear it to avoid recursive infinite loop */
+		int iShotCount	= *pShotCount;
+		int i			= 0;
+		*pShotCount		= 0;
+
+		/* Run through each and fire every shot count */
+		for ( i = 0; i < iShotCount; i++ )
+		{
+			WP_FireGenericWeapon( ent, firemode );
+		}
+
+		/* Reset the table structure so the data has been preserved */
+		*pShotCount	= iShotCount;
+		return qtrue;
+	}
+
+	/* Nothing strange about it, let the original continue */
+	return qfalse;
+}
+
+
+/**************************************************
+* WP_GetWeaponSpeed
+*
+* Gets the projectile speed for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+float WP_GetWeaponSpeed( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if(!thisWeaponData)
+	{
+		// Some additional NULL checking here. You can never be too careful.
+		return 5125.0f;
+	}
+
+	if ( thisWeaponData->firemodes[firemode].speed )
+	{
+		return thisWeaponData->firemodes[firemode].speed;
+	}
+
+	return 5125.0f;
+}
+
+/**************************************************
+* WP_GetGrenadeBounce
+*
+* Gets the qboolean stating whether this weapon
+* bounces off of living entities.
+**************************************************/
+qboolean WP_GetGrenadeBounce( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if(thisWeaponData)
+		return thisWeaponData->firemodes[firemode].grenadeBounces;
+		
+	return qtrue;
+}
+
+/**************************************************
+* WP_GetGrenadeBounceDamage
+*
+* Gets the damage that a grenade weapon does
+* whenever it hits a living target.
+**************************************************/
+int WP_GetGrenadeBounceDamage( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if(thisWeaponData)
+		return thisWeaponData->firemodes[firemode].grenadeBounceDMG;
+		
+	return 10;
+}
+
+/**************************************************
+* WP_GetWeaponSplashRange
+*
+* Gets the splash damage for the currently selected
+* weapon with the appropriate mode. This references
+* the weapon table for this information.
+**************************************************/
+
+float WP_GetWeaponSplashRange( gentity_t *ent, int firemode )
+{
+	weaponData_t *thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
+
+	if(!thisWeaponData)
+	{
+		return 0.0f;
+	}
+
+	if ( thisWeaponData->firemodes[firemode].rangeSplash )
+	{
+		return thisWeaponData->firemodes[firemode].rangeSplash;
+	}
+
+	return 0.0f;
+}
+
+/**************************************************
+* WP_FireGenericWeapon
+*
+* This is the main weapon fire routine, nearly every
+* weapon in the game is routed through the weapon
+* generic functions to use the weapon table. This
+* in turn provides us with an accurate and simple
+* place to get weapon information.
+**************************************************/
+extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
+void WP_FireGenericWeapon( gentity_t *ent, int firemode )
+{
+	BG_SetTorsoAnimTimer(&ent->client->ps, 200);
+
+	if ( ent && ent->client && ent->client->NPC_class == CLASS_VEHICLE )
+	{
+		FireVehicleWeapon( ent, firemode );
+		return;
+	}
+	else if ( ent->s.eType == ET_NPC 
+		&& ent->s.weapon != WP_SABER 
+		&& ent->enemy
+		&& Distance(ent->enemy->r.currentOrigin, ent->r.currentOrigin) <= 72)
+	{// UQ1: Added... At close range NPCs can hit you with their rifle butt...
+		WP_FireMelee( ent, firemode );
+
+		/* Reset the grenade cook timer, if any (with the proper weapon) */
+		if ( ent->grenadeCookTime && ent->s.weapon == ent->grenadeWeapon && ent->s.weaponVariation == ent->grenadeVariation )
+		{
+			ent->grenadeCookTime = 0;
+		}
+		return;
+	}
+	else
+	{
+		if ( WP_GetWeaponShotCount( ent, firemode ))
+		{
+			return;
+		}
+
+		WP_CalculateAngles( ent );
+		WP_CalculateMuzzlePoint( ent, forward, vright, up, muzzle );
+
+		switch( ent->s.weapon )
+		{
+			case WP_NONE:
+			{
+				break;
+			}
+
+			case WP_STUN_BATON:
+			{
+				WP_FireStunBaton( ent, firemode );
+				break;
+			}
+
+			case WP_MELEE:
+			{
+				WP_FireMelee( ent, firemode );
+				break;
+			}
+
+			case WP_SABER:
+			{
+				break;
+			}
+
+			case WP_THERMAL:
+			{
+				WP_FireGenericGrenade( ent, firemode, muzzle, *WP_GetWeaponDirection( ent, firemode, forward ) );
+				break;
+			}
+
+			//// REPLACE ME
+			case WP_TRIP_MINE:
+			{
+				WP_PlaceLaserTrap( ent, firemode );
+				break;
+			}
+
+			case WP_DET_PACK:
+			{
+				WP_DropDetPack( ent, firemode );
+				break;
+			}
+
+			case WP_EMPLACED_GUN:
+			{
+				if ( ent->client && ent->client->ewebIndex )
+				{ 
+					break;
+				}
+
+				WP_FireEmplaced( ent, !!firemode );
+				break;
+			}
+			//// END REPLACE ME
+
+			default:
+			{
+				if ( WP_GetWeaponIsHitscan( ent, firemode ))
+				{
+					ent->client->ps.torsoTimer += 100;
+					WP_FireGenericTraceLine( ent, firemode );
+				}
+				else if ( WP_IsWeaponGrenade (ent, firemode) )
+				{
+					WP_FireGenericGrenade( ent, firemode, muzzle, *WP_GetWeaponDirection( ent, firemode, forward ) );
+				}
+				else
+				{
+					ent->client->ps.torsoTimer += 100;
+					WP_FireGenericMissile( ent, firemode, muzzle, *WP_GetWeaponDirection( ent, firemode, forward ));
+				}
+			}
+		}
+
+		/* Reset the grenade cook timer, if any (with the proper weapon) */
+		if ( ent->grenadeCookTime && ent->s.weapon == ent->grenadeWeapon && ent->s.weaponVariation == ent->grenadeVariation )
+		{
+			ent->grenadeCookTime = 0;
+		}
+	}
+}

@@ -138,6 +138,19 @@ typedef enum
 	FMTRANS_TILTED_TILTED,
 } firingModeTransitions_t;
 
+// FIXME: Make this serverside?
+// Although, if we make this serverside, we can't make the accuracy of the gun directly affect the crosshair size unless we keep
+// that variable in the playerstate, which is just plain nasty imo.
+typedef struct
+{
+	vec_t accuracyRating;		// diameter of spread at 100 units away, in map units
+	float crouchModifier;
+	float runModifier;
+	float walkModifier;		// this gets used in the case of crouch-walking, regardless of walking button being pressed
+	float sightsModifier;	// is lerped during sights transition
+	float inAirModifier;	// if we're in the air period
+} weaponAccuracyDetails_t;
+
 typedef struct weaponFireModeStats_s
 {
     const ammo_t *ammo;             // Ammo
@@ -158,7 +171,7 @@ typedef struct weaponFireModeStats_s
 	float		range;				// The maximum amount of range this weapon/mode can reach.
 	float		rangeSplash;		// The possible splash damage range. Damage calculation is done based on point of impact to end of radius.
 	float		recoil;			    // The weapon recoil to smash into the camera, repeaters for instance have low but much recoil.
-	float		spread;			    // The amount of spread this weapon mode has, if any. Goes through multiplers!
+	//float		spread;			    // The amount of spread this weapon mode has, if any. Goes through multiplers!
 	float		speed;				// The speed override, set different then 0 to avoid using global speed.
 	firingType_t    firingType;     // Firing type (auto, semi, burst)
 	char        shotsPerBurst;      // Shots per burst
@@ -169,6 +182,8 @@ typedef struct weaponFireModeStats_s
 	qboolean    isGrenade;          // Is this firemode a grenade?
 	qboolean	grenadeBounces;		// Does this grenade bounce off of enemies, or does it explode on impact? (true for bounces on people)
 	int			grenadeBounceDMG;	// Determines the amount of damage to do when bouncing off of an enemy.
+
+	weaponAccuracyDetails_t weaponAccuracy; // replaces spread
 } weaponFireModeStats_t;
 
 typedef enum indicatorType_e

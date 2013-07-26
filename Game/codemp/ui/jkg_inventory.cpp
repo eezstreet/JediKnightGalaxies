@@ -280,13 +280,15 @@ weaponDataGrab_t BG_GetWeaponDataFromStr(int weapon, int variation, char *text)
 	}
 	else if(!Q_stricmp(text, "fm1-spread"))
 	{
-		retVal.data.f = weaponData->firemodes[0].spread;
+		//retVal.data.f = weaponData->firemodes[0].spread;
+		retVal.data.f = 0;
 		retVal.isFloat = qtrue;
 		return retVal;
 	}
 	else if(!Q_stricmp(text, "fm2-spread"))
 	{
-		retVal.data.f = weaponData->firemodes[1].spread;
+		//retVal.data.f = weaponData->firemodes[1].spread;
+		retVal.data.f = 0;
 		retVal.isFloat = qtrue;
 		return retVal;
 	}
