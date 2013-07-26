@@ -13,6 +13,19 @@
 
 #define	MAX_ENT_CLUSTERS	16
 
+#define VOIP_QUEUE_LENGTH 64
+
+typedef struct voipServerPacket_s
+{
+	int generation;
+	int sequence;
+	int frames;
+	int len;
+	int sender;
+	int flags;
+	byte data[1024];
+} voipServerPacket_t;
+
 typedef struct svEntity_s {
 	struct worldSector_s *worldSector;
 	struct svEntity_s *nextEntityInWorldSector;
@@ -159,7 +172,9 @@ typedef struct client_s {
 	bool hasVOIP;
 	bool muteAllVOIP;
 	bool ignoreVOIPFromClients[MAX_CLIENTS];
-
+	voipServerPacket_t *voipPacket[VOIP_QUEUE_LENGTH];
+	int queuedVoipPackets;
+	int queuedVoipIndex;
 
 } client_t;
 
