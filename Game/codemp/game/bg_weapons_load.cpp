@@ -398,7 +398,7 @@ static void BG_ParseWeaponFireMode ( weaponFireModeStats_t *fireModeStats, cJSON
 		cJSON *child = NULL;
 
 		child = cJSON_GetObjectItem( node, "accuracyRating" );
-		fireModeStats->weaponAccuracy.accuracyRating = (vec_t)cJSON_ToNumberOpt( child, 5.0f );
+		fireModeStats->weaponAccuracy.accuracyRating = (vec_t)cJSON_ToNumberOpt( child, 32.0f );
 
 		child = cJSON_GetObjectItem( node, "crouchModifier" );
 		fireModeStats->weaponAccuracy.crouchModifier = (float)cJSON_ToNumberOpt( child, 0.8f );
@@ -417,7 +417,7 @@ static void BG_ParseWeaponFireMode ( weaponFireModeStats_t *fireModeStats, cJSON
 	}
 	else
 	{
-		fireModeStats->weaponAccuracy.accuracyRating = 5.0f;
+		fireModeStats->weaponAccuracy.accuracyRating = 32.0f;
 		fireModeStats->weaponAccuracy.crouchModifier = 0.8f;
 		fireModeStats->weaponAccuracy.runModifier = 2.0f;
 		fireModeStats->weaponAccuracy.sightsModifier = 0.2f;

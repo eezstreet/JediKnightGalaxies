@@ -4097,8 +4097,8 @@ void WP_CalculateSpread( float *pitch, float *yaw, float accuracyRating, float m
 	float pitchValue = (Q_irand(0,1) == 0) ? flrand(0,radius) : flrand(0,radius)*-1;
 	float yawValue = (Q_irand(0,1) == 0) ? flrand(0,radius) : flrand(0,radius)*-1;
 
-	*pitch = acos(pitchValue / 100);
-	*yaw = acos(yawValue / 100);
+	*pitch = atan(pitchValue / 100)*5;
+	*yaw = atan(yawValue / 100)*5;
 }
 
 /**************************************************
