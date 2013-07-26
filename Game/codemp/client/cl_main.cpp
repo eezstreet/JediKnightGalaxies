@@ -2176,6 +2176,12 @@ void CL_ShutdownRef( void ) {
 		return;
 	}
 	re.Shutdown( qtrue );
+
+	if ( rendererLib != NULL ) {
+		Sys_UnloadDll (rendererLib);
+		rendererLib = NULL;
+	}
+
 	Com_Memset( &re, 0, sizeof( re ) );
 }
 
