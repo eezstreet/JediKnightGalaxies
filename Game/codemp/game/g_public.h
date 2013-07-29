@@ -933,9 +933,258 @@ typedef struct
 	char string[2048];
 } T_G_ICARUS_GETSETIDFORSTRING;
 
+
+// QVM stripped imports -- JKG
+
 typedef struct
 {
+	int APIversion;
 
+	
+	void		(*Printf)( const char *fmt );
+	void		(*Error)( const char *fmt );
+	int			(*Milliseconds)( void );
+
+	//rww - precision timer funcs... -ALWAYS- call end after start with supplied ptr, or you'll get a nasty memory leak.
+	//not that you should be using these outside of debug anyway.. because you shouldn't be. So don't.
+
+	//Start should be suppled with a pointer to an empty pointer (e.g. void *blah; trap_PrecisionTimer_Start(&blah);),
+	//the empty pointer will be filled with an exe address to our timer (this address means nothing in vm land however).
+	//You must pass this pointer back unmodified to the timer end func.
+	void		(*PrecisionTimer_Start)( void **theNewTimer );
+	int			(*PrecisionTimer_End)( void *theTimer );
+	//If you're using the above example, the appropriate call for this is int result = trap_PrecisionTimer_End(blah);
+
+	void		(*Cvar_Register)( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
+	void		(*Cvar_Update)( vmCvar_t *cvar );
+	void		(*Cvar_Set)( const char *var_name, const char *value );
+	int			(*Cvar_VariableIntegerValue)( const char *var_name );
+	void		(*Cvar_VariableStringBuffer)( const char *var_name, char *buffer, int bufsize );
+	
+	int			(*Argc)( void );
+	void		(*Argv)( int n, char *buffer, int bufferLength );
+
+	int			(*FS_FOpenFile)( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	void		(*FS_Read)( void *buffer, int len, fileHandle_t f );
+	void		(*FS_Write)( const void *buffer, int len, fileHandle_t f );
+	void		(*FS_FCloseFile)( fileHandle_t f );
+	int			(*FS_GetFileList)( const char *path, const char *extension, char *listbuf, int bufsize );
+
+	void		(*SendConsoleCommand)( int exec_when, const char *text );
+	void		(*LocateGameData)( gentity_t *gEnts, int numGEntities, int sizeofGEntity_t,
+						 playerState_t *clients, int sizeofGClient );
+	void		(*DropClient)( int clientNum, const char *reason );
+	void		(*SendServerCommand)( int clientNum, const char *cmd ); // TODO: Fix a la JKG's custom function
+	void		(*GetUsercmd)( int clientNum, usercmd_t *cmd );
+	bool		(*GetEntityToken)( char *buffer, int bufferSize );
+
+	void		(*SetConfigstring)( int num, const char *string );
+	void		(*GetConfigstring)( int num, char *buffer, int bufferSize );
+	void		(*GetUserinfo)( int num, char *buffer, int bufferSize );
+	void		(*SetUserinfo)( int num, const char *buffer );
+	void		(*GetServerinfo)( char *buffer, int bufferSize );
+
+	void		(*SetServerCull)( float cullDistance );
+	void		(*SetBrushModel)( gentity_t *ent, const char *name );
+	void		(*Trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+	void		(*G2Trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int g2TraceType, int traceLod );
+	int			(*PointContents)( const vec3_t point, int passEntityNum );
+	bool		(*InPVS)( const vec3_t p1, const vec3_t p2 ); // TODO: merge InPVS and InPVSIgnorePortals into one func
+	bool		(*InPVSIgnorePortals)( const vec3_t p1, const vec3_t p2 );
+	void		(*AdjustAreaPortalState)( gentity_t *ent, bool open );
+	bool		(*AreasConnected)( int area1, int area2 );
+	void		(*TraceCapsule)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
+	bool		(*EntityContactCapsule)( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
+
+	void		(*LinkEntity)( gentity_t *ent );
+	void		(*UnlinkEntity)( gentity_t *ent );
+
+	int			(*EntitiesInBox)( const vec3_t mins, const vec3_t maxs, int *list, int maxcount );
+	bool		(*EntityContact)( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
+
+	// TODO: remove
+	int			(*BotAllocateClient)( void );
+	void		(*BotFreeClient)( int clientNum );
+
+	int			(*RealTime)( qtime_t *qtime );
+	void		(*SnapVector)( float *v );
+
+	bool		(*ROFF_Clean)( void );
+	void		(*ROFF_UpdateEntities)( void );
+	int			(*ROFF_Cache)( char *file );
+	bool		(*ROFF_Play)( int entID, int roffID, bool doTranslation );
+	bool		(*ROFF_Purge_Ent)( int entID );
+
+	// TODO: remove
+	void		(*TrueMalloc)( void **ptr, int size );
+	void		(*TrueFree)( void **ptr );
+
+	// TODO: remove and replace with Lua?
+	int			(*ICARUS_RunScript)( gentity_t *ent, const char *name );
+	bool		(*ICARUS_RegisterScript)( const char *name, bool bCalledDuringInterrogate );
+	void		(*ICARUS_Init)( void );
+	bool		(*ICARUS_ValidEnt)( gentity_t *ent );
+	bool		(*ICARUS_IsInitialized)( int entID );
+	bool		(*ICARUS_MaintainTaskManager)( int entID );
+	bool		(*ICARUS_IsRunning)( int entID );
+	bool		(*ICARUS_TaskIDPending)( gentity_t *ent, int taskID );
+	void		(*ICARUS_InitEnt)( gentity_t *ent );
+	void		(*ICARUS_FreeEnt)( gentity_t *ent );
+	void		(*ICARUS_AssociateEnt)( gentity_t *ent );
+	void		(*ICARUS_Shutdown)( void );
+	void		(*ICARUS_TaskIDSet)( gentity_t *ent, int taskType, int taskID );
+	void		(*ICARUS_TaskIDComplete)( gentity_t *ent, int taskType );
+	void		(*ICARUS_SetVar)( int taskID, int entID, const char *type_name, const char *data );
+	int			(*ICARUS_VariableDeclared)( const char *type_name );
+	int			(*ICARUS_GetFloatVariable)( const char *name, float *value );
+	int			(*ICARUS_GetStringVariable)( const char *name, const char *value );
+	int			(*ICARUS_GetVectorVariable)( const char *name, const vec3_t value );
+
+	// TODO: remove
+	void		(*NAV_Init)( void );
+	void		(*NAV_Free)( void );
+	bool		(*NAV_Load)( const char *filename, int checksum );
+	bool		(*NAV_Save)( const char *filename, int checksum );
+	int			(*NAV_AddRawPoint)( vec3_t point, int flags, int radius );
+	void		(*NAV_CalculatePatsh)( bool recalc );
+	void		(*NAV_HardConnect)( int first, int second );
+	void		(*NAV_ShowNodes)( void );
+	void		(*NAV_ShowEdges)( void );
+	void		(*NAV_ShowPath)( int start, int end );
+	int			(*NAV_GetNearestNode)( gentity_t *ent, int lastID, int flags, int targetID );
+	int			(*NAV_GetBestNode)( int startID, int endID, int rejectID );
+	int			(*NAV_GetNodePosition)( int nodeID, vec3_t out );
+	int			(*NAV_GetNodeNumEdges)( int nodeID );
+	int			(*NAV_GetNodeEdge)( int nodeID, int edge );
+	int			(*NAV_GetNumNodes)( void );
+	bool		(*NAV_Connected)( int startID, int endID );
+	int			(*NAV_GetPathCost)( int startID, int endID );
+	void		(*NAV_CheckFailedNodes)( gentity_t *ent);
+	void		(*NAV_AddFailedNode)( gentity_t *ent, int nodeID );
+	bool		(*NAV_NodesAreNeighbors)( int startID, int endID );
+	void		(*NAV_ClearAllFailedEdges)( void );
+	void		(*NAV_AddFailedEdge)( int entID, int startID, int endID );
+	void		(*NAV_CheckAllFailedEdges)( void );
+	int			(*NAV_GetBestNodeAltRoute)( int startID, int endID, int rejectID );
+	int			(*NAV_GetBestPathBetweenEnts)( gentity_t *ent, gentity_t *goal, int flags );
+	void		(*NAV_CheckBlockedEdges)( void );
+	void		(*NAV_ClearCheckedNodes)( void );
+	void		(*NAV_SetPathsCalculated)( bool newVal );
+
+	void		(*SV_RegisterSharedMemory)( char *memory );
+
+	// TODO: remove
+	int			(*BotLibSetup)( void );
+	int			(*BotLibShutdown)( void );
+	int			(*BotGetSnapshotEntity)( int clientNum, int sequence );
+	int			(*BotGetServerCommand)( int clientNum, char *message, int size );
+	void		(*BotUserCommand)( int clientNum, usercmd_t *ucmd );
+	void		(*AAS_EntityInfo)( int entnum, void /* struct aas_entityinfo_s */ *info );
+	void		(*EA_Attack)( int client );
+	void		(*EA_Alt_Attack)( int client );
+	void		(*EA_ForcePower)( int client );
+	void		(*EA_Use)( int client );
+	void		(*EA_Crouch)( int client );
+	void		(*EA_MoveForward)( int client );
+	void		(*EA_SelectWeapon)( int client, int weapon );
+	void		(*EA_Jump)( int client );
+	void		(*EA_Move)( int client, vec3_t dir, float speed );
+	void		(*EA_View)( int client, vec3_t viewangles );
+	void		(*EA_GetInput)( int client, float thinktime, void /* struct bot_input_s */ *input );
+	void		(*EA_ResetInput)( int client );
+	void		(*BotResetGoalState)( int goalstate );
+	void		(*BotResetAvoidGoals)( int goalstate );
+	void		(*BotUpdateEntityItems)( void );
+	int			(*BotAllocGoalState)( int state );
+	void		(*BotFreeGoalState)( int handle );
+	void		(*BotResetMoveState)( int movestate );
+	void		(*BotResetAvoidReach)( int movestate );
+	int			(*BotAllocMoveState)( void );
+	void		(*BotFreeMoveState)( int handle );
+	int			(*BotAllocWeaponState)( void );
+	void		(*BotFreeWeaponState)( int weaponstate );
+	void		(*BotResetWeaponState)( int weaponstate );
+	void		(*Bot_UpdateWaypoints)( int wpnum, wpobject_t **wps );
+	void		(*Bot_CalculatePaths)( int rmg );
+
+	int			(*PC_LoadSource)( const char *filename );
+	int			(*PC_FreeSource)( int handle );
+	int			(*PC_ReadToken)( int handle, pc_token_t *pc_token );
+	int			(*PC_SourceFileAndLine)( int handle, char *filename, int *line );
+
+/*
+Ghoul2 Insert Start
+*/
+	qhandle_t	(*R_RegisterSkin)( const char *name );
+	void		(*G2_ListModelBones)( void *ghlInfo, int frame );
+	void		(*G2_ListModelSurfaces)( void *ghlInfo );
+	bool		(*G2_HaveWeGhoul2Models)( void *ghoul2 );
+	void		(*G2_SetGhoul2ModelIndexes)( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
+	bool		(*G2API_GetBoltMatrix)( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
+								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool		(*G2API_GetBoltMatrix_NoReconstruct)( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
+								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool		(*G2API_GetBoltMatrix_NoRecNoRot)( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
+								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	int			(*G2API_InitGhoul2Model)( void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin,
+						  qhandle_t customShader, int modelFlags, int lodBias );
+	bool		(*G2API_SetSkin)( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
+	int			(*G2API_Ghoul2Size)( void *ghlInfo );
+	int			(*G2API_AddBolt)( void *ghoul2, int modelIndex, const char *boneName );
+	void		(*G2API_SetBoltInfo)( void *ghoul2, int modelIndex, int boltInfo );
+	bool		(*G2API_SetBoneAngles)( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags,
+								const int up, const int right, const int forward, qhandle_t *modelList,
+								int blendTime , int currentTime );
+	bool		(*G2API_SetBoneAnim)( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame,
+							  const int flags, const float animSpeed, const int currentTime, const float setFrame , const int blendTime );
+	bool		(*G2API_GetBoneAnim)( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame,
+						   int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
+	void		(*G2API_GetGLAName)( void *ghoul2, int modelIndex, char *fillBuf );
+	int			(*G2API_CopyGhoul2Instance)( void *g2From, void *g2To, int modelIndex );
+	void		(*G2API_CopySpecificGhoul2Model)( void *g2From, int modelFrom, void *g2To, int modelTo );
+	void		(*G2API_DuplicateGhoul2Instance)( void *g2From, void **g2To );
+	bool		(*G2API_HasGhoul2ModelOnIndex)( void *ghlInfo, int modelIndex );
+	bool		(*G2API_RemoveGhoul2Model)( void *ghlInfo, int modelIndex );
+	bool		(*G2API_RemoveGhoul2Models)( void *ghlInfo );
+	void		(*G2API_CleanGhoul2Models)( void **ghoul2Ptr );
+	void		(*G2API_CollisionDetect)( CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position, int frameNumber,
+							int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
+	void		(*G2API_CollisionDetectCache)( CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position, int frameNumber,
+							int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
+	void		(*G2API_GetSurfaceName)( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
+	bool		(*G2API_SetRootSurface)( void *ghoul2, const int modelIndex, const char *surfaceName );
+	bool		(*G2API_SetSurfaceOnOff)( void *ghoul2, const char *surfaceName, const int flags );
+	bool		(*G2API_SetNewOrigin)( void *ghoul2, const int boltIndex );
+	bool		(*G2API_DoesBoneExist)( void *ghoul2, int modelIndex, const char *boneName );
+	int			(*G2API_GetSurfaceRenderStatus)( void *ghoul2, const int modelIndex, const char *surfaceName );
+	void		(*G2API_AbsurdSmoothing)( void *ghoul2, bool status );
+	void		(*G2API_SetRagDoll)( void *ghoul2, sharedRagDollParams_t *params );
+	void		(*G2API_AnimateG2Models)( void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
+	bool		(*G2API_RagPCJConstraint)( void *ghoul2, const char *boneName, vec3_t min, vec3_t max );
+	bool		(*G2API_RagPCJGradientSpeed)( void *ghoul2, const char *boneName, const float speed );
+	bool		(*G2API_RagEffectorGoal)( void *ghoul2, const char *boneName, vec3_t pos); //override an effector bone's goal position (world coordinates)
+	bool		(*G2API_GetRagBonePos)( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale);
+	bool		(*G2API_RagEffectorKick)( void *ghoul2, const char *boneName, vec3_t velocity );
+	bool		(*G2API_RagForceSolve)( void *ghoul2, bool force );
+	bool		(*G2API_SetBoneIKState)( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
+	bool		(*G2API_IKMove)( void *ghoul2, int time, sharedIKMoveParams_t *params );
+	bool		(*G2API_RemoveBone)( void *ghoul2, const char *boneName, int modelIndex );
+//rww - Stuff to allow association of ghoul2 instances to entity numbers.
+//This way, on listen servers when both the client and server are doing
+//ghoul2 operations, we can copy relevant data off the client instance
+//directly onto the server instance and slash the transforms and whatnot
+//right in half.
+	void		(*G2API_AttachInstanceToEntNum)( void *ghoul2, int entityNum, bool server );
+	void		(*G2API_ClearAttachedInstance)( int entityNum );
+	void		(*G2API_CleanEntAttachments)( void );
+	bool		(*G2API_OverrideServer)( void *serverInstance );
+/*
+Ghoul2 Insert End
+*/
+
+	void		(*SetActiveSubBSP)( int index );
+	int			(*CM_RegisterTerrain)( const char *config );
+	void		(*RMG_Init)( int terrainID );
 } gameImport_t;
 
 #endif //G_PUBLIC_H
