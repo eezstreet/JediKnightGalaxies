@@ -13,13 +13,11 @@
 	#include "bg_weapons.h"
 
 	//Could use strap stuff but I don't particularly care at the moment anyway.
-#include "../namespace_begin.h"
 	extern int	trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
 	extern void	trap_FS_Read( void *buffer, int len, fileHandle_t f );
 	extern void	trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 	extern void	trap_FS_FCloseFile( fileHandle_t f );
 	extern int	trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-#include "../namespace_end.h"
 #else
 	#include "g_local.h"
 	#define QAGAME
@@ -47,22 +45,18 @@ extern int G_SoundIndex( const char *name );
 		extern int G_EffectIndex( const char *name );
 	#endif
 #elif CGAME
-#include "../namespace_begin.h"
 extern qhandle_t	trap_R_RegisterModel( const char *name );			// returns rgb axis if not found
 extern qhandle_t	trap_R_RegisterSkin( const char *name );			// returns all white if not found
 extern qhandle_t	trap_R_RegisterShader( const char *name );
 extern qhandle_t	trap_R_RegisterShaderNoMip( const char *name );
 extern int			trap_FX_RegisterEffect(const char *file);
 extern sfxHandle_t	trap_S_RegisterSound( const char *sample);		// returns buzz if not found
-#include "../namespace_end.h"
 #else//UI
-#include "../namespace_begin.h"
 extern qhandle_t	trap_R_RegisterModel( const char *name );			// returns rgb axis if not found
 extern qhandle_t	trap_R_RegisterSkin( const char *name );			// returns all white if not found
 extern qhandle_t	trap_R_RegisterShader( const char *name );			// returns all white if not found
 extern qhandle_t	trap_R_RegisterShaderNoMip( const char *name );			// returns all white if not found
 extern sfxHandle_t	trap_S_RegisterSound( const char *sample);		// returns buzz if not found
-#include "../namespace_end.h"
 #endif
 
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
@@ -89,7 +83,6 @@ void BG_ClearVehicleParseParms(void)
 #endif
 
 #ifdef _JK2MP
-#include "../namespace_begin.h"
 #endif
 
 #ifndef WE_ARE_IN_THE_UI
@@ -162,6 +155,17 @@ vehField_t vehWeaponFields[NUM_VWEAP_PARMS] =
 	{"height", VWFOFS(fHeight), VF_FLOAT},		//height of traceline or bounding box of projecile (non-rotating!)
 	{"lifetime", VWFOFS(iLifeTime), VF_INT},	//removes itself after this amount of time
 	{"explodeOnExpire", VWFOFS(bExplodeOnExpire), VF_BOOL},	//when iLifeTime is up, explodes rather than simply removing itself
+};
+
+stringID_table_t VehicleTable[VH_NUM_VEHICLES+1] =
+{
+	ENUM2STRING(VH_NONE),
+	ENUM2STRING(VH_WALKER),		//something you ride inside of, it walks like you, like an AT-ST
+	ENUM2STRING(VH_FIGHTER),	//something you fly inside of, like an X-Wing or TIE fighter
+	ENUM2STRING(VH_SPEEDER),	//something you ride on that hovers, like a speeder or swoop
+	ENUM2STRING(VH_ANIMAL),		//animal you ride on top of that walks, like a tauntaun
+	ENUM2STRING(VH_FLIER),		//animal you ride on top of that flies, like a giant mynoc?
+	0,	-1
 };
 
 static qboolean BG_ParseVehWeaponParm( vehWeaponInfo_t *vehWeapon, char *parmName, char *pValue )
@@ -668,17 +672,6 @@ vehField_t vehicleFields[] =
 	{0, -1, VF_INT}
 };
 
-stringID_table_t VehicleTable[VH_NUM_VEHICLES+1] =
-{
-	ENUM2STRING(VH_NONE),
-	ENUM2STRING(VH_WALKER),		//something you ride inside of, it walks like you, like an AT-ST
-	ENUM2STRING(VH_FIGHTER),	//something you fly inside of, like an X-Wing or TIE fighter
-	ENUM2STRING(VH_SPEEDER),	//something you ride on that hovers, like a speeder or swoop
-	ENUM2STRING(VH_ANIMAL),		//animal you ride on top of that walks, like a tauntaun
-	ENUM2STRING(VH_FLIER),		//animal you ride on top of that flies, like a giant mynoc?
-	0,	-1
-};
-
 // Setup the shared functions (one's that all vehicles would generally use).
 void BG_SetSharedVehicleFunctions( vehicleInfo_t *pVehInfo )
 {
@@ -709,104 +702,6 @@ void BG_SetSharedVehicleFunctions( vehicleInfo_t *pVehInfo )
 void BG_VehicleSetDefaults( vehicleInfo_t *vehicle )
 {
 	memset(vehicle, 0, sizeof(vehicleInfo_t));
-/*
-#if _JK2MP
-	if (!vehicle->name)
-	{
-		vehicle->name = (char *)malloc(1024);
-	}
-	strcpy(vehicle->name, "default");
-#else
-	vehicle->name = G_NewString( "default" );
-#endif
-
-	//general data
-	vehicle->type = VH_SPEEDER;				//what kind of vehicle
-	//FIXME: no saber or weapons if numHands = 2, should switch to speeder weapon, no attack anim on player
-	vehicle->numHands = 0;					//if 2 hands, no weapons, if 1 hand, can use 1-handed weapons, if 0 hands, can use 2-handed weapons
-	vehicle->lookPitch = 0;				//How far you can look up and down off the forward of the vehicle
-	vehicle->lookYaw = 5;					//How far you can look left and right off the forward of the vehicle
-	vehicle->length = 0;					//how long it is - used for body length traces when turning/moving?
-	vehicle->width = 0;						//how wide it is - used for body length traces when turning/moving?
-	vehicle->height = 0;					//how tall it is - used for body length traces when turning/moving?
-	VectorClear( vehicle->centerOfGravity );//offset from origin: {forward, right, up} as a modifier on that dimension (-1.0f is all the way back, 1.0f is all the way forward)
-
-	//speed stats - note: these are DESIRED speed, not actual current speed/velocity
-	vehicle->speedMax = VEH_DEFAULT_SPEED_MAX;	//top speed
-	vehicle->turboSpeed = 0;					//turboBoost
-	vehicle->speedMin = 0;						//if < 0, can go in reverse
-	vehicle->speedIdle = 0;						//what speed it drifts to when no accel/decel input is given
-	vehicle->accelIdle = 0;						//if speedIdle > 0, how quickly it goes up to that speed
-	vehicle->acceleration = VEH_DEFAULT_ACCEL;	//when pressing on accelerator (1/2 this when going in reverse)
-	vehicle->decelIdle = VEH_DEFAULT_DECEL;		//when giving no input, how quickly it desired speed drops to speedIdle
-	vehicle->strafePerc = VEH_DEFAULT_STRAFE_PERC;//multiplier on current speed for strafing.  If 1.0f, you can strafe at the same speed as you're going forward, 0.5 is half, 0 is no strafing
-
-	//handling stats
-	vehicle->bankingSpeed = VEH_DEFAULT_BANKING_SPEED;	//how quickly it pitches and rolls (not under player control)
-	vehicle->rollLimit = VEH_DEFAULT_ROLL_LIMIT;		//how far it can roll to either side
-	vehicle->pitchLimit = VEH_DEFAULT_PITCH_LIMIT;		//how far it can pitch forward or backward
-	vehicle->braking = VEH_DEFAULT_BRAKING;				//when pressing on decelerator (backwards)
-	vehicle->turningSpeed = VEH_DEFAULT_TURNING_SPEED;	//how quickly you can turn
-	vehicle->turnWhenStopped = qfalse;					//whether or not you can turn when not moving	
-	vehicle->traction = VEH_DEFAULT_TRACTION;			//how much your command input affects velocity
-	vehicle->friction = VEH_DEFAULT_FRICTION;			//how much velocity is cut on its own
-	vehicle->maxSlope = VEH_DEFAULT_MAX_SLOPE;			//the max slope that it can go up with control
-
-	//durability stats
-	vehicle->mass = VEH_DEFAULT_MASS;			//for momentum and impact force (player mass is 10)
-	vehicle->armor = VEH_DEFAULT_MAX_ARMOR;		//total points of damage it can take
-	vehicle->toughness = VEH_DEFAULT_TOUGHNESS;	//modifies incoming damage, 1.0 is normal, 0.5 is half, etc.  Simulates being made of tougher materials/construction
-	vehicle->malfunctionArmorLevel = 0;			//when armor drops to or below this point, start malfunctioning
-
-	//visuals & sounds
-	//vehicle->model = "models/map_objects/ships/swoop.md3";	//what model to use - if make it an NPC's primary model, don't need this?
-	if (!vehicle->model)
-	{
-		vehicle->model = (char *)malloc(1024);
-	}
-	strcpy(vehicle->model, "models/map_objects/ships/swoop.md3");
-
-	vehicle->modelIndex = 0;							//set internally, not until this vehicle is spawned into the level
-	vehicle->skin = NULL;								//what skin to use - if make it an NPC's primary model, don't need this?
-	vehicle->riderAnim = BOTH_GUNSIT1;					//what animation the rider uses
-
-	vehicle->soundOn = NULL;							//sound to play when get on it
-	vehicle->soundLoop = NULL;							//sound to loop while riding it
-	vehicle->soundOff = NULL;							//sound to play when get off
-	vehicle->exhaustFX = NULL;							//exhaust effect, played from "*exhaust" bolt(s)
-	vehicle->trailFX = NULL;							//trail effect, played from "*trail" bolt(s)
-	vehicle->impactFX = NULL;							//explosion effect, for when it blows up (should have the sound built into explosion effect)
-	vehicle->explodeFX = NULL;							//explosion effect, for when it blows up (should have the sound built into explosion effect)
-	vehicle->wakeFX = NULL;								//effect itmakes when going across water
-
-	//other misc stats
-	vehicle->gravity = VEH_DEFAULT_GRAVITY;				//normal is 800
-	vehicle->hoverHeight = 0;//VEH_DEFAULT_HOVER_HEIGHT;	//if 0, it's a ground vehicle
-	vehicle->hoverStrength = 0;//VEH_DEFAULT_HOVER_STRENGTH;//how hard it pushes off ground when less than hover height... causes "bounce", like shocks
-	vehicle->waterProof = qtrue;						//can drive underwater if it has to
-	vehicle->bouyancy = 1.0f;							//when in water, how high it floats (1 is neutral bouyancy)
-	vehicle->fuelMax = 1000;							//how much fuel it can hold (capacity)
-	vehicle->fuelRate = 1;								//how quickly is uses up fuel
-	vehicle->visibility = VEH_DEFAULT_VISIBILITY;		//radius for sight alerts
-	vehicle->loudness = VEH_DEFAULT_LOUDNESS;			//radius for sound alerts
-	vehicle->explosionRadius = VEH_DEFAULT_EXP_RAD;
-	vehicle->explosionDamage = VEH_DEFAULT_EXP_DMG;
-	vehicle->maxPassengers = 0;
-
-	//new stuff
-	vehicle->hideRider = qfalse;						// rider (and passengers?) should not be drawn
-	vehicle->killRiderOnDeath = qfalse;					//if rider is on vehicle when it dies, they should die
-	vehicle->flammable = qfalse;						//whether or not the vehicle should catch on fire before it explodes
-	vehicle->explosionDelay = 0;						//how long the vehicle should be on fire/dying before it explodes
-	//camera stuff
-	vehicle->cameraOverride = qfalse;					//whether or not to use all of the following 3rd person camera override values
-	vehicle->cameraRange = 0.0f;						//how far back the camera should be - normal is 80
-	vehicle->cameraVertOffset = 0.0f;					//how high over the vehicle origin the camera should be - normal is 16
-	vehicle->cameraHorzOffset = 0.0f;					//how far to left/right (negative/positive) of of the vehicle origin the camera should be - normal is 0
-	vehicle->cameraPitchOffset = 0.0f;					//a modifier on the camera's pitch (up/down angle) to the vehicle - normal is 0
-	vehicle->cameraFOV = 0.0f;							//third person camera FOV, default is 80
-	vehicle->cameraAlpha = qfalse;						//fade out the vehicle if it's in the way of the crosshair
-*/
 }
 
 void BG_VehicleClampData( vehicleInfo_t *vehicle )
@@ -1663,8 +1558,6 @@ void AttachRidersGeneric( Vehicle_t *pVeh )
 	}
 }
 #endif
-
-#include "../namespace_end.h"
 
 #endif // _JK2MP
 

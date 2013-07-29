@@ -15,9 +15,7 @@ extern void NPC_Humanoid_Decloak( gentity_t *self );
 
 extern vmCvar_t		g_saberRestrictForce;
 
-#include "../namespace_begin.h"
 extern qboolean BG_FullBodyTauntAnim( int anim );
-#include "../namespace_end.h"
 
 extern bot_state_t *botstates[MAX_CLIENTS];
 
@@ -644,9 +642,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	}
 }
 
-#include "../namespace_begin.h"
 extern qboolean BG_InKnockDown( int anim ); //bg_pmove.c
-#include "../namespace_end.h"
 
 int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forcePower)
 {

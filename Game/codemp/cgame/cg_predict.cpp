@@ -208,11 +208,9 @@ CG_ClipMoveToEntities
 
 ====================
 */
-#include "../namespace_begin.h"
 extern void BG_VehicleAdjustBBoxForOrientation( Vehicle_t *veh, vec3_t origin, vec3_t mins, vec3_t maxs,
 										int clientNum, int tracemask,
 										void (*localTrace)(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask)); // bg_pmove.c
-#include "../namespace_end.h"
 
 void CBB_GetBoundingBox(int index, vec3_t *mins, vec3_t *maxs);
 static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,

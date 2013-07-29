@@ -7,7 +7,6 @@
 
 static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
 
-#include "../namespace_begin.h"
 void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
 	syscall = syscallptr;
 }
@@ -685,5 +684,3 @@ void trap_Syscall_CG( void )
 {
 	syscall(UI_SYSCALL_CG);
 }
-
-#include "../namespace_end.h"

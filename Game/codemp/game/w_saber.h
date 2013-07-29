@@ -67,9 +67,7 @@ typedef enum
 #define SABERMAXS_Z 3.0f//8.0f
 #define	SABER_MIN_THROW_DIST	80.0f
 
-#include "../namespace_begin.h"
 extern int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
 extern float forceJumpHeight[NUM_FORCE_POWER_LEVELS];
 extern float forceJumpStrength[NUM_FORCE_POWER_LEVELS];
 extern float forcePushPullRadius[NUM_FORCE_POWER_LEVELS];
-#include "../namespace_end.h"

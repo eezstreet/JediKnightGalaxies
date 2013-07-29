@@ -1,9 +1,7 @@
 #include "b_local.h"
 #include "g_nav.h"
 
-#include "../namespace_begin.h"
 gitem_t	*BG_FindItemForAmmo( ammoType_t ammo );
-#include "../namespace_end.h"
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
 //Local state enums

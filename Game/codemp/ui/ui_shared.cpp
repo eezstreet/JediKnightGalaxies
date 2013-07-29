@@ -52,8 +52,6 @@ extern void UI_CacheSaberGlowGraphics( void );
 
 #endif //
 
-#include "../namespace_begin.h"
-
 #ifdef CGAME
 
 extern int trap_Key_GetCatcher( void ) ;
@@ -61,34 +59,6 @@ extern void trap_Key_SetCatcher( int catcher );
 extern void trap_Cvar_Set( const char *var_name, const char *value );
 
 #endif
-
-//JLF DEMOCODE
-#ifdef _XBOX
-
-//support for attract mode demo timer
-#define DEMO_TIME_MAX  45000 //g_demoTimeBeforeStart
-int g_demoLastKeypress = 0;  //milliseconds
-bool  g_ReturnToSplash = false;
-bool g_runningDemo = false;
-
-void G_DemoStart();
-void G_DemoEnd();
-void G_DemoFrame();
-void G_DemoKeypress();
-
-void PlayDemo();
-//void UpdateDemoTimer();
-bool TestDemoTimer();
-//END DEMOCODE
-
-//JLF used by sliders
-#define TICK_COUNT 20
-
-//JLF MORE PROTOTYPES
-qboolean Item_HandleSelectionNext(itemDef_t * item);
-qboolean Item_HandleSelectionPrev(itemDef_t * item);
-
-#endif	// _XBOX
 
 qboolean Item_SetFocus(itemDef_t *item, float x, float y);
 
@@ -206,12 +176,6 @@ UI_Alloc
 ===============
 */
 void *UI_Alloc( int size ) {
-#ifdef _XBOX
-
-	allocPoint += size;
-	return Z_Malloc(size, UI_ALLOCATION_TAG, qfalse, 4);
-
-#else	// _XBOX
 
 	char	*p; 
 
@@ -229,7 +193,6 @@ void *UI_Alloc( int size ) {
 	allocPoint += ( size + 15 ) & ~15;
 
 	return p;
-#endif
 }
 
 /*
@@ -240,9 +203,6 @@ UI_InitMemory
 void UI_InitMemory( void ) {
 	allocPoint = 0;
 	outOfMemory = qfalse;
-#ifdef _XBOX
-	Z_TagFree(UI_ALLOCATION_TAG);
-#endif
 }
 
 qboolean UI_OutOfMemory() {
@@ -6522,9 +6482,7 @@ void UI_ScaleModelAxis(refEntity_t	*ent)
 }
 
 #ifndef CGAME
-#include "../namespace_end.h"	// Yes, these are inverted. The whole file is in the namespace.
 extern void UI_SaberAttachToChar( itemDef_t *item );
-#include "../namespace_begin.h"
 #endif
 
 void Item_Model_Paint(itemDef_t *item) 
@@ -11012,12 +10970,6 @@ void *Display_CaptureItem(int x, int y) {
 
 // FIXME: 
 qboolean Display_MouseMove(void *p, int x, int y) {
-
-//JLFMOUSE  AGAIN I THINK THIS SHOULD BE MOOT
-#ifdef _XBOX
-	return qtrue;
-#endif
-	//END JLF
 	int i;
 	menuDef_t *menu = (menuDef_t *) p;
 
@@ -11108,10 +11060,6 @@ void Display_CacheAll() {
 
 static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
  	if (menu && menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED)) {
-//JLFMOUSE
-#ifdef _XBOX
-		return qtrue;
-#endif
 		if (Rect_ContainsPoint(&menu->window.rect, x, y)) {
 			int i;
 			for (i = 0; i < menu->itemCount; i++) {
@@ -11157,161 +11105,3 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
 	}
 	return qfalse;
 }
-
-//JLF DEMOCODE MPMOVED
-#ifdef _XBOX
-
-void G_DemoStart()
-{
-//	demoDelay = 0;
-//	lastChange = 0;
-	g_runningDemo = true;
-
-//	g_demoLastChange = 0;
-
-
-	extern void Menus_CloseAll();
-	
-	Menus_CloseAll();
-
-	trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
-#ifndef CGAME
-	trap_Key_ClearStates();
-#endif
-	trap_Cvar_Set( "cl_paused", "0" );
-
-//	g_demoStartFade = 0;
-//	g_demoStartTransition = 0;
-}
-
-
-
-const char *attractMovieNames[] = {
-	"jk1",
-	"jk2",
-	"jk3",
-	"jk4",
-	"jk5",
-};
-
-extern int trap_Milliseconds( void );
-
-const int	numAttractMovies = sizeof(attractMovieNames) / sizeof(attractMovieNames[0]);
-static int	curAttractMovie = 0;
-
-void G_DemoFrame()
-{
-	bool keypressed = false;
-	if (g_runningDemo)
-	{
-		while (!keypressed)
-			keypressed = CIN_PlayAllFrames( "atvi.bik", 0, 0, 640, 480, 0, true );
-		G_DemoEnd();
-
-
-
-	}
-	else 
-	{
-		menuDef_t* curMenu = Menu_GetFocused();
-		
-		if (curMenu && curMenu->window.name &&
-			(!Q_stricmp(curMenu->window.name , "mainMenu") ||
-			!Q_stricmp(curMenu->window.name, "splashMenu")))
-		{
-			if (!g_demoLastKeypress)
-				g_demoLastKeypress = trap_Milliseconds();
-			else if (g_demoLastKeypress + DEMO_TIME_MAX < trap_Milliseconds())
-				G_DemoStart();
-		}
-		else
-		{
-			g_demoLastKeypress = trap_Milliseconds();
-		}
-	}
-}
-
-void G_DemoKeypress()
-{
-	g_demoLastKeypress = trap_Milliseconds();
-		
-//JLF moved
-//	g_demoLastKeypress = Sys_Milliseconds();
-	
-}
-
-
-void G_DemoEnd()
-{
-	
-	if (!g_runningDemo)
-		return;
-	//CIN_StopCinematic(1);
-	CIN_CloseAllVideos();
-//	Key_SetCatcher( KEYCATCH_UI );
-	Menus_CloseAll();
-	g_ReturnToSplash = true;
-	g_runningDemo = qfalse;
-	G_DemoKeypress();
-	trap_Key_SetCatcher( trap_Key_GetCatcher() & KEYCATCH_UI );
-#ifndef CGAME
-	trap_Key_ClearStates();
-#endif
-	trap_Cvar_Set( "cl_paused", "0" );
-
-//	g_demoStartFade = 0;
-//	g_demoStartTransition = 0;
-//	g_demoLastKeypress = 0;
-}
-
-void PlayDemo()
-{
-//	bool keypressed = false;
-	G_DemoStart();
-	CIN_PlayAllFrames( attractMovieNames[curAttractMovie], 0, 0, 640, 480, 0, true );
-	curAttractMovie = (curAttractMovie + 1) % numAttractMovies;
-//	while (!keypressed)
-//		keypressed = CIN_PlayAllFrames( "atvi.bik", 0, 0, 640, 480, 0, true );
-	G_DemoEnd();
-}
-
-void UpdateDemoTimer()
-{
-	g_demoLastKeypress = trap_Milliseconds();
-}
-
-bool TestDemoTimer()
-{
-//JLF TEMP DEBUG
-	return false;
-
-
-	menuDef_t* curMenu = Menu_GetFocused();
-	if (curMenu && curMenu->window.name &&
-			(!Q_stricmp(curMenu->window.name , "mainMenu") ||
-			!Q_stricmp(curMenu->window.name, "splashMenu")))
-	{	
-		if (!g_demoLastKeypress)
-			g_demoLastKeypress = trap_Milliseconds();
-		else if (g_demoLastKeypress + DEMO_TIME_MAX < trap_Milliseconds())
-			return true;
-	}
-	return false;
-}
-
-//END DEMOCODE
-
-
-#endif // _XBOX
-
-
-
-
-
-
-
-
-
-
-
-#include "../namespace_end.h"

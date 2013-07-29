@@ -11,10 +11,8 @@
 #endif
 
 #ifdef CGAME
-#include "../namespace_begin.h"
 extern sfxHandle_t trap_S_RegisterSound( const char *sample);
 extern int trap_FX_RegisterEffect( const char *file);
-#include "../namespace_end.h"
 #endif
 
 extern saberInfo_t *BG_MySaber( int clientNum, int saberNum );
@@ -28,7 +26,6 @@ BEGIN: Animation utility functions (sequence checking)
 // VVFIXME - Most of these functions are totally stateless and stupid. Don't
 // need multiple copies of this, but it's much easier (and less likely to
 // break in the future) if I keep separate namespace versions now.
-#include "../namespace_begin.h"
 
 qboolean BG_SaberStanceAnim( int anim )
 {
@@ -3399,6 +3396,3 @@ float BG_GetLegsAnimPoint(playerState_t * ps, int AnimIndex)
 	return animPercentage;
 }
 //[/BugFix2]
-
-
-#include "../namespace_end.h"		// End of animation utilities

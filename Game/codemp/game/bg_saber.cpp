@@ -3,7 +3,6 @@
 #include "bg_local.h"
 #include "w_saber.h"
 
-#include "../namespace_begin.h"
 extern qboolean BG_SabersOff( playerState_t *ps );
 saberInfo_t *BG_MySaber( int clientNum, int saberNum );
 
@@ -976,9 +975,6 @@ int PM_SaberLockWinAnim( qboolean victory, qboolean superBreak )
 	return winAnim;
 }
 
-// Need to avoid nesting namespaces!
-#include "../namespace_end.h"
-
 
 #ifdef QAGAME //including game headers on cgame is FORBIDDEN ^_^
 
@@ -991,7 +987,6 @@ extern gentity_t g_entities[];
 #include "..\cgame\cg_local.h" //ahahahahhahahaha@$!$!
 
 #endif
-#include "../namespace_begin.h"
 
 int PM_SaberLockLoseAnim( playerState_t *genemy, qboolean victory, qboolean superBreak )
 { 
@@ -4379,5 +4374,3 @@ saberInfo_t *BG_MySaber( int clientNum, int saberNum )
 
 	return NULL;
 }
-
-#include "../namespace_end.h"

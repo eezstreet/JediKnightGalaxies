@@ -2988,9 +2988,7 @@ tryFire:
 FireWeapon
 ===============
 */
-#include "../namespace_begin.h"
 int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
-#include "../namespace_end.h"
 
 
 

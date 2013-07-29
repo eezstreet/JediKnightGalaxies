@@ -816,9 +816,7 @@ CG_General
 */
 void CG_G2ServerBoneAngles(centity_t *cent);
 
-#include "../namespace_begin.h"
 extern qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize );
-#include "../namespace_end.h"
 
 static void CG_General( centity_t *cent ) {
 	refEntity_t			ent;

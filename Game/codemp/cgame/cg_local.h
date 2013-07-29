@@ -2070,10 +2070,8 @@ extern	vmCvar_t		jkg_simpleHUD;
 
 extern	vmCvar_t		cg_smoothClients;
 
-#include "../namespace_begin.h"
 extern	vmCvar_t		pmove_fixed;
 extern	vmCvar_t		pmove_msec;
-#include "../namespace_end.h"
 
 //extern	vmCvar_t		cg_pmove_fixed;
 extern	vmCvar_t		cg_cameraOrbit;
@@ -2462,8 +2460,6 @@ void CG_AdjustEyePos (const char *modelName);
 // These functions are how the cgame communicates with the main game system
 //
 
-#include "../namespace_begin.h"
-
 // print message on the local console
 void		trap_Print( const char *fmt );
 
@@ -2689,16 +2685,12 @@ void		BG_CycleInven(playerState_t *ps, int direction);
 int			BG_ProperForceIndex(int power);
 void		BG_CycleForce(playerState_t *ps, int direction);
 
-#include "../namespace_end.h"
-
 
 typedef enum {
   SYSTEM_PRINT,
   CHAT_PRINT,
   TEAMCHAT_PRINT
 } q3print_t; // bk001201 - warning: useless keyword or type name in empty declaration
-
-#include "../namespace_begin.h"
 
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
 e_status trap_CIN_StopCinematic(int handle);
@@ -2758,8 +2750,6 @@ qboolean	trap_ROFF_Purge_Ent( int entID );
 //rww - dynamic vm memory allocation!
 void	trap_TrueMalloc(void **ptr, int size);
 void	trap_TrueFree(void **ptr);
-
-#include "../namespace_end.h"
 
 void	CG_ClearParticles (void);
 void	CG_AddParticles (void);
@@ -2828,8 +2818,6 @@ void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weap
 void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon );
 void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal );
 void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid );
-
-#include "../namespace_begin.h"
 
 void		trap_G2API_CollisionDetect		( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position,int frameNumber, int entNum, const vec3_t rayStart, const vec3_t rayEnd, const vec3_t scale, int traceFlags, int useLod, float fRadius );
 void		trap_G2API_CollisionDetectCache		( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position,int frameNumber, int entNum, const vec3_t rayStart, const vec3_t rayEnd, const vec3_t scale, int traceFlags, int useLod, float fRadius );
@@ -2931,8 +2919,6 @@ void trap_R_AddMiniRefEntityToScene( miniRefEntity_t *ent );
 #ifndef UI_EXPORTS
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  );
 #endif
-
-#include "../namespace_end.h"
 
 void		CG_Init_CG(void);
 void		CG_Init_CGents(void);

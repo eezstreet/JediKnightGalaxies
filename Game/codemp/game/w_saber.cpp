@@ -18,7 +18,6 @@ extern vmCvar_t		g_saberWallDamageScale;
 int saberSpinSound = 0;
 
 //would be cleaner if these were renamed to BG_ and proto'd in a header.
-#include "../namespace_begin.h"
 qboolean PM_SaberInTransition( int move );
 qboolean PM_SaberInDeflect( int move );
 qboolean PM_SaberInBrokenParry( int move );
@@ -31,7 +30,6 @@ qboolean BG_SaberInTransitionAny( int move );
 qboolean BG_SaberInAttackPure( int move );
 qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum );
-#include "../namespace_end.h"
 
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
 void WP_SaberRemoveG2Model( gentity_t *saberent );
@@ -401,9 +399,7 @@ void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace )
 	//Do something here..? Was handling projectiles here, but instead they're now handled in their own functions.
 }
 
-#include "../namespace_begin.h"
 qboolean BG_SuperBreakLoseAnim( int anim );
-#include "../namespace_end.h"
 
 static GAME_INLINE void SetSaberBoxSize(gentity_t *saberent)
 {
@@ -1242,9 +1238,7 @@ int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSi
 	return baseAnim;
 }
 
-#include "../namespace_begin.h"
 extern qboolean BG_CheckIncrementLockAnim( int anim, int winOrLose ); //bg_saber.c
-#include "../namespace_end.h"
 #define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 
 static GAME_INLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
@@ -1961,10 +1955,8 @@ static GAME_INLINE int G_GetParryForBlock(int block)
 	return LS_NONE;
 }
 
-#include "../namespace_begin.h"
 int PM_SaberBounceForAttack( int stance, int move );
 int PM_SaberDeflectionForQuad( int quad );
-#include "../namespace_end.h"
 
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 static GAME_INLINE qboolean WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *defender, float saberHitFraction )
@@ -4165,9 +4157,7 @@ static float saberHitFraction = 1.0f;
 //triggering a broken parry, doing actual damage, etc. are done for the saber. It doesn't resemble the SP
 //version very much, but functionality is (hopefully) about the same.
 //This is a large function. I feel sort of bad inlining it. But it does get called tons of times per frame.
-#include "../namespace_begin.h"
 qboolean BG_SuperBreakWinAnim( int anim );
-#include "../namespace_end.h"
 
 //Stoiss add
 void DebounceSaberImpact(gentity_t *self, gentity_t *otherSaberer, 
@@ -5964,9 +5954,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 	}
 }
 
-#include "../namespace_begin.h"
 qboolean BG_SaberInTransitionAny( int move );
-#include "../namespace_end.h"
 
 qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
 qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV );
@@ -7519,9 +7507,7 @@ qboolean saberCheckKnockdown_BrokenParry(gentity_t *saberent, gentity_t *saberOw
 	return qfalse;
 }
 
-#include "../namespace_begin.h"
 qboolean BG_InExtraDefenseSaberMove( int move );
-#include "../namespace_end.h"
 
 //Called upon an enemy actually slashing into a thrown saber
 qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other, int damage)

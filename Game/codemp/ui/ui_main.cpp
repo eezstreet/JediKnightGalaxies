@@ -272,7 +272,6 @@ static void UI_CheckServerName( void );
 static qboolean UI_CheckPassword( void );
 static void UI_JoinServer( void );
 
-#include "../namespace_begin.h"
 // Functions in BG or ui_shared
 void Menu_ShowGroup (menuDef_t *menu, char *itemName, qboolean showFlag);
 void Menu_ItemDisable(menuDef_t *menu, char *name,int disableFlag);
@@ -339,7 +338,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 
 	return -1;
 }
-#include "../namespace_end.h"
 
 siegeClassDesc_t g_UIClassDescriptions[MAX_SIEGE_CLASSES];
 siegeTeam_t *siegeTeam1 = NULL;
@@ -353,10 +351,8 @@ int g_UIGloballySelectedSiegeClass = -1;
 qboolean	UIPAFtextLoaded = qfalse;
 animation_t	uiHumanoidAnimations[MAX_TOTALANIMATIONS]; //humanoid animations are the only ones that are statically allocated.
 
-#include "../namespace_begin.h"
 bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES];
 int uiNumAllAnims = 1; //start off at 0, because 0 will always be assigned to humanoid.
-#include "../namespace_end.h"
 
 animation_t *UI_AnimsetAlloc(void)
 {
@@ -384,7 +380,6 @@ models/players/visor/animation.cfg, etc
 
 ======================
 */
-#include "../namespace_begin.h"
 static char UIPAFtext[100000];
 int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid) 
 {
@@ -503,10 +498,6 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		animNum = GetIDForString(animTable, token);
 		if(animNum == -1)
 		{
-			//#ifndef FINAL_BUILD
-#ifdef _DEBUG
-			//Com_Printf(S_COLOR_RED"WARNING: Unknown token %s in %s\n", token, filename);
-#endif
 			continue;
 		}
 
@@ -553,22 +544,6 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		//		animset[animNum].initialLerp = ceil(1000.0f / fabs(fps));
 	}
 
-#ifdef _DEBUG
-	//Check the array, and print the ones that have nothing in them.
-	/*
-	for(i = 0; i < MAX_ANIMATIONS; i++)
-	{	
-	if (animTable[i].name != NULL)		// This animation reference exists.
-	{
-	if (animset[i].firstFrame <= 0 && animset[i].numFrames <=0)
-	{	// This is an empty animation reference.
-	Com_Printf("***ANIMTABLE reference #%d (%s) is empty!\n", i, animTable[i].name);
-	}
-	}
-	}
-	*/
-#endif // _DEBUG
-
 	if (isHumanoid)
 	{
 		bgAllAnims[0].anims = animset;
@@ -600,8 +575,6 @@ int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 
 //menuDef_t *Menus_FindByName(const char *p);
 void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
-
-#include "../namespace_end.h"
 
 void UpdateForceUsed();
 
@@ -814,7 +787,6 @@ void _UI_DrawRect( float x, float y, float width, float height, float size, cons
 	trap_R_SetColor( NULL );
 }
 
-#include "../namespace_begin.h"
 int MenuFontToHandle(int iMenuFont)
 {
 	switch (iMenuFont)
@@ -830,7 +802,6 @@ int MenuFontToHandle(int iMenuFont)
 
 	return uiInfo.uiDC.Assets.qhMediumFont;	// 0;
 }
-#include "../namespace_end.h"
 
 int Text_Width(const char *text, float scale, int iMenuFont) 
 {	
@@ -986,9 +957,7 @@ vmCvar_t	ui_rankChange;
 static void UI_BuildPlayerList();
 char parsedFPMessage[1024];
 
-#include "../namespace_begin.h"
 extern int FPMessageTime;
-#include "../namespace_end.h"
 
 void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust, int iMenuFont);
 
@@ -1190,9 +1159,7 @@ void _UI_Refresh( int realtime )
 _UI_Shutdown
 =================
 */
-#include "../namespace_begin.h"
 void UI_CleanupGhoul2(void);
-#include "../namespace_end.h"
 
 void _UI_Shutdown( void ) {
 
@@ -3832,9 +3799,7 @@ static qboolean UI_Effects_HandleKey(int flags, float *special, int key) {
 	return qfalse;
 }
 
-#include "../namespace_begin.h"
 extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
-#include "../namespace_end.h"
 
 // For hot keys on the chat main menu.
 static qboolean UI_Chat_Main_HandleKey(int key) 
@@ -5775,10 +5740,8 @@ static void UI_SetSaberBoxesandHilts (void)
 
 //extern qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel );
 extern qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin );
-#include "../namespace_begin.h"
 extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLength );
 extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
-#include "../namespace_end.h"
 
 static void UI_UpdateSaberType( void )
 {
@@ -5873,9 +5836,7 @@ static void UI_GetSaberCvars ( void )
 
 
 //extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
-#include "../namespace_begin.h"
 extern qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
-#include "../namespace_end.h"
 //extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
 
 void UI_UpdateCharacterSkin( void )
@@ -9674,12 +9635,6 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	trap_Cvar_Set("ui_actualNetGameType", va("%d", ui_netGameType.integer));
 }
-
-#ifdef _XBOX
-#include "../namespace_begin.h"
-extern void UpdateDemoTimer();
-#include "../namespace_end.h"
-#endif
 
 /*
 =================
