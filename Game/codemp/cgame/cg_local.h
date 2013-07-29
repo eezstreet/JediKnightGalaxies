@@ -18,7 +18,6 @@
 #include "../game/q_shared.h"
 #include "../renderer/tr_types.h"
 #include "../game/bg_public.h"
-#include "cg_public.h"
 
 #include "cg_weapons.h"
 
@@ -26,6 +25,8 @@
 #include "jkg_cg_items.h"
 #include "jkg_cg_damagetypes.h"
 #include "../game/jkg_gangwars.h"
+
+#include "cg_public.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.

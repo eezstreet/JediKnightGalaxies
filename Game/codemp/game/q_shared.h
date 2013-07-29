@@ -3689,62 +3689,6 @@ void Q_RGBCopy( vec4_t *output, vec4_t source );
 qboolean Text_IsExtColorCode(const char *text);
 qboolean StringContainsWord(const char *haystack, const char *needle);
 
-/*==============================================*/
-/** 
- *  @brief stdcall function pointer declaration.
- *
- *  Declares the type for a STDCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define STDCALL_FUNCTION( R, N, A )  typedef R (__stdcall *N) A
-
-/*==============================================*/
-/**
- *  @brief fastcall function pointer declaration.
- *
- *  Declares the type for a FASTCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define FASTCALL_FUNCTION( R, N, A ) typedef R (__fastcall *N) A
-
-/*==============================================*/
-/**
- *  @brief cdecl function pointer declaration.
- *
- *  Declares the type for a CDECL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define CDECL_FUNCTION( R, N, A ) typedef R (__cdecl *N) A
-
-/*==============================================*/
-/**
- *  @brief thiscall function pointer declaration.
- *
- *  Declares the type for a THISCALL function pointer
- *  called N with arguments list A adn returning R.
- *
- */
-/*==============================================*/
-
-#define THISCALL_FUNCTION( R, N, A ) typedef R (__thiscall *N) A
-
-/*==============================================*/
-/*
- * blank function type
- */
-/*==============================================*/
-
-#define BLANK_FUNCTION( R, N, A ) typedef R (*N) A
-
 #ifndef ENGINE
 typedef enum {
 	NA_BOT,

@@ -217,9 +217,6 @@
     <ClInclude Include="..\shared\qcommon\tags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\cgame\tr_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ui_force.h">
       <Filter>Header Files</Filter>
     </ClInclude>

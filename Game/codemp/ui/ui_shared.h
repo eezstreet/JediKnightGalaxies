@@ -706,8 +706,8 @@ Crossover API
 
 typedef struct
 {
-	qboolean		(*HandleServerCommand)( const char *command );
-	void			(*SetEscapeTrap)( qboolean activate );
+	bool			(*HandleServerCommand)( const char *command );
+	void			(*SetEscapeTrap)( bool activate );
 
 	void			(*PartyMngtNotify)( int msg );
 	void			(*InventoryNotify)( int msg );
@@ -717,7 +717,7 @@ typedef struct
 typedef struct
 {
 	void			(*SendClientCommand)( const char *command );
-	qboolean		(*EscapeTrapped)( void );
+	bool			(*EscapeTrapped)( void );
 
 	void*			(*PartyMngtDataRequest)( int data );
 	void*			(*InventoryDataRequest)( int data );

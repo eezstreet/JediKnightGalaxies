@@ -161,6 +161,7 @@
     <ClInclude Include="libraries\mp3code\tableawd.h" />
     <ClInclude Include="qcommon\disablewarnings.h" />
     <ClInclude Include="qcommon\platform.h" />
+    <ClInclude Include="renderer\tr_types.h" />
     <ClInclude Include="win32\resource.h" />
     <ClInclude Include="ui\ui_public.h" />
     <ClInclude Include="client\FXExport.h" />
@@ -229,7 +230,6 @@
     <ClInclude Include="client\OpenAL\alut.h" />
     <ClInclude Include="renderer\tr_public.h" />
     <ClInclude Include="renderer\mdx_format.h" />
-    <ClInclude Include="cgame\tr_types.h" />
     <ClInclude Include="botlib\aasfile.h" />
     <ClInclude Include="botlib\be_aas_bsp.h" />
     <ClInclude Include="botlib\be_aas_cluster.h" />

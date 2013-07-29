@@ -3,9 +3,6 @@
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
 #include "cg_local.h"
-#include "../client/FxScheduler.h"
-
-static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
 
 #include "../namespace_begin.h"
 void dllEntry( int (QDECL  *syscallptr)( int arg,... ) ) {

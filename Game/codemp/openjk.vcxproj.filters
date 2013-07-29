@@ -846,9 +846,6 @@
     <ClInclude Include="renderer\tr_public.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="cgame\tr_types.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="ui\ui_public.h">
       <Filter>Modcode</Filter>
     </ClInclude>
@@ -926,6 +923,9 @@
     </ClInclude>
     <ClInclude Include="zlib\zutil.h">
       <Filter>Libraries\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\tr_types.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

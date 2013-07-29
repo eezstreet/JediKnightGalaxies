@@ -35,7 +35,7 @@
 // Snapshots are generated at regular time intervals by the server,
 // but they may not be sent if a client's rate level is exceeded, or
 // they may be dropped by the network.
-typedef struct {
+typedef struct snapshot_s {
 	int				snapFlags;			// SNAPFLAG_RATE_DELAYED, etc
 	int				ping;
 
@@ -60,324 +60,70 @@ enum {
   CGAME_EVENT_EDITHUD
 };
 
+typedef struct
+{
+	float		up;
+	float		down;
+	float		yaw;
+	float		pitch;
+	qboolean	goToDefaults;
+} autoMapInput_t;
 
-/*
-==================================================================
+//ragdoll callback structs -rww
+#define RAG_CALLBACK_NONE				0
+#define RAG_CALLBACK_DEBUGBOX			1
+typedef struct
+{
+	vec3_t			mins;
+	vec3_t			maxs;
+	int				duration;
+} ragCallbackDebugBox_t;
 
-functions imported from the main executable
+#define RAG_CALLBACK_DEBUGLINE			2
+typedef struct
+{
+	vec3_t			start;
+	vec3_t			end;
+	int				time;
+	int				color;
+	int				radius;
+} ragCallbackDebugLine_t;
 
-==================================================================
-*/
+#define RAG_CALLBACK_BONESNAP			3
+typedef struct
+{
+	char			boneName[128]; //name of the bone in question
+	int				entNum; //index of entity who owns the bone in question
+} ragCallbackBoneSnap_t;
 
-#define	CGAME_IMPORT_API_VERSION	5
+#define RAG_CALLBACK_BONEIMPACT			4
+typedef struct
+{
+	char			boneName[128]; //name of the bone in question
+	int				entNum; //index of entity who owns the bone in question
+} ragCallbackBoneImpact_t;
 
-typedef enum {
-	CG_PRINT = 0,
-	CG_ERROR,
-	CG_MILLISECONDS,
+#define RAG_CALLBACK_BONEINSOLID		5
+typedef struct
+{
+	vec3_t			bonePos; //world coordinate position of the bone
+	int				entNum; //index of entity who owns the bone in question
+	int				solidCount; //higher the count, the longer we've been in solid (the worse off we are)
+} ragCallbackBoneInSolid_t;
 
-	// these have to match the definitions in ui_public.h ==eez
-	CG_CO_SYSCALL_UI = 4,
-	CG_CO_SYSCALL_CG = 5,
+#define RAG_CALLBACK_TRACELINE			6
+typedef struct
+{
+	trace_t			tr;
+	vec3_t			start;
+	vec3_t			end;
+	vec3_t			mins;
+	vec3_t			maxs;
+	int				ignore;
+	int				mask;
+} ragCallbackTraceLine_t;
 
-	//Also for profiling.. do not use for game related tasks.
-	CG_PRECISIONTIMER_START,
-	CG_PRECISIONTIMER_END,
-
-	CG_CVAR_REGISTER,
-	CG_CVAR_UPDATE,
-	CG_CVAR_SET,
-	CG_CVAR_VARIABLESTRINGBUFFER,
-	CG_CVAR_GETHIDDENVALUE,
-	CG_ARGC,								// DOES NOT WORK			
-	CG_ARGV,
-	CG_ARGS,
-	CG_FS_FOPENFILE,
-	CG_FS_READ,
-	CG_FS_WRITE,
-	CG_FS_FCLOSEFILE,
-	CG_FS_GETFILELIST,
-	CG_SENDCONSOLECOMMAND,
-	CG_ADDCOMMAND,
-	CG_REMOVECOMMAND,
-	CG_SENDCLIENTCOMMAND,
-	CG_UPDATESCREEN,
-	CG_CM_LOADMAP,
-	CG_CM_NUMINLINEMODELS,					// DOES NOT WORK
-	CG_CM_INLINEMODEL,
-	CG_CM_TEMPBOXMODEL,
-	CG_CM_TEMPCAPSULEMODEL,
-	CG_CM_POINTCONTENTS,
-	CG_CM_TRANSFORMEDPOINTCONTENTS,
-	CG_CM_BOXTRACE,
-	CG_CM_CAPSULETRACE,
-	CG_CM_TRANSFORMEDBOXTRACE,
-	CG_CM_TRANSFORMEDCAPSULETRACE,
-	CG_CM_MARKFRAGMENTS,
-	CG_S_GETVOICEVOLUME,					// DOES NOT WORK
-	CG_S_MUTESOUND,
-	CG_S_STARTSOUND,
-	CG_S_STARTLOCALSOUND,
-	CG_S_CLEARLOOPINGSOUNDS,
-	CG_S_ADDLOOPINGSOUND,
-	CG_S_UPDATEENTITYPOSITION,
-	CG_S_ADDREALLOOPINGSOUND,
-	CG_S_STOPLOOPINGSOUND,
-	CG_S_RESPATIALIZE,
-	CG_S_SHUTUP,
-	CG_S_REGISTERSOUND,
-	CG_S_STARTBACKGROUNDTRACK,
-
-	//rww - AS trap implem
-	CG_S_UPDATEAMBIENTSET,
-	CG_AS_PARSESETS,
-	CG_AS_ADDPRECACHEENTRY,
-	CG_S_ADDLOCALSET,
-	CG_AS_GETBMODELSOUND,
-
-	CG_R_LOADWORLDMAP,
-	CG_R_REGISTERMODEL,
-	CG_R_REGISTERSKIN,
-	CG_R_REGISTERSHADER,
-	CG_R_REGISTERSHADERNOMIP,
-	CG_R_REGISTERFONT,
-	CG_R_FONT_STRLENPIXELS,
-	CG_R_FONT_STRLENCHARS,
-	CG_R_FONT_STRHEIGHTPIXELS,
-	CG_R_FONT_DRAWSTRING,
-	CG_LANGUAGE_ISASIAN,
-	CG_LANGUAGE_USESSPACES,
-	CG_ANYLANGUAGE_READCHARFROMSTRING,
-
-	CGAME_MEMSET = 100,
-	CGAME_MEMCPY,
-	CGAME_STRNCPY,
-	CGAME_SIN,
-	CGAME_COS,
-	CGAME_ATAN2,
-	CGAME_SQRT,
-	CGAME_MATRIXMULTIPLY,
-	CGAME_ANGLEVECTORS,
-	CGAME_PERPENDICULARVECTOR,
-	CGAME_FLOOR,
-	CGAME_CEIL,
-
-	CGAME_TESTPRINTINT,						// DOES NOT WORK
-	CGAME_TESTPRINTFLOAT,					// DOES NOT WORK
-
-	CGAME_ACOS,
-	CGAME_ASIN,
-
-	CG_R_CLEARSCENE = 200,
-	CG_R_CLEARDECALS,
-	CG_R_ADDREFENTITYTOSCENE,
-	CG_R_ADDPOLYTOSCENE,
-	CG_R_ADDPOLYSTOSCENE,
-	CG_R_ADDDECALTOSCENE,
-	CG_R_LIGHTFORPOINT,
-	CG_R_ADDLIGHTTOSCENE,
-	CG_R_ADDADDITIVELIGHTTOSCENE,
-	CG_R_RENDERSCENE,
-	CG_R_SETCOLOR,
-	CG_R_DRAWSTRETCHPIC,
-	CG_R_MODELBOUNDS,
-	CG_R_LERPTAG,
-	CG_R_DRAWROTATEPIC,
-	CG_R_DRAWROTATEPIC2,
-	CG_R_SETRANGEFOG, //linear fogging, with settable range -rww
-	CG_R_SETREFRACTIONPROP, //set some properties for the draw layer for my refractive effect (here primarily for mod authors) -rww
-	CG_R_REMAP_SHADER,
-	CG_R_GET_LIGHT_STYLE,
-	CG_R_SET_LIGHT_STYLE,
-	CG_R_GET_BMODEL_VERTS,
-	CG_R_GETDISTANCECULL,
-
-	CG_R_GETREALRES,
-	CG_R_AUTOMAPELEVADJ,
-	CG_R_INITWIREFRAMEAUTO,
-
-	CG_FX_ADDLINE,
-
-	CG_GETGLCONFIG,
-	CG_GETGAMESTATE,
-	CG_GETCURRENTSNAPSHOTNUMBER,
-	CG_GETSNAPSHOT,
-	CG_GETDEFAULTSTATE,
-	CG_GETSERVERCOMMAND,
-	CG_GETCURRENTCMDNUMBER,					// DOES NOT WORK
-	CG_GETUSERCMD,
-	CG_SETUSERCMDVALUE,
-	CG_SETCLIENTFORCEANGLE,
-	CG_SETCLIENTTURNEXTENT,					// DOES NOT WORK
-	CG_OPENUIMENU,
-	CG_TESTPRINTINT,
-	CG_TESTPRINTFLOAT,
-	CG_MEMORY_REMAINING,					// DOES NOT WORK
-	CG_KEY_ISDOWN,
-	CG_KEY_GETCATCHER,						// DOES NOT WORK
-	CG_KEY_SETCATCHER,
-	CG_KEY_GETKEY,
-
- 	CG_PC_ADD_GLOBAL_DEFINE,
-	CG_PC_LOAD_SOURCE,
-	CG_PC_FREE_SOURCE,
-	CG_PC_READ_TOKEN,
-	CG_PC_SOURCE_FILE_AND_LINE,
-	CG_PC_LOAD_GLOBAL_DEFINES,
-	CG_PC_REMOVE_ALL_GLOBAL_DEFINES,
-
-	CG_S_STOPBACKGROUNDTRACK,
-	CG_REAL_TIME,
-	CG_SNAPVECTOR,
-	CG_CIN_PLAYCINEMATIC,
-	CG_CIN_STOPCINEMATIC,
-	CG_CIN_RUNCINEMATIC,
-	CG_CIN_DRAWCINEMATIC,
-	CG_CIN_SETEXTENTS,
-
-	CG_GET_ENTITY_TOKEN,
-	CG_R_INPVS,
-
-	CG_FX_REGISTER_EFFECT,
-	CG_FX_PLAY_EFFECT,
-	CG_FX_PLAY_ENTITY_EFFECT,				// DOES NOT WORK
-	CG_FX_PLAY_EFFECT_ID,
-	CG_FX_PLAY_PORTAL_EFFECT_ID,
-	CG_FX_PLAY_ENTITY_EFFECT_ID,
-	CG_FX_PLAY_BOLTED_EFFECT_ID,
-	CG_FX_ADD_SCHEDULED_EFFECTS,
-	CG_FX_INIT_SYSTEM,
-	CG_FX_SET_REFDEF,
-	CG_FX_FREE_SYSTEM,
-	CG_FX_ADJUST_TIME,
-	CG_FX_DRAW_2D_EFFECTS,
-	CG_FX_RESET,
-	CG_FX_ADDPOLY,
-	CG_FX_ADDBEZIER,
-	CG_FX_ADDPRIMITIVE,
-	CG_FX_ADDSPRITE,
-	CG_FX_ADDELECTRICITY,
-
-//	CG_SP_PRINT,
-	CG_SP_GETSTRINGTEXTSTRING,
-
-	CG_ROFF_CLEAN,
-	CG_ROFF_UPDATE_ENTITIES,
-	CG_ROFF_CACHE,
-	CG_ROFF_PLAY,
-	CG_ROFF_PURGE_ENT,
-
-
-	//rww - dynamic vm memory allocation!
-	CG_TRUEMALLOC,
-	CG_TRUEFREE,
-
-/*
-Ghoul2 Insert Start
-*/
-	CG_G2_LISTSURFACES,
-	CG_G2_LISTBONES,
-	CG_G2_SETMODELS,						// DOES NOT WORK
-	CG_G2_HAVEWEGHOULMODELS,
-	CG_G2_GETBOLT,
-	CG_G2_GETBOLT_NOREC,
-	CG_G2_GETBOLT_NOREC_NOROT,
-	CG_G2_INITGHOUL2MODEL,
-	CG_G2_SETSKIN,
-	CG_G2_COLLISIONDETECT,
-	CG_G2_COLLISIONDETECTCACHE,
-	CG_G2_CLEANMODELS,
-	CG_G2_ANGLEOVERRIDE,
-	CG_G2_PLAYANIM,
-	CG_G2_GETBONEANIM,
-	CG_G2_GETBONEFRAME, //trimmed down version of GBA, so I don't have to pass all those unused args across the VM-exe border
-	CG_G2_GETGLANAME,
-	CG_G2_COPYGHOUL2INSTANCE,
-	CG_G2_COPYSPECIFICGHOUL2MODEL,
-	CG_G2_DUPLICATEGHOUL2INSTANCE,
-	CG_G2_HASGHOUL2MODELONINDEX,
-	CG_G2_REMOVEGHOUL2MODEL,
-	CG_G2_SKINLESSMODEL,
-	CG_G2_GETNUMGOREMARKS,
-	CG_G2_ADDSKINGORE,
-	CG_G2_CLEARSKINGORE,
-	CG_G2_SIZE,
-	CG_G2_ADDBOLT,
-	CG_G2_ATTACHENT,
-	CG_G2_SETBOLTON,
-	CG_G2_SETROOTSURFACE,
-	CG_G2_SETSURFACEONOFF,
-	CG_G2_SETNEWORIGIN,
-	CG_G2_DOESBONEEXIST,
-	CG_G2_GETSURFACERENDERSTATUS,
-
-	CG_G2_GETTIME,
-	CG_G2_SETTIME,
-
-	CG_G2_ABSURDSMOOTHING,
-
-/*
-	//rww - RAGDOLL_BEGIN
-*/
-	CG_G2_SETRAGDOLL,
-	CG_G2_ANIMATEG2MODELS,
-/*
-	//rww - RAGDOLL_END
-*/
-
-	//additional ragdoll options -rww
-	CG_G2_RAGPCJCONSTRAINT,
-	CG_G2_RAGPCJGRADIENTSPEED,
-	CG_G2_RAGEFFECTORGOAL,
-	CG_G2_GETRAGBONEPOS,					// DOES NOT WORK
-	CG_G2_RAGEFFECTORKICK,
-	CG_G2_RAGFORCESOLVE,
-
-	//rww - ik move method, allows you to specify a bone and move it to a world point (within joint constraints)
-	//by using the majority of gil's existing bone angling stuff from the ragdoll code.
-	CG_G2_SETBONEIKSTATE,
-	CG_G2_IKMOVE,
-
-	CG_G2_REMOVEBONE,
-
-	CG_G2_ATTACHINSTANCETOENTNUM,			// DOES NOT WORK
-	CG_G2_CLEARATTACHEDINSTANCE,			// DOES NOT WORK
-	CG_G2_CLEANENTATTACHMENTS,				// DOES NOT WORK
-	CG_G2_OVERRIDESERVER,
-
-	CG_G2_GETSURFACENAME,
-
-	CG_SET_SHARED_BUFFER,
-
-	CG_CM_REGISTER_TERRAIN,
-	CG_RMG_INIT,
-	CG_RE_INIT_RENDERER_TERRAIN,
-	CG_R_WEATHER_CONTENTS_OVERRIDE,			// DOES NOT WORK (but is called?)
-	CG_R_WORLDEFFECTCOMMAND,
-	//Adding trap to get weather working
-	CG_WE_ADDWEATHERZONE,
-
-/*
-Ghoul2 Insert End
-*/
-
-	// JKG trap calls --eez
-	CG_CO_INITCROSSOVER,
-	CG_CO_SHUTDOWN,
-
-	CG_JKG_OVERRIDESHADERFRAME,
-	CG_JKG_GETCOLORTABLE,
-	CG_JKG_GETVIEWANGLES,
-	CG_JKG_SETVIEWANGLES,
-
-	// FX system stuff for CPLUSPLUS --eez
-	CG_FX_GETSHAREDMEM,
-	CG_FX_ADDMINIREFENTITY,
-
-	CG_FX_GETEFFECTCOPY1,
-	CG_FX_GETEFFECTCOPY2,
-	CG_FX_GETPRIMITIVECOPY,
-} cgameImport_t;
+#define	CGAME_IMPORT_API_VERSION	6
 
 
 /*
@@ -481,196 +227,50 @@ typedef enum {
 	CG_MESSAGEMODE,
 } cgameExport_t;
 
-typedef struct
-{
-	float		up;
-	float		down;
-	float		yaw;
-	float		pitch;
-	qboolean	goToDefaults;
-} autoMapInput_t;
-
-// CG_POINT_CONTENTS
-typedef struct
-{
-	vec3_t		mPoint;			// input
-	int			mPassEntityNum;	// input
-} TCGPointContents;
-
-// CG_GET_BOLT_POS
-typedef struct
-{
-	vec3_t		mOrigin;		// output
-	vec3_t		mAngles;		// output
-	vec3_t		mScale;			// output
-	int			mEntityNum;		// input
-} TCGGetBoltData;
-
-// CG_IMPACT_MARK
-typedef struct
-{
-	int		mHandle;
-	vec3_t	mPoint;
-	vec3_t	mAngle;
-	float	mRotation;
-	float	mRed;
-	float	mGreen;
-	float	mBlue;
-	float	mAlphaStart;
-	float	mSizeStart;
-} TCGImpactMark;
-
-// CG_GET_LERP_ORIGIN
-// CG_GET_LERP_ANGLES
-// CG_GET_MODEL_SCALE
-typedef struct
-{
-	int			mEntityNum;		// input
-	vec3_t		mPoint;			// output
-} TCGVectorData;
-
-// CG_TRACE/CG_G2TRACE
-typedef struct
-{
-	trace_t mResult;					// output
-	vec3_t	mStart, mMins, mMaxs, mEnd;	// input
-	int		mSkipNumber, mMask;			// input
-} TCGTrace;
-
-// CG_G2MARK
-typedef struct
-{
-	int			shader;
-	float		size;
-	vec3_t		start, dir;
-} TCGG2Mark;
-
-// CG_INCOMING_CONSOLE_COMMAND
-typedef struct
-{
-	char conCommand[1024];
-} TCGIncomingConsoleCommand;
-
-// CG_FX_CAMERASHAKE
-typedef struct
-{
-	vec3_t	mOrigin;					// input
-	float	mIntensity;					// input
-	int		mRadius;					// input
-	int		mTime;						// input
-} TCGCameraShake;
-
-// CG_MISC_ENT
-typedef struct
-{
-	char	mModel[MAX_QPATH];			// input
-	vec3_t	mOrigin, mAngles, mScale;	// input
-} TCGMiscEnt;
-
-typedef struct
-{
-	refEntity_t		ent;				// output
-	void			*ghoul2;			// input
-	int				modelIndex;			// input
-	int				boltIndex;			// input
-	vec3_t			origin;				// input
-	vec3_t			angles;				// input
-	vec3_t			modelScale;			// input
-} TCGPositionOnBolt;
-
-//ragdoll callback structs -rww
-#define RAG_CALLBACK_NONE				0
-#define RAG_CALLBACK_DEBUGBOX			1
-typedef struct
-{
-	vec3_t			mins;
-	vec3_t			maxs;
-	int				duration;
-} ragCallbackDebugBox_t;
-
-#define RAG_CALLBACK_DEBUGLINE			2
-typedef struct
-{
-	vec3_t			start;
-	vec3_t			end;
-	int				time;
-	int				color;
-	int				radius;
-} ragCallbackDebugLine_t;
-
-#define RAG_CALLBACK_BONESNAP			3
-typedef struct
-{
-	char			boneName[128]; //name of the bone in question
-	int				entNum; //index of entity who owns the bone in question
-} ragCallbackBoneSnap_t;
-
-#define RAG_CALLBACK_BONEIMPACT			4
-typedef struct
-{
-	char			boneName[128]; //name of the bone in question
-	int				entNum; //index of entity who owns the bone in question
-} ragCallbackBoneImpact_t;
-
-#define RAG_CALLBACK_BONEINSOLID		5
-typedef struct
-{
-	vec3_t			bonePos; //world coordinate position of the bone
-	int				entNum; //index of entity who owns the bone in question
-	int				solidCount; //higher the count, the longer we've been in solid (the worse off we are)
-} ragCallbackBoneInSolid_t;
-
-#define RAG_CALLBACK_TRACELINE			6
-typedef struct
-{
-	trace_t			tr;
-	vec3_t			start;
-	vec3_t			end;
-	vec3_t			mins;
-	vec3_t			maxs;
-	int				ignore;
-	int				mask;
-} ragCallbackTraceLine_t;
-
 #define	MAX_CG_SHARED_BUFFER_SIZE		2048
 
 //----------------------------------------------
 
-typedef struct
+typedef struct cgameImport_s
 {
 	int				APIversion;
 
+	// Basic/core
 	void			(*Print)( const char *fmt );
 	void			(*Error)( const char *fmt );
 	int				(*Milliseconds) ( void );
 	int				(*RealTime)( qtime_t *qtime );
 
+	// Precision Timers
 	void			(*PrecisionTimer_Start)( void **theNewTimer );
 	int				(*PrecisionTimer_End)( void *theTimer );
 	
+	// Cvars
 	void			(*Cvar_Register)( vmCvar_t *cvar, const char *varName, const char *defaultValue, int flags );
 	void			(*Cvar_Update)( vmCvar_t *cvar );
 	void			(*Cvar_Set)( const char *var_name, const char *value );
 	void			(*Cvar_VariableStringBuffer)( const char *var_name, char *buffer, int bufsize );
 	void			(*Cvar_GetHiddenVarValue)( const char *name );
 
+	// Args
 	int				(*Argc)( void );
 	void			(*Argv)( int n, char *buffer, int bufferLength );
 	void			(*Args)( char *buffer, int bufferLen );
 
+	// Filesystem
 	int				(*FS_FOpenFile)( const char *qpath, fileHandle_t *f, fsMode_t mode );
 	void			(*FS_Read)( void *buffer, int len, fileHandle_t f );
 	void			(*FS_Write)( const void *buffer, int len, fileHandle_t f );
 	void			(*FS_FCloseFile)( fileHandle_t f );
 	void			(*FS_GetFileList)( const char *path, const char *extension, char *listbuf, int bufsize );
 
+	// Commands
 	void			(*SendConsoleCommand)( const char *text );
 	void			(*AddCommand)( const char *cmdName );
 	void			(*RemoveCommand)( const char *cmdName );
 	void			(*SendClientCommand)( const char *s );
 
-	void			(*UpdateScreen)( void );
-
+	// Maps
 	void			(*CM_LoadMap)( const char *mapname, bool SubBSP );
 	int				(*CM_NumInlineModels)( void );
 	clipHandle_t	(*CM_InlineModel)( int index );
@@ -689,9 +289,10 @@ typedef struct
 	int				(*CM_MarkFragments)( int numPoints, const vec3_t *points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
 										int maxFragments, markFragment_t *fragmentBuffer );
 
+	// Sound and music
 	int				(*S_GetVoiceVolume)( int entityNum );
 	void			(*S_MuteSound)( int entityNum, int entChannel );
-	void			(*S_StartSound)( vec3_t origin, int entityNum, int entchannel, sfxHandle_ t sfx );
+	void			(*S_StartSound)( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
 	void			(*S_StartLocalSound)( sfxHandle_t sfx, int channelNum );
 	void			(*S_ClearLoopingSounds)( void );
 	void			(*S_AddLoopingSound)( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
@@ -709,6 +310,7 @@ typedef struct
 	sfxHandle_t		(*AS_GetBModelSound)( const char *name, int stage );
 	void			(*S_StopBackgroundTrack)( void );
 
+	// Renderer
 	void			(*R_LoadWorldMap)( const char *mapname );
 	qhandle_t		(*R_RegisterModel)( const char *name );
 	qhandle_t		(*R_RegisterSkin)( const char *name );
@@ -753,18 +355,22 @@ typedef struct
 	void			(*JKG_OverrideServerFrame)( qhandle_t shader, int frame, int time );
 	void			(*JKG_GetColorTable)( float **table );
 	void			(*R_AddMiniRefEntityToScene)( miniRefEntity_t *ent );
+	void			(*UpdateScreen)( void );
 	
+	// Language
 	bool			(*Language_IsAsian)( void );
 	bool			(*Language_UsesSpaces)( void );
 	unsigned int	(*Language_ReadCharFromString)( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation );
 	int				(*SP_GetStringTextString)( const char *text, char *buffer, int bufferLength );
 
+	// ROFF
 	bool			(*ROFF_Clean)( void );
 	void			(*ROFF_UpdateEntities)( void );
 	int				(*ROFF_Cache)( char *file );
 	bool			(*ROFF_Play)( int entID, int roffID, bool doTranslation );
 	bool			(*ROFF_PurgeEnt)( int entID );
 
+	// GHOUL 2
 	void			(*G2_ListModelSurfaces)( void *ghlInfo );
 	void			(*G2_ListModelBones)( void *ghlInfo, int frame );
 	void			(*G2_SetGhoul2ModelIndexes)( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
@@ -830,6 +436,7 @@ typedef struct
 	bool			(*G2API_OverrideServer)( void *serverInstance );
 	void			(*G2API_GetSurfaceName)( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
 
+	// FX
 	fxHandle_t		(*FX_RegisterEffect)( const char *file );
 	void			(*FX_PlayEffect)( const char *file, vec3_t org, vec3_t fwd, int vol, int rad );
 	void			(*FX_PlayEntityEffect)( const char *file, vec3_t org, 
@@ -839,7 +446,7 @@ typedef struct
 	void			(*FX_PlayEntityEffectID)( int id, const vec3_t org, 
 						vec3_t axis[3], const int boltInfo, const int entNum, int vol, int rad );
 	void			(*FX_PlayBoltedEffectID)( int id, vec3_t org, 
-						void *ghoul2, const int boltNum, const int entNum, const int modelNum, int iLooptime, qboolean isRelative );
+						void *ghoul2, const int boltNum, const int entNum, const int modelNum, int iLooptime, bool isRelative );
 	void			(*FX_AddScheduledEffects)( bool skyPortal );
 	void			(*FX_Draw2DEffects)( float screenXScale, float screenYScale );
 	int				(*FX_InitSystem)( refdef_t *refdef );
@@ -857,10 +464,11 @@ typedef struct
 									const vec3_t sRGB, const vec3_t eRGB, float rgbParm,
 									int killTime, qhandle_t shader, int flags );
 	char*			(*FX_GetSharedMemory)( void );	// JKG ADD
-SEffectTemplate*	(*FX_GetEffectCopy)( fxHandle_t handle, fxHandle_t *newHandle ); // JKG ADD
-SEffectTemplate*	(*FX_GetEffectCopy2)( const char *file, fxHandle_t *newHandle ); // JKG ADD
-CPrimitiveTemplate*	(*FX_GetPrimitiveCopy)( SEffectTemplate *efxFile, const char *componentName ); // JKG ADD
+	void*	(*FX_GetEffectCopy)( fxHandle_t handle, fxHandle_t *newHandle ); // JKG ADD (return type changed from SEffectTemplate* to void* --eez)
+	void*	(*FX_GetEffectCopy2)( const char *file, fxHandle_t *newHandle ); // JKG ADD (see above note)
+	void*	(*FX_GetPrimitiveCopy)( void *efxFile, const char *componentName ); // JKG ADD (return type changed from CPrimitiveTemplate* to void*, first arg changed from SEffectTemplate* to void* --eez)
 
+	// Misc
 	void			(*GetGlconfig)( glconfig_t *glconfig );
 	void			(*GetGameState)( gameState_t *gamestate );
 	void			(*GetCurrentSnapshotNumber)( int *snapshotNumber, int *serverTime );
@@ -877,12 +485,15 @@ CPrimitiveTemplate*	(*FX_GetPrimitiveCopy)( SEffectTemplate *efxFile, const char
 	void			(*CG_RegisterSharedMemory)( char *memory );
 	float**			(*JKG_GetViewAngles)( void );
 	void			(*JKG_SetViewAngles)( vec3_t viewangles );
+	void			(*SnapVector)( float *v );
 
+	// Keys
 	bool			(*Key_IsDown)( int keynum );
 	int				(*Key_GetCatcher)( void );
 	void			(*Key_SetCatcher)( int catcher );
 	int				(*Key_GetKey)( const char *binding );
 
+	// Source file handling
 	int				(*PC_AddGlobalDefine)( char *define );
 	int				(*PC_LoadSource)( const char *filename );
 	int				(*PC_FreeSource)( int handle );
@@ -891,21 +502,24 @@ CPrimitiveTemplate*	(*FX_GetPrimitiveCopy)( SEffectTemplate *efxFile, const char
 	int				(*PC_LoadGlobalDefines)( const char *filename );
 	void			(*PC_RemoveAllGlobalDefines)( void );
 
-	void			(*SnapVector)( float *v );
-
+	// Cinematics
 	int				(*CIN_PlayCinematic)( const char *arg0, int xpos, int ypos, int width, int height, int bits );
 	e_status		(*CIN_StopCinematic)( int handle );
 	e_status		(*CIN_RunCinematic)( int handle );
 	void			(*CIN_DrawCinematic)( int handle );
 	void			(*CIN_SetExtents)( int handle, int x, int y, int w, int h );
 	
+	// RMG
 	void			(*RMG_Init)( int terrainID, const char *terrainInfo );
 	void			(*RE_InitRendererTerrain)( const char *info );
+
+	// Weather
 	void			(*R_WeatherContentsOveride)( int contents );
 	void			(*R_WorldEffectCommand)( const char *cmd );
 	void			(*WE_AddWeatherZone)( const vec3_t mins, const vec3_t maxs );
 
-uiCrossoverExports_t (*CO_InitCrossover)( cgCrossoverExports_t *uiImports );
+	// Crossover (UI/cgame)
+	void			*(*CO_InitCrossover)( void *uiImports );
 	void			(*CO_Shutdown)( void );
 	void			(*Syscall_UI)( void );
 	void			(*Syscall_CG)( void );

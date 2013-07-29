@@ -391,3 +391,91 @@ typedef struct {
 #define OPENGL_DRIVER_NAME	"opengl32"
 
 #endif	// !defined _WIN32
+
+// CG_POINT_CONTENTS
+typedef struct
+{
+	vec3_t		mPoint;			// input
+	int			mPassEntityNum;	// input
+} TCGPointContents;
+
+// CG_GET_BOLT_POS
+typedef struct
+{
+	vec3_t		mOrigin;		// output
+	vec3_t		mAngles;		// output
+	vec3_t		mScale;			// output
+	int			mEntityNum;		// input
+} TCGGetBoltData;
+
+// CG_IMPACT_MARK
+typedef struct
+{
+	int		mHandle;
+	vec3_t	mPoint;
+	vec3_t	mAngle;
+	float	mRotation;
+	float	mRed;
+	float	mGreen;
+	float	mBlue;
+	float	mAlphaStart;
+	float	mSizeStart;
+} TCGImpactMark;
+
+// CG_GET_LERP_ORIGIN
+// CG_GET_LERP_ANGLES
+// CG_GET_MODEL_SCALE
+typedef struct
+{
+	int			mEntityNum;		// input
+	vec3_t		mPoint;			// output
+} TCGVectorData;
+
+// CG_TRACE/CG_G2TRACE
+typedef struct
+{
+	trace_t mResult;					// output
+	vec3_t	mStart, mMins, mMaxs, mEnd;	// input
+	int		mSkipNumber, mMask;			// input
+} TCGTrace;
+
+// CG_G2MARK
+typedef struct
+{
+	int			shader;
+	float		size;
+	vec3_t		start, dir;
+} TCGG2Mark;
+
+// CG_INCOMING_CONSOLE_COMMAND
+typedef struct
+{
+	char conCommand[1024];
+} TCGIncomingConsoleCommand;
+
+// CG_FX_CAMERASHAKE
+typedef struct
+{
+	vec3_t	mOrigin;					// input
+	float	mIntensity;					// input
+	int		mRadius;					// input
+	int		mTime;						// input
+} TCGCameraShake;
+
+// CG_MISC_ENT
+typedef struct
+{
+	char	mModel[MAX_QPATH];			// input
+	vec3_t	mOrigin, mAngles, mScale;	// input
+} TCGMiscEnt;
+
+typedef struct
+{
+	refEntity_t		ent;				// output
+	void			*ghoul2;			// input
+	int				modelIndex;			// input
+	int				boltIndex;			// input
+	vec3_t			origin;				// input
+	vec3_t			angles;				// input
+	vec3_t			modelScale;			// input
+} TCGPositionOnBolt;
