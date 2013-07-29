@@ -16,8 +16,6 @@
 #include "q_shared.h"
 #include "bg_public.h"
 
-#include "../namespace_begin.h"
-
 qboolean strap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale);
 
@@ -54,5 +52,3 @@ int strap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
 void strap_FS_Read( void *buffer, int len, fileHandle_t f );
 void strap_FS_FCloseFile( fileHandle_t f );
 int strap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-
-#include "../namespace_end.h"

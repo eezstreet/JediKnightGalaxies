@@ -1429,9 +1429,7 @@ void EWebPrecache(void)
 #define EWEB_DEATH_RADIUS		128
 #define EWEB_DEATH_DMG			90
 
-#include "../namespace_begin.h"
 extern void BG_CycleInven(playerState_t *ps, int direction); //bg_misc.c
-#include "../namespace_end.h"
 
 void EWebDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
@@ -1756,9 +1754,7 @@ void EWebUpdateBoneAngles(gentity_t *owner, gentity_t *eweb)
 }
 
 //keep it updated
-#include "../namespace_begin.h"
 extern int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint); //bg_misc.c
-#include "../namespace_end.h"
 
 void EWebThink(gentity_t *self)
 {

@@ -847,9 +847,7 @@ void CG_GetCTFMessageEvent(entityState_t *es)
 	CG_PrintCTFMessage(ci, teamName, es->eventParm);
 }
 
-#include "../namespace_begin.h"
 qboolean BG_InKnockDownOnly( int anim );
-#include "../namespace_end.h"
 
 //JLFRUMBLE
 #ifdef _XBOX

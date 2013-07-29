@@ -3,9 +3,7 @@
 #include "anims.h"
 #include "w_saber.h"
 
-#include "../namespace_begin.h"
 extern qboolean BG_SabersOff( playerState_t *ps );
-#include "../namespace_end.h"
 
 extern void CG_DrawAlert( vec3_t origin, float rating );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
@@ -47,9 +45,7 @@ extern qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3
 extern qboolean NPC_CheckEnemyStealth( void );
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 
-#include "../namespace_begin.h"
 extern gitem_t	*BG_FindItemForAmmo( ammoType_t ammo );
-#include "../namespace_end.h"
 
 extern void ForceThrow( gentity_t *self, qboolean pull );
 extern void ForceLightning( gentity_t *self );
@@ -67,7 +63,6 @@ extern void WP_DeactivateSaber( gentity_t *self, qboolean clearLength ); //clear
 extern void WP_ActivateSaber( gentity_t *self );
 //extern void WP_SaberBlock(gentity_t *saber, vec3_t hitloc);
 
-#include "../namespace_begin.h"
 extern qboolean PM_SaberInStart( int move );
 extern qboolean BG_SaberInSpecialAttack( int anim );
 extern qboolean BG_SaberInAttack( int move );
@@ -82,7 +77,6 @@ extern qboolean PM_RollingAnim( int anim );
 extern qboolean PM_InKnockDown( playerState_t *ps );
 extern qboolean BG_InRoll( playerState_t *ps, int anim );
 extern qboolean BG_CrouchAnim( int anim );
-#include "../namespace_end.h"
 
 extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
 
@@ -116,9 +110,7 @@ extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
 static void NPC_Humanoid_Aggression( gentity_t *self, int change );
 qboolean NPC_Humanoid_WaitingAmbush( gentity_t *self );
 
-#include "../namespace_begin.h"
 extern int bg_parryDebounce[];
-#include "../namespace_end.h"
 
 static int	NPC_HumanoidSpeechDebounceTime[TEAM_NUM_TEAMS];//used to stop several jedi from speaking all at once
 //Local state enums

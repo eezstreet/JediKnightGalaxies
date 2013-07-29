@@ -7,7 +7,6 @@
 
 static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
 
-#include "../namespace_begin.h"
 void dllEntry( int (QDECL  *syscallptr)( int arg,... ) ) {
 	syscall = syscallptr;
 }
@@ -1209,4 +1208,3 @@ CPrimitiveTemplate *trap_FX_GetPrimitiveCopy( SEffectTemplate *efxFile, const ch
 {
 	return (CPrimitiveTemplate *)syscall(CG_FX_GETPRIMITIVECOPY, efxFile, componentName);
 }
-#include "../namespace_end.h"

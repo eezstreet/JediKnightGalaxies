@@ -533,8 +533,6 @@ typedef struct {
 
 } displayContextDef_t;
 
-#include "../namespace_begin.h"
-
 const char *String_Alloc(const char *p);
 void String_Init();
 void String_Report();
@@ -686,8 +684,6 @@ void CL_InitMultiMasterServer(void);
 void CL_ShutdownMultiMasterServer(void);
 
 void trap_JKG_ChangeProtocol( int whatProtocol );
-
-#include "../namespace_end.h"
 
 /*
 Ghoul2 Insert End

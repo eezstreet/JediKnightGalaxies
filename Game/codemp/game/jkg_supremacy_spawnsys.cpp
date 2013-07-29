@@ -11,10 +11,8 @@ Extrapolate_Advanced_Spawnpoint
 */
 
 #include "g_local.h"
-#include "../namespace_begin.h"
 extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
 extern int gWPNum;
-#include "../namespace_end.h"
 
 extern int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore);
 void NPC_SelectWarzoneSpawnpoint ( int TEAM ); // below...

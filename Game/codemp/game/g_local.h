@@ -1374,8 +1374,6 @@ Ghoul2 Insert Start
 */
 int G_BoneIndex( const char *name );
 
-#include "../namespace_begin.h"
-
 qhandle_t	trap_R_RegisterSkin( const char *name );
 
 // CG specific API access
@@ -1448,8 +1446,6 @@ void		trap_G2API_AttachInstanceToEntNum(void *ghoul2, int entityNum, qboolean se
 void		trap_G2API_ClearAttachedInstance(int entityNum);
 void		trap_G2API_CleanEntAttachments(void);
 qboolean	trap_G2API_OverrideServer(void *serverInstance);
-
-#include "../namespace_end.h"
 
 /*
 Ghoul2 Insert End
@@ -1963,10 +1959,8 @@ extern	vmCvar_t	g_smoothClients;
 
 extern	vmCvar_t	jkg_startingStats;
 
-#include "../namespace_begin.h"
 extern	vmCvar_t	pmove_fixed;
 extern	vmCvar_t	pmove_msec;
-#include "../namespace_end.h"
 
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
@@ -2006,8 +2000,6 @@ extern vmCvar_t		g_showDuelHealths;
 extern vmCvar_t		jkg_debugThreading;
 
 extern vmCvar_t		jkg_shop_replenish_time;
-
-#include "../namespace_begin.h"
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
@@ -2365,7 +2357,5 @@ extern void JKG_AssertFunction(char *file, int linenum, const char *expression);
 #else //!_DEBUG
 #define JKG_Assert(_Expression) {  }
 #endif //_DEBUG
-
-#include "../namespace_end.h"
 
 #endif

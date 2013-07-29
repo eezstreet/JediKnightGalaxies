@@ -507,15 +507,11 @@ extern float gDeactivated;
 extern float gBotEdit;
 extern int gWPRenderedFrame;
 
-#include "../namespace_begin.h"
 extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
 extern int gWPNum;
-#include "../namespace_end.h"
 
 extern int gLastPrintedIndex;
-#ifndef _XBOX
 extern nodeobject_t nodetable[MAX_NODETABLE_SIZE];
-#endif
 extern int nodenum;
 
 extern int gLevelFlags;

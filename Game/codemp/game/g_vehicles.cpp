@@ -25,11 +25,9 @@
 extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
 extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags);
 
-#include "../namespace_begin.h"
 extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
 extern void BG_SetLegsAnimTimer(playerState_t *ps, int time );
 extern void BG_SetTorsoAnimTimer(playerState_t *ps, int time );
-#include "../namespace_end.h"
 void G_VehUpdateShields( gentity_t *targ );
 #ifdef QAGAME
 extern void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum );
@@ -1774,9 +1772,7 @@ static qboolean UpdateRider( Vehicle_t *pVeh, bgEntity_t *pRider, usercmd_t *pUm
 }
 
 //generic vehicle function we care about over there
-#include "../namespace_begin.h"
 extern void AttachRidersGeneric( Vehicle_t *pVeh );
-#include "../namespace_end.h"
 
 // Attachs all the riders of this vehicle to their appropriate tag (*driver, *pass1, *pass2, whatever...).
 static void AttachRiders( Vehicle_t *pVeh )

@@ -100,7 +100,6 @@ char *showPowersName[] =
 };
 
 //Called from UI shared code. For now we'll just redirect to the normal anim load function.
-#include "../namespace_begin.h"
 
 void ChatBox_SetPaletteAlpha(float alpha);
 
@@ -132,8 +131,6 @@ int MenuFontToHandle(int iMenuFont)
 
 	return cgDC.Assets.qhMediumFont;
 }
-
-#include "../namespace_end.h"
 
 int CG_Text_Width(const char *text, float scale, int iMenuFont) 
 {

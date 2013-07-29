@@ -1,8 +1,6 @@
 //rww - shared trap call system
 #include "cg_local.h"
 
-#include "../namespace_begin.h"
-
 qboolean strap_G2API_GetBoltMatrix(void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 								const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale)
 {
@@ -89,5 +87,3 @@ int strap_FS_GetFileList(  const char *path, const char *extension, char *listbu
 {
     return trap_FS_GetFileList (path, extension, listbuf, bufsize);
 }
-
-#include "../namespace_end.h"

@@ -911,8 +911,6 @@ void UI_SPSkillMenu_Cache( void );
 // ui_syscalls.c
 //
 
-#include "../namespace_begin.h"
-
 void			trap_Print( const char *string );
 void			trap_Error( const char *string );
 int				trap_Milliseconds( void );
@@ -1011,8 +1009,6 @@ void			trap_R_RemapShader( const char *oldShader, const char *newShader, const c
 // crossover
 void			trap_Syscall_UI( void );
 void			trap_Syscall_CG( void );
-
-#include "../namespace_end.h"
 
 //
 // ui_addbots.c

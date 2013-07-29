@@ -8,10 +8,8 @@ float gDeactivated = 0;
 float gBotEdit = 0;
 int gWPRenderedFrame = 0;
 
-#include "../namespace_begin.h"
 wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
 int gWPNum = 0;
-#include "../namespace_end.h"
 
 int gLastPrintedIndex = -1;
 
