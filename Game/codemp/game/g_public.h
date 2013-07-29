@@ -933,4 +933,9 @@ typedef struct
 	char string[2048];
 } T_G_ICARUS_GETSETIDFORSTRING;
 
+typedef struct
+{
+
+} gameImport_t;
+
 #endif //G_PUBLIC_H
