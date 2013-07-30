@@ -53,10 +53,6 @@
 //#define __BASIC_RANDOM_MOVEMENT_AI__				// UQ1: For testing large numbers of players without using much CPU.
 #define __ALWAYS_TWO_TRAVELLINGVENDORS			// eez: Always spawn two travelling vendors
 
-// Joystick support
-#define __XBOX360CONTROLLER							// eez: XBOX 360 controller support. Do /in_joystick 2 to activate.
-//#define __PS3CONTROLLER_DUALSHOCK					// eez: at request of szico		// DOES NOT WORK (I can't get it to work properly)
-
 // Generic Stuff...
 #define __DISABLE_UNUSED_SPAWNS__				// UQ1: Disable spawning of map ammo/weapons... (since we can't pick them up anyway, they are a waste of entities and cpu time)
 #define __WEAPON_HOLSTER__						// UQ1: Weapon Holsterring System... (Under Construction)
