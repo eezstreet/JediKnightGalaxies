@@ -1531,9 +1531,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			}
 			else
 			{
-#ifndef __MUSIC_ENGINE__
 				trap_S_StartBackgroundTrack( "music/mp/duel.mp3", "music/mp/duel.mp3", qfalse );
-#endif //__MUSIC_ENGINE__
 			}
 		}
 		else

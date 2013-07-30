@@ -104,13 +104,6 @@ char *showPowersName[] =
 void ChatBox_SetPaletteAlpha(float alpha);
 
 
-#ifdef __MUSIC_ENGINE__
-#ifdef _WIN32
-extern void CG_DrawMusicInformation( void );
-#endif //_WIN32
-#endif //__MUSIC_ENGINE__
-
-
 int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid) 
 {
 	return BG_ParseAnimationFile(filename, animset, isHumanoid);
@@ -2790,12 +2783,6 @@ static void CG_DrawUpperRight( void ) {
 	if ( cg_drawSnapshot.integer ) {
 		y = CG_DrawSnapshot( y );
 	}
-
-#ifdef __MUSIC_ENGINE__
-#ifdef _WIN32
-	CG_DrawMusicInformation();
-#endif //_WIN32
-#endif //__MUSIC_ENGINE__
 
 	if ( ( cgs.gametype >= GT_TEAM || cg.predictedPlayerState.m_iVehicleNum )
 		&& cg_drawRadar.integer )

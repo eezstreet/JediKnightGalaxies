@@ -39,44 +39,6 @@
 #include "../game/teams.h" //npc team stuff
 #include <time.h>
 
-// vvvv lol --eez
-#ifdef __SECONDARY_NETWORK__
-// ================================================================================================================================
-//
-// UQ1: Secondary Network - Packet Event Types. 
-//
-// ================================================================================================================================
-//
-// Adding New Stuff:
-//
-// Add the new event type you need here, then add the functionality inside the switch in GetDataFromPacket 
-// in ClientGame.cpp or ServerGame.cpp.
-//
-// jkg_net_send_packet() is the bridge you can use to quickly send packets from within the game/cgame code 
-// (or make your own - see below).
-//
-// It is also possible to make longer packets, but for now those will be needed to be done with their own functions in 
-// ClientGame.cpp, and jkg_clientsidenetwork.cpp, -or- ServerGame.cpp, and jkg_serversidenetwork.cpp.
-//
-//
-// There is no limit to how we use these packets. The system is very adaptable and uses only the bandwidth we actually need.
-//
-// ================================================================================================================================
-
-enum PacketEventTypes {
-	PACKETEVENT_NONE,
-	PACKETEVENT_TEST_TEXT,
-};
-
-#ifdef CGAME
-void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize );
-#else //GAME
-void jkg_net_send_packet( int eventID, char *eventData, int eventDataSize, int entityNum );
-#endif //GAME
-
-// ================================================================================================================================
-#endif //__SECONDARY_NETWORK__
-
 #define MAX_WORLD_COORD		( 64 * 1024 )
 #define MIN_WORLD_COORD		( -64 * 1024 )
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )

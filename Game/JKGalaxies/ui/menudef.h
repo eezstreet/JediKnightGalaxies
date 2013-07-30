@@ -139,11 +139,6 @@
 #define FEEDER_INVENTORY            0x103
 #define FEEDER_SHOP					0x104
 
-#ifdef __MUSIC_ENGINE__
-#define FEEDER_MUSICLIST			0x105
-#define FEEDER_MUSICDESC			0x106
-#endif //__MUSIC_ENGINE__
-
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     0x00000001
 #define CG_SHOW_RED_TEAM_HAS_BLUEFLAG     0x00000002

@@ -329,7 +329,6 @@
     <ClCompile Include="..\game\jkg_gangwars.cpp" />
     <ClCompile Include="jkg_hud.cpp" />
     <ClCompile Include="jkg_minimaps.cpp" />
-    <ClCompile Include="jkg_musicengine.cpp" />
     <ClCompile Include="jkg_navmesh_visualiser.cpp" />
     <ClCompile Include="jkg_splinepaths.cpp" />
     <ClCompile Include="jkg_autowaypoint.cpp" />

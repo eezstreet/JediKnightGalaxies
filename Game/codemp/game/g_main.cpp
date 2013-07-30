@@ -339,15 +339,6 @@ vmCvar_t		jkg_chatFloodProtect;
 vmCvar_t        jkg_deathTimer;
 vmCvar_t		jkg_startingGun;
 
-#ifdef __MUSIC_ENGINE__
-vmCvar_t		s_radioStation;
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-vmCvar_t net_ip;
-vmCvar_t net_port;
-#endif //__SECONDARY_NETWORK__
-
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		gameCvarTable[] = {
@@ -586,15 +577,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &jkg_startingGun, "jkg_startingGun", "pistol_DL-18", CVAR_ARCHIVE|CVAR_LATCH, 0, qfalse },
 
-#ifdef __MUSIC_ENGINE__
-	{ &s_radioStation, "s_radioStation", "http://jblive.fm", CVAR_SERVERINFO | CVAR_ARCHIVE },
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-	{ &net_ip, "net_ip", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-	{ &net_port, "net_port", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-#endif //__SECONDARY_NETWORK__
-
 	// Warzone Gametype...
 	{ &g_ticketPercent, "g_ticketPercent", "100", CVAR_ARCHIVE /*| CVAR_SERVERINFO*/, 0 , qtrue },
 	{ &g_redTickets, "g_redTickets", "200", CVAR_ARCHIVE, 0 , qtrue },
@@ -629,11 +611,6 @@ qboolean G_EntIsBreakable( int entityNum );
 qboolean G_EntIsRemovableUsable( int entNum );
 void CP_FindCombatPointWaypoints( void );
 
-#ifdef __SECONDARY_NETWORK__
-extern void jkg_netserverbegin();
-extern void jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
-
 /*
 ================
 vmMain
@@ -648,19 +625,12 @@ extern "C" {
 #endif
 */
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-#ifdef __SECONDARY_NETWORK__
-	if (command != GAME_SHUTDOWN)
-		jkg_netserverbegin();
-#endif //__SECONDARY_NETWORK__
 
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
 		return 0;
 	case GAME_SHUTDOWN:
-#ifdef __SECONDARY_NETWORK__
-		jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
 		G_ShutdownGame( arg0 );
 		return 0;
 	case GAME_CLIENT_CONNECT:

@@ -3025,11 +3025,6 @@ int G_ClientNumberFromStrippedSubstring ( const char* name, qboolean checkAll )
 	return match;
 }
 
-#ifdef __SECONDARY_NETWORK__
-extern void jkg_netserverbegin();
-extern void jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
-
 /*
 ==================
 Cmd_CallVote_f
@@ -3132,10 +3127,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE_MAPNOTSUPPORTEDBYGAME")) );
 			return;
 		}
-
-#ifdef __SECONDARY_NETWORK__
-		jkg_netservershutdown();
-#endif //__SECONDARY_NETWORK__
 
 		trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
 		if (*s) {

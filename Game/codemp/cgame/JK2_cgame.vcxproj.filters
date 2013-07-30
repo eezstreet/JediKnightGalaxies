@@ -308,9 +308,6 @@
     <ClCompile Include="jkg_minimaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jkg_musicengine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="jkg_splinepaths.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

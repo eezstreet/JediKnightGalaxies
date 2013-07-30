@@ -136,11 +136,7 @@ static int	CG_RagCallback(int callType);
 static void C_GetBoltPos(void);
 static void C_ImpactMark(void);
 
-#ifdef _XBOX
-#define MAX_MISC_ENTS	500
-#else
 #define MAX_MISC_ENTS	4000
-#endif
 
 //static refEntity_t	*MiscEnts = 0;
 //static float		*Radius = 0;
@@ -158,34 +154,6 @@ void CG_MiscEnt(void);
 void CG_DoCameraShake( vec3_t origin, float intensity, int radius, int time );
 
 qboolean cgame_initializing = qtrue;
-
-#ifdef __MUSIC_ENGINE__
-qboolean	cvarsLoaded = qfalse;
-
-extern void CG_DoMusic ( void );
-extern void CG_StopMusic ( void );
-
-extern vmCvar_t s_radioVolume;
-
-//extern void CG_DoSound ( void );
-//vmCvar_t s_musicvolume;
-
-qboolean CG_GameLoading ( void )
-{
-	return cgame_initializing;
-}
-
-/* */
-float CG_GetMusicVolume ( void )
-{	// cvars good, conflicting values bad --eez
-	return ( s_radioVolume.value );
-}
-
-int CG_GetTime ( void )
-{// Unique1 added.. For access by sound engine...
-	return cg.time;
-}
-#endif //__MUSIC_ENGINE__
 
 //do we have any force powers that we would normally need to cycle to?
 qboolean CG_NoUseableForce(void)
@@ -210,237 +178,7 @@ qboolean CG_NoUseableForce(void)
 	return qtrue;
 }
 
-#ifdef __SECONDARY_NETWORK__
-extern void jkg_netclientbegin();
-extern void jkg_netclientshutdown();
-
-extern qboolean CLIENT_FORCED_SHUTDOWN;
-#endif //__SECONDARY_NETWORK__
-
-#ifdef __EXPERIMENTAL_SHADOWS__
-extern void CG_ClearRecordedLights();
-#endif //__EXPERIMENTAL_SHADOWS__
-
 extern void ChatBox_UseMessageMode(int whichOne);
-
-/*
-================
-vmMain
-
-This is the only way control passes into the module.
-This must be the very first function compiled into the .q3vm file
-================
-*/
-int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-
-#ifdef __MUSIC_ENGINE__
-	if (command != CG_INIT && command != CG_SHUTDOWN && cvarsLoaded)
-		CG_DoMusic(); // We need to make sure this is checked every frame...
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-	//if (command != CG_INIT && command != CG_SHUTDOWN && cvarsLoaded)
-		jkg_netclientbegin(); // Need this ASAP, so do it here...
-
-	if (CLIENT_FORCED_SHUTDOWN)
-		jkg_netclientshutdown();
-#endif //__SECONDARY_NETWORK__
-
-	switch ( command ) {
-	case CG_INIT:
-		CG_Init( arg0, arg1, arg2 );
-		return 0;
-	case CG_SHUTDOWN:
-#ifdef __MUSIC_ENGINE__
-		CG_StopMusic();
-#endif //__MUSIC_ENGINE__
-#ifdef __SECONDARY_NETWORK__
-		jkg_netclientshutdown();
-#endif //__SECONDARY_NETWORK__
-		CG_Shutdown();
-		return 0;
-	case CG_CONSOLE_COMMAND:
-		return CG_ConsoleCommand();
-	case CG_DRAW_ACTIVE_FRAME:
-#ifdef __EXPERIMENTAL_SHADOWS__
-		CG_ClearRecordedLights();
-#endif //__EXPERIMENTAL_SHADOWS__
-		CG_DrawActiveFrame( arg0, arg1, arg2 );
-		return 0;
-	case CG_CROSSHAIR_PLAYER:
-		return CG_CrosshairPlayer();
-	case CG_LAST_ATTACKER:
-		return CG_LastAttacker();
-	case CG_KEY_EVENT:
-		CG_KeyEvent(arg0, arg1);
-		return 0;
-	case CG_MOUSE_EVENT:
-		cgDC.cursorx = cgs.cursorX;
-		cgDC.cursory = cgs.cursorY;
-		CG_MouseEvent(arg0, arg1);
-		return 0;
-	case CG_EVENT_HANDLING:
-		CG_EventHandling(arg0);
-		return 0;
-
-	case CG_POINT_CONTENTS:
-		return C_PointContents();
-
-	case CG_GET_LERP_ORIGIN:
-		C_GetLerpOrigin();
-		return 0;
-
-	case CG_GET_LERP_DATA:
-		C_GetLerpData();
-		return 0;
-
-	case CG_GET_GHOUL2:
-		return (int)cg_entities[arg0].ghoul2; //NOTE: This is used by the effect bolting which is actually not used at all.
-											  //I'm fairly sure if you try to use it with vm's it will just give you total
-											  //garbage. In other words, use at your own risk.
-
-	case CG_GET_MODEL_LIST:
-		return (int)cgs.gameModels;
-
-	case CG_CALC_LERP_POSITIONS:
-		CG_CalcEntityLerpPositions( &cg_entities[arg0] );
-		return 0;
-
-	case CG_TRACE:
-		C_Trace();
-		return 0;
-	case CG_GET_SORTED_FORCE_POWER:
-		return forcePowerSorted[arg0];
-	case CG_G2TRACE:
-		C_G2Trace();
-		return 0;
-
-	case CG_G2MARK:
-		C_G2Mark();
-		return 0;
-
-	case CG_RAG_CALLBACK:
-		return CG_RagCallback(arg0);
-
-	case CG_INCOMING_CONSOLE_COMMAND:
-		//rww - let mod authors filter client console messages so they can cut them off if they want.
-		//return 1 if the command is ok. Otherwise, you can set char 0 on the command str to 0 and return
-		//0 to not execute anything, or you can fill conCommand in with something valid and return 0
-		//in order to have that string executed in place. Some example code:
-		/*
-		{
-			TCGIncomingConsoleCommand	*icc = (TCGIncomingConsoleCommand *)cg.sharedBuffer;
-			// Deny private commands (~ prefixed)
-			if (icc->conCommand[0] == '~') return 0;
-			
-			if (strstr(icc->conCommand, "wait"))
-			{ //filter out commands contaning wait
-				Com_Printf("You can't use commands containing the string wait with MyMod v1.0\n");
-				icc->conCommand[0] = 0;
-				return 0;
-			}
-			else if (strstr(icc->conCommand, "blah"))
-			{ //any command containing the string "blah" is redirected to "quit"
-				strcpy(icc->conCommand, "quit");
-				return 0;
-			}
-			
-		}
-		*/
-		{
-		    TCGIncomingConsoleCommand *icc = (TCGIncomingConsoleCommand *)cg.sharedBuffer;
-		    if ( Q_stricmpn (icc->conCommand, "quit", 4) == 0 )
-		    {
-#ifdef __MUSIC_ENGINE__
-				CG_StopMusic();
-#endif //__MUSIC_ENGINE__
-		        return 1;
-		    }
-		}
-		return 1;
-
-	case CG_GET_USEABLE_FORCE:
-		return CG_NoUseableForce();
-
-	case CG_GET_ORIGIN:
-		VectorCopy(cg_entities[arg0].currentState.pos.trBase, (float *)arg1);
-		return 0;
-
-	case CG_GET_ANGLES:
-		VectorCopy(cg_entities[arg0].currentState.apos.trBase, (float *)arg1);
-		return 0;
-
-	case CG_GET_ORIGIN_TRAJECTORY:
-		return (int)&cg_entities[arg0].nextState.pos;
-
-	case CG_GET_ANGLE_TRAJECTORY:
-		return (int)&cg_entities[arg0].nextState.apos;
-
-	case CG_ROFF_NOTETRACK_CALLBACK:
-		CG_ROFF_NotetrackCallback( &cg_entities[arg0], (const char *)arg1 );
-		return 0;
-
-	case CG_IMPACT_MARK:
-		C_ImpactMark();
-		return 0;
-
-	case CG_MAP_CHANGE:
-		// this trap map be called more than once for a given map change, as the
-		// server is going to attempt to send out multiple broadcasts in hopes that
-		// the client will receive one of them
-		cg.mMapChange = qtrue;
-		return 0;
-
-	case CG_AUTOMAP_INPUT:
-		//special input during automap mode -rww
-		{
-			autoMapInput_t *autoInput = (autoMapInput_t *)cg.sharedBuffer;
-
-			memcpy(&cg_autoMapInput, autoInput, sizeof(autoMapInput_t));
-
-			if (!arg0)
-			{ //if this is non-0, it's actually a one-frame mouse event
-				cg_autoMapInputTime = cg.time + 1000;
-			}
-			else
-			{
-				if (cg_autoMapInput.yaw)
-				{
-					cg_autoMapAngle[YAW] += cg_autoMapInput.yaw;
-				}
-
-				if (cg_autoMapInput.pitch)
-				{
-					cg_autoMapAngle[PITCH] += cg_autoMapInput.pitch;
-				}
-				cg_autoMapInput.yaw = 0.0f;
-				cg_autoMapInput.pitch = 0.0f;
-			}
-		}
-		return 0;
-
-	case CG_MISC_ENT:
-		CG_MiscEnt();
-		return 0;
-
-	case CG_FX_CAMERASHAKE:
-		{
-			TCGCameraShake	*data = (TCGCameraShake *)cg.sharedBuffer;
-			
-			CG_DoCameraShake( data->mOrigin, data->mIntensity, data->mRadius, data->mTime );
-		}
-		return 0;
-
-	case CG_MESSAGEMODE:
-		ChatBox_UseMessageMode(arg0);
-		return 0;
-
-	default:
-		CG_Error( "vmMain: unknown command %i", command );
-		break;
-	}
-	return -1;
-}
 
 static int C_PointContents(void)
 {
@@ -1026,21 +764,6 @@ vmCvar_t	d_roff;
 vmCvar_t	d_yoff;
 #endif //__WEAPON_HOLSTER__
 
-#ifdef __MUSIC_ENGINE__
-vmCvar_t s_radioStation;
-vmCvar_t s_radioStationOverride;
-vmCvar_t s_radioStationInfo1;
-vmCvar_t s_radioStationInfo2;
-vmCvar_t s_radioStationInfo3;
-vmCvar_t s_inetRadio;
-vmCvar_t s_radioVolume;
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-vmCvar_t net_ip;
-vmCvar_t net_port;
-#endif //__SECONDARY_NETWORK__
-
 typedef struct {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
@@ -1292,21 +1015,6 @@ Ghoul2 Insert End
 	{ &d_roff, "d_roff", "0", CVAR_ARCHIVE },
 	{ &d_yoff, "d_yoff", "0", CVAR_ARCHIVE },
 #endif //__WEAPON_HOLSTER__
-
-#ifdef __MUSIC_ENGINE__
-	{ &s_radioStation, "s_radioStation", "", CVAR_SERVERINFO | CVAR_ARCHIVE },
-	{ &s_radioStationOverride, "s_radioStationOverride", "", CVAR_ARCHIVE },
-	{ &s_radioStationInfo1, "s_radioStationInfo1", "", CVAR_ARCHIVE },
-	{ &s_radioStationInfo2, "s_radioStationInfo2", "", CVAR_ARCHIVE },
-	{ &s_radioStationInfo3, "s_radioStationInfo3", "", CVAR_ARCHIVE },
-	{ &s_inetRadio, "s_inetRadio", "1", CVAR_ARCHIVE },	// jaquboss, to turn of the radio stuff
-	{ &s_radioVolume, "s_radioVolume", "0", CVAR_ARCHIVE },
-#endif //__MUSIC_ENGINE__
-
-#ifdef __SECONDARY_NETWORK__
-	{ &net_ip, "net_ip", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-	{ &net_port, "net_port", "0", CVAR_SERVERINFO | CVAR_ARCHIVE },
-#endif //__SECONDARY_NETWORK__
 };
 
 static int  cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -1366,10 +1074,6 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "ui_tm2_c3_cnt", "0", CVAR_ROM | CVAR_INTERNAL );
 	trap_Cvar_Register(NULL, "ui_tm2_c4_cnt", "0", CVAR_ROM | CVAR_INTERNAL );
 	trap_Cvar_Register(NULL, "ui_tm2_c5_cnt", "0", CVAR_ROM | CVAR_INTERNAL );
-
-#ifdef __MUSIC_ENGINE__
-	cvarsLoaded = qtrue;
-#endif // __MUSIC_ENGINE__
 }
 
 /*																																			
@@ -1736,10 +1440,6 @@ static void CG_RegisterSounds( void ) {
 
 	cgs.media.rivetMarkShader			= trap_R_RegisterShader( "gfx/damage/rivetmark" );
 
-#ifdef __MUSIC_ENGINE__
-	cgs.media.radio_player =			trap_R_RegisterShaderNoMip( "gfx/radio_player" );
-#endif //__MUSIC_ENGINE__
-
 	trap_R_RegisterShader( "gfx/effects/saberFlare" );
 
 	trap_R_RegisterShader( "powerups/ysalimarishell" );
@@ -1865,9 +1565,7 @@ static void CG_RegisterSounds( void ) {
 	//PRECACHE ALL MUSIC HERE (don't need to precache normally because it's streamed off the disk)
 	if (cg_buildScript.integer)
 	{
-#ifndef __MUSIC_ENGINE__
 		trap_S_StartBackgroundTrack( "music/mp/duel.mp3", "music/mp/duel.mp3", qfalse );
-#endif //__MUSIC_ENGINE__
 	}
 
 	cg.loadLCARSStage = 1;
@@ -2802,7 +2500,6 @@ CG_StartMusic
 ======================
 */
 void CG_StartMusic( qboolean bForceStart ) {
-#ifndef __MUSIC_ENGINE__
 	char	*s;
 	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
 
@@ -2812,10 +2509,8 @@ void CG_StartMusic( qboolean bForceStart ) {
 	Q_strncpyz( parm2, COM_Parse( (const char **)&s ), sizeof( parm2 ) );
 
 	trap_S_StartBackgroundTrack( parm1, parm2, !bForceStart );
-#endif //__MUSIC_ENGINE__
 }
 
-#ifndef _XBOX
 char *CG_GetMenuBuffer(const char *filename) {
 	int	len;
 	fileHandle_t	f;
@@ -2838,7 +2533,6 @@ char *CG_GetMenuBuffer(const char *filename) {
 
 	return buf;
 }
-#endif
 
 //
 // ==============================
@@ -3106,13 +2800,6 @@ static qboolean CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 	return qfalse;
 }
 
-#ifdef __MUSIC_ENGINE__
-extern int MyMusicTotal;
-extern int MyMusicSelection;
-extern const char *RADIO_GetStationName(int index);
-extern const char *RADIO_GetStationAddress(int index);
-#endif //__MUSIC_ENGINE__
-
 static int CG_FeederCount(float feederID) {
 	int i, count;
 	count = 0;
@@ -3130,10 +2817,6 @@ static int CG_FeederCount(float feederID) {
 		}
 	} else if (feederID == FEEDER_SCOREBOARD) {
 		return cg.numScores;
-#ifdef __MUSIC_ENGINE__
-	} else if (feederID == FEEDER_MUSICLIST || feederID == FEEDER_MUSICDESC) {
-		return MyMusicTotal;
-#endif //__MUSIC_ENGINE__
 	}
 	return count;
 }
@@ -3201,17 +2884,6 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 	score_t *sp = NULL;
 
 	*handle1 = *handle2 = *handle3 = -1;
-
-#ifdef __MUSIC_ENGINE__
-	if (feederID == FEEDER_MUSICLIST)
-	{
-		return RADIO_GetStationAddress(index);
-	}
-	else if (feederID == FEEDER_MUSICDESC)
-	{
-		return RADIO_GetStationName(index);
-	}
-#endif //__MUSIC_ENGINE__
 
 	if (feederID == FEEDER_REDTEAM_LIST) {
 		team = TEAM_RED;
@@ -3296,38 +2968,6 @@ static qhandle_t CG_FeederItemImage(float feederID, int index) {
 
 static qboolean CG_FeederSelection(float feederID, int index, itemDef_t *item) 
 {
-
-#ifdef __MUSIC_ENGINE__
-	if (feederID == FEEDER_MUSICLIST)
-	{// UQ1: I dont think we actually need the http to display on UI, just the description...
-		int count = 0;
-		int i = 0;
-	
-		for (i = 0; i < MyMusicTotal; i++) {
-			if (index == count) {
-				MyMusicSelection = i;
-			}
-			count++;
-		}
-
-		return qtrue;
-	}
-	else if (feederID == FEEDER_MUSICDESC)
-	{
-		int count = 0;
-		int i = 0;
-	
-		for (i = 0; i < MyMusicTotal; i++) {
-			if (index == count) {
-				MyMusicSelection = i;
-			}
-			count++;
-		}
-
-		return qtrue;
-	}
-#endif //__MUSIC_ENGINE__
-
 	if ( cgs.gametype >= GT_TEAM ) {
 		int i, count;
 		int team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
@@ -4618,3 +4258,7 @@ void CG_PrevInventory_f(void)
 		cg.invenSelectTime = cg.time;
 	}
 }
+
+// GetGameAPI
+// Call this from the executable
+
