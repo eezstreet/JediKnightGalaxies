@@ -53,17 +53,17 @@ extern void CG_DrawStringExt( int x, int y, const char *string, const float *set
 void ChatBox_InitChat() {
 	cg.isChatting = 1;
 	memset(&cb_data, 0, sizeof(cb_data));
-	cb_fadeTime = trap_Milliseconds();
+	cb_fadeTime = cgi.Milliseconds();
 	cb_fadeMode = 1;
-	trap_Key_SetCatcher(trap_Key_GetCatcher() | KEYCATCH_CGAME);
+	cgi.Key_SetCatcher(cgi.Key_GetCatcher() | KEYCATCH_CGAME);
 }
 
 void ChatBox_CloseChat() {
 	if (cg.isChatting) {
 		cg.isChatting = 0;
-		cb_fadeTime = trap_Milliseconds();
+		cb_fadeTime = cgi.Milliseconds();
 		cb_fadeMode = 3;
-		trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_CGAME );
+		cgi.Key_SetCatcher(cgi.Key_GetCatcher() & ~KEYCATCH_CGAME );
 	}
 }
 
@@ -74,7 +74,7 @@ void ChatBox_SetPaletteAlpha(float alpha) {
 	int i;
 	vec4_t fantasticArray[8];
 
-	trap_JKG_GetColorTable((float **)fantasticArray);
+	cgi.JKG_GetColorTable((float **)fantasticArray);
 	for (i=0; i<8; i++) {
 		// Color code palette (vec4_t array)
 		fantasticArray[i][3] = alpha;
@@ -105,7 +105,7 @@ float Text_GetWidth(const char *text, int iFontIndex, float scale) {
 			}
 		}
 		s[0] = *t;
-		w += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		w += ((float)cgi.R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		t++;
 	}
 	return w;
@@ -274,8 +274,8 @@ void Text_DrawText(int x, int y, const char *text, const float* rgba, int iFontI
 			}
 		}
 		s[0] = *t;
-		trap_R_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
-		xx += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		cgi.R_Font_DrawString(xx, y, s, color, iFontIndex, limit, scale);
+		xx += ((float)cgi.R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		t++;
 	}
 }
@@ -332,7 +332,7 @@ const char *ChatBox_PrintableText(int iFontIndex, float scale) {
 		}
 		s[0] = *t;
 
-		w += ((float)trap_R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
+		w += ((float)cgi.R_Font_StrLenPixels(s, iFontIndex, 1) * scale);
 		if (w > cb_data.maxwidth) {
 			break;
 		}
@@ -592,13 +592,13 @@ void ChatBox_HandleKey(int key, qboolean down) {
 			return;
 		}
 
-		if ( key == A_HOME || key == A_KP_7) {// || ( tolower(key) == 'a' && trap_Key_IsDown( K_CTRL ) ) ) {
+		if ( key == A_HOME || key == A_KP_7) {// || ( tolower(key) == 'a' && cgi.Key_IsDown( K_CTRL ) ) ) {
 			cb_data.cursor = 0;
 			cb_data.scroll = 0;
 			return;
 		}
 
-		if ( key == A_END || key == A_KP_1)  {// ( tolower(key) == 'e' && trap_Key_IsDown( K_CTRL ) ) ) {
+		if ( key == A_END || key == A_KP_1)  {// ( tolower(key) == 'e' && cgi.Key_IsDown( K_CTRL ) ) ) {
 			cb_data.cursor = cb_data.len;
 			ChatBox_UpdateScroll();
 			return;
@@ -622,25 +622,25 @@ void ChatBox_HandleKey(int key, qboolean down) {
 			}
 			switch (cb_chatmode) {
 				case CHM_NORMAL:
-					trap_SendClientCommand(va("say \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
+					cgi.SendClientCommand(va("say \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
 					break;
 				case CHM_ACTION:
-					trap_SendClientCommand(va("sayact \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
+					cgi.SendClientCommand(va("sayact \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
 					break;
 				case CHM_GLOBAL:
-					trap_SendClientCommand(va("sayglobal \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
+					cgi.SendClientCommand(va("sayglobal \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
 					break;
 				case CHM_YELL:
-					trap_SendClientCommand(va("sayyell \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
+					cgi.SendClientCommand(va("sayyell \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
 					break;
 				case CHM_WHISPER:
-					trap_SendClientCommand(va("saywhisper \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
+					cgi.SendClientCommand(va("saywhisper \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
 					break;
 				case CHM_PRIVATE:
-					trap_SendClientCommand(va("tell %i \"%s\"\n", cb_privtarget, ChatBox_EscapeChat(cb_data.buff)));
+					cgi.SendClientCommand(va("tell %i \"%s\"\n", cb_privtarget, ChatBox_EscapeChat(cb_data.buff)));
 					break;
 				case CHM_TEAM:
-					trap_SendClientCommand(va("say_team \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
+					cgi.SendClientCommand(va("say_team \"%s\"\n", ChatBox_EscapeChat(cb_data.buff)));
 					break;
 				default:
 					break;
@@ -782,7 +782,7 @@ void ChatBox_DrawBackdrop(menuDef_t *menu) {
 	itemDef_t *item = NULL;
 	vec4_t color;
 	float phase = 0;
-	int time = trap_Milliseconds();
+	int time = cgi.Milliseconds();
 	if (!cb_fadeMode) {
 		return;
 	} else if (cb_fadeMode == 2) {
@@ -813,8 +813,8 @@ void ChatBox_DrawBackdrop(menuDef_t *menu) {
 		Vector4Copy(item->window.foreColor, color);
 		color[3] *= phase;
 		color[3] *= cg.jkg_HUDOpacity;
-		trap_R_SetColor( color );
-		trap_R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
+		cgi.R_SetColor( color );
+		cgi.R_DrawStretchPic(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, 0, 1, 1, cgs.media.whiteShader);
 	}
 #pragma endregion
 }
@@ -834,7 +834,7 @@ void ChatBox_DrawChat(menuDef_t *menu) {
 #pragma region t_chat
 	item = Menu_FindItemByName(menu, "t_chat");
 	if (item) {
-		/*trap_R_Font_DrawString(
+		/*cgi.R_Font_DrawString(
 				item->window.rect.x,
 				item->window.rect.y,
 				chatModeText[cb_chatmode],
@@ -914,9 +914,9 @@ void ChatBox_InterruptChat() {
 		if (cb_data.buff[0] == '/' || cb_data.buff[0] == '\\') {
 			// Never send commands on death, as this can have unwanted consequences
 			cg.isChatting = 0;
-			cb_fadeTime = trap_Milliseconds();
+			cb_fadeTime = cgi.Milliseconds();
 			cb_fadeMode = 3;
-			trap_Key_SetCatcher(0);
+			cgi.Key_SetCatcher(0);
 			return;
 		}
 		
@@ -931,9 +931,9 @@ void ChatBox_InterruptChat() {
 		// If it does not however, we'll have this as a fallback
 		if (cg.isChatting) {
 			cg.isChatting = 0;
-			cb_fadeTime = trap_Milliseconds();
+			cb_fadeTime = cgi.Milliseconds();
 			cb_fadeMode = 3;
-			trap_Key_SetCatcher(0);
+			cgi.Key_SetCatcher(0);
 		}
 	}
 }

@@ -2577,4 +2577,6 @@ extern uiCrossoverExports_t *uiImports;
 #include "../client/FxSystem.h"
 #endif
 
+extern cgameImport_t cgi;
+
 #endif

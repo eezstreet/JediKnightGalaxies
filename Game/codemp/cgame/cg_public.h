@@ -124,7 +124,6 @@ typedef struct
 } ragCallbackTraceLine_t;
 
 #define	CGAME_IMPORT_API_VERSION	6
-#define CGAME_EXPORT_API_VERSION	8
 
 typedef struct cgameExport_s
 {
@@ -473,5 +472,7 @@ typedef struct cgameImport_s
 	void			(*Syscall_UI)( void );
 	void			(*Syscall_CG)( void );
 } cgameImport_t;
+
+typedef cgameExport_t* (QDECL *GetCGameAPI_t)( int apiVersion, cgameImport_t *import );
 
 #endif // __CG_PUBLIC_H

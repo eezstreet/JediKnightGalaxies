@@ -48,7 +48,7 @@ static qboolean CG_LoadViewWeaponAnimations ( weaponInfo_t *weapon, const char *
     int fileLength;
     int numAnims;
     
-    fileLength = trap_FS_FOpenFile (animationPath, &f, FS_READ);
+    fileLength = cgi.FS_FOpenFile (animationPath, &f, FS_READ);
     if ( !f || fileLength == -1 )
     {
         CG_Printf (S_COLOR_YELLOW "Unable to load weapon animation config file %s\n", animationPath);
@@ -58,15 +58,15 @@ static qboolean CG_LoadViewWeaponAnimations ( weaponInfo_t *weapon, const char *
     if ( (fileLength + 1) >= MAX_WEAPON_ANIMFILE_LENGTH )
     {
         CG_Printf (S_COLOR_YELLOW "Weapon animation config file %s too long (%d characters, max %d", animationPath, fileLength, MAX_WEAPON_ANIMFILE_LENGTH - 1);
-        trap_FS_FCloseFile (f);
+        cgi.FS_FCloseFile (f);
         
         return qfalse;
     }
     
-    trap_FS_Read (weaponFileData, fileLength, f);
+    cgi.FS_Read (weaponFileData, fileLength, f);
     weaponFileData[fileLength] = '\0';
     
-    trap_FS_FCloseFile (f);
+    cgi.FS_FCloseFile (f);
     
     numAnims = BG_ParseGenericAnimationFile (weapon->viewModelAnims, MAX_WEAPON_ANIMATIONS, weaponAnimTable, animationPath, weaponFileData);
     
@@ -92,34 +92,34 @@ static void CG_LoadViewWeapon ( weaponInfo_t *weapon, const char *modelPath )
     slash = Q_strrchr (file, '/');
     
     Q_strncpyz (slash, "/model_default.skin", sizeof (file) - (slash - file));  
-    weapon->viewModelSkin = trap_R_RegisterSkin (file);
+    weapon->viewModelSkin = cgi.R_RegisterSkin (file);
     
-    trap_G2API_InitGhoul2Model (&weapon->g2ViewModel, modelPath, 0, weapon->viewModelSkin, 0, 0, 0);
-    if ( !trap_G2_HaveWeGhoul2Models (weapon->g2ViewModel) )
+    cgi.G2API_InitGhoul2Model (&weapon->g2ViewModel, modelPath, 0, weapon->viewModelSkin, 0, 0, 0);
+    if ( !cgi.G2_HaveWeGhoul2Models (weapon->g2ViewModel) )
     {
         return;
     }
     
-    /*root = trap_G2API_AddBolt (weapon->g2ViewModel, 0, "model_root");
+    /*root = cgi.G2API_AddBolt (weapon->g2ViewModel, 0, "model_root");
     
-    model = trap_G2API_InitGhoul2Model (&weapon->g2ViewModel, "models/weapons2/test3_r_hand/model.glm", 1, 0, trap_R_RegisterSkin ("models/weapons2/test3_r_hand/model_default.skin"), 0, 0);
-    if ( !trap_G2API_HasGhoul2ModelOnIndex (&weapon->g2ViewModel, 1) )
+    model = cgi.G2API_InitGhoul2Model (&weapon->g2ViewModel, "models/weapons2/test3_r_hand/model.glm", 1, 0, cgi.R_RegisterSkin ("models/weapons2/test3_r_hand/model_default.skin"), 0, 0);
+    if ( !cgi.G2API_HasGhoul2ModelOnIndex (&weapon->g2ViewModel, 1) )
     {
         CG_Printf (S_COLOR_YELLOW "WARNING: Failed to load right hand model.\n");
     }
     
-    trap_G2API_SetBoltInfo (weapon->g2ViewModel, 0, root);
+    cgi.G2API_SetBoltInfo (weapon->g2ViewModel, 0, root);
     
-    trap_G2API_InitGhoul2Model (&weapon->g2ViewModel, "models/weapons2/test3_l_hand/model.glm", 2, 0, trap_R_RegisterSkin ("models/weapons2/test3_l_hand/model_default.skin"), 0, 0);
-    if ( !trap_G2API_HasGhoul2ModelOnIndex (&weapon->g2ViewModel, 2) )
+    cgi.G2API_InitGhoul2Model (&weapon->g2ViewModel, "models/weapons2/test3_l_hand/model.glm", 2, 0, cgi.R_RegisterSkin ("models/weapons2/test3_l_hand/model_default.skin"), 0, 0);
+    if ( !cgi.G2API_HasGhoul2ModelOnIndex (&weapon->g2ViewModel, 2) )
     {
         CG_Printf (S_COLOR_YELLOW "WARNING: Failed to load left hand model.\n");
     }
     
-    trap_G2API_SetBoltInfo (weapon->g2ViewModel, 0, root);*/
+    cgi.G2API_SetBoltInfo (weapon->g2ViewModel, 0, root);*/
     
     memset (weapon->viewModelAnims, 0, sizeof (weapon->viewModelAnims));
-    trap_G2API_GetGLAName (weapon->g2ViewModel, 0, file);
+    cgi.G2API_GetGLAName (weapon->g2ViewModel, 0, file);
     if ( !file[0] )
     {
         return;
@@ -135,11 +135,11 @@ static void CG_LoadG2ModelWithSkin ( const char *modelPath, void **g2ModelPtr )
 {
     void *g2Model = NULL;
 
-    trap_G2API_InitGhoul2Model (g2ModelPtr, modelPath, 0, 0, 0, 0, 0);
+    cgi.G2API_InitGhoul2Model (g2ModelPtr, modelPath, 0, 0, 0, 0, 0);
     
     g2Model = *g2ModelPtr;
     
-    if ( trap_G2_HaveWeGhoul2Models (g2Model) && trap_G2API_SkinlessModel (g2Model, 0) )
+    if ( cgi.G2_HaveWeGhoul2Models (g2Model) && cgi.G2API_SkinlessModel (g2Model, 0) )
     {
         char skinName[MAX_QPATH];
         char *slash = NULL;
@@ -152,8 +152,8 @@ static void CG_LoadG2ModelWithSkin ( const char *modelPath, void **g2ModelPtr )
         slash = Q_strrchr (skinName, '/');
         Q_strncpyz (slash, "/model_default.skin", sizeof (skinName) - (slash - skinName));  
         
-        skin = trap_R_RegisterSkin (skinName);
-        trap_G2API_SetSkin (g2Model, 0, skin, skin);
+        skin = cgi.R_RegisterSkin (skinName);
+        cgi.G2API_SetSkin (g2Model, 0, skin, skin);
     }
 }
 
@@ -183,10 +183,10 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
 
     // Weapon render
     if ( fireModeVisuals->weaponRender.generic.chargingEffect[0] )
-        drawData->weaponRender.generic.chargingEffect = trap_FX_RegisterEffect (fireModeVisuals->weaponRender.generic.chargingEffect);
+        drawData->weaponRender.generic.chargingEffect = cgi.FX_RegisterEffect (fireModeVisuals->weaponRender.generic.chargingEffect);
     
     if ( fireModeVisuals->weaponRender.generic.muzzleEffect[0] )
-        drawData->weaponRender.generic.muzzleEffect = trap_FX_RegisterEffect (fireModeVisuals->weaponRender.generic.muzzleEffect);
+        drawData->weaponRender.generic.muzzleEffect = cgi.FX_RegisterEffect (fireModeVisuals->weaponRender.generic.muzzleEffect);
         
     ReadColor (fireModeVisuals->weaponRender.generic.muzzleLightColor, drawData->weaponRender.generic.muzzleLightColor);
     drawData->weaponRender.generic.muzzleLightIntensity = fireModeVisuals->weaponRender.generic.muzzleLightIntensity;
@@ -196,7 +196,7 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     {
         if ( fireModeVisuals->weaponFire.generic.fireSound[i][0] )
         {
-            drawData->weaponFire.generic.fireSound[i] = trap_S_RegisterSound (fireModeVisuals->weaponFire.generic.fireSound[i]);
+            drawData->weaponFire.generic.fireSound[i] = cgi.S_RegisterSound (fireModeVisuals->weaponFire.generic.fireSound[i]);
         }
         else
         {
@@ -210,31 +210,31 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     drawData->tracelineRender.generic.maxSize = fireModeVisuals->tracelineRender.generic.maxSize;
     drawData->tracelineRender.generic.minSize = fireModeVisuals->tracelineRender.generic.minSize;
     if ( fireModeVisuals->tracelineRender.generic.tracelineShader[0] )
-        drawData->tracelineRender.generic.tracelineShader = trap_R_RegisterShader (fireModeVisuals->tracelineRender.generic.tracelineShader);
+        drawData->tracelineRender.generic.tracelineShader = cgi.R_RegisterShader (fireModeVisuals->tracelineRender.generic.tracelineShader);
     
     // Weapon charge
     if ( fireModeVisuals->weaponCharge.chargingSound[0] )
-        drawData->weaponCharge.chargingSound = trap_S_RegisterSound (fireModeVisuals->weaponCharge.chargingSound);
+        drawData->weaponCharge.chargingSound = cgi.S_RegisterSound (fireModeVisuals->weaponCharge.chargingSound);
     
     // Projectile render
     ReadColor (fireModeVisuals->projectileRender.generic.lightColor, drawData->projectileRender.generic.lightColor);
     drawData->projectileRender.generic.lightIntensity = fireModeVisuals->projectileRender.generic.lightIntensity;
     
     if ( fireModeVisuals->projectileRender.generic.projectileEffect[0] )
-        drawData->projectileRender.generic.projectileEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileRender.generic.projectileEffect);
+        drawData->projectileRender.generic.projectileEffect = cgi.FX_RegisterEffect (fireModeVisuals->projectileRender.generic.projectileEffect);
     else if ( fireMode->ammo && fireMode->ammo->fx )
         drawData->projectileRender.generic.projectileEffect = fireMode->ammo->fx;
         
     if ( fireModeVisuals->projectileRender.generic.projectileModel[0] )
-        drawData->projectileRender.generic.projectileModel = trap_R_RegisterModel (fireModeVisuals->projectileRender.generic.projectileModel);
+        drawData->projectileRender.generic.projectileModel = cgi.R_RegisterModel (fireModeVisuals->projectileRender.generic.projectileModel);
     else if ( fireMode->ammo && fireMode->ammo->model )
         drawData->projectileRender.generic.projectileModel = fireMode->ammo->model;
         
     if ( fireModeVisuals->projectileRender.generic.runSound[0] )
-        drawData->projectileRender.generic.runSound = trap_S_RegisterSound (fireModeVisuals->projectileRender.generic.runSound);
+        drawData->projectileRender.generic.runSound = cgi.S_RegisterSound (fireModeVisuals->projectileRender.generic.runSound);
         
     if ( fireModeVisuals->projectileRender.generic.deathEffect[0] )
-        drawData->projectileRender.generic.deathEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileRender.generic.deathEffect);
+        drawData->projectileRender.generic.deathEffect = cgi.FX_RegisterEffect (fireModeVisuals->projectileRender.generic.deathEffect);
     else if ( fireMode->ammo && fireMode->ammo->deathFx )
         drawData->projectileRender.generic.deathEffect = fireMode->ammo->deathFx;
     
@@ -242,38 +242,38 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     if ( isTripmine || isDetpack )
     {
         if ( fireModeVisuals->projectileMiss.explosive.stickSound[0] )
-            drawData->projectileMiss.explosive.stickSound = trap_S_RegisterSound (fireModeVisuals->projectileMiss.explosive.stickSound);
+            drawData->projectileMiss.explosive.stickSound = cgi.S_RegisterSound (fireModeVisuals->projectileMiss.explosive.stickSound);
     }
     else
     {
         if ( fireModeVisuals->projectileMiss.generic.impactEffect[0] )
-            drawData->projectileMiss.generic.impactEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileMiss.generic.impactEffect);
+            drawData->projectileMiss.generic.impactEffect = cgi.FX_RegisterEffect (fireModeVisuals->projectileMiss.generic.impactEffect);
         else if ( fireMode->ammo && fireMode->ammo->missFx )
             drawData->projectileMiss.generic.impactEffect = fireMode->ammo->missFx;
             
         if ( fireModeVisuals->projectileMiss.grenade.shockwaveEffect[0] )
-            drawData->projectileMiss.grenade.shockwaveEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileMiss.grenade.shockwaveEffect);
+            drawData->projectileMiss.grenade.shockwaveEffect = cgi.FX_RegisterEffect (fireModeVisuals->projectileMiss.grenade.shockwaveEffect);
     }
     
     // Projectile hit event
     if ( fireModeVisuals->projectileHitPlayer.generic.impactEffect[0] )
-        drawData->projectileHitPlayer.generic.impactEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileHitPlayer.generic.impactEffect);
+        drawData->projectileHitPlayer.generic.impactEffect = cgi.FX_RegisterEffect (fireModeVisuals->projectileHitPlayer.generic.impactEffect);
     else if ( fireMode->ammo && fireMode->ammo->hitFx )
         drawData->projectileHitPlayer.generic.impactEffect = fireMode->ammo->hitFx;
         
     if ( fireModeVisuals->projectileHitPlayer.grenade.shockwaveEffect[0] )
-        drawData->projectileHitPlayer.grenade.shockwaveEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileHitPlayer.grenade.shockwaveEffect);
+        drawData->projectileHitPlayer.grenade.shockwaveEffect = cgi.FX_RegisterEffect (fireModeVisuals->projectileHitPlayer.grenade.shockwaveEffect);
     
     // Projectile deflected event
     if ( fireModeVisuals->projectileDeflected.generic.deflectEffect[0] )
-        drawData->projectileDeflected.generic.deflectEffect = trap_FX_RegisterEffect (fireModeVisuals->projectileDeflected.generic.deflectEffect);
+        drawData->projectileDeflected.generic.deflectEffect = cgi.FX_RegisterEffect (fireModeVisuals->projectileDeflected.generic.deflectEffect);
     
     // Grenade bounce event
     if ( fireModeVisuals->grenadeBounce.grenade.bounceSound[0][0] )
-        drawData->grenadeBounce.grenade.bounceSound[0] = trap_S_RegisterSound (fireModeVisuals->grenadeBounce.grenade.bounceSound[0]);
+        drawData->grenadeBounce.grenade.bounceSound[0] = cgi.S_RegisterSound (fireModeVisuals->grenadeBounce.grenade.bounceSound[0]);
         
     if ( fireModeVisuals->grenadeBounce.grenade.bounceSound[1][0] )
-        drawData->grenadeBounce.grenade.bounceSound[1] = trap_S_RegisterSound (fireModeVisuals->grenadeBounce.grenade.bounceSound[1]);
+        drawData->grenadeBounce.grenade.bounceSound[1] = cgi.S_RegisterSound (fireModeVisuals->grenadeBounce.grenade.bounceSound[1]);
     
     // Explosive render
     if ( fireModeVisuals->explosiveRender.detpack.g2Model[0] )
@@ -282,15 +282,15 @@ static void JKG_LoadFireModeAssets ( weaponDrawData_t *drawData, const weaponFir
     drawData->explosiveRender.detpack.g2Radius = fireModeVisuals->explosiveRender.detpack.g2Radius;
     
     if ( fireModeVisuals->explosiveRender.tripmine.lineEffect[0] )
-        drawData->explosiveRender.tripmine.lineEffect = trap_FX_RegisterEffect (fireModeVisuals->explosiveRender.tripmine.lineEffect);
+        drawData->explosiveRender.tripmine.lineEffect = cgi.FX_RegisterEffect (fireModeVisuals->explosiveRender.tripmine.lineEffect);
     
     // Explosive blow event
     if ( fireModeVisuals->explosiveBlow.generic.explodeEffect[0] )
-        drawData->explosiveBlow.generic.explodeEffect = trap_FX_RegisterEffect (fireModeVisuals->explosiveBlow.generic.explodeEffect);
+        drawData->explosiveBlow.generic.explodeEffect = cgi.FX_RegisterEffect (fireModeVisuals->explosiveBlow.generic.explodeEffect);
     
     // Explosive armed event
     if ( fireModeVisuals->explosiveArm.armSound[0] )
-        drawData->explosiveArm.armSound = trap_S_RegisterSound (fireModeVisuals->explosiveArm.armSound);
+        drawData->explosiveArm.armSound = cgi.S_RegisterSound (fireModeVisuals->explosiveArm.armSound);
 }
 
 void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weaponData )
@@ -310,13 +310,13 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
     {
         if ( weaponVisuals->groupedIndicatorShaders[i][0] )
         {
-            weaponInfo->groupedIndicators[i] = trap_R_RegisterShader (weaponVisuals->groupedIndicatorShaders[i]);
+            weaponInfo->groupedIndicators[i] = cgi.R_RegisterShader (weaponVisuals->groupedIndicatorShaders[i]);
         }
     }
     
     if ( weaponVisuals->firemodeIndicatorShader[0] )
     {
-        weaponInfo->fireModeIndicator = trap_R_RegisterShader (weaponVisuals->firemodeIndicatorShader);
+        weaponInfo->fireModeIndicator = cgi.R_RegisterShader (weaponVisuals->firemodeIndicatorShader);
     }
     
     VectorClear (weaponInfo->gunPosition);
@@ -338,8 +338,8 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
     
     if ( CG_IsGhoul2Model (weaponVisuals->world_model) )
     {
-        trap_G2API_InitGhoul2Model (&weaponInfo->g2WorldModel, weaponVisuals->world_model, 0, 0, 0, 0, 0);
-        if ( !trap_G2_HaveWeGhoul2Models (weaponInfo->g2WorldModel) )
+        cgi.G2API_InitGhoul2Model (&weaponInfo->g2WorldModel, weaponVisuals->world_model, 0, 0, 0, 0, 0);
+        if ( !cgi.G2_HaveWeGhoul2Models (weaponInfo->g2WorldModel) )
         {
             weaponInfo->g2WorldModel = NULL;
         }
@@ -359,7 +359,7 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
             break;
         }
         
-        barrel = trap_R_RegisterModel (barrelModel);
+        barrel = cgi.R_RegisterModel (barrelModel);
         if ( barrel == NULL_HANDLE )
         {
             break;
@@ -370,18 +370,18 @@ void JKG_LoadWeaponAssets ( weaponInfo_t *weaponInfo, const weaponData_t *weapon
     
     // Scope render
     if ( weaponVisuals->scopeShader[0] )
-        weaponInfo->scopeShader = trap_R_RegisterShader (weaponVisuals->scopeShader);
+        weaponInfo->scopeShader = cgi.R_RegisterShader (weaponVisuals->scopeShader);
     
     // Scope toggle
     if ( weaponVisuals->scopeStartSound[0] )
-        weaponInfo->scopeStartSound = trap_S_RegisterSound (weaponVisuals->scopeStartSound);
+        weaponInfo->scopeStartSound = cgi.S_RegisterSound (weaponVisuals->scopeStartSound);
         
     if ( weaponVisuals->scopeStopSound[0] )
-        weaponInfo->scopeStopSound = trap_S_RegisterSound (weaponVisuals->scopeStopSound);
+        weaponInfo->scopeStopSound = cgi.S_RegisterSound (weaponVisuals->scopeStopSound);
     
     // Scope zoom
     if ( weaponVisuals->scopeLoopSound[0] )
-        weaponInfo->scopeLoopSound = trap_S_RegisterSound (weaponVisuals->scopeLoopSound);
+        weaponInfo->scopeLoopSound = cgi.S_RegisterSound (weaponVisuals->scopeLoopSound);
         
     weaponInfo->scopeSoundLoopTime = weaponVisuals->scopeSoundLoopTime;
 
@@ -449,12 +449,12 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	weaponData = GetWeaponData (weaponNum, variation);
 
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = trap_R_RegisterModel( weaponData->visuals.world_model );
+	weaponInfo->weaponModel = cgi.R_RegisterModel( weaponData->visuals.world_model );
 	// load in-view model also
 	weaponInfo->viewModel = NULL_HANDLE;
 	if ( weaponInfo->g2ViewModel )
 	{
-	    trap_G2API_CleanGhoul2Models (&weaponInfo->g2ViewModel);
+	    cgi.G2API_CleanGhoul2Models (&weaponInfo->g2ViewModel);
 	    weaponInfo->g2ViewModel = NULL;
 	}
 		
@@ -464,17 +464,17 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	}
 	else
 	{
-	    weaponInfo->viewModel = trap_R_RegisterModel(weaponData->visuals.view_model);
+	    weaponInfo->viewModel = cgi.R_RegisterModel(weaponData->visuals.view_model);
 	}
 
 	// calc midpoint for rotation
-	trap_R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
+	cgi.R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
 	for ( i = 0 ; i < 3 ; i++ ) {
 		weaponInfo->weaponMidpoint[i] = mins[i] + 0.5 * ( maxs[i] - mins[i] );
 	}
 
-	weaponInfo->hudIcon = trap_R_RegisterShaderNoMip (weaponData->visuals.icon);
-	weaponInfo->hudNAIcon = trap_R_RegisterShaderNoMip (weaponData->visuals.icon_na);
+	weaponInfo->hudIcon = cgi.R_RegisterShaderNoMip (weaponData->visuals.icon);
+	weaponInfo->hudNAIcon = cgi.R_RegisterShaderNoMip (weaponData->visuals.icon_na);
 
 	/* Xycaleth: wtf was this for?
 	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
@@ -483,13 +483,13 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 		}
 	}
 	if ( ammo->classname && ammo->world_model[0] ) {
-		weaponInfo->ammoModel = trap_R_RegisterModel( ammo->world_model[0] );
+		weaponInfo->ammoModel = cgi.R_RegisterModel( ammo->world_model[0] );
 	}*/
 
 //	strcpy( path, item->view_model );
 //	COM_StripExtension( path, path );
 //	strcat( path, "_flash.md3" );
-	weaponInfo->flashModel = 0;//trap_R_RegisterModel( path );
+	weaponInfo->flashModel = 0;//cgi.R_RegisterModel( path );
 
 	/*if (weaponNum == WP_DISRUPTOR ||
 		weaponNum == WP_FLECHETTE ||
@@ -499,13 +499,13 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 		strcpy( path, weaponData->visuals.view_model );
 		COM_StripExtension( path, path );
 		strcat( path, "_barrel.md3" );
-		weaponInfo->barrelModel = trap_R_RegisterModel( path );
+		weaponInfo->barrelModel = cgi.R_RegisterModel( path );
 	}
 	else if (weaponNum == WP_STUN_BATON)
 	{ //only weapon with more than 1 barrel..
-		trap_R_RegisterModel("models/weapons2/stun_baton/baton_barrel.md3");
-		trap_R_RegisterModel("models/weapons2/stun_baton/baton_barrel2.md3");
-		trap_R_RegisterModel("models/weapons2/stun_baton/baton_barrel3.md3");
+		cgi.R_RegisterModel("models/weapons2/stun_baton/baton_barrel.md3");
+		cgi.R_RegisterModel("models/weapons2/stun_baton/baton_barrel2.md3");
+		cgi.R_RegisterModel("models/weapons2/stun_baton/baton_barrel3.md3");
 	}
 	else
 	{
@@ -517,7 +517,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 		strcpy( path, weaponData->visuals.view_model );
 		COM_StripExtension( path, path, sizeof(path) );
 		strcat( path, "_hand.md3" );
-		weaponInfo->handsModel = trap_R_RegisterModel( path );
+		weaponInfo->handsModel = cgi.R_RegisterModel( path );
 	}
 	else
 	{
@@ -525,7 +525,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	}
 
 //	if ( !weaponInfo->handsModel ) {
-//		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
+//		weaponInfo->handsModel = cgi.R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
 //	}
 
 	for(i = 0; i < weaponData->numFiringModes; i++)
@@ -539,17 +539,17 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 	case WP_STUN_BATON:
 	case WP_MELEE:
 /*		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
-		weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/saber/saberhum.wav" );
-//		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav" );
+		weaponInfo->firingSound = cgi.S_RegisterSound( "sound/weapons/saber/saberhum.wav" );
+//		weaponInfo->flashSound[0] = cgi.S_RegisterSound( "sound/weapons/melee/fstatck.wav" );
 */
-		//trap_R_RegisterShader( "gfx/effects/stunPass" );
-		trap_FX_RegisterEffect( "stunBaton/flesh_impact" );
+		//cgi.R_RegisterShader( "gfx/effects/stunPass" );
+		cgi.FX_RegisterEffect( "stunBaton/flesh_impact" );
 
 		if (weaponNum == WP_STUN_BATON)
 		{
-			trap_S_RegisterSound( "sound/weapons/baton/idle.wav" );
-			weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/baton/fire.mp3" );
-			weaponInfo->altFlashSound[0] = trap_S_RegisterSound( "sound/weapons/baton/fire.mp3" );
+			cgi.S_RegisterSound( "sound/weapons/baton/idle.wav" );
+			weaponInfo->flashSound[0] = cgi.S_RegisterSound( "sound/weapons/baton/fire.mp3" );
+			weaponInfo->altFlashSound[0] = cgi.S_RegisterSound( "sound/weapons/baton/fire.mp3" );
 		}
 		else
 		{
@@ -558,7 +558,7 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 
 			while (j < 4)
 			{
-				weaponInfo->flashSound[j] = trap_S_RegisterSound( va("sound/weapons/melee/swing%i", j+1) );
+				weaponInfo->flashSound[j] = cgi.S_RegisterSound( va("sound/weapons/melee/swing%i", j+1) );
 				weaponInfo->altFlashSound[j] = weaponInfo->flashSound[j];
 				j++;
 			}
@@ -568,8 +568,8 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 		break;
 	case WP_SABER:
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
-		weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" );
-		weaponInfo->missileModel		= trap_R_RegisterModel( "models/weapons2/saber/saber_w.glm" );
+		weaponInfo->firingSound = cgi.S_RegisterSound( "sound/weapons/saber/saberhum1.wav" );
+		weaponInfo->missileModel		= cgi.R_RegisterModel( "models/weapons2/saber/saber_w.glm" );
 		break;
 
 	case WP_TURRET:
@@ -583,13 +583,13 @@ void CG_RegisterWeapon( int weaponNum, int variation ) {
 		weaponInfo->missileHitSound		= NULL_SOUND;
 		weaponInfo->missileTrailFunc	= FX_TurretProjectileThink;
 
-		trap_FX_RegisterEffect("effects/blaster/wall_impact.efx");
-		trap_FX_RegisterEffect("effects/blaster/flesh_impact.efx");
+		cgi.FX_RegisterEffect("effects/blaster/wall_impact.efx");
+		cgi.FX_RegisterEffect("effects/blaster/flesh_impact.efx");
 		break;
 
 	 default:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 1 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav" );
+		weaponInfo->flashSound[0] = cgi.S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav" );
 		break;
 	}
 }

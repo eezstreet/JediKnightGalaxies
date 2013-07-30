@@ -249,7 +249,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
-			cmodel = trap_CM_InlineModel( ent->modelindex );
+			cmodel = cgi.CM_InlineModel( ent->modelindex );
 			VectorCopy( cent->lerpAngles, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
@@ -277,14 +277,14 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 				cent->m_pVehicle->m_vOrientation = old;
 			}
 
-			cmodel = trap_CM_TempBoxModel( bmins, bmaxs );
+			cmodel = cgi.CM_TempBoxModel( bmins, bmaxs );
 			VectorCopy( vec3_origin, angles );
 			
 			VectorCopy( cent->lerpOrigin, origin );
 		}
 
 
-		trap_CM_TransformedBoxTrace ( &trace, start, end,
+		cgi.CM_TransformedBoxTrace ( &trace, start, end,
 			mins, maxs, cmodel,  mask, origin, angles);
 		trace.entityNum = trace.fraction != 1.0 ? ent->number : ENTITYNUM_NONE;
 
@@ -368,7 +368,7 @@ void CG_TraceItem ( trace_t *result, const vec3_t start, const vec3_t mins, cons
     VectorSet (localMins, -8, -8, -0);
 	VectorSet (localMaxs, 8, 8, 16);
     
-    trap_CM_BoxTrace (&tr, start, end, mins, maxs, 0, CONTENTS_SOLID);
+    cgi.CM_BoxTrace (&tr, start, end, mins, maxs, 0, CONTENTS_SOLID);
     tr.entityNum = tr.fraction == 1.0f ? ENTITYNUM_NONE : ENTITYNUM_WORLD;
     
     for ( i = 0; i < cg_numTriggerEntities; i++ )
@@ -400,8 +400,8 @@ void CG_TraceItem ( trace_t *result, const vec3_t start, const vec3_t mins, cons
 
         VectorAdd (localMins, ent->origin, itemMins);
         VectorAdd (localMaxs, ent->origin, itemMaxs);
-        cmodel = trap_CM_TempBoxModel (itemMins, itemMaxs);
-        trap_CM_BoxTrace (&tr, start, end, mins, maxs, cmodel, -1);
+        cmodel = cgi.CM_TempBoxModel (itemMins, itemMaxs);
+        cgi.CM_BoxTrace (&tr, start, end, mins, maxs, cmodel, -1);
 
         if ( tr.fraction < 1.0f )
         {
@@ -422,7 +422,7 @@ void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 					 int skipNumber, int mask ) {
 	trace_t	t;
 
-	trap_CM_BoxTrace ( &t, start, end, mins, maxs, 0, mask);
+	cgi.CM_BoxTrace ( &t, start, end, mins, maxs, 0, mask);
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
 	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t, qfalse);
@@ -439,7 +439,7 @@ void	CG_G2Trace( trace_t *result, const vec3_t start, const vec3_t mins, const v
 					 int skipNumber, int mask ) {
 	trace_t	t;
 
-	trap_CM_BoxTrace ( &t, start, end, mins, maxs, 0, mask);
+	cgi.CM_BoxTrace ( &t, start, end, mins, maxs, 0, mask);
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
 	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t, qtrue);
@@ -459,7 +459,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 	clipHandle_t cmodel;
 	int			contents;
 
-	contents = trap_CM_PointContents (point, 0);
+	contents = cgi.CM_PointContents (point, 0);
 
 	for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
 		cent = cg_solidEntities[ i ];
@@ -474,12 +474,12 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
+		cmodel = cgi.CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}
 
-		contents |= trap_CM_TransformedPointContents( point, cmodel, ent->origin, ent->angles );
+		contents |= cgi.CM_TransformedPointContents( point, cmodel, ent->origin, ent->angles );
 	}
 
 	return contents;
@@ -511,8 +511,8 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 		usercmd_t	cmd;
 		int			cmdNum;
 
-		cmdNum = trap_GetCurrentCmdNumber();
-		trap_GetUserCmd( cmdNum, &cmd );
+		cmdNum = cgi.GetCurrentCmdNumber();
+		cgi.GetUserCmd( cmdNum, &cmd );
 
 		PM_UpdateViewAngles( out, &cmd );
 	}
@@ -563,8 +563,8 @@ static void CG_InterpolateVehiclePlayerState( qboolean grabAngles ) {
 		usercmd_t	cmd;
 		int			cmdNum;
 
-		cmdNum = trap_GetCurrentCmdNumber();
-		trap_GetUserCmd( cmdNum, &cmd );
+		cmdNum = cgi.GetCurrentCmdNumber();
+		cgi.GetUserCmd( cmdNum, &cmd );
 
 		PM_UpdateViewAngles( out, &cmd );
 	}
@@ -754,12 +754,12 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
+		cmodel = cgi.CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}
 
-		trap_CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, 
+		cgi.CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, 
 			cg_pmove.mins, cg_pmove.maxs, cmodel, -1 );
 
 		if ( !trace.startsolid ) {
@@ -1094,8 +1094,8 @@ void CG_PredictPlayerState( void ) {
 			cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
 		{
 			cg_pmove.ghoul2 = pEnt->ghoul2;
-			cg_pmove.g2Bolts_LFoot = trap_G2API_AddBolt(pEnt->ghoul2, 0, "*l_leg_foot");
-			cg_pmove.g2Bolts_RFoot = trap_G2API_AddBolt(pEnt->ghoul2, 0, "*r_leg_foot");
+			cg_pmove.g2Bolts_LFoot = cgi.G2API_AddBolt(pEnt->ghoul2, 0, "*l_leg_foot");
+			cg_pmove.g2Bolts_RFoot = cgi.G2API_AddBolt(pEnt->ghoul2, 0, "*r_leg_foot");
 		}
 		else
 		{
@@ -1127,13 +1127,13 @@ void CG_PredictPlayerState( void ) {
 		oldVehicleState = cg.predictedVehicleState;
 	}
 
-	current = trap_GetCurrentCmdNumber();
+	current = cgi.GetCurrentCmdNumber();
 
 	// if we don't have the commands right after the snapshot, we
 	// can't accurately predict a current position, so just freeze at
 	// the last good position we had
 	cmdNum = current - CMD_BACKUP + 1;
-	trap_GetUserCmd( cmdNum, &oldestCmd );
+	cgi.GetUserCmd( cmdNum, &oldestCmd );
 	if ( oldestCmd.serverTime > cg.snap->ps.commandTime 
 		&& oldestCmd.serverTime < cg.time ) {	// special check for map_restart
 		if ( cg_showmiss.integer ) {
@@ -1143,7 +1143,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// get the latest command so we can know which commands are from previous map_restarts
-	trap_GetUserCmd( current, &latestCmd );
+	cgi.GetUserCmd( current, &latestCmd );
 
 	// get the most recent information we have, even if
 	// the server time is beyond our current cg.time,
@@ -1168,10 +1168,10 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	if ( pmove_msec.integer < 8 ) {
-		trap_Cvar_Set("pmove_msec", "8");
+		cgi.Cvar_Set("pmove_msec", "8");
 	}
 	else if (pmove_msec.integer > 33) {
-		trap_Cvar_Set("pmove_msec", "33");
+		cgi.Cvar_Set("pmove_msec", "33");
 	}
 
 	cg_pmove.pmove_fixed = pmove_fixed.integer;// | cg_pmove_fixed.integer;
@@ -1215,7 +1215,7 @@ void CG_PredictPlayerState( void ) {
 	moved = qfalse;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
 		// get the command
-		trap_GetUserCmd( cmdNum, &cg_pmove.cmd );
+		cgi.GetUserCmd( cmdNum, &cg_pmove.cmd );
 
 		if ( cg_pmove.pmove_fixed ) {
 			PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd );
@@ -1356,7 +1356,7 @@ void CG_PredictPlayerState( void ) {
 			//keep this updated based on what the playerstate says
 			veh->m_pVehicle->m_iRemovedSurfaces = cg.predictedVehicleState.vehSurfaces;
 
-			trap_GetUserCmd( cmdNum, &veh->m_pVehicle->m_ucmd );
+			cgi.GetUserCmd( cmdNum, &veh->m_pVehicle->m_ucmd );
 
 			if ( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK )
 			{ //forced input if "chat bubble" is up
@@ -1437,7 +1437,7 @@ void CG_PredictPlayerState( void ) {
 				//keep this updated based on what the playerstate says
 				veh->m_pVehicle->m_iRemovedSurfaces = cg.predictedVehicleState.vehSurfaces;
 
-				trap_GetUserCmd( cmdNum, &veh->m_pVehicle->m_ucmd );
+				cgi.GetUserCmd( cmdNum, &veh->m_pVehicle->m_ucmd );
 
 				if ( veh->m_pVehicle->m_ucmd.buttons & BUTTON_TALK )
 				{ //forced input if "chat bubble" is up

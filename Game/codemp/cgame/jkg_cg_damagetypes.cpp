@@ -11,8 +11,8 @@ void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity )
     {
         if ( (cent->debuffVisuals.lastFireEFXTime + 100) <= cg.time )
         {
-            int lowerLumbarBolt = trap_G2API_AddBolt (cent->ghoul2, 0, "lower_lumbar");
-            trap_FX_PlayBoltedEffectID (cgs.media.playerFireEffect, cent->lerpOrigin, cent->ghoul2, lowerLumbarBolt, es->number, 0, 0, qtrue);
+            int lowerLumbarBolt = cgi.G2API_AddBolt (cent->ghoul2, 0, "lower_lumbar");
+            cgi.FX_PlayBoltedEffectID (cgs.media.playerFireEffect, cent->lerpOrigin, cent->ghoul2, lowerLumbarBolt, es->number, 0, 0, qtrue);
             cent->debuffVisuals.lastFireEFXTime = cg.time;
         }
     }
@@ -28,7 +28,7 @@ void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity )
             refEntity->renderfx = 0;
             refEntity->customShader = cgs.media.iceOverlay;
             
-            trap_R_AddRefEntityToScene (refEntity);
+            cgi.R_AddRefEntityToScene (refEntity);
         }
     }
     
@@ -43,7 +43,7 @@ void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity )
             refEntity->renderfx = 0;
             refEntity->customShader = cgs.media.carboniteOverlay;
             
-            trap_R_AddRefEntityToScene (refEntity);
+            cgi.R_AddRefEntityToScene (refEntity);
         }
     }
     
@@ -61,7 +61,7 @@ void JKG_PlayerDebuffVisuals ( centity_t *cent, refEntity_t *refEntity )
                 refEntity->renderfx = 0;
                 refEntity->customShader = cgs.media.stunOverlay;
                 
-                trap_R_AddRefEntityToScene (refEntity);
+                cgi.R_AddRefEntityToScene (refEntity);
             }
             
             if ( cent->debuffVisuals.stunStartTime == 0 )

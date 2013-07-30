@@ -143,6 +143,9 @@ struct vm_s {
 	int			callLevel;			// for debug indenting
 	int			breakFunction;		// increment breakCount on function entry to this
 	int			breakCount;
+
+	// Killing off the VM layer...
+	void*		(QDECL *GetModuleAPI)( int apiVersion, void *import );
 };
 
 #ifdef CRAZY_SYMBOL_MAP

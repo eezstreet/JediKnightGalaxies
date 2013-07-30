@@ -22,12 +22,12 @@ Coordinates are 640*480 virtual values
 =================
 */
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
-	trap_R_SetColor( color );
+	cgi.R_SetColor( color );
 	
 	CG_DrawTopBottom(x, y, width, height, size);
 	CG_DrawSides(x, y, width, height, size);
 	
-	trap_R_SetColor( NULL );
+	cgi.R_SetColor( NULL );
 }
 
 
@@ -84,15 +84,15 @@ Coords are virtual 640x480
 */
 void CG_DrawSides(float x, float y, float w, float h, float size) {
 	size /= cgs.screenXScale;
-	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 	size /= cgs.screenYScale;
 	// JKG - Fix: Avoid double-rendering the corners
-	trap_R_DrawStretchPic( x+size, y, w-size*2, size, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x+size, y + h - size, w-size*2, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x+size, y, w-size*2, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x+size, y + h - size, w-size*2, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 /*
@@ -102,9 +102,9 @@ real coords
 -------------------------
 */
 void CG_FillRect2( float x, float y, float width, float height, const float *color ) {
-	trap_R_SetColor( color );
-	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader);
-	trap_R_SetColor( NULL );
+	cgi.R_SetColor( color );
+	cgi.R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader);
+	cgi.R_SetColor( NULL );
 }
 
 /*
@@ -115,11 +115,11 @@ Coordinates are 640*480 virtual values
 =================
 */
 void CG_FillRect( float x, float y, float width, float height, const float *color ) {
-	trap_R_SetColor( color );
+	cgi.R_SetColor( color );
 
-	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader);
+	cgi.R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader);
 
-	trap_R_SetColor( NULL );
+	cgi.R_SetColor( NULL );
 }
 
 
@@ -132,7 +132,7 @@ A width of 0 will draw with the original image width
 =================
 */
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader ) {
-	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	cgi.R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 /*
@@ -145,7 +145,7 @@ rotates around the upper right corner of the passed in point
 =================
 */
 void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader ) {
-	trap_R_DrawRotatePic( x, y, width, height, 0, 0, 1, 1, angle, hShader );
+	cgi.R_DrawRotatePic( x, y, width, height, 0, 0, 1, 1, angle, hShader );
 }
 
 /*
@@ -158,7 +158,7 @@ Actually rotates around the center point of the passed in coordinates
 =================
 */
 void CG_DrawRotatePic2( float x, float y, float width, float height,float angle, qhandle_t hShader ) {
-	trap_R_DrawRotatePic2( x, y, width, height, 0, 0, 1, 1, angle, hShader );
+	cgi.R_DrawRotatePic2( x, y, width, height, 0, 0, 1, 1, angle, hShader );
 }
 
 /*
@@ -194,7 +194,7 @@ void CG_DrawChar( int x, int y, int width, int height, int ch, qhandle_t textSha
 	size = 0.0625;	// Raven can't even copy-paste code correct it seems ~eezstreet
 	size2 = 0.0625;
 
-	trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + size, frow + size2, 
+	cgi.R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + size, frow + size2, 
 		textShader );
 
 }
@@ -213,7 +213,7 @@ Coordinates are at 640 by 480 virtual resolution
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars, qhandle_t textShader )
 {
-	if (trap_Language_IsAsian())
+	if (cgi.Language_IsAsian())
 	{
 		// hack-a-doodle-do (post-release quick fix code)...
 		//
@@ -239,7 +239,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		if (shadow) {
 			color[0] = color[1] = color[2] = 0;
 			color[3] = setColor[3];
-			trap_R_SetColor( color );
+			cgi.R_SetColor( color );
 			s = string;
 			xx = x;
 			yy = y;
@@ -265,7 +265,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 					s++;
 					continue;
 				}
-				//trap_R_DrawStretchPic( xx + 2, yy+2, charWidth, charHeight, 8, 16, 
+				//cgi.R_DrawStretchPic( xx + 2, yy+2, charWidth, charHeight, 8, 16, 
 				CG_DrawChar( xx + 2, yy + 2, charWidth, charHeight, *s, textShader );
 				xx += charWidth;
 				s++;
@@ -276,7 +276,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		s = string;
 		xx = x;
 		yy = y;
-		trap_R_SetColor( setColor );
+		cgi.R_SetColor( setColor );
 		while ( *s ) {
 			if(*s == '\n')
 			{	//Handle newlines
@@ -293,7 +293,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 					{
 						memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
 						color[3] = setColor[3];
-						trap_R_SetColor( color );
+						cgi.R_SetColor( color );
 					}
 					s+= 2;
 					continue;
@@ -323,7 +323,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 								}
 							}
 							color[3] = setColor[3];
-							trap_R_SetColor( color );
+							cgi.R_SetColor( color );
 						}
 						s += 5;
 						continue;
@@ -334,7 +334,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 			xx += charWidth-1;
 			s++;
 		}
-		trap_R_SetColor( NULL );
+		cgi.R_SetColor( NULL );
 	}
 }
 
@@ -400,7 +400,7 @@ static void CG_TileClearBox( int x, int y, int w, int h, qhandle_t hShader ) {
 	t1 = y/64.0;
 	s2 = (x+w)/64.0;
 	t2 = (y+h)/64.0;
-	trap_R_DrawStretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
+	cgi.R_DrawStretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
 }
 
 

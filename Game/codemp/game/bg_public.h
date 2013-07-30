@@ -1922,8 +1922,5 @@ extern bgConstants_t bgConstants;
 void JKG_InitializeConstants(void);
 
 int BG_GetPairedValue(char *buf, char *key, char *outbuf);
-int trap_PC_LoadSource( const char *filename );
-int trap_PC_FreeSource( int handle );
-int trap_PC_ReadToken( int handle, pc_token_t *pc_token );
 
 #endif //__BG_PUBLIC_H__

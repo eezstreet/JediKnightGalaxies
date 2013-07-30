@@ -40,13 +40,13 @@ qboolean CG_SnapRefEntToBone(centity_t *cent, refEntity_t *refEnt, const char *b
 		return qfalse;
 	}
 
-	getBolt = trap_G2API_AddBolt(cl->ghoul2, 0, bone_name);
+	getBolt = cgi.G2API_AddBolt(cl->ghoul2, 0, bone_name);
 
 	VectorCopy(cl->lerpAngles, holsterAngles);
 	holsterAngles[PITCH] = 0;
 	holsterAngles[ROLL] = 0;
 
-	trap_G2API_GetBoltMatrix(cl->ghoul2, 0, getBolt, &matrix, holsterAngles /*cl->lerpAngles*/, cl->lerpOrigin, cg.time, cgs.gameModels, cl->modelScale);
+	cgi.G2API_GetBoltMatrix(cl->ghoul2, 0, getBolt, &matrix, holsterAngles /*cl->lerpAngles*/, cl->lerpOrigin, cg.time, cgs.gameModels, cl->modelScale);
 
 	BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
 	BG_GiveMeVectorFromMatrix(&matrix, NEGATIVE_Y, boltAng);
@@ -197,7 +197,7 @@ void JKG_DrawWeaponHolsters( centity_t *cent, refEntity_t legs, float shadowPlan
 
 			weaponGhoul2 = weapon->g2WorldModel;
 
-			if (trap_G2_HaveWeGhoul2Models(weaponGhoul2))
+			if (cgi.G2_HaveWeGhoul2Models(weaponGhoul2))
 			{
 				char bone_name[MAX_QPATH];
 				vec3_t	holsterAngles, end, fwd, rt, originalOrigin;

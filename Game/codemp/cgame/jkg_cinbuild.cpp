@@ -44,17 +44,17 @@ static void Cin_DoCubicSplineInterpolation();
 static float CinBuild_GetCamPos(int offset, int axis);
 
 void CinBuild_Init() {
-	trap_AddCommand("cinbuild");
+	cgi.AddCommand("cinbuild");
 	memset(&CinBuildData, 0, sizeof(CinBuildData));
-	orc_a_font = trap_R_RegisterFont("ocr_a");
+	orc_a_font = cgi.R_RegisterFont("ocr_a");
 
 	// Some additional stuff I thought I could chuck here to fix the Pazaak blur bug --eez
 	if(ui_blurbackground.integer)
 	{
-		trap_Cvar_Set("ui_blurbackground", "0");
+		cgi.Cvar_Set("ui_blurbackground", "0");
 		cg.turnOnBlurCvar = qtrue;
 	}
-	trap_Cvar_Set("ui_hidehud", "0");
+	cgi.Cvar_Set("ui_hidehud", "0");
 }
 
 static void CinBuild_RecalculateOffsets() {
@@ -177,12 +177,12 @@ typedef struct {
 static void CinBuild_InitParseBuff(parsebuff_t *pb) {
 	memset(pb,0,sizeof(parsebuff_t));
 	pb->arg = 1;
-	pb->argc = trap_Argc();
+	pb->argc = cgi.Argc();
 }
 
 static const char *CinBuild_NextToken(parsebuff_t *pb) {
 	if (pb->arg > pb->argc) return NULL;
-	trap_Argv(pb->arg++,pb->buff, sizeof(pb->buff));
+	cgi.Argv(pb->arg++,pb->buff, sizeof(pb->buff));
 	return pb->buff;
 }
 
@@ -258,9 +258,9 @@ static float* MakeColor(float r, float g, float b, float a) {
 
 // Code from UU
 static void RE_Font_DrawCenterString(int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale) {
-	int len = trap_R_Font_StrLenPixels(text,(setIndex & 0xFF),scale);
+	int len = cgi.R_Font_StrLenPixels(text,(setIndex & 0xFF),scale);
 	int newx = ox - (len/2);
-	trap_R_Font_DrawString(newx,oy,text,rgba,setIndex,iCharLimit,scale);
+	cgi.R_Font_DrawString(newx,oy,text,rgba,setIndex,iCharLimit,scale);
 }
 
 #define	FX_ALPHA_LINEAR		0x00000001
@@ -277,8 +277,8 @@ void CinBuild_Visualize() {
 	memset( &ent, 0, sizeof( ent ) );
 	ent.nonNormalizedAxes = qtrue;
 
-	ent.hModel = trap_R_RegisterModel ( "models/weaphits/testboom.md3" );
-	ent.customShader = trap_R_RegisterShader( "powerups/invulnerabilityshell");
+	ent.hModel = cgi.R_RegisterModel ( "models/weaphits/testboom.md3" );
+	ent.customShader = cgi.R_RegisterShader( "powerups/invulnerabilityshell");
 
 	for (i=0; i < CinBuildData.campoints; i++) {
 		vec3_t ang;
@@ -321,15 +321,15 @@ void CinBuild_Visualize() {
 			ent.renderfx = 0;
 		}
 
-		if (trap_R_inPVS(cg.refdef.vieworg, ent.origin, cg.snap->areamask)) {
+		if (cgi.R_inPVS(cg.refdef.vieworg, ent.origin, cg.snap->areamask)) {
 			static vec3_t YELLOW = {1.0f, 1.0f, 0.0f };
-			trap_R_AddRefEntityToScene( &ent );
+			cgi.R_AddRefEntityToScene( &ent );
 
 
-			trap_FX_AddLine( CinBuildData.points[i].aimvec, CinBuildData.points[i].origin , 0.1f, 2.0f, 0.0f, 
+			cgi.FX_AddLine( CinBuildData.points[i].aimvec, CinBuildData.points[i].origin , 0.1f, 2.0f, 0.0f, 
 				1.0f, 0.0f, 0.0f,
 				YELLOW, YELLOW, 0.0f,
-				150, trap_R_RegisterShader( "gfx/effects/redLine" ), 
+				150, cgi.R_RegisterShader( "gfx/effects/redLine" ), 
 				FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
 		}
 	}
@@ -357,26 +357,26 @@ void CinBuild_Visualize() {
 		ent.renderfx = RF_RGB_TINT;
 
 
-		if (trap_R_inPVS(cg.refdef.vieworg, ent.origin, cg.snap->areamask)) {
-			trap_R_AddRefEntityToScene( &ent );
+		if (cgi.R_inPVS(cg.refdef.vieworg, ent.origin, cg.snap->areamask)) {
+			cgi.R_AddRefEntityToScene( &ent );
 		}
 
 	}
 	for (i=1; i < CinBuildData.trajpoints; i++) {
 		static vec3_t WHITE = {1.0f, 1.0f, 1.0f };
 		static vec3_t BLUE = {0.0f, 0.0f, 1.0f };
-		if (trap_R_inPVS(cg.refdef.vieworg, CinBuildData.trajectory[i].org, cg.snap->areamask)) {
-			trap_FX_AddLine( CinBuildData.trajectory[i].org, CinBuildData.trajectory[i-1].org, 0.1f, 6.0f, 0.0f, 
+		if (cgi.R_inPVS(cg.refdef.vieworg, CinBuildData.trajectory[i].org, cg.snap->areamask)) {
+			cgi.FX_AddLine( CinBuildData.trajectory[i].org, CinBuildData.trajectory[i-1].org, 0.1f, 6.0f, 0.0f, 
 				1.0f, 0.0f, 0.0f,
 				WHITE, WHITE, 0.0f,
-				150, trap_R_RegisterShader( "gfx/effects/redLine" ), 
+				150, cgi.R_RegisterShader( "gfx/effects/redLine" ), 
 				FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
 
 
-			trap_FX_AddLine( CinBuildData.trajectory[i].angpos, CinBuildData.trajectory[i-1].angpos, 0.1f, 2.0f, 0.0f, 
+			cgi.FX_AddLine( CinBuildData.trajectory[i].angpos, CinBuildData.trajectory[i-1].angpos, 0.1f, 2.0f, 0.0f, 
 				1.0f, 0.0f, 0.0f,
 				BLUE, BLUE, 0.0f,
-				150, trap_R_RegisterShader( "gfx/effects/redLine" ), 
+				150, cgi.R_RegisterShader( "gfx/effects/redLine" ), 
 				FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
 		}
 
@@ -393,7 +393,7 @@ void CinBuild_Visualize2D() {
 		vec3_t tmppos, dist;
 		float alpha, distance, x, y;		
 		
-		if (trap_R_inPVS(cg.refdef.vieworg, CinBuildData.points[i].origin, cg.snap->areamask)) {
+		if (cgi.R_inPVS(cg.refdef.vieworg, CinBuildData.points[i].origin, cg.snap->areamask)) {
 
 			VectorSubtract(CinBuildData.points[i].origin, cg.refdef.vieworg, dist);
 			distance = sqrt(dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2]);
@@ -419,7 +419,7 @@ void CinBuild_Visualize2D() {
 		vec3_t tmppos, dist;
 		float alpha, distance, x, y;		
 		
-		if (trap_R_inPVS(cg.refdef.vieworg, CinBuildData.target, cg.snap->areamask)) {
+		if (cgi.R_inPVS(cg.refdef.vieworg, CinBuildData.target, cg.snap->areamask)) {
 
 			VectorSubtract(CinBuildData.target, cg.refdef.vieworg, dist);
 			distance = sqrt(dist[0]*dist[0] + dist[1]*dist[1] + dist[2]*dist[2]);

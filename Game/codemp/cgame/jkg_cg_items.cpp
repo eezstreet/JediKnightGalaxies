@@ -279,7 +279,7 @@ static qboolean JKG_CG_ParseItem ( const char *itemFilePath, cgItemData_t *itemD
 
 	char itemFileData[MAX_ITEM_FILE_LENGTH];
 	fileHandle_t f;
-	int fileLen = trap_FS_FOpenFile(itemFilePath, &f, FS_READ);
+	int fileLen = cgi.FS_FOpenFile(itemFilePath, &f, FS_READ);
 
 	if(!f || fileLen == -1)
 	{
@@ -289,15 +289,15 @@ static qboolean JKG_CG_ParseItem ( const char *itemFilePath, cgItemData_t *itemD
 
 	if( (fileLen + 1) >= MAX_ITEM_FILE_LENGTH )
 	{
-		trap_FS_FCloseFile(f);
+		cgi.FS_FCloseFile(f);
 		CG_Printf("^1%s item file too large. Please report this to the developers.\n", itemFilePath);
 		return qfalse;
 	}
 
-	trap_FS_Read(&itemFileData, fileLen, f);
+	cgi.FS_Read(&itemFileData, fileLen, f);
 	itemFileData[fileLen] = '\0';
 
-	trap_FS_FCloseFile(f);
+	cgi.FS_FCloseFile(f);
 
 	json = cJSON_ParsePooled (itemFileData, error, sizeof (error));
 	if ( json == NULL )
@@ -427,12 +427,11 @@ static qboolean JKG_CG_ParseItem ( const char *itemFilePath, cgItemData_t *itemD
 	return qtrue;
 }
 
-extern int strap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 static qboolean JKG_CG_LoadItems ( void )
 {
 	int i, j;
 	char itemFiles[8192];
-	int numFiles = strap_FS_GetFileList("ext_data/items/", ".itm", itemFiles, sizeof(itemFiles));
+	int numFiles = cgi.FS_GetFileList("ext_data/items/", ".itm", itemFiles, sizeof(itemFiles));
 	const char *itemFile = itemFiles;
 	int successful = 0;
 	int failed = 0;
@@ -517,7 +516,7 @@ static qboolean JKG_CG_ParseArmorFile ( const char *armorFilePath, cgArmorData_t
 
 	char armorFileData[MAX_ITEM_FILE_LENGTH];
 	fileHandle_t f;
-	int fileLen = trap_FS_FOpenFile(armorFilePath, &f, FS_READ);
+	int fileLen = cgi.FS_FOpenFile(armorFilePath, &f, FS_READ);
 
 	if(!f || fileLen == -1)
 	{
@@ -527,15 +526,15 @@ static qboolean JKG_CG_ParseArmorFile ( const char *armorFilePath, cgArmorData_t
 
 	if( (fileLen + 1) >= MAX_ITEM_FILE_LENGTH )
 	{
-		trap_FS_FCloseFile(f);
+		cgi.FS_FCloseFile(f);
 		CG_Printf("^1%s item file too large. Please report this to the developers.\n", armorFilePath);
 		return qfalse;
 	}
 
-	trap_FS_Read(&armorFileData, fileLen, f);
+	cgi.FS_Read(&armorFileData, fileLen, f);
 	armorFileData[fileLen] = '\0';
 
-	trap_FS_FCloseFile(f);
+	cgi.FS_FCloseFile(f);
 
 	json = cJSON_ParsePooled (armorFileData, error, sizeof (error));
 	if ( json == NULL )
@@ -604,7 +603,7 @@ static qboolean JKG_CG_LoadArmor(void)
 {
 	int i = 0;
 	char armorFiles[8192];
-	int numFiles = strap_FS_GetFileList("ext_data/armor/", ".armour", armorFiles, sizeof(armorFiles));
+	int numFiles = cgi.FS_GetFileList("ext_data/armor/", ".armour", armorFiles, sizeof(armorFiles));
 	const char *armorFile = armorFiles;
 	int successful = 0, failed = 0;
 
@@ -698,7 +697,7 @@ void JKG_CG_SetModelSurfacesFlags ( void *g2, const char *surfaces, int flags )
 		if(!surfaceName[0])
 			break;
 			
-		trap_G2API_SetSurfaceOnOff (g2, surfaceName, flags);
+		cgi.G2API_SetSurfaceOnOff (g2, surfaceName, flags);
 		i++;
 	}
 }
@@ -731,7 +730,7 @@ typedef struct mdxmHeader_s {
 //---------------------------------------------------------
 // Description: This retrieves the number of surfaces in
 // a GLM model. Use in conjunction with the G2 function,
-// trap_G2API_GetSurfaceName to get all the surface names
+// cgi.G2API_GetSurfaceName to get all the surface names
 // in the model. Surface names have a max length of
 // MAX_QPATH.
 //=========================================================
@@ -739,7 +738,7 @@ int JKG_G2_GetNumberOfSurfaces ( const char *modelPath )
 {
     mdxmHeader_t header;
     fileHandle_t f;
-    int fileLen = trap_FS_FOpenFile (modelPath, &f, FS_READ);
+    int fileLen = cgi.FS_FOpenFile (modelPath, &f, FS_READ);
     if ( fileLen == -1 || !f )
     {
 #ifdef _DEBUG
@@ -756,8 +755,8 @@ int JKG_G2_GetNumberOfSurfaces ( const char *modelPath )
         return 0;
     }
     
-    trap_FS_Read (&header, sizeof (mdxmHeader_t), f);
-    trap_FS_FCloseFile (f);
+    cgi.FS_Read (&header, sizeof (mdxmHeader_t), f);
+    cgi.FS_FCloseFile (f);
     
     return header.numSurfaces;
 }
@@ -777,13 +776,13 @@ void JKG_CG_ShowOnlySelectedSurfaces ( void *g2, const char *modelPath, const ch
 
 	for(i = 0; i < numSurfaces; i++)
 	{
-		trap_G2API_GetSurfaceName( g2, i, 0, surfaceName );
+		cgi.G2API_GetSurfaceName( g2, i, 0, surfaceName );
 		if ( surfaceName[0] == '*' )
 		{
 		    // this is actually the triangle for a bolt. Don't poke it! D;
 		    continue;
 		}
-		trap_G2API_SetSurfaceOnOff (g2, surfaceName, 0x2);
+		cgi.G2API_SetSurfaceOnOff (g2, surfaceName, 0x2);
 	}
 
 	i = 0;
@@ -794,7 +793,7 @@ void JKG_CG_ShowOnlySelectedSurfaces ( void *g2, const char *modelPath, const ch
 		if(!surfaceName[0])
 			break;
 			
-		trap_G2API_SetSurfaceOnOff (g2, surfaceName, 0);
+		cgi.G2API_SetSurfaceOnOff (g2, surfaceName, 0);
 		i++;
 	}
 }
@@ -817,9 +816,9 @@ void JKG_CG_EquipArmor( void )
 	    JKG_CG_SetModelSurfacesFlags (cent->ghoul2, armorMasterTable[cent->previousEquippedArmor[slot]].surfOffLowerString, 0);
 	    cent->previousEquippedArmor[slot] = armor;
 	    
-	    if ( cent->armorGhoul2[slot] && trap_G2_HaveWeGhoul2Models (cent->armorGhoul2[slot]) )
+	    if ( cent->armorGhoul2[slot] && cgi.G2_HaveWeGhoul2Models (cent->armorGhoul2[slot]) )
 	    {
-	        trap_G2API_CleanGhoul2Models(&cent->armorGhoul2[slot]);
+	        cgi.G2API_CleanGhoul2Models(&cent->armorGhoul2[slot]);
 	    }
 	    return;
 	}

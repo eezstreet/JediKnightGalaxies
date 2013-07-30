@@ -199,15 +199,15 @@ void Cin_SetCamData(int CamMode) {
 			free(cin.CamData);
 			break;
 		case CAM_VIDEO:
-			trap_CIN_StopCinematic(((CamData_Video_t *)cin.CamData)->videoHandle);
+			cgi.CIN_StopCinematic(((CamData_Video_t *)cin.CamData)->videoHandle);
 			// Revert cvars
-			trap_Cvar_Set("r_clear", "0");
-			trap_Cvar_Set("r_drawworld", "1");
-			trap_Cvar_Set("r_drawentities", "1");
+			cgi.Cvar_Set("r_clear", "0");
+			cgi.Cvar_Set("r_drawworld", "1");
+			cgi.Cvar_Set("r_drawentities", "1");
 
-			trap_Cvar_Set("s_volume", va("%f", ((CamData_Video_t *)cin.CamData)->volume));
-			trap_Cvar_Set("s_volumevoice", va("%f", ((CamData_Video_t *)cin.CamData)->voiceVolume));
-			trap_Cvar_Set("s_musicvolume", va("%f", ((CamData_Video_t *)cin.CamData)->musicVolume));
+			cgi.Cvar_Set("s_volume", va("%f", ((CamData_Video_t *)cin.CamData)->volume));
+			cgi.Cvar_Set("s_volumevoice", va("%f", ((CamData_Video_t *)cin.CamData)->voiceVolume));
+			cgi.Cvar_Set("s_musicvolume", va("%f", ((CamData_Video_t *)cin.CamData)->musicVolume));
 			cg.cinematicVideo = 0;
 			free(cin.CamData);
 		default:
@@ -257,12 +257,12 @@ typedef struct {
 void Cin_InitParseBuff(parsebuff_t *pb) {
 	memset(pb,0,sizeof(parsebuff_t));
 	pb->arg = 1;
-	pb->argc = trap_Argc();
+	pb->argc = cgi.Argc();
 }
 
 const char *Cin_NextToken(parsebuff_t *pb) {
 	if (pb->arg > pb->argc) return NULL;
-	trap_Argv(pb->arg++,pb->buff, sizeof(pb->buff));
+	cgi.Argv(pb->arg++,pb->buff, sizeof(pb->buff));
 	return pb->buff;
 }
 
@@ -909,9 +909,9 @@ void Cin_ProcessFlash() {
 	if (cin.Flash.state == 0) return; // Off
 	if (cin.Flash.state == 2) { // Faded white
 		cincolor[3] = 1;
-		trap_R_SetColor(&cincolor[0]);
-		trap_R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
-		trap_R_SetColor(NULL);
+		cgi.R_SetColor(&cincolor[0]);
+		cgi.R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
+		cgi.R_SetColor(NULL);
 		return;
 	}
 	if (cin.Flash.state == 1) {
@@ -931,13 +931,13 @@ void Cin_ProcessFlash() {
 			alpha = ((cin.Flash.to * alpha) + (cin.Flash.from * (1-alpha))) / 100;
 		}
 		cincolor[3] = alpha;
-		trap_R_SetColor(&cincolor[0]);
-		trap_R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
-		trap_R_SetColor(NULL);
+		cgi.R_SetColor(&cincolor[0]);
+		cgi.R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
+		cgi.R_SetColor(NULL);
 		return;
 	}
 
-	trap_Error(va("ERROR: Cin_ProcessFlash: Invalid state %i", cin.Flash.state));
+	cgi.Error(va("ERROR: Cin_ProcessFlash: Invalid state %i", cin.Flash.state));
 }
 
 void Cin_ProcessFade() {
@@ -947,9 +947,9 @@ void Cin_ProcessFade() {
 	if (cin.Fade.state == 0) return; // Off
 	if (cin.Fade.state == 2) { // Faded black
 		cincolor[3] = 1;
-		trap_R_SetColor(&cincolor[0]);
-		trap_R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
-		trap_R_SetColor(NULL);
+		cgi.R_SetColor(&cincolor[0]);
+		cgi.R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
+		cgi.R_SetColor(NULL);
 		return;
 	}
 	if (cin.Fade.state == 1) {
@@ -969,13 +969,13 @@ void Cin_ProcessFade() {
 			alpha = ((cin.Fade.to * alpha) + (cin.Fade.from * (1-alpha))) / 100;
 		}
 		cincolor[3] = alpha;
-		trap_R_SetColor(&cincolor[0]);
-		trap_R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
-		trap_R_SetColor(NULL);
+		cgi.R_SetColor(&cincolor[0]);
+		cgi.R_DrawStretchPic(0,0,640,480,0,0,0,0,cgs.media.whiteShader);
+		cgi.R_SetColor(NULL);
 		return;
 	}
 
-	trap_Error(va("ERROR: Cin_ProcessFade: Invalid state %i", cin.Fade.state));
+	cgi.Error(va("ERROR: Cin_ProcessFade: Invalid state %i", cin.Fade.state));
 }
 
 int Cin_ProcessMB() {
@@ -1005,7 +1005,7 @@ int Cin_ProcessMB() {
 		}
 		return (int)fade;
 	}
-	trap_Error(va("ERROR: Cin_ProcessMB: Invalid state %i", cin.Motionblur.state));
+	cgi.Error(va("ERROR: Cin_ProcessMB: Invalid state %i", cin.Motionblur.state));
 	return 0;
 }
 
@@ -1017,8 +1017,8 @@ void Cin_ProcessVideo() {
 	}
 	data = (CamData_Video_t *)cin.CamData;
 
-	trap_CIN_RunCinematic(data->videoHandle);
-	trap_CIN_DrawCinematic(data->videoHandle);
+	cgi.CIN_RunCinematic(data->videoHandle);
+	cgi.CIN_DrawCinematic(data->videoHandle);
 }
 
 float Cin_ProcessFOV() {
@@ -1048,7 +1048,7 @@ float Cin_ProcessFOV() {
 		}
 		return fade;
 	}
-	trap_Error(va("ERROR: Cin_ProcessFOV: Invalid state %i", cin.Fov.state));
+	cgi.Error(va("ERROR: Cin_ProcessFOV: Invalid state %i", cin.Fov.state));
 	return cg_fov.integer;
 }
 
@@ -1127,7 +1127,7 @@ void BitStream_ReadVector(bitstream_t *stream, vec3_t *vector) {
 static float Cin_GetCvarValue(const char *cvar_name) 
 {
 	char buffer[1024] = {0};
-	trap_Cvar_VariableStringBuffer(cvar_name, buffer, sizeof(buffer));
+	cgi.Cvar_VariableStringBuffer(cvar_name, buffer, sizeof(buffer));
 	return atof(buffer);
 }
 
@@ -1143,7 +1143,7 @@ void Cin_ProcessCinematicBinary_f() {
 	CamData_Union_t *CamData;
 	bitstream_t stream;
 
-	trap_Argv(1, arg, 1024);
+	cgi.Argv(1, arg, 1024);
 
 	len = Base128_DecodeLength((unsigned int)strlen(arg));
 	Base128_Decode((const char *)arg, (unsigned int)strlen(arg), (void *)data, (unsigned int)840);
@@ -1381,19 +1381,19 @@ void Cin_ProcessCinematicBinary_f() {
 			CamData->CamVideo.looping = BitStream_ReadBool(&stream);
 			BitStream_ReadString(&stream, CamData->CamVideo.filename, 64);
 
-			CamData->CamVideo.videoHandle = trap_CIN_PlayCinematic(CamData->CamVideo.filename, 0, 0, 640, 480, (CamData->CamVideo.looping ? CIN_loop : CIN_hold) | CIN_aspect);
+			CamData->CamVideo.videoHandle = cgi.CIN_PlayCinematic(CamData->CamVideo.filename, 0, 0, 640, 480, (CamData->CamVideo.looping ? CIN_loop : CIN_hold) | CIN_aspect);
 
 			// Adjust cvars to prepare the game for video rendering
-			trap_Cvar_Set("r_clear", "1");
-			trap_Cvar_Set("r_drawworld", "0");
-			trap_Cvar_Set("r_drawentities", "0");
+			cgi.Cvar_Set("r_clear", "1");
+			cgi.Cvar_Set("r_drawworld", "0");
+			cgi.Cvar_Set("r_drawentities", "0");
 
 			CamData->CamVideo.volume = Cin_GetCvarValue("s_volume");
 			CamData->CamVideo.voiceVolume = Cin_GetCvarValue("s_volumevoice");
 			CamData->CamVideo.musicVolume = Cin_GetCvarValue("s_musicvolume");
-			trap_Cvar_Set("s_volume", "0");
-			trap_Cvar_Set("s_volumevoice", "0");
-			trap_Cvar_Set("s_musicvolume", "0");
+			cgi.Cvar_Set("s_volume", "0");
+			cgi.Cvar_Set("s_volumevoice", "0");
+			cgi.Cvar_Set("s_musicvolume", "0");
 			cg.cinematicVideo = 1;
 
 			break;

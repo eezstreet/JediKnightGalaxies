@@ -83,7 +83,7 @@ void AIMOD_MapEntityHeights()
 	}
 
 	CG_Printf("^3*** ^3%s: ^5Mapped %i entity heights.\n", "AUTO-WAYPOINTER", NUM_ENTITY_HEIGHTS);
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	ENTITY_HIGHTS_INITIALIZED = qtrue;
 }
@@ -454,42 +454,42 @@ Coords are virtual 640x480
 void CG_DrawSides2( float x, float y, float w, float h, float size ) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
 	size *= cgs.screenXScale;
-	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawTopBottom2( float x, float y, float w, float h, float size ) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
 	size *= cgs.screenYScale;
-	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawSides_NoScale( float x, float y, float w, float h, float size ) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
-	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawTopBottom_NoScale( float x, float y, float w, float h, float size ) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
-	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 // CHRUKER: b076 - Scoreboard background had black lines drawn twice
 void CG_DrawBottom_NoScale( float x, float y, float w, float h, float size ) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
-	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	cgi.R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawRect_FixedBorder( float x, float y, float width, float height, int border, const float *color ) {
-	trap_R_SetColor( color );
+	cgi.R_SetColor( color );
 
 	CG_DrawTopBottom_NoScale( x, y, width, height, border );
 	CG_DrawSides_NoScale( x, y, width, height, border );
 
-	trap_R_SetColor( NULL );
+	cgi.R_SetColor( NULL );
 }
 
 void AIMod_AutoWaypoint_DrawProgress ( void )
@@ -506,7 +506,7 @@ void AIMod_AutoWaypoint_DrawProgress ( void )
 
 	if (aw_percent_complete == 0.0f)
 	{// Init timer...
-		aw_stage_start_time = trap_Milliseconds();
+		aw_stage_start_time = cgi.Milliseconds();
 		aw_last_percent_time = aw_stage_start_time;
 		aw_last_percent = 0;
 		aw_num_last_times = 0;
@@ -527,7 +527,7 @@ void AIMod_AutoWaypoint_DrawProgress ( void )
 		time_frac = (aw_percent_complete/100);
 		time_frac2 = 1-time_frac;
 		
-		time_taken = ( (trap_Milliseconds() - aw_stage_start_time) / 1000 );
+		time_taken = ( (cgi.Milliseconds() - aw_stage_start_time) / 1000 );
 		done = (float)(time_frac * (float)time_taken);
 
 		// Ok, i have done % in x time...
@@ -572,7 +572,7 @@ void AIMod_AutoWaypoint_DrawProgress ( void )
 
 			if (aw_last_percent <= aw_percent_complete - 1 /*&& current_time - aw_last_percent_time > 1000*/)
 			{
-				int current_time = trap_Milliseconds();
+				int current_time = cgi.Milliseconds();
 				float percent_time = (current_time-aw_last_percent_time);
 
 				if (percent_time < 1)
@@ -634,7 +634,7 @@ void AIMod_AutoWaypoint_DrawProgress ( void )
 
 	CG_Text_Paint((rect.x + 100/*80*/), (rect.y + (rect.h*0.5) + 30), 0.5f, colorWhite, last_node_added_string, 0, 0, ITEM_TEXTSTYLE_SHADOWED, FONT_MEDIUM );
 
-	trap_R_SetColor( NULL );
+	cgi.R_SetColor( NULL );
 }
 
 qboolean AW_Map_Has_Waypoints ( void )
@@ -647,22 +647,22 @@ qboolean AW_Map_Has_Waypoints ( void )
 	strcpy( filename, "nodes/" );
 
 	////////////////////
-	trap_Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof(filename) );
+	cgi.Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof(filename) );
 	if ( strlen( filename) > 0 )
 	{
-		trap_Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
+		cgi.Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
 	}
 	else
 	{
-		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+		cgi.Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	}
 
 	Q_strcat( filename, sizeof(filename), mapname.string );
 
 	///////////////////
 	//open the node file for reading, return false on error
-	len = trap_FS_FOpenFile( va( "nodes/%s.bwp", filename), &f, FS_READ );
-	trap_FS_FCloseFile(f);
+	len = cgi.FS_FOpenFile( va( "nodes/%s.bwp", filename), &f, FS_READ );
+	cgi.FS_FCloseFile(f);
 		
 	if( len <= 0 )
 	{
@@ -1324,36 +1324,36 @@ void AIMOD_SaveCoverPoints ( void )
 
 	///////////////////
 	//try to open the output file, return if it failed
-	trap_FS_FOpenFile( va( "nodes/%s.cpw", cgs.rawmapname), &f, FS_WRITE );
+	cgi.FS_FOpenFile( va( "nodes/%s.cpw", cgs.rawmapname), &f, FS_WRITE );
 	if ( !f )
 	{
 		CG_Printf( "^1AWP ERROR: Error opening cover point file /nodes/%s.cpw for writing\n", "AUTO-WAYPOINTER", cgs.rawmapname );
 		return;
 	}
 
-	trap_FS_Write( &number_of_nodes, sizeof(int), f );							//write the number of nodes in the map
+	cgi.FS_Write( &number_of_nodes, sizeof(int), f );							//write the number of nodes in the map
 									//write the map name
-	trap_FS_Write( &num_cover_spots, sizeof(int), f );							//write the number of nodes in the map
+	cgi.FS_Write( &num_cover_spots, sizeof(int), f );							//write the number of nodes in the map
 
 	for ( i = 0; i < num_cover_spots; i++ )											//loop through all the nodes
 	{
 		int j = 0;
 
-		trap_FS_Write( &(cover_nodes[i]), sizeof(int), f );
+		cgi.FS_Write( &(cover_nodes[i]), sizeof(int), f );
 
 		/*
 		// UQ1: Now write the spots this is a coverpoint for...
-		trap_FS_Write( &(nodes[cover_nodes[i]].coverpointNum), sizeof(int), f );
+		cgi.FS_Write( &(nodes[cover_nodes[i]].coverpointNum), sizeof(int), f );
 
 		// And then save each one...
 		for ( j = 0; j < nodes[cover_nodes[i]].coverpointNum; j++)
 		{
-			trap_FS_Write( &(nodes[cover_nodes[i]].coverpointFor[j]), sizeof(int), f );
+			cgi.FS_Write( &(nodes[cover_nodes[i]].coverpointFor[j]), sizeof(int), f );
 		}
 		*/
 	}
 
-	trap_FS_FCloseFile( f );		
+	cgi.FS_FCloseFile( f );		
 
 	CG_Printf( "^3*** ^3%s: ^5Cover point table saved to file ^7/nodes/%s.cpw^5.\n", "AUTO-WAYPOINTER", cgs.rawmapname );
 }
@@ -1368,7 +1368,7 @@ qboolean AIMOD_LoadCoverPoints ( void )
 	// Init...
 	num_cover_spots = 0;
 
-	trap_FS_FOpenFile( va( "nodes/%s.cpw", cgs.rawmapname), &f, FS_READ );
+	cgi.FS_FOpenFile( va( "nodes/%s.cpw", cgs.rawmapname), &f, FS_READ );
 
 	if (!f)
 	{
@@ -1376,22 +1376,22 @@ qboolean AIMOD_LoadCoverPoints ( void )
 		return qfalse;
 	}
 
-	trap_FS_Read( &num_map_waypoints, sizeof(int), f );
+	cgi.FS_Read( &num_map_waypoints, sizeof(int), f );
 
 	if (num_map_waypoints != number_of_nodes)
 	{// Is an old file! We need to make a new one!
 		CG_Printf( "^1ERROR: /nodes/%s.cpw uses incorrect file version, suggest recreate using /awp..\n", cgs.rawmapname );
-		trap_FS_FCloseFile( f );
+		cgi.FS_FCloseFile( f );
 		return qfalse;
 	}
 
-	trap_FS_Read( &num_cover_spots, sizeof(int), f );	
+	cgi.FS_Read( &num_cover_spots, sizeof(int), f );	
 
 	for ( i = 0; i < num_cover_spots; i++ )
 	{
 		int j = 0;
 
-		trap_FS_Read( &(cover_nodes[i]), sizeof(int), f );
+		cgi.FS_Read( &(cover_nodes[i]), sizeof(int), f );
 
 		if (!(nodes[cover_nodes[i]].type & NODE_COVER))
 			nodes[cover_nodes[i]].type |= NODE_COVER;
@@ -1399,7 +1399,7 @@ qboolean AIMOD_LoadCoverPoints ( void )
 		//CG_Printf("Cover spot #%i (node %i) is at %f %f %f.\n", i, cover_nodes[i], nodes[cover_nodes[i]].origin[0], nodes[cover_nodes[i]].origin[1], nodes[cover_nodes[i]].origin[2]);
 	}
 
-	trap_FS_FCloseFile( f );
+	cgi.FS_FCloseFile( f );
 
 	CG_Printf( "^1*** ^3%s^5: Successfully loaded %i cover points from file ^7/nodes/%s.cpw^5.\n", GAME_VERSION, num_cover_spots, cgs.rawmapname);
 
@@ -1424,7 +1424,7 @@ void AIMOD_Generate_Cover_Spots ( void )
 
 			CG_Printf( "^1*** ^3%s^1: ^5Generating and saving coverspot waypoints list.\n", "AUTO-WAYPOINTER" );
 			strcpy( task_string3, va("^5Generating and saving coverspot waypoints list...") );
-			trap_UpdateScreen();
+			cgi.UpdateScreen();
 
 			aw_percent_complete = 0.0f;
 
@@ -1443,7 +1443,7 @@ void AIMOD_Generate_Cover_Spots ( void )
 
 				if (update_timer >= 100)
 				{
-					trap_UpdateScreen();
+					cgi.UpdateScreen();
 					update_timer = 0;
 				}
 
@@ -1492,7 +1492,7 @@ void AIMOD_Generate_Cover_Spots ( void )
 			}
 
 			aw_percent_complete = 0.0f;
-			trap_UpdateScreen();
+			cgi.UpdateScreen();
 			update_timer = 0;
 
 			//if (bot_debug.integer)
@@ -1813,12 +1813,12 @@ AIMOD_MAPPING_MakeLinks ( void )
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Creating waypoint linkages and flags...\n" );
 	strcpy( task_string3, va("^5Creating waypoint linkages and flags...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	final_tests = 0;
 	update_timer = 0;
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 	
 	for ( loop = 0; loop < number_of_nodes; loop++ )
 	{// Do links...
@@ -1831,7 +1831,7 @@ AIMOD_MAPPING_MakeLinks ( void )
 
 		if (update_timer >= 100)
 		{
-			trap_UpdateScreen();
+			cgi.UpdateScreen();
 			update_timer = 0;
 		}
 
@@ -1846,7 +1846,7 @@ AIMOD_MAPPING_MakeLinks ( void )
 	aw_percent_complete = 0.0f;
 	strcpy( last_node_added_string, va("") );
 	aw_num_nodes = number_of_nodes;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 }
 
 /* */
@@ -1967,7 +1967,7 @@ void AIMOD_NODES_LoadNodes ( void )
 
 	///////////////////
 	//open the node file for reading, return false on error
-	trap_FS_FOpenFile( va( "nodes/%s.bwp", cgs.rawmapname), &f, FS_READ );
+	cgi.FS_FOpenFile( va( "nodes/%s.bwp", cgs.rawmapname), &f, FS_READ );
 	if ( !f )
 	{
 		Com_Printf("^1AWP ERROR: Failed to load nodes/%s.bwp\n", cgs.rawmapname);
@@ -1975,33 +1975,33 @@ void AIMOD_NODES_LoadNodes ( void )
 	}
 
 	strcpy( mp, cgs.rawmapname );
-	trap_FS_Read( &nm, strlen( name) + 1, f );									//read in a string the size of the mod name (+1 is because all strings end in hex '00')
-	trap_FS_Read( &version, sizeof(float), f );			//read and make sure the version is the same
+	cgi.FS_Read( &nm, strlen( name) + 1, f );									//read in a string the size of the mod name (+1 is because all strings end in hex '00')
+	cgi.FS_Read( &version, sizeof(float), f );			//read and make sure the version is the same
 
 	if ( version != NOD_VERSION && version != 1.0f )
 	{
 		CG_Printf( "^3WARNING: Reading from nodes/%s.bwp failed:\n", filename );
 		CG_Printf( "^3         Old node file detected.\n" );
-		trap_FS_FCloseFile( f );
+		cgi.FS_FCloseFile( f );
 		return;
 	}
 
-	trap_FS_Read( &map, strlen( mp) + 1, f );			//make sure the file is for the current map
+	cgi.FS_Read( &map, strlen( mp) + 1, f );			//make sure the file is for the current map
 	if ( Q_stricmp( map, mp) != 0 )
 	{
 		CG_Printf( "^3WARNING: Reading from nodes/%s.bwp failed:\n", filename );
 		CG_Printf( "^3         Node file is not for this map!\n" );
-		trap_FS_FCloseFile( f );
+		cgi.FS_FCloseFile( f );
 		return;
 	}
 
 	if (version == NOD_VERSION)
 	{
-		trap_FS_Read( &numberNodes, sizeof(/*short*/ int), f ); //read in the number of nodes in the map
+		cgi.FS_Read( &numberNodes, sizeof(/*short*/ int), f ); //read in the number of nodes in the map
 	}
 	else
 	{
-		trap_FS_Read( &temp, sizeof(short int), f ); //read in the number of nodes in the map
+		cgi.FS_Read( &temp, sizeof(short int), f ); //read in the number of nodes in the map
 		numberNodes = temp;
 	}
 
@@ -2010,11 +2010,11 @@ void AIMOD_NODES_LoadNodes ( void )
 		nodes[i].enodenum = 0;
 
 		//read in all the node info stored in the file
-		trap_FS_Read( &vec, sizeof(vec3_t), f );
-		trap_FS_Read( &flags, sizeof(int), f );
-		trap_FS_Read( objNum, sizeof(short int) * 3, f );
-		trap_FS_Read( &objFlags, sizeof(short int), f );
-		trap_FS_Read( &numLinks, sizeof(short int), f );
+		cgi.FS_Read( &vec, sizeof(vec3_t), f );
+		cgi.FS_Read( &flags, sizeof(int), f );
+		cgi.FS_Read( objNum, sizeof(short int) * 3, f );
+		cgi.FS_Read( &objFlags, sizeof(short int), f );
+		cgi.FS_Read( &numLinks, sizeof(short int), f );
 
 		Load_AddNode( vec, flags, objNum, objFlags );	//add the node
 
@@ -2023,15 +2023,15 @@ void AIMOD_NODES_LoadNodes ( void )
 		{
 			if (version == NOD_VERSION)
 			{
-				trap_FS_Read( &target, sizeof(/*short*/ int), f );
+				cgi.FS_Read( &target, sizeof(/*short*/ int), f );
 			}
 			else
 			{
-				trap_FS_Read( &temp, sizeof(short int), f );
+				cgi.FS_Read( &temp, sizeof(short int), f );
 				target = temp;
 			}
 
-			trap_FS_Read( &fl2, sizeof(short int), f );
+			cgi.FS_Read( &fl2, sizeof(short int), f );
 			ConnectNodes( i, target, fl2 );				//add any links
 		}
 
@@ -2039,8 +2039,8 @@ void AIMOD_NODES_LoadNodes ( void )
 		AIMOD_NODES_SetObjectiveFlags( i );
 	}
 
-	trap_FS_Read( &fix_aas_nodes, sizeof(short int), f );
-	trap_FS_FCloseFile( f );							//close the file
+	cgi.FS_Read( &fix_aas_nodes, sizeof(short int), f );
+	cgi.FS_FCloseFile( f );							//close the file
 	CG_Printf( "AWP: Successfully loaded %i waypoints from waypoint file nodes/%s.bwp.\n",
 			  number_of_nodes, filename );
 	nodes_loaded = qtrue;
@@ -2066,7 +2066,7 @@ void AIMOD_NODES_SaveNodes_Autowaypointed ( void )
 
 	///////////////////
 	//try to open the output file, return if it failed
-	trap_FS_FOpenFile( va( "nodes/%s.bwp", cgs.rawmapname), &f, FS_WRITE );
+	cgi.FS_FOpenFile( va( "nodes/%s.bwp", cgs.rawmapname), &f, FS_WRITE );
 	if ( !f )
 	{
 		CG_Printf( "^1*** ^3ERROR^5: Error opening node file ^7nodes/%s.bwp^5!!!\n", cgs.rawmapname/*filename*/ );
@@ -2104,34 +2104,34 @@ void AIMOD_NODES_SaveNodes_Autowaypointed ( void )
 		AIMOD_NODES_SetObjectiveFlags( i );
 	}
 	
-	//trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );	//get the map name
+	//cgi.Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );	//get the map name
 	strcpy( map, cgs.rawmapname );
-	trap_FS_Write( &name, strlen( name) + 1, f );								//write the mod name to the file
-	trap_FS_Write( &version, sizeof(float), f );								//write the version of this file
-	trap_FS_Write( &map, strlen( map) + 1, f );									//write the map name
-	trap_FS_Write( &num_nodes, sizeof(/*short*/ int), f );							//write the number of nodes in the map
+	cgi.FS_Write( &name, strlen( name) + 1, f );								//write the mod name to the file
+	cgi.FS_Write( &version, sizeof(float), f );								//write the version of this file
+	cgi.FS_Write( &map, strlen( map) + 1, f );									//write the map name
+	cgi.FS_Write( &num_nodes, sizeof(/*short*/ int), f );							//write the number of nodes in the map
 	
 	for ( i = 0; i < aw_num_nodes/*num_nodes*/; i++ )											//loop through all the nodes
 	{
 		//write all the node data to the file
-		trap_FS_Write( &(nodes[i].origin), sizeof(vec3_t), f );
-		trap_FS_Write( &(nodes[i].type), sizeof(int), f );
-		trap_FS_Write( &(nodes[i].objectNum), sizeof(short int) * 3, f );
-		trap_FS_Write( &(nodes[i].objFlags), sizeof(short int), f );
-		trap_FS_Write( &(nodes[i].enodenum), sizeof(short int), f );
+		cgi.FS_Write( &(nodes[i].origin), sizeof(vec3_t), f );
+		cgi.FS_Write( &(nodes[i].type), sizeof(int), f );
+		cgi.FS_Write( &(nodes[i].objectNum), sizeof(short int) * 3, f );
+		cgi.FS_Write( &(nodes[i].objFlags), sizeof(short int), f );
+		cgi.FS_Write( &(nodes[i].enodenum), sizeof(short int), f );
 		for ( j = 0; j < nodes[i].enodenum; j++ )
 		{
-			trap_FS_Write( &(nodes[i].links[j].targetNode), sizeof(/*short*/ int), f );
-			trap_FS_Write( &(nodes[i].links[j].flags), sizeof(short int), f );
+			cgi.FS_Write( &(nodes[i].links[j].targetNode), sizeof(/*short*/ int), f );
+			cgi.FS_Write( &(nodes[i].links[j].flags), sizeof(short int), f );
 		}
 	}
 	{
 		//short int	fix = 1;
 		short int	fix = 0;
-		trap_FS_Write( &fix, sizeof(short int), f );
+		cgi.FS_Write( &fix, sizeof(short int), f );
 	}
 
-	trap_FS_FCloseFile( f );													//close the file
+	cgi.FS_FCloseFile( f );													//close the file
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Successfully saved node file ^7nodes/%s.bwp^5.\n", cgs.rawmapname/*filename*/ );
 }
 
@@ -2898,7 +2898,7 @@ qboolean AIMod_AutoWaypoint_Check_Stepps ( vec3_t org )
 		start[2] = roof;//RoofHeightAt( start );
 		//start[2] -= 16;
 
-		trap_CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
+		cgi.CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
 
 		if (num_zero_diffs > 4 && num_same_diffs <= 0)
 		{// Flat in this direction. Skip!
@@ -2959,7 +2959,7 @@ qboolean AIMod_AutoWaypoint_Check_Stepps ( vec3_t org )
 		start[2] = roof;//RoofHeightAt( start );
 		//start[2] -= 16;
 
-		trap_CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
+		cgi.CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
 
 		if (num_zero_diffs > 4 && num_same_diffs <= 0)
 		{// Flat in this direction. Skip!
@@ -3020,7 +3020,7 @@ qboolean AIMod_AutoWaypoint_Check_Stepps ( vec3_t org )
 		start[2] = roof;//RoofHeightAt( start );
 		//start[2] -= 16;
 
-		trap_CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
+		cgi.CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
 
 		if (num_zero_diffs > 4 && num_same_diffs <= 0)
 		{// Flat in this direction. Skip!
@@ -3081,7 +3081,7 @@ qboolean AIMod_AutoWaypoint_Check_Stepps ( vec3_t org )
 		start[2] = roof;//RoofHeightAt( start );
 		//start[2] -= 16;
 
-		trap_CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
+		cgi.CM_BoxTrace( &trace, start, end, NULL, NULL,  0, MASK_PLAYERSOLID );
 
 		if (num_zero_diffs > 4 && num_same_diffs <= 0)
 		{// Flat in this direction. Skip!
@@ -3366,7 +3366,7 @@ void AIMod_AutoWaypoint_Check_Create_Ladder_Waypoints ( vec3_t original_org, vec
 	{
 		trace_t		trace;
 
-		trap_CM_BoxTrace( &trace, org1, org2, traceMins, traceMaxs,  0, MASK_PLAYERSOLID );
+		cgi.CM_BoxTrace( &trace, org1, org2, traceMins, traceMaxs,  0, MASK_PLAYERSOLID );
 
 		if (trace.surfaceFlags & SURF_LADDER)
 		{// Ladder found here! Add a new waypoint!
@@ -3424,7 +3424,7 @@ void AIMod_AutoWaypoint_Best_Ladder_Side ( vec3_t org )
 		VectorCopy(org1, org2);
 		org2[2]+=8192;
 
-		trap_CM_BoxTrace( &trace, org1, org2, traceMins, traceMaxs,  0, MASK_PLAYERSOLID );
+		cgi.CM_BoxTrace( &trace, org1, org2, traceMins, traceMaxs,  0, MASK_PLAYERSOLID );
 
 		if (trace.endpos[2] > best_height)
 		{
@@ -3481,7 +3481,7 @@ void AIMod_AutoWaypoint_Check_For_Ladders ( vec3_t org )
 		VectorMA ( org2, waypoint_scatter_distance*3 , forward , org2);
 		org2[2]+=16;
 
-		trap_CM_BoxTrace( &trace, org1, org2, NULL, NULL,  0, MASK_PLAYERSOLID );
+		cgi.CM_BoxTrace( &trace, org1, org2, NULL, NULL,  0, MASK_PLAYERSOLID );
 		
 		if (trace.surfaceFlags & SURF_LADDER)
 		{// Ladder found here! Make the waypoints!
@@ -3864,16 +3864,16 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	float		map_size, temp, original_waypoint_scatter_distance = waypoint_scatter_distance;
 	vec3_t		mapMins, mapMaxs;
 	int			total_tests = 0, final_tests = 0;
-	int			start_time = trap_Milliseconds();
+	int			start_time = cgi.Milliseconds();
 	int			update_timer = 0;
 	float		waypoint_scatter_realtime_modifier = 1.0f;
 	float		waypoint_scatter_realtime_modifier_alt = 0.5f; // 0.3f;
 	int			wp_loop = 0;
 
-	trap_Cvar_Set("jkg_waypoint_render", "0");
-	trap_UpdateScreen();
-	trap_UpdateScreen();
-	trap_UpdateScreen();
+	cgi.Cvar_Set("jkg_waypoint_render", "0");
+	cgi.UpdateScreen();
+	cgi.UpdateScreen();
+	cgi.UpdateScreen();
 
 	AIMod_AutoWaypoint_Init_Memory();
 	AIMod_GetMapBounts();
@@ -3971,15 +3971,15 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Map bounds are ^3%.2f %.2f %.2f ^5to ^3%.2f %.2f %.2f^5.\n", mapMins[0], mapMins[1], mapMins[2], mapMaxs[0], mapMaxs[1], mapMaxs[2] );
 	strcpy( task_string1, va("^5Map bounds are ^3%.2f %.2f %.2f ^7to ^3%.2f %.2f %.2f^5.", mapMins[0], mapMins[1], mapMins[2], mapMaxs[0], mapMaxs[1], mapMaxs[2]) );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Generating AI waypoints. This could take a while... (Map size ^3%.2f^5)\n", map_size );
 	strcpy( task_string2, va("^5Generating AI waypoints. This could take a while... (Map size ^3%.2f^5)", map_size) );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5First pass. Finding temporary waypoints...\n" );
 	strcpy( task_string3, va("^5First pass. Finding temporary waypoints...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	//#pragma omp parallel
 	while ( startx > mapMins[0]-2048 )
@@ -4010,7 +4010,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 					if (update_timer >= 15000)
 					{
-						trap_UpdateScreen();
+						cgi.UpdateScreen();
 						update_timer = 0;
 					}
 				}
@@ -4109,7 +4109,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 						if (update_timer >= 15000)
 						{
-							trap_UpdateScreen();
+							cgi.UpdateScreen();
 							update_timer = 0;
 						}
 					}
@@ -4152,7 +4152,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 				if (update_timer >= 15000)
 				{
-					trap_UpdateScreen();
+					cgi.UpdateScreen();
 					update_timer = 0;
 				}
 
@@ -4175,7 +4175,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 						if (update_timer >= 15000)
 						{
-							trap_UpdateScreen();
+							cgi.UpdateScreen();
 							update_timer = 0;
 						}
 					}
@@ -4487,7 +4487,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 					if (update_timer >= 15000)
 					{
-						trap_UpdateScreen();
+						cgi.UpdateScreen();
 						update_timer = 0;
 					}
 				}
@@ -4505,7 +4505,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	{// UQ1: Can use them all!
 		aw_percent_complete = 0.0f;
 		strcpy( task_string3, va("^5Final (cleanup) pass. Building final waypoints...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		total_areas = areas;
 
@@ -4522,7 +4522,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 			if (update_timer >= 500)
 			{
-				trap_UpdateScreen();
+				cgi.UpdateScreen();
 				update_timer = 0;
 			}
 
@@ -4544,7 +4544,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 //		aw_total_waypoints = total_waypoints;
 //		aw_percent_complete = 0.0f;
 //		strcpy( task_string3, va("^5Looking for ladders...") );
-//		trap_UpdateScreen();
+//		cgi.UpdateScreen();
 
 //		for ( i = 0; i < total_waypoints; i++ )
 //		{
@@ -4555,7 +4555,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 //			if (update_timer >= 100)
 //			{
-//				trap_UpdateScreen();
+//				cgi.UpdateScreen();
 //				update_timer = 0;
 //			}
 
@@ -4566,27 +4566,27 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 //		// End Ladders...
 
 		strcpy( task_string3, va("^5Saving %i generated waypoints.", total_waypoints) );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		number_of_nodes = total_waypoints;
 		AIMOD_NODES_SaveNodes_Autowaypointed();
 
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Waypoint database created successfully in ^3%.2f ^5seconds with ^7%i ^5waypoints.\n",
-				 (float) ((trap_Milliseconds() - start_time) / 1000), total_waypoints );
+				 (float) ((cgi.Milliseconds() - start_time) / 1000), total_waypoints );
 
-		strcpy( task_string3, va("^5Waypoint database created successfully in ^3%.2f ^5seconds with ^7%i ^5waypoints.\n", (float) ((trap_Milliseconds() - start_time) / 1000), total_waypoints) );
-		trap_UpdateScreen();
+		strcpy( task_string3, va("^5Waypoint database created successfully in ^3%.2f ^5seconds with ^7%i ^5waypoints.\n", (float) ((cgi.Milliseconds() - start_time) / 1000), total_waypoints) );
+		cgi.UpdateScreen();
 
 		aw_percent_complete = 0.0f;
 		strcpy( task_string3, va("^5Informing the server to load & test the new waypoints...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
-		//trap_SendConsoleCommand( "set bot_wp_visconnect 1\n" );
-		//trap_SendConsoleCommand( "bot_wp_convert_awp\n" );
+		//cgi.SendConsoleCommand( "set bot_wp_visconnect 1\n" );
+		//cgi.SendConsoleCommand( "bot_wp_convert_awp\n" );
 
 		aw_percent_complete = 0.0f;
 		strcpy( task_string3, va("^5Waypoint auto-generation is complete...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		waypoint_scatter_distance = original_waypoint_scatter_distance;
 		
@@ -4597,7 +4597,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 		AIMod_AutoWaypoint_Free_Memory();
 
 		aw_percent_complete = 0.0f;
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		return;
 	}
@@ -4620,7 +4620,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 #ifdef __AW_UNUSED__
 	aw_percent_complete = 0.0f;
 	strcpy( task_string3, va("^5Second (repair) pass. Adjusting waypoint positions...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 //#pragma omp parallel for
 	for ( i = 0; i < areas; i++ )
@@ -4634,7 +4634,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 		if (update_timer >= 500)
 		{
-			trap_UpdateScreen();
+			cgi.UpdateScreen();
 			update_timer = 0;
 		}
 
@@ -4652,7 +4652,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 	aw_percent_complete = 0.0f;
 	strcpy( task_string3, va("^5Final (cleanup) pass. Building final waypoints...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 //#pragma omp parallel for
 	for ( i = 0; i < areas; i++ )
@@ -4669,7 +4669,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 		if (update_timer >= 100)
 		{
-			trap_UpdateScreen();
+			cgi.UpdateScreen();
 			update_timer = 0;
 		}
 
@@ -4712,7 +4712,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	/*aw_total_waypoints = total_waypoints;
 	aw_percent_complete = 0.0f;
 	strcpy( task_string3, va("^5Looking for ladders...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	for ( i = 0; i < total_waypoints; i++ )
 	{
@@ -4723,7 +4723,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 
 		if (update_timer >= 100)
 		{
-			trap_UpdateScreen();
+			cgi.UpdateScreen();
 			update_timer = 0;
 		}
 
@@ -4734,7 +4734,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	// End Ladders...
 
 	strcpy( task_string3, va("^5Saving the generated waypoints.\n") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	number_of_nodes = total_waypoints;
 	AIMOD_NODES_SaveNodes_Autowaypointed();
@@ -4742,21 +4742,21 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Waypoint database created successfully in ^3%.2f ^5seconds with ^7%i ^5waypoints.\n",
-				 (float) ((trap_Milliseconds() - start_time) / 1000), total_waypoints);
+				 (float) ((cgi.Milliseconds() - start_time) / 1000), total_waypoints);
 
-	strcpy( task_string3, va("^5Waypoint database created successfully in ^3%.2f ^5seconds with ^7%i ^5waypoints.\n", (float) ((trap_Milliseconds() - start_time) / 1000), total_waypoints) );
-	trap_UpdateScreen();
+	strcpy( task_string3, va("^5Waypoint database created successfully in ^3%.2f ^5seconds with ^7%i ^5waypoints.\n", (float) ((cgi.Milliseconds() - start_time) / 1000), total_waypoints) );
+	cgi.UpdateScreen();
 
 	aw_percent_complete = 0.0f;
 	strcpy( task_string3, va("^5Informing the server to load & test the new waypoints...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
-	//trap_SendConsoleCommand( "set bot_wp_visconnect 1\n" );
-	//trap_SendConsoleCommand( "bot_wp_convert_awp\n" );
+	//cgi.SendConsoleCommand( "set bot_wp_visconnect 1\n" );
+	//cgi.SendConsoleCommand( "bot_wp_convert_awp\n" );
 
 	aw_percent_complete = 0.0f;
 	strcpy( task_string3, va("^5Waypoint auto-generation is complete...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	waypoint_scatter_distance = original_waypoint_scatter_distance;
 
@@ -4765,7 +4765,7 @@ void AIMod_AutoWaypoint_StandardMethod( void )
 	AIMod_AutoWaypoint_Free_Memory();
 
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 }
 
 qboolean wp_memory_initialized = qfalse;
@@ -4801,7 +4801,7 @@ void AIMod_AutoWaypoint_Clean ( void )
 {
 	char	str[MAX_TOKEN_CHARS];
 
-	if ( trap_Argc() < 2 )
+	if ( cgi.Argc() < 2 )
 	{
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^7Usage:\n" );
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3/awc <method>^5.\n" );
@@ -4813,11 +4813,11 @@ void AIMod_AutoWaypoint_Clean ( void )
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"markedlocations\" ^5- Remove waypoints nearby your marked locations (awc_addremovalspot & awc_addbadheight).\n");
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"extrareach\" ^5- Remove waypoints nearby your marked locations (awc_addremovalspot & awc_addbadheight) and add extra reachability (wp link ranges).\n");
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"cover\" ^5- Just generate coverpoints.\n");
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 		return;
 	}
 
-	trap_Argv( 1, str, sizeof(str) );
+	cgi.Argv( 1, str, sizeof(str) );
 	
 	if ( Q_stricmp( str, "relink") == 0 )
 	{
@@ -4877,7 +4877,7 @@ AIMod_AutoWaypoint ( void )
 	char	str[MAX_TOKEN_CHARS];
 	int		original_wp_scatter_dist = waypoint_scatter_distance;
 
-	if ( trap_Argc() < 2 )
+	if ( cgi.Argc() < 2 )
 	{
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^7Usage:\n" );
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3/autowaypoint <method> <scatter_distance> ^5or ^3/awp <method> <scatter_distance>^5. Distance is optional.\n" );
@@ -4886,22 +4886,22 @@ AIMod_AutoWaypoint ( void )
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"thorough\" ^5- Use extensive fall waypoint checking.\n");
 		//CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"noclean\" ^5- For standard multi-level maps (with no cleaning passes).\n");
 		//CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^3\"outdoor_only\" ^5- For standard single level maps.\n");
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 		return;
 	}
 
 	DO_THOROUGH = qfalse;
 
-	trap_Argv( 1, str, sizeof(str) );
+	cgi.Argv( 1, str, sizeof(str) );
 	
 	if ( Q_stricmp( str, "standard") == 0 )
 	{
-		if ( trap_Argc() >= 2 )
+		if ( cgi.Argc() >= 2 )
 		{
 			// Override normal scatter distance...
 			int dist = waypoint_scatter_distance;
 
-			trap_Argv( 2, str, sizeof(str) );
+			cgi.Argv( 2, str, sizeof(str) );
 			dist = atoi(str);
 
 			if (dist <= 20)
@@ -4924,12 +4924,12 @@ AIMod_AutoWaypoint ( void )
 	}
 	else if ( Q_stricmp( str, "thorough") == 0 )
 	{
-		if ( trap_Argc() >= 2 )
+		if ( cgi.Argc() >= 2 )
 		{
 			// Override normal scatter distance...
 			int dist = waypoint_scatter_distance;
 
-			trap_Argv( 2, str, sizeof(str) );
+			cgi.Argv( 2, str, sizeof(str) );
 			dist = atoi(str);
 
 			if (dist <= 20)
@@ -5506,12 +5506,12 @@ AIMod_AutoWaypoint_Optimizer ( void )
 	qboolean	nowaterremove = qfalse;
 //	vmCvar_t	mapname;
 
-	trap_Cvar_Set("jkg_waypoint_render", "0");
+	cgi.Cvar_Set("jkg_waypoint_render", "0");
 
 	aw_num_bad_surfaces = 0;
 
 	// UQ1: start - First handle the command line options...
-	trap_Argv( 1, str, sizeof(str) );
+	cgi.Argv( 1, str, sizeof(str) );
 
 	if (!quiet && str && str[0])
 	{// Use player specified area seperation...
@@ -5539,7 +5539,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 		else
 			area_sep = atof(str);
 
-		trap_Argv( 2, str, sizeof(str) );
+		cgi.Argv( 2, str, sizeof(str) );
 
 		if (str && str[0])
 		{// Use player specified area seperation...
@@ -5554,7 +5554,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 			else
 				area_sep = atof(str);
 
-			trap_Argv( 3, str, sizeof(str) );
+			cgi.Argv( 3, str, sizeof(str) );
 
 			if (str && str[0])
 			{// Use player specified area seperation...
@@ -5569,7 +5569,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 				else
 					area_sep = atof(str);
 
-				trap_Argv( 4, str, sizeof(str) );
+				cgi.Argv( 4, str, sizeof(str) );
 
 				if (str && str[0])
 				{// Use player specified area seperation...
@@ -5584,7 +5584,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 					else
 						area_sep = atof(str);
 
-					trap_Argv( 5, str, sizeof(str) );
+					cgi.Argv( 5, str, sizeof(str) );
 
 					if (str && str[0])
 					{// Use player specified area seperation...
@@ -5673,17 +5673,17 @@ AIMod_AutoWaypoint_Optimizer ( void )
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Optimizing waypoint list...\n" );
 	strcpy( task_string1, va("^7Optimizing waypoint list....") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^7This should not take too long...\n" );
 	strcpy( task_string2, va("^7This should not take too long...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	if (!bad_surfaces_only)
 	{
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5First pass. Creating area lists... Please wait...\n" );
 		strcpy( task_string3, va("^5First pass. Creating area lists... Please wait...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 	}
 
 	// UQ1: Set node types..
@@ -5814,7 +5814,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 				
 					if (num_nodes_added > 20)
 					{
-						trap_UpdateScreen();
+						cgi.UpdateScreen();
 						num_nodes_added = 0;
 					}
 
@@ -5861,7 +5861,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Second pass. Adding goal area entities... Please wait...\n" );
 		strcpy( task_string3, va("^5Second pass. Adding goal area entities... Please wait...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		entities_start = num_areas;
 
@@ -5878,7 +5878,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 				
 			if (screen_update_timer > 10)
 			{
-				trap_UpdateScreen();
+				cgi.UpdateScreen();
 				screen_update_timer = 0;
 			}
 
@@ -5916,7 +5916,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Final pass. Creating waypoints... Please wait...\n" );
 		strcpy( task_string3, va("^5Final pass. Creating waypoints... Please wait...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		total_calculations = num_areas*num_areas;
 		calculations_complete = 0;
@@ -5944,7 +5944,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 				
 				if (num_nodes_added > 50)
 				{
-					trap_UpdateScreen();
+					cgi.UpdateScreen();
 					num_nodes_added = 0;
 				}
 
@@ -5982,7 +5982,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 
 							if (num_nodes_added > 100)
 							{
-								trap_UpdateScreen();
+								cgi.UpdateScreen();
 								num_nodes_added = 0;
 							}
 
@@ -6001,7 +6001,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 	{// bad_surfaces_only
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Final pass. Creating waypoints... Please wait...\n" );
 		strcpy( task_string3, va("^5Creating waypoints... Please wait...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		total_calculations = number_of_nodes;
 		calculations_complete = 0;
@@ -6018,7 +6018,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 
 				if (num_nodes_added > 100)
 				{
-					trap_UpdateScreen();
+					cgi.UpdateScreen();
 					num_nodes_added = 0;
 				}
 
@@ -6028,7 +6028,7 @@ AIMod_AutoWaypoint_Optimizer ( void )
 		}
 
 		aw_percent_complete = 0.0f;
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 	}
 
 	free(areas);
@@ -6080,23 +6080,23 @@ AIMod_AutoWaypoint_Optimizer ( void )
 	AIMOD_NODES_SaveNodes_Autowaypointed();
 
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	// Remake cover spots...
 	AIMOD_Generate_Cover_Spots(); // UQ1: Want to add these to JKA???
 
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	AIMod_AutoWaypoint_Free_Memory();
 	AIMod_AutoWaypoint_Optimize_Free_Memory();
 
-	//trap_SendConsoleCommand( "set bot_wp_visconnect 1\n" );
-	//trap_SendConsoleCommand( "bot_wp_convert_awp\n" );
+	//cgi.SendConsoleCommand( "set bot_wp_visconnect 1\n" );
+	//cgi.SendConsoleCommand( "bot_wp_convert_awp\n" );
 
-	//trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	//cgi.Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
-	trap_SendConsoleCommand( "!loadAWPnodes\n" );
+	cgi.SendConsoleCommand( "!loadAWPnodes\n" );
 }
 
 extern int Q_TrueRand ( int low, int high );
@@ -6161,7 +6161,7 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 
 	aw_num_bad_surfaces = 0;
 
-	trap_Cvar_Set("jkg_waypoint_render", "0");
+	cgi.Cvar_Set("jkg_waypoint_render", "0");
 
 	AIMod_AutoWaypoint_Init_Memory();
 	AIMod_AutoWaypoint_Optimize_Init_Memory();
@@ -6220,11 +6220,11 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Cleaning waypoint list...\n" );
 	strcpy( task_string1, va("^7Cleaning waypoint list....") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^7This should not take too long...\n" );
 	strcpy( task_string2, va("^7This should not take too long...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	// UQ1: Set node types..
 	AIMOD_AI_InitNodeContentsFlags();
@@ -6325,7 +6325,7 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Creating waypoints... Please wait...\n" );
 	strcpy( task_string3, va("^5Creating waypoints... Please wait...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	total_calculations = number_of_nodes;
 	calculations_complete = 0;
@@ -6342,7 +6342,7 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 
 			if (num_nodes_added > 100)
 			{
-				trap_UpdateScreen();
+				cgi.UpdateScreen();
 				num_nodes_added = 0;
 			}
 
@@ -6352,7 +6352,7 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 	}
 
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	free(areas);
 
@@ -6409,19 +6409,19 @@ AIMod_AutoWaypoint_Cleaner_OLD ( qboolean quiet, qboolean null_links_only, qbool
 	AIMOD_NODES_SaveNodes_Autowaypointed();
 
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	// Remake cover spots...
 	if (start_wp_total != number_of_nodes)
 		AIMOD_Generate_Cover_Spots();
 
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	AIMod_AutoWaypoint_Free_Memory();
 	AIMod_AutoWaypoint_Optimize_Free_Memory();
 
-	trap_SendConsoleCommand( "!loadAWPnodes\n" );
+	cgi.SendConsoleCommand( "!loadAWPnodes\n" );
 }
 
 //
@@ -6620,7 +6620,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 	float		original_wp_max_distance = 0;
 	float		original_wp_scatter_multiplier = 0;
 
-	trap_Cvar_Set("jkg_waypoint_render", "0");
+	cgi.Cvar_Set("jkg_waypoint_render", "0");
 
 	aw_num_bad_surfaces = 0;
 	num_dupe_nodes = 0;
@@ -6683,11 +6683,11 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Cleaning waypoint list...\n" );
 	strcpy( task_string1, va("^7Cleaning waypoint list....") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^7This could take a while...\n" );
 	strcpy( task_string2, va("^7This could take a while...") );
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	// UQ1: Set node types..
 	AIMOD_AI_InitNodeContentsFlags();
@@ -6754,7 +6754,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 	{
 		CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Cleaning waypoints list... Please wait...\n" );
 		strcpy( task_string3, va("^5Cleaning waypoints list... Please wait...") );
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		total_calculations = number_of_nodes;
 		calculations_complete = 0;
@@ -6838,7 +6838,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 			if (node_clean_ticker > 100)
 			{
 				strcpy( last_node_added_string, va("^5Checking waypoint ^3%i ^5at ^7%f %f %f^5.", i, nodes[i].origin[0], nodes[i].origin[1], nodes[i].origin[2]) );
-				trap_UpdateScreen();
+				cgi.UpdateScreen();
 				node_clean_ticker = 0;
 			}
 
@@ -7047,7 +7047,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		}
 
 		aw_percent_complete = 0.0f;
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 water/ice waypoints.\n", num_disabled_nodes);
 		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Disabled ^3%i^5 bad surfaces.\n", aw_num_bad_surfaces);
@@ -7094,7 +7094,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 			CG_Printf( "^4*** ^3AUTO-WAYPOINTER^4: ^5Creating new waypoints list... Please wait...\n" );
 			strcpy( task_string3, va("^5Creating new waypoints list... Please wait...") );
 		}
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 		total_calculations = number_of_nodes;
 		calculations_complete = 0;
@@ -7116,7 +7116,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 				if (num_nodes_added > 100)
 				{
 					strcpy( last_node_added_string, va("^5Adding waypoint ^3%i ^5at ^7%f %f %f^5.", optimized_number_of_nodes, nodes[i].origin[0], nodes[i].origin[1], nodes[i].origin[2]) );
-					trap_UpdateScreen();
+					cgi.UpdateScreen();
 					num_nodes_added = 0;
 				}
 
@@ -7127,7 +7127,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 
 		calculations_complete = 0;
 		aw_percent_complete = 0.0f;
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 
 //		free(areas);
 
@@ -7146,7 +7146,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		AIMOD_NODES_SaveNodes_Autowaypointed();
 
 		aw_percent_complete = 0.0f;
-		trap_UpdateScreen();
+		cgi.UpdateScreen();
 	
 		CG_Printf("^4*** ^3AUTO-WAYPOINTER^4: ^5Multipass waypoint cleaner pass #%i completed. Beginning next pass.\n", num_passes_completed);
 		
@@ -7186,7 +7186,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 		AIMOD_Generate_Cover_Spots();
 
 	aw_percent_complete = 0.0f;
-	trap_UpdateScreen();
+	cgi.UpdateScreen();
 
 	AIMod_AutoWaypoint_Free_Memory();
 	AIMod_AutoWaypoint_Optimize_Free_Memory();
@@ -7194,7 +7194,7 @@ AIMod_AutoWaypoint_Cleaner ( qboolean quiet, qboolean null_links_only, qboolean 
 	// Restore the original multiplier...
 	waypoint_distance_multiplier = original_wp_scatter_multiplier;
 
-	trap_SendConsoleCommand( "!loadnodes\n" );
+	cgi.SendConsoleCommand( "!loadnodes\n" );
 }
 
 #define NUMBER_SIZE		8
@@ -7235,7 +7235,7 @@ void CG_Waypoint( int wp_num ) {
 	for (i = 0; i < numdigits; i++) {
 		//VectorMA(nodes[wp_num].origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, vec, re.origin);
 		re.customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
-		trap_R_AddRefEntityToScene( &re );
+		cgi.R_AddRefEntityToScene( &re );
 	}
 }
 
@@ -7287,7 +7287,7 @@ void CG_AddWaypointLinkLine( int wp_from, int wp_to )
 	VectorCopy(nodes[wp_to].origin, re.oldorigin);
 	re.oldorigin[2]+=16;
 
-	trap_R_AddRefEntityToScene( &re );
+	cgi.R_AddRefEntityToScene( &re );
 }
 
 extern vmCvar_t jkg_waypoint_render;

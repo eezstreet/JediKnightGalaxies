@@ -9,8 +9,6 @@
 #include "cg_local.h"
 #include "jkg_eshader.h"
 
-extern void trap_JKG_OverrideShaderFrame( qhandle_t shader, int frame, int time );
-
 static void DissectNumber(int number, int *hundreds, int *tens, int *ones) {
 	int h, t, o;
 	if (number < 0) {
@@ -75,24 +73,24 @@ void JKG_WeaponIndicators_Update(const centity_t *cent, const playerState_t *ps)
             case IND_NORMAL:
 				if ( weaponData->visuals.visualFireModes[ps->firingMode].overrideIndicatorFrame != -1 )
 				{
-					trap_JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, weaponData->visuals.visualFireModes[ps->firingMode].overrideIndicatorFrame, cg.time);
+					cgi.JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, weaponData->visuals.visualFireModes[ps->firingMode].overrideIndicatorFrame, cg.time);
 				}
 				else
 				{
-					trap_JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, ps->firingMode, cg.time);
+					cgi.JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, ps->firingMode, cg.time);
 				}
                 if ( PlayerIsReloading() )
                 {
-                    trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 11, cg.time);
-                    trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], 11, cg.time);
-                    trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], 11, cg.time);
+                    cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 11, cg.time);
+                    cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], 11, cg.time);
+                    cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], 11, cg.time);
                 }
                 else
                 {
                     DissectNumber (ammo, &h, &t, &o);
-                    trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], o, cg.time);
-                    trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], (!t && !h) ? 10 : t, cg.time);
-                    trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], !h ? 10 : h, cg.time);
+                    cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], o, cg.time);
+                    cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], (!t && !h) ? 10 : t, cg.time);
+                    cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], !h ? 10 : h, cg.time);
                 }
                 break;
                 
@@ -105,7 +103,7 @@ void JKG_WeaponIndicators_Update(const centity_t *cent, const playerState_t *ps)
 			        int led3 = 0;
 			        int dt = cg.jkg_grenadeCookTimer - cg.time - 1000;
 			        
-			        trap_JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 1, cg.time);
+			        cgi.JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 1, cg.time);
 			        
 			        if ( dt <= 0 )
 			        {
@@ -146,22 +144,22 @@ void JKG_WeaponIndicators_Update(const centity_t *cent, const playerState_t *ps)
 			            }
 			        }
 
-		            trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], led1, cg.time);
-		            trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], led2, cg.time);
-		            trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], led3, cg.time);
+		            cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], led1, cg.time);
+		            cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], led2, cg.time);
+		            cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], led3, cg.time);
 			    }
 			    else
 			    {
-			        trap_JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0, cg.time);
-			        trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 0, cg.time);
-			        trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], 0, cg.time);
-			        trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], 0, cg.time);
+			        cgi.JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0, cg.time);
+			        cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 0, cg.time);
+			        cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], 0, cg.time);
+			        cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], 0, cg.time);
 			    }
                 break;
                 
             default:
             case IND_NONE:
-                trap_JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0, cg.time);
+                cgi.JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0, cg.time);
                 break;
         }
 	} else {
@@ -170,9 +168,9 @@ void JKG_WeaponIndicators_Update(const centity_t *cent, const playerState_t *ps)
 			return;
 		}
 
-        trap_JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0, cg.time);
-        trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 10, cg.time);
-        trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], 10, cg.time);
-        trap_JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], 10, cg.time);
+        cgi.JKG_OverrideShaderFrame (weaponInfo->fireModeIndicator, 0, cg.time);
+        cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[0], 10, cg.time);
+        cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[1], 10, cg.time);
+        cgi.JKG_OverrideShaderFrame (weaponInfo->groupedIndicators[2], 10, cg.time);
 	}
 }

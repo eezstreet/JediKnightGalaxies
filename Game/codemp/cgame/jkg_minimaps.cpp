@@ -78,7 +78,7 @@ static void MiniMap_ParseArea(cJSON *area) {
 	if (!item || !cJSON_IsString(item)) {
 		CG_Printf("WARNING: Area without 'map' in minimaps/%s.mmd\n", cgs.rawmapname);
 	} else {
-		entry->shader = trap_R_RegisterShader(cJSON_ToStringOpt(item, "*white"));
+		entry->shader = cgi.R_RegisterShader(cJSON_ToStringOpt(item, "*white"));
 	}
 
 	item = cJSON_GetObjectItem(area, "mapbase");
@@ -136,20 +136,20 @@ void MiniMap_Init() {
 	// First, lets load some shaders :)
 	memset(&minimap_data, 0, sizeof(minimap_data));
 
-	minimap_data.maskshader = trap_R_RegisterShaderNoMip("minimaps/mask");
-	minimap_data.overlayshader = trap_R_RegisterShaderNoMip("gfx/jkghud/minimap_visionmask.png");
-	//minimap_data.nomapshader = trap_R_RegisterShader("gfx/jkghud/minimap_nomap.png");
-	minimap_data.nomapshader = trap_R_RegisterShader("gfx/jkghud/minimap_backup_radar.png");
+	minimap_data.maskshader = cgi.R_RegisterShaderNoMip("minimaps/mask");
+	minimap_data.overlayshader = cgi.R_RegisterShaderNoMip("gfx/jkghud/minimap_visionmask.png");
+	//minimap_data.nomapshader = cgi.R_RegisterShader("gfx/jkghud/minimap_nomap.png");
+	minimap_data.nomapshader = cgi.R_RegisterShader("gfx/jkghud/minimap_backup_radar.png");
 
-	len = trap_FS_FOpenFile(va("minimaps/%s.mmd", cgs.rawmapname), &f, FS_READ);
+	len = cgi.FS_FOpenFile(va("minimaps/%s.mmd", cgs.rawmapname), &f, FS_READ);
 	if (len < 1) {
 		return;		// No minimap
 	}
 	// Awesome, we got a minimap def file, lets parse it
 	buff = (char *)malloc(len+1);
-	trap_FS_Read(buff,len,f);
+	cgi.FS_Read(buff,len,f);
 	buff[len] = 0;
-	trap_FS_FCloseFile(f);
+	cgi.FS_FCloseFile(f);
 
 	root = cJSON_ParsePooled(buff, error, sizeof(error));
 	if (!root) {
@@ -247,8 +247,8 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 	}
 	if (!minimap_data.maploaded) {
 		// Render the blank one if we got no map data
-		trap_R_SetColor(opacity);
-		trap_R_DrawStretchPic(
+		cgi.R_SetColor(opacity);
+		cgi.R_DrawStretchPic(
 			item->window.rect.x, 
 			item->window.rect.y, 
 			item->window.rect.w, 
@@ -264,8 +264,8 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 		}
 		if (minimap_data.currentarea == -1) {
 			// Not in a valid area, so no minimap
-			trap_R_SetColor(opacity);
-			trap_R_DrawStretchPic(
+			cgi.R_SetColor(opacity);
+			cgi.R_DrawStretchPic(
 				item->window.rect.x, 
 				item->window.rect.y, 
 				item->window.rect.w, 
@@ -315,11 +315,11 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 
 			// Time to render it
 			// First, reset our color
-			trap_R_SetColor(opacity);
+			cgi.R_SetColor(opacity);
 			
 			// Next draw the alpha mask, this one uses an alpha func
 			// So the next layer (which uses depthfunc) will inherit this alpha
-			trap_R_DrawRotatePic2(
+			cgi.R_DrawRotatePic2(
 				item->window.rect.x+(item->window.rect.w/2),	// Center X
 				item->window.rect.y+(item->window.rect.h/2),	// Center Y
 				item->window.rect.w,								// Radius W
@@ -332,7 +332,7 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 			// Cuz of the alpha layer we rendered, this shader will 
 			// be clipped off in areas the alpha layer was transparent
 			// This way we obtain the round shape
-			trap_R_DrawRotatePic2( 
+			cgi.R_DrawRotatePic2( 
 				item->window.rect.x+(item->window.rect.w/2),	// Center X
 				item->window.rect.y+(item->window.rect.h/2),	// Center Y
 				item->window.rect.w,								// Radius W
@@ -346,8 +346,8 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 			// But only if we're not fading with another map
 			if (!minimap_data.fadetime) {
 				overlayColor[3] *= cg.jkg_HUDOpacity;
-				trap_R_SetColor(overlayColor);
-				trap_R_DrawStretchPic(
+				cgi.R_SetColor(overlayColor);
+				cgi.R_DrawStretchPic(
 					item->window.rect.x, 
 					item->window.rect.y, 
 					item->window.rect.w, 
@@ -355,7 +355,7 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 					0, 0, 1, 1,
 					minimap_data.overlayshader);
 			}
-			trap_R_SetColor(opacity);
+			cgi.R_SetColor(opacity);
 		}
 		if (minimap_data.fadetime) {
 			// We're transitioning
@@ -370,8 +370,8 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 			if (minimap_data.newarea == -1) {
 				// Not in a valid area, so no minimap
 				transcolor[3] *= cg.jkg_HUDOpacity;
-				trap_R_SetColor(transcolor);
-				trap_R_DrawStretchPic(
+				cgi.R_SetColor(transcolor);
+				cgi.R_DrawStretchPic(
 					item->window.rect.x, 
 					item->window.rect.y, 
 					item->window.rect.w, 
@@ -421,13 +421,13 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 
 				// Time to render it
 				// First, reset our color
-				trap_R_SetColor(transcolor);
+				cgi.R_SetColor(transcolor);
 
 				// Now we draw our actual minimap picture over it
 				// Cuz of the alpha layer we rendered, this shader will 
 				// be clipped off in areas the alpha layer was transparent
 				// This way we obtain the round shape
-				trap_R_DrawRotatePic2( 
+				cgi.R_DrawRotatePic2( 
 					item->window.rect.x+(item->window.rect.w/2),	// Center X
 					item->window.rect.y+(item->window.rect.h/2),	// Center Y
 					item->window.rect.w,								// Radius W
@@ -437,8 +437,8 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 					entry->shader);
 
 				// And put in the overlay (the first pass will skip this if we're fading
-				trap_R_SetColor(overlayColor);
-				trap_R_DrawStretchPic(
+				cgi.R_SetColor(overlayColor);
+				cgi.R_DrawStretchPic(
 					item->window.rect.x, 
 					item->window.rect.y, 
 					item->window.rect.w, 
@@ -449,7 +449,7 @@ void MiniMap_Render(menuDef_t *menu, float radiusScale) {
 			}
 		}
 		// Now we flush the 'buffer' to ensure nothin else will be affected by the alpha func
-		trap_R_DrawRotatePic2(0, 0, 0, 0, 0, 0, 0, 0, 0, cgs.media.whiteShader);
-		trap_R_SetColor(opacity);
+		cgi.R_DrawRotatePic2(0, 0, 0, 0, 0, 0, 0, 0, 0, cgs.media.whiteShader);
+		cgi.R_SetColor(opacity);
 	}	
 }

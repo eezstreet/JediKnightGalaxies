@@ -731,10 +731,18 @@ qboolean BG_FileExists(const char *fileName)
 	if (fileName && fileName[0])
 	{
 		int fh = 0;
+#ifdef QAGAME
 		trap_FS_FOpenFile(fileName, &fh, FS_READ);
+#else
+		cgi.FS_FOpenFile(fileName, &fh, FS_READ);
+#endif
 		if (fh > 0)
 		{
+#ifdef QAGAME
 			trap_FS_FCloseFile(fh);
+#else
+			cgi.FS_FCloseFile(fh);
+#endif
 			return qtrue;
 		}
 	}
@@ -3191,7 +3199,11 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 
 		if (!isRegistered)
 		{
+#ifdef QAGAME
 			trap_Cvar_Register(&showEvents, "showevents", "0", 0);
+#else
+			cgi.Cvar_Register(&showEvents, "showevents", "0", 0);
+#endif
 			isRegistered = qtrue;
 		}
 
@@ -3810,11 +3822,7 @@ PLAYER ANGLES
 extern int trap_G2API_InitGhoul2Model(void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin,
 						  qhandle_t customShader, int modelFlags, int lodBias); //exists on game/cgame/ui, only used on game
 extern void trap_G2API_CleanGhoul2Models(void **ghoul2Ptr); //exists on game/cgame/ui, only used on game
-#else //cgame/ui
-extern qhandle_t trap_R_RegisterModel( const char *name ); //exists on cgame/ui
 #endif
-//game/cgame/ui
-extern qhandle_t trap_R_RegisterSkin( const char *name ); //exists on game/cgame/ui
 
 int BG_ModelCache(const char *modelName, const char *skinName)
 {
@@ -3836,9 +3844,9 @@ int BG_ModelCache(const char *modelName, const char *skinName)
 #else
 	if (skinName && skinName[0])
 	{
-		trap_R_RegisterSkin(skinName);
+		cgi.R_RegisterSkin(skinName);
 	}
-	return trap_R_RegisterModel(modelName);
+	return cgi.R_RegisterModel(modelName);
 #endif
 }
 

@@ -127,7 +127,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	}
 	else if (cg_addMarks.integer == 2)
 	{
-		trap_R_AddDecalToScene(markShader, origin, dir, orientation, red, green, blue, alpha,
+		cgi.R_AddDecalToScene(markShader, origin, dir, orientation, red, green, blue, alpha,
 			alphaFade, radius, temporary);
 		return;
 	}
@@ -158,7 +158,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 
 	// get the fragments
 	VectorScale( dir, -20, projection );
-	numFragments = trap_CM_MarkFragments( 4, (const vec3_t *) originalPoints,
+	numFragments = cgi.CM_MarkFragments( 4, (const vec3_t *) originalPoints,
 					projection, MAX_MARK_POINTS, markPoints[0],
 					MAX_MARK_FRAGMENTS, markFragments );
 
@@ -190,7 +190,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 
 		// if it is a temporary (shadow) mark, add it immediately and forget about it
 		if ( temporary ) {
-			trap_R_AddPolyToScene( markShader, mf->numPoints, verts );
+			cgi.R_AddPolyToScene( markShader, mf->numPoints, verts );
 			continue;
 		}
 
@@ -287,7 +287,7 @@ void CG_AddMarks( void ) {
 			}
 		}
 
-		trap_R_AddPolyToScene( mp->markShader, mp->poly.numVerts, mp->verts );
+		cgi.R_AddPolyToScene( mp->markShader, mp->poly.numVerts, mp->verts );
 	}
 }
 
@@ -416,7 +416,7 @@ void CG_ClearParticles (void)
 		int j;
 
 		for (j=0; j<shaderAnimCounts[i]; j++) {
-			shaderAnims[i][j] = trap_R_RegisterShader( va("%s%i", shaderAnimNames[i], j+1) );
+			shaderAnims[i][j] = cgi.R_RegisterShader( va("%s%i", shaderAnimNames[i], j+1) );
 		}
 	}
 	numShaderAnims = i;
@@ -1064,9 +1064,9 @@ void CG_AddParticleToScene (cparticle_t *p, vec3_t org, float alpha)
 	}
 
 	if (p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY)
-		trap_R_AddPolyToScene( p->pshader, 3, TRIverts );
+		cgi.R_AddPolyToScene( p->pshader, 3, TRIverts );
 	else
-		trap_R_AddPolyToScene( p->pshader, 4, verts );
+		cgi.R_AddPolyToScene( p->pshader, 4, verts );
 
 }
 

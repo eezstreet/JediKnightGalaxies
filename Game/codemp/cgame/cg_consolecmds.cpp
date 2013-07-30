@@ -27,10 +27,10 @@ void CG_CameraZoomOut( void )
 
 void CG_Start360Camera( void )
 {
-	if ( trap_Key_GetCatcher() == 0 && cg.i360CameraTime == 0 )
+	if ( cgi.Key_GetCatcher() == 0 && cg.i360CameraTime == 0 )
 	{
 		usercmd_t cmd;
-		trap_GetUserCmd( trap_GetCurrentCmdNumber(), &cmd );
+		cgi.GetUserCmd( cgi.GetCurrentCmdNumber(), &cmd );
 
 		cg.i360CameraForce		= -1;
 		cg.i360CameraTime		= cg.time + 250;
@@ -47,14 +47,14 @@ void CG_Stop360Camera( void )
 		/* This was a short click, so only change the third person camera! */
 		if ( cg.i360CameraTime > cg.time )
 		{
-			trap_SendConsoleCommand( "cg_thirdPerson !" );
+			cgi.SendConsoleCommand( "cg_thirdPerson !" );
 		}
 		/* It was a full rotate so reset the view angles to their original position */
 		else
 		{
 			vec3_t angle;
 			angle[YAW] = cg.i360CameraOriginal;
-			trap_SetClientForceAngle( cg.time + 10, angle );
+			cgi.SetClientForceAngle( cg.time + 10, angle );
 		}
 	}
 
@@ -70,8 +70,8 @@ void CG_TargetCommand_f( void ) {
 		return;
 	}
 
-	trap_Argv( 1, test, 4 );
-	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	cgi.Argv( 1, test, 4 );
+	cgi.SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 
 void CG_OpenPartyManagement_f( void ) {
@@ -86,7 +86,7 @@ Keybinding command
 =================
 */
 static void CG_SizeUp_f (void) {
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer+10)));
+	cgi.Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer+10)));
 }
 
 
@@ -98,7 +98,7 @@ Keybinding command
 =================
 */
 static void CG_SizeDown_f (void) {
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
+	cgi.Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
 }
 
 
@@ -123,7 +123,7 @@ static void CG_ScoresDown_f( void ) {
 		// the scores are more than two seconds out of data,
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
-		trap_SendClientCommand( "score" );
+		cgi.SendClientCommand( "score" );
 
 		// leave the current scores up if they were already
 		// displayed, but if this is the first hit, clear them out
@@ -167,22 +167,22 @@ static void CG_scrollScoresUp_f( void) {
 
 
 static void CG_spWin_f( void) {
-	trap_Cvar_Set("cg_cameraOrbit", "2");
-	trap_Cvar_Set("cg_cameraOrbitDelay", "35");
-	trap_Cvar_Set("cg_thirdPerson", "1");
-	trap_Cvar_Set("cg_thirdPersonAngle", "0");
-	trap_Cvar_Set("cg_thirdPersonRange", "100");
+	cgi.Cvar_Set("cg_cameraOrbit", "2");
+	cgi.Cvar_Set("cg_cameraOrbitDelay", "35");
+	cgi.Cvar_Set("cg_thirdPerson", "1");
+	cgi.Cvar_Set("cg_thirdPersonAngle", "0");
+	cgi.Cvar_Set("cg_thirdPersonRange", "100");
 	CG_AddBufferedSound(cgs.media.winnerSound);
 	//trap_S_StartLocalSound(cgs.media.winnerSound, CHAN_ANNOUNCER);
 	CG_CenterPrint(CG_GetStringEdString("MP_INGAME", "YOU_WIN"), SCREEN_HEIGHT * .30, 0);
 }
 
 static void CG_spLose_f( void) {
-	trap_Cvar_Set("cg_cameraOrbit", "2");
-	trap_Cvar_Set("cg_cameraOrbitDelay", "35");
-	trap_Cvar_Set("cg_thirdPerson", "1");
-	trap_Cvar_Set("cg_thirdPersonAngle", "0");
-	trap_Cvar_Set("cg_thirdPersonRange", "100");
+	cgi.Cvar_Set("cg_cameraOrbit", "2");
+	cgi.Cvar_Set("cg_cameraOrbitDelay", "35");
+	cgi.Cvar_Set("cg_thirdPerson", "1");
+	cgi.Cvar_Set("cg_thirdPersonAngle", "0");
+	cgi.Cvar_Set("cg_thirdPersonRange", "100");
 	CG_AddBufferedSound(cgs.media.loserSound);
 	//trap_S_StartLocalSound(cgs.media.loserSound, CHAN_ANNOUNCER);
 	CG_CenterPrint(CG_GetStringEdString("MP_INGAME", "YOU_LOSE"), SCREEN_HEIGHT * .30, 0);
@@ -199,9 +199,9 @@ static void CG_TellTarget_f( void ) {
 		return;
 	}
 
-	trap_Args( message, 128 );
+	cgi.Args( message, 128 );
 	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	cgi.SendClientCommand( command );
 }
 
 static void CG_TellAttacker_f( void ) {
@@ -214,9 +214,9 @@ static void CG_TellAttacker_f( void ) {
 		return;
 	}
 
-	trap_Args( message, 128 );
+	cgi.Args( message, 128 );
 	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	cgi.SendClientCommand( command );
 }
 
 
@@ -229,18 +229,18 @@ CG_StartOrbit_f
 static void CG_StartOrbit_f( void ) {
 	char var[MAX_TOKEN_CHARS];
 
-	trap_Cvar_VariableStringBuffer( "developer", var, sizeof( var ) );
+	cgi.Cvar_VariableStringBuffer( "developer", var, sizeof( var ) );
 	if ( !atoi(var) ) {
 		return;
 	}
 	if (cg_cameraOrbit.value != 0) {
-		trap_Cvar_Set ("cg_cameraOrbit", "0");
-		trap_Cvar_Set("cg_thirdPerson", "0");
+		cgi.Cvar_Set ("cg_cameraOrbit", "0");
+		cgi.Cvar_Set("cg_thirdPerson", "0");
 	} else {
-		trap_Cvar_Set("cg_cameraOrbit", "5");
-		trap_Cvar_Set("cg_thirdPerson", "1");
-		trap_Cvar_Set("cg_thirdPersonAngle", "0");
-		trap_Cvar_Set("cg_thirdPersonRange", "100");
+		cgi.Cvar_Set("cg_cameraOrbit", "5");
+		cgi.Cvar_Set("cg_thirdPerson", "1");
+		cgi.Cvar_Set("cg_thirdPersonAngle", "0");
+		cgi.Cvar_Set("cg_thirdPersonRange", "100");
 	}
 }
 
@@ -270,11 +270,11 @@ static void CG_PrintWeaponMuzzleOffset_f ( void )
     centity_t *cent = &cg_entities[cg.snap->ps.clientNum];
     void *g2Weapon = cent->ghoul2;
     
-    if ( !trap_G2_HaveWeGhoul2Models (g2Weapon) )
+    if ( !cgi.G2_HaveWeGhoul2Models (g2Weapon) )
     {
         CG_Printf ("Current weapon does not use a GHOUL2 model.\n");
     }
-    else if ( !trap_G2API_HasGhoul2ModelOnIndex (&g2Weapon, 1) )
+    else if ( !cgi.G2API_HasGhoul2ModelOnIndex (&g2Weapon, 1) )
     {
         CG_Printf ("Current weapon has no model on index 1.\n");
     }
@@ -284,7 +284,7 @@ static void CG_PrintWeaponMuzzleOffset_f ( void )
         mdxaBone_t muzzleBone;
         vec3_t muzzleOffset;
         
-        if ( !trap_G2API_GetBoltMatrix (g2Weapon, 1, 0, &muzzleBone, worldForward, vec3_origin, cg.time, cgs.gameModels, cent->modelScale) )
+        if ( !cgi.G2API_GetBoltMatrix (g2Weapon, 1, 0, &muzzleBone, worldForward, vec3_origin, cg.time, cgs.gameModels, cent->modelScale) )
         {
             CG_Printf ("Unable to get muzzle bolt matrix for the current weapon.\n");
             return;
@@ -303,7 +303,7 @@ int testMasterFinalFunc (asyncTask_t *task) {
 	cJSON *data = (cJSON *)task->finalData;
 	
 	if (task->errorCode == 0) {
-		Com_Printf("Test successful! (bounce: %i - %i)\n", cJSON_ToInteger(cJSON_GetObjectItem(data, "bounce")), trap_Milliseconds());
+		Com_Printf("Test successful! (bounce: %i - %i)\n", cJSON_ToInteger(cJSON_GetObjectItem(data, "bounce")), cgi.Milliseconds());
 	} else {
 		Com_Printf("Test failed!\n");
 	}
@@ -325,13 +325,13 @@ static void JKG_UseACI_f ( void )
     char buf[3];
     int slot;
     
-    if ( trap_Argc() != 2 )
+    if ( cgi.Argc() != 2 )
     {
         CG_Printf ("Usage: /useACI <slot number>\n");
         return;
     }
     
-    trap_Argv (1, buf, sizeof (buf));
+    cgi.Argv (1, buf, sizeof (buf));
     if ( buf[0] < '0' || buf[0] > '9' )
     {
         return;
@@ -355,9 +355,9 @@ static void JKG_UseACI_f ( void )
 static void JKG_DumpWeaponList_f ( void )
 {
     char filename[MAX_QPATH];
-    if ( trap_Argc() > 1 )
+    if ( cgi.Argc() > 1 )
     {
-        trap_Argv (1, filename, sizeof (filename));
+        cgi.Argv (1, filename, sizeof (filename));
     }
     else
     {
@@ -504,57 +504,57 @@ void CG_InitConsoleCommands( void ) {
 	int		i;
 
 	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		trap_AddCommand( commands[i].cmd );
+		cgi.AddCommand( commands[i].cmd );
 	}
 
 	//
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	trap_AddCommand ("forcechanged");
-	trap_AddCommand ("sv_invnext");
-	trap_AddCommand ("sv_invprev");
-	trap_AddCommand ("sv_forcenext");
-	trap_AddCommand ("sv_forceprev");
-	trap_AddCommand ("sv_saberswitch");
-	trap_AddCommand ("engage_duel");
-	trap_AddCommand ("force_heal");
-	trap_AddCommand ("force_speed");
-	trap_AddCommand ("force_throw");
-	trap_AddCommand ("force_pull");
-	trap_AddCommand ("force_distract");
-	trap_AddCommand ("force_rage");
-	trap_AddCommand ("force_protect");
-	trap_AddCommand ("force_absorb");
-	trap_AddCommand ("force_healother");
-	trap_AddCommand ("force_forcepowerother");
-	trap_AddCommand ("force_seeing");
-	trap_AddCommand ("use_seeker");
-	trap_AddCommand ("use_field");
-	trap_AddCommand ("use_bacta");
-	trap_AddCommand ("use_electrobinoculars");
-	trap_AddCommand ("zoom");
-	trap_AddCommand ("use_sentry");
-	trap_AddCommand ("bot_order");
-	trap_AddCommand ("saberAttackCycle");
-	trap_AddCommand ("kill");
-	trap_AddCommand ("say");
-	trap_AddCommand ("say_team");
-	trap_AddCommand ("tell");
-	trap_AddCommand ("give");
-	trap_AddCommand ("god");
-	trap_AddCommand ("notarget");
-	trap_AddCommand ("noclip");
-	trap_AddCommand ("team");
-	trap_AddCommand ("follow");
-	trap_AddCommand ("levelshot");
-	trap_AddCommand ("addbot");
-	trap_AddCommand ("setviewpos");
-	trap_AddCommand ("callvote");
-	trap_AddCommand ("vote");
-	trap_AddCommand ("callteamvote");
-	trap_AddCommand ("teamvote");
-	trap_AddCommand ("stats");
-	trap_AddCommand ("teamtask");
-	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
+	cgi.AddCommand ("forcechanged");
+	cgi.AddCommand ("sv_invnext");
+	cgi.AddCommand ("sv_invprev");
+	cgi.AddCommand ("sv_forcenext");
+	cgi.AddCommand ("sv_forceprev");
+	cgi.AddCommand ("sv_saberswitch");
+	cgi.AddCommand ("engage_duel");
+	cgi.AddCommand ("force_heal");
+	cgi.AddCommand ("force_speed");
+	cgi.AddCommand ("force_throw");
+	cgi.AddCommand ("force_pull");
+	cgi.AddCommand ("force_distract");
+	cgi.AddCommand ("force_rage");
+	cgi.AddCommand ("force_protect");
+	cgi.AddCommand ("force_absorb");
+	cgi.AddCommand ("force_healother");
+	cgi.AddCommand ("force_forcepowerother");
+	cgi.AddCommand ("force_seeing");
+	cgi.AddCommand ("use_seeker");
+	cgi.AddCommand ("use_field");
+	cgi.AddCommand ("use_bacta");
+	cgi.AddCommand ("use_electrobinoculars");
+	cgi.AddCommand ("zoom");
+	cgi.AddCommand ("use_sentry");
+	cgi.AddCommand ("bot_order");
+	cgi.AddCommand ("saberAttackCycle");
+	cgi.AddCommand ("kill");
+	cgi.AddCommand ("say");
+	cgi.AddCommand ("say_team");
+	cgi.AddCommand ("tell");
+	cgi.AddCommand ("give");
+	cgi.AddCommand ("god");
+	cgi.AddCommand ("notarget");
+	cgi.AddCommand ("noclip");
+	cgi.AddCommand ("team");
+	cgi.AddCommand ("follow");
+	cgi.AddCommand ("levelshot");
+	cgi.AddCommand ("addbot");
+	cgi.AddCommand ("setviewpos");
+	cgi.AddCommand ("callvote");
+	cgi.AddCommand ("vote");
+	cgi.AddCommand ("callteamvote");
+	cgi.AddCommand ("teamvote");
+	cgi.AddCommand ("stats");
+	cgi.AddCommand ("teamtask");
+	cgi.AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
 }

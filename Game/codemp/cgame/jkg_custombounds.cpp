@@ -27,12 +27,12 @@ typedef struct {
 static void CBB_InitParseBuff(parsebuff_t *pb) {
 	memset(pb,0,sizeof(parsebuff_t));
 	pb->arg = 1;
-	pb->argc = trap_Argc();
+	pb->argc = cgi.Argc();
 }
 
 static const char *CBB_NextToken(parsebuff_t *pb) {
 	if (pb->arg > pb->argc) return NULL;
-	trap_Argv(pb->arg++,pb->buff, sizeof(pb->buff));
+	cgi.Argv(pb->arg++,pb->buff, sizeof(pb->buff));
 	return pb->buff;
 }
 

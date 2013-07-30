@@ -157,11 +157,11 @@ public:
 	    switch ( currentPrimitive )
 	    {
 	        case DU_DRAW_TRIS:
-	            trap_R_AddPolysToScene (cgs.media.whiteShader, 3, verts, numVerts / 3);
+	            cgi.R_AddPolysToScene (cgs.media.whiteShader, 3, verts, numVerts / 3);
 	            break;
 	            
             case DU_DRAW_QUADS:
-	            trap_R_AddPolysToScene (cgs.media.whiteShader, 4, verts, numVerts / 4);
+	            cgi.R_AddPolysToScene (cgs.media.whiteShader, 4, verts, numVerts / 4);
 	            break;
 	            
 	        case DU_DRAW_LINES:
@@ -179,7 +179,7 @@ public:
 	                VectorCopy4 (verts[i].modulate, re.shaderRGBA);
 	                if ( re.shaderRGBA[3] < 50 ) re.shaderRGBA[3] += 50;
 	                
-	                trap_R_AddRefEntityToScene (&re);
+	                cgi.R_AddRefEntityToScene (&re);
 	            }
 	            break;
 
@@ -203,7 +203,7 @@ extern "C"
 		fileHandle_t f;
 		char *buffer;
 		int size = 0;
-		int fileLen = trap_FS_FOpenFile (va ("%s.jnd", mapname), &f, FS_READ);
+		int fileLen = cgi.FS_FOpenFile (va ("%s.jnd", mapname), &f, FS_READ);
 
 		if ( fileLen == -1 || !f )
 		{
@@ -212,9 +212,9 @@ extern "C"
 		}
 
 		buffer = (char *)malloc (fileLen + 1);
-		trap_FS_Read (buffer, fileLen, f);
+		cgi.FS_Read (buffer, fileLen, f);
 		buffer[fileLen] = '\0';
-		trap_FS_FCloseFile (f);
+		cgi.FS_FCloseFile (f);
 
 		navMeshHeader = *(navMeshDataHeader_t *)buffer;
 

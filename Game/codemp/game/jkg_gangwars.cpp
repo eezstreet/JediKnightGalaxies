@@ -12,12 +12,6 @@
 #include "bg_weapons.h"
 #include "bg_public.h"
 
-extern int	trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
-extern void	trap_FS_Read( void *buffer, int len, fileHandle_t f );
-extern void	trap_FS_Write( const void *buffer, int len, fileHandle_t f );
-extern void	trap_FS_FCloseFile( fileHandle_t f );
-extern int	trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-
 extern int BG_SiegeGetValueGroup(char *buf, char *group, char *outbuf);
 extern void BG_StripTabs(char *buf);
 extern int BG_GetPairedValue(char *buf, char *key, char *outbuf);
@@ -35,8 +29,11 @@ void JKG_BG_ParseGangWarsTeam(const char *filename)
 	int len;
 	char buffer[8192];
 	char parseBuf[4096];
-
+#ifdef QAGAME
 	len = trap_FS_FOpenFile(filename, &f, FS_READ);
+#else
+	len = cgi.FS_FOpenFile(filename, &f, FS_READ);
+#endif
 
 	if(!f)
 	{
@@ -46,13 +43,23 @@ void JKG_BG_ParseGangWarsTeam(const char *filename)
 	if(!len || len >= 8192)
 	{
 		Com_Printf("^1Error loading Gang wars file (%s): Invalid file size range\n", filename);
+#ifdef QAGAME
 		trap_FS_FCloseFile(f);
+#else
+		cgi.FS_FCloseFile(f);
+#endif
 		return;
 	}
 
+#ifdef QAGAME
 	trap_FS_Read(buffer, len, f);
 
 	trap_FS_FCloseFile(f);
+#else
+	cgi.FS_Read(buffer, len, f);
+
+	cgi.FS_FCloseFile(f);
+#endif
 
 	buffer[len] = '\0';
 
@@ -247,7 +254,11 @@ void JKG_BG_LoadGangWarTeams(void)
 	char fileList[4096];
 	char filename[MAX_QPATH];
 	char* fileptr;
+#ifdef QAGAME
 	numFiles = trap_FS_GetFileList("ext_data/gangwars", ".team", fileList, 4096);
+#else
+	numFiles = cgi.FS_GetFileList("ext_data/gangwars", ".team", fileList, 4096);
+#endif
 	fileptr = fileList;
 	for(i = 0; i < numFiles; i++, fileptr += filelen+1)
 	{

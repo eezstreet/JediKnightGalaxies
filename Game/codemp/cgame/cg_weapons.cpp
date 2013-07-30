@@ -165,23 +165,23 @@ void CG_RegisterItemVisuals( int itemNum ) {
 		(item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG) &&
 		cgs.gametype == GT_CTY)
 	{ //in CTY the flag model is different
-		itemInfo->models[0] = trap_R_RegisterModel( item->world_model[1] );
+		itemInfo->models[0] = cgi.R_RegisterModel( item->world_model[1] );
 	}
 	else if (item->giType == IT_WEAPON &&
 		(item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK))
 	{
-		itemInfo->models[0] = trap_R_RegisterModel( item->world_model[1] );
+		itemInfo->models[0] = cgi.R_RegisterModel( item->world_model[1] );
 	}
 	else
 	{
-		itemInfo->models[0] = trap_R_RegisterModel( item->world_model[0] );
+		itemInfo->models[0] = cgi.R_RegisterModel( item->world_model[0] );
 	}
 /*
 Ghoul2 Insert Start
 */
 	if (!Q_stricmp(&item->world_model[0][strlen(item->world_model[0]) - 4], ".glm"))
 	{
-		handle = trap_G2API_InitGhoul2Model(&itemInfo->g2Models[0], item->world_model[0], 0 , 0, 0, 0, 0);
+		handle = cgi.G2API_InitGhoul2Model(&itemInfo->g2Models[0], item->world_model[0], 0 , 0, 0, 0, 0);
 		if (handle<0)
 		{
 			itemInfo->g2Models[0] = NULL;
@@ -198,11 +198,11 @@ Ghoul2 Insert End
 	{
 		if (item->giType == IT_HEALTH)
 		{ //medpack gets nomip'd by the ui or something I guess.
-			itemInfo->icon = trap_R_RegisterShaderNoMip( item->icon );
+			itemInfo->icon = cgi.R_RegisterShaderNoMip( item->icon );
 		}
 		else
 		{
-			itemInfo->icon = trap_R_RegisterShader( item->icon );
+			itemInfo->icon = cgi.R_RegisterShader( item->icon );
 		}
 	}
 	else
@@ -225,7 +225,7 @@ Ghoul2 Insert End
 	if ( item->giType == IT_POWERUP || item->giType == IT_HEALTH || 
 		item->giType == IT_ARMOR || item->giType == IT_HOLDABLE ) {
 		if ( item->world_model[1] ) {
-			itemInfo->models[1] = trap_R_RegisterModel( item->world_model[1] );
+			itemInfo->models[1] = cgi.R_RegisterModel( item->world_model[1] );
 		}
 	}
 }
@@ -401,7 +401,7 @@ void CG_AnimateViewWeapon ( const playerState_t *ps )
 	if ( cg.viewWeaponAnimation != NULL )
 	{
 	    animation_t *anim = cg.viewWeaponAnimation;
-	    trap_G2API_SetBoneAnim (weapon->g2ViewModel, 0, "model_root", anim->firstFrame, anim->numFrames, BONE_ANIM_OVERRIDE | BONE_ANIM_BLEND, 50.0f / anim->frameLerp, cg.time, anim->firstFrame, 150);
+	    cgi.G2API_SetBoneAnim (weapon->g2ViewModel, 0, "model_root", anim->firstFrame, anim->numFrames, BONE_ANIM_OVERRIDE | BONE_ANIM_BLEND, 50.0f / anim->frameLerp, cg.time, anim->firstFrame, 150);
 	    
 	    cg.viewWeaponAnimation = NULL;
 	}
@@ -753,7 +753,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 
 	beam.reType = RT_LIGHTNING;
 	beam.customShader = cgs.media.lightningShader;
-	trap_R_AddRefEntityToScene( &beam );
+	cgi.R_AddRefEntityToScene( &beam );
 */
 
 	// NOTENOTE No lightning gun-ish stuff yet.
@@ -776,7 +776,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 		angles[1] = rand() % 360;
 		angles[2] = rand() % 360;
 		AnglesToAxis( angles, beam.axis );
-		trap_R_AddRefEntityToScene( &beam );
+		cgi.R_AddRefEntityToScene( &beam );
 	}
 */
 }
@@ -789,7 +789,7 @@ CG_AddWeaponWithPowerups
 */
 void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 	// add powerup effects
-	trap_R_AddRefEntityToScene( gun );
+	cgi.R_AddRefEntityToScene( gun );
 
 	if (cg.predictedPlayerState.electrifyTime > cg.time)
 	{ //add electrocution shell
@@ -802,7 +802,7 @@ void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 		{
 			gun->customShader = cgs.media.electricBody2Shader;
 		}
-		trap_R_AddRefEntityToScene( gun );
+		cgi.R_AddRefEntityToScene( gun );
 		gun->customShader = preShader; //set back just to be safe
 	}
 }
@@ -897,10 +897,10 @@ Ghoul2 Insert Start
 			cent->pe.lightningFiring = qfalse;
 			if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 				// lightning gun and guantlet make a different sound when fire is held down
-				trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
+				cgi.S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
 				cent->pe.lightningFiring = qtrue;
 			} else if ( weapon->readySound ) {
-				trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
+				cgi.S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
 			}
 		}
 
@@ -918,9 +918,9 @@ Ghoul2 Insert Start
 			{
 				gun.shaderRGBA[0] = gun.shaderRGBA[1] = gun.shaderRGBA[2] = 25;
 	
-				gun.customShader = trap_R_RegisterShader( "gfx/effects/stunPass" );
+				gun.customShader = cgi.R_RegisterShader( "gfx/effects/stunPass" );
 				gun.renderfx = RF_RGB_TINT | RF_FIRST_PERSON | RF_DEPTHHACK;
-				trap_R_AddRefEntityToScene( &gun );
+				cgi.R_AddRefEntityToScene( &gun );
 			}
 			*/
 		}
@@ -938,15 +938,15 @@ Ghoul2 Insert Start
 
 				if (i == 0)
 				{
-					barrel.hModel = trap_R_RegisterModel("models/weapons2/stun_baton/baton_barrel.md3");
+					barrel.hModel = cgi.R_RegisterModel("models/weapons2/stun_baton/baton_barrel.md3");
 				}
 				else if (i == 1)
 				{
-					barrel.hModel = trap_R_RegisterModel("models/weapons2/stun_baton/baton_barrel2.md3");
+					barrel.hModel = cgi.R_RegisterModel("models/weapons2/stun_baton/baton_barrel2.md3");
 				}
 				else
 				{
-					barrel.hModel = trap_R_RegisterModel("models/weapons2/stun_baton/baton_barrel3.md3");
+					barrel.hModel = cgi.R_RegisterModel("models/weapons2/stun_baton/baton_barrel3.md3");
 				}
 				angles[YAW] = 0;
 				angles[PITCH] = 0;
@@ -1028,7 +1028,7 @@ Ghoul2 Insert End
 			AngleVectors(dir, dir, NULL, NULL);
 		}
 
-		trap_FX_PlayEffectID(trap_FX_RegisterEffect("blaster/laser.efx"), org, dir, -1, -1);				
+		cgi.FX_PlayEffectID(cgi.FX_RegisterEffect("blaster/laser.efx"), org, dir, -1, -1);				
 	}
 	*/
 
@@ -1064,13 +1064,13 @@ Ghoul2 Insert End
 		{
 			mdxaBone_t 		boltMatrix;
 
-			if (!trap_G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
+			if (!cgi.G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
 			{ //it's quite possible that we may have have no weapon model and be in a valid state, so return here if this is the case
 				return;
 			}
 
 			// go away and get me the bolt position for this frame please
- 			if (!(trap_G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
+ 			if (!(cgi.G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
 			{	// Couldn't find bolt point.
 				return;
 			}
@@ -1135,7 +1135,7 @@ Ghoul2 Insert End
 		fxSArgs.flags = 0x08000000;
 
 		//FX_AddSprite( flash.origin, NULL, NULL, 3.0f * val, 0.0f, 0.7f, 0.7f, WHITE, WHITE, random() * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
-		trap_FX_AddSprite(&fxSArgs);
+		cgi.FX_AddSprite(&fxSArgs);
 	}
 
 	// make sure we aren't looking at cg.predictedPlayerEntity for LG
@@ -1182,13 +1182,13 @@ Ghoul2 Insert End
 		{
 			mdxaBone_t 		boltMatrix;
 
-			if (!trap_G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
+			if (!cgi.G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
 			{ //it's quite possible that we may have have no weapon model and be in a valid state, so return here if this is the case
 				return;
 			}
 
 			// go away and get me the bolt position for this frame please
- 			if (!(trap_G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
+ 			if (!(cgi.G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
 			{	// Couldn't find bolt point.
 				return;
 			}
@@ -1206,11 +1206,11 @@ Ghoul2 Insert End
 				{
 					if (!thirdPerson)
 					{
-						trap_FX_PlayEntityEffectID(weapon->altMuzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1  );
+						cgi.FX_PlayEntityEffectID(weapon->altMuzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1  );
 					}
 					else
 					{
-						trap_FX_PlayEffectID(weapon->altMuzzleEffect, flashorigin, flashdir, -1, -1);
+						cgi.FX_PlayEffectID(weapon->altMuzzleEffect, flashorigin, flashdir, -1, -1);
 					}
 				}
 			}
@@ -1221,11 +1221,11 @@ Ghoul2 Insert End
 				{
 					if (!thirdPerson)
 					{
-						trap_FX_PlayEntityEffectID(weapon->muzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1  );
+						cgi.FX_PlayEntityEffectID(weapon->muzzleEffect, flashorigin, flash.axis, -1, -1, -1, -1  );
 					}
 					else
 					{
-						trap_FX_PlayEffectID(weapon->muzzleEffect, flashorigin, flashdir, -1, -1);
+						cgi.FX_PlayEffectID(weapon->muzzleEffect, flashorigin, flashdir, -1, -1);
 					}
 				}
 			}
@@ -1235,7 +1235,7 @@ Ghoul2 Insert End
 		CG_LightningBolt( nonPredictedCent, flashorigin );
 
 		if ( weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2] ) {
-			trap_R_AddLightToScene( flashorigin, 300 + (rand()&31), weapon->flashDlightColor[0],
+			cgi.R_AddLightToScene( flashorigin, 300 + (rand()&31), weapon->flashDlightColor[0],
 				weapon->flashDlightColor[1], weapon->flashDlightColor[2] );
 		}
 	}
@@ -1381,7 +1381,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		{
 			float currentFrame, animSpeed;
 			int startFrame,endFrame,flags; //Filler data to make the trap call not go kaboom
-			trap_G2API_GetBoneAnim(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, 0, 0);
+			cgi.G2API_GetBoneAnim(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, 0, 0);
 			hand.frame = CG_MapTorsoToWeaponFrame( ci, ceil(currentFrame), ps->torsoAnim );
 			hand.oldframe = CG_MapTorsoToWeaponFrame( ci, floor(currentFrame), ps->torsoAnim );
 			hand.backlerp = 1.0f - (currentFrame-floor(currentFrame));
@@ -1520,7 +1520,7 @@ void CG_DrawIconBackground(void)
 		cg.iconHUDPercent=1;
 	}
 
-	//trap_R_SetColor( colorTable[CT_WHITE] );					
+	//cgi.R_SetColor( colorTable[CT_WHITE] );					
 	//height = (int) (60.0f*cg.iconHUDPercent);
 	//CG_DrawPic( x2+60, y2+30+yOffset, 460, -height, drawType);	// Top half
 	//CG_DrawPic( x2+60, y2+30-2+yOffset, 460, height, drawType);	// Bottom half
@@ -1542,7 +1542,7 @@ void CG_DrawIconBackground(void)
 	}
 */
 	// Side Prongs
-//	trap_R_SetColor( colorTable[CT_WHITE]);					
+//	cgi.R_SetColor( colorTable[CT_WHITE]);					
 //	xAdd = (int) 8*cg.iconHUDPercent;
 //	CG_DrawPic( prongLeftX+xAdd, y2-10, 40, 80, background);
 //	CG_DrawPic( prongRightX-xAdd, y2-10, -40, 80, background);
@@ -1625,9 +1625,9 @@ void CG_NextWeapon_f( void ) {
 
 	// sprint check --eez
 	{
-		int current = trap_GetCurrentCmdNumber();
+		int current = cgi.GetCurrentCmdNumber();
 		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
+		cgi.GetUserCmd(current, &ucmd);
 		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
@@ -1717,9 +1717,9 @@ void CG_PrevWeapon_f( void ) {
 
 	// sprint check --eez
 	{
-		int current = trap_GetCurrentCmdNumber();
+		int current = cgi.GetCurrentCmdNumber();
 		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
+		cgi.GetUserCmd(current, &ucmd);
 		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
@@ -1822,9 +1822,9 @@ void CG_Weapon_f( void ) {
 
 	// sprint check --eez
 	{
-		int current = trap_GetCurrentCmdNumber();
+		int current = cgi.GetCurrentCmdNumber();
 		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
+		cgi.GetUserCmd(current, &ucmd);
 		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
@@ -1858,7 +1858,7 @@ void CG_Weapon_f( void ) {
 					if(cg.playerInventory[cg.playerACI[num]].id->pSpell[0] < PSPELL_MAX && cg.playerInventory[cg.playerACI[num]].id->pSpell[0] > PSPELL_NONE)
 					{
 						CG_Notifications_Add(cg.playerInventory[cg.playerACI[num]].id->displayName, qtrue);
-						trap_SendClientCommand(va("inventoryUse %i", cg.playerACI[num]));
+						cgi.SendClientCommand(va("inventoryUse %i", cg.playerACI[num]));
 						cg.playerACI[num] = JKG_FindNewACISlot(num);
 						return;
 					}
@@ -1872,7 +1872,7 @@ void CG_Weapon_f( void ) {
 	{
 		if(cg.playerInventory[cg.playerACI[num]].id->varID == BG_GetWeaponIndex(WP_SABER, 0))
 		{
-			trap_SendClientCommand("togglesaber");
+			cgi.SendClientCommand("togglesaber");
 		}
 		// Set our holster state
 		cg.holsterState = (cg.holsterState) ? qfalse : qtrue;
@@ -1916,9 +1916,9 @@ void CG_WeaponClean_f( void ) {
 
 	// sprint check --eez
 	{
-		int current = trap_GetCurrentCmdNumber();
+		int current = cgi.GetCurrentCmdNumber();
 		usercmd_t ucmd;
-		trap_GetUserCmd(current, &ucmd);
+		cgi.GetUserCmd(current, &ucmd);
 		if (BG_IsSprinting(&cg.predictedPlayerState, &ucmd, qfalse))
 		{
 			return;
@@ -1936,7 +1936,7 @@ void CG_WeaponClean_f( void ) {
 	{
 		if(cg.playerInventory[cg.playerACI[num]].id->varID == BG_GetWeaponIndex(WP_SABER, 0))
 		{
-			trap_SendClientCommand("togglesaber");
+			cgi.SendClientCommand("togglesaber");
 		}
 		cg.holsterState = (cg.holsterState) ? qfalse : qtrue;
 		doWeaponNotify = qfalse;
@@ -1972,13 +1972,13 @@ void CG_GetClientWeaponMuzzleBoltPoint(int clIndex, vec3_t to)
 
 	cent = &cg_entities[clIndex];
 
-	if (!cent || !cent->ghoul2 || !trap_G2_HaveWeGhoul2Models(cent->ghoul2) ||
-		!trap_G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
+	if (!cent || !cent->ghoul2 || !cgi.G2_HaveWeGhoul2Models(cent->ghoul2) ||
+		!cgi.G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
 	{
 		return;
 	}
 
-	trap_G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+	cgi.G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, to);
 }
 
@@ -1995,7 +1995,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	weaponInfo_t	*weap;
 	vec3_t			*viewangles;
 
-	viewangles = reinterpret_cast<vec3_t *>(trap_JKG_GetViewAngles());
+	viewangles = reinterpret_cast<vec3_t *>(cgi.JKG_GetViewAngles());
 	
 
 	ent = &cent->currentState;
@@ -2031,7 +2031,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 
 	// play quad sound if needed
 	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
-		//trap_S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
+		//cgi.S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 
 
@@ -2048,12 +2048,12 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 			c = rand() % c;
 			if ( weap->altFlashSound[c] )
 			{
-				trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->altFlashSound[c] );
+				cgi.S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->altFlashSound[c] );
 			}
 		}
 //		if ( weap->altFlashSnd )
 //		{
-//			trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->altFlashSnd );
+//			cgi.S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->altFlashSnd );
 //		}
 	}
 	else
@@ -2068,11 +2068,11 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 			c = rand() % c;
 			if ( weap->flashSound[c] )
 			{
-				trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
+				cgi.S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
 			}
 		}
 	}
-	trap_JKG_SetViewAngles(*viewangles);
+	cgi.JKG_SetViewAngles(*viewangles);
 }
 
 qboolean CG_VehicleWeaponImpact( centity_t *cent )
@@ -2084,7 +2084,7 @@ qboolean CG_VehicleWeaponImpact( centity_t *cent )
 		vec3_t normal;
 		ByteToDir( cent->currentState.eventParm, normal );
 
-		trap_FX_PlayEffectID( g_vehWeaponInfo[cent->currentState.otherEntityNum2].iImpactFX, cent->lerpOrigin, normal, -1, -1 );
+		cgi.FX_PlayEffectID( g_vehWeaponInfo[cent->currentState.otherEntityNum2].iImpactFX, cent->lerpOrigin, normal, -1, -1 );
 		return qtrue;
 	}
 	return qfalse;
@@ -2162,7 +2162,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 	case WP_DEMP2:
 		if (altFire)
 		{
-			trap_FX_PlayEffectID(cgs.effects.mAltDetonate, origin, dir, -1, -1);
+			cgi.FX_PlayEffectID(cgs.effects.mAltDetonate, origin, dir, -1, -1);
 		}
 		else
 		{
@@ -2188,8 +2188,8 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		break;
 
 	case WP_THERMAL:
-		trap_FX_PlayEffectID( cgs.effects.thermalExplosionEffect, origin, dir, -1, -1 );
-		trap_FX_PlayEffectID( cgs.effects.thermalShockwaveEffect, origin, up, -1, -1 );
+		cgi.FX_PlayEffectID( cgs.effects.thermalExplosionEffect, origin, dir, -1, -1 );
+		cgi.FX_PlayEffectID( cgs.effects.thermalShockwaveEffect, origin, up, -1, -1 );
 		break;
 
 	case WP_EMPLACED_GUN:
@@ -2294,7 +2294,7 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum, q
 		*/
 		if (altFire)
 		{
-			trap_FX_PlayEffectID(cgs.effects.mAltDetonate, origin, dir, -1, -1);
+			cgi.FX_PlayEffectID(cgs.effects.mAltDetonate, origin, dir, -1, -1);
 		}
 		else
 		{
@@ -2311,8 +2311,8 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum, q
 		break;
 
 	case WP_THERMAL:
-		trap_FX_PlayEffectID( cgs.effects.thermalExplosionEffect, origin, dir, -1, -1 );
-		trap_FX_PlayEffectID( cgs.effects.thermalShockwaveEffect, origin, up, -1, -1 );
+		cgi.FX_PlayEffectID( cgs.effects.thermalExplosionEffect, origin, dir, -1, -1 );
+		cgi.FX_PlayEffectID( cgs.effects.thermalShockwaveEffect, origin, up, -1, -1 );
 		break;
 	case WP_EMPLACED_GUN:
 		//FIXME: Its own effect?
@@ -2345,11 +2345,11 @@ void WP_CalculateMuzzlePoint( centity_t *cent, vec3_t forward, vec3_t right, vec
 {
 	void *g2Weapon = cent->ghoul2;
 	
-	if ( trap_G2_HaveWeGhoul2Models (g2Weapon) && trap_G2API_HasGhoul2ModelOnIndex (&g2Weapon, 1) )
+	if ( cgi.G2_HaveWeGhoul2Models (g2Weapon) && cgi.G2API_HasGhoul2ModelOnIndex (&g2Weapon, 1) )
 	{
 	    mdxaBone_t muzzleBone;
 	    
-	    trap_G2API_GetBoltMatrix (g2Weapon, 1, 0, &muzzleBone, cent->lerpAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+	    cgi.G2API_GetBoltMatrix (g2Weapon, 1, 0, &muzzleBone, cent->lerpAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
 	    BG_GiveMeVectorFromMatrix (&muzzleBone, ORIGIN, muzzlePoint);
 	}
 	else
@@ -2507,14 +2507,14 @@ void CG_InitG2Weapons(void)
 			{
 				void *ghoul2 = NULL;
 	        
-				trap_G2API_InitGhoul2Model (&g2WeaponInstances[id].ghoul2, weaponData->visuals.world_model, 0, 0, 0, 0, 0);
+				cgi.G2API_InitGhoul2Model (&g2WeaponInstances[id].ghoul2, weaponData->visuals.world_model, 0, 0, 0, 0, 0);
 	        
 				ghoul2 = g2WeaponInstances[id].ghoul2;
 	        
-				if ( trap_G2_HaveWeGhoul2Models (ghoul2) )
+				if ( cgi.G2_HaveWeGhoul2Models (ghoul2) )
 				{
-					trap_G2API_SetBoltInfo (ghoul2, 0, 0);
-					trap_G2API_AddBolt (ghoul2, 0, i == WP_SABER ? "*blade1" : "*flash");
+					cgi.G2API_SetBoltInfo (ghoul2, 0, 0);
+					cgi.G2API_AddBolt (ghoul2, 0, i == WP_SABER ? "*blade1" : "*flash");
 	            
 					g2WeaponInstances[id].weaponNum = i;
 					g2WeaponInstances[id].weaponVariation = j;
@@ -2532,20 +2532,20 @@ void CG_InitG2Weapons(void)
 			assert(item->giTag < MAX_WEAPONS);
 
 			// initialise model
-			trap_G2API_InitGhoul2Model(&g2WeaponInstances[/*i*/item->giTag], item->world_model[0], 0, 0, 0, 0, 0);
-//			trap_G2API_InitGhoul2Model(&g2WeaponInstances[i], item->world_model[0],G_ModelIndex( item->world_model[0] ) , 0, 0, 0, 0);
+			cgi.G2API_InitGhoul2Model(&g2WeaponInstances[/*i*/item->giTag], item->world_model[0], 0, 0, 0, 0, 0);
+//			cgi.G2API_InitGhoul2Model(&g2WeaponInstances[i], item->world_model[0],G_ModelIndex( item->world_model[0] ) , 0, 0, 0, 0);
 			if (g2WeaponInstances[/*i*/item->giTag])
 			{
 				// indicate we will be bolted to model 0 (ie the player) on bolt 0 (always the right hand) when we get copied
-				trap_G2API_SetBoltInfo(g2WeaponInstances[/*i*/item->giTag], 0, 0);
+				cgi.G2API_SetBoltInfo(g2WeaponInstances[/*i*/item->giTag], 0, 0);
 				// now set up the gun bolt on it
 				if (item->giTag == WP_SABER)
 				{
-					trap_G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*blade1");
+					cgi.G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*blade1");
 				}
 				else
 				{
-					trap_G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*flash");
+					cgi.G2API_AddBolt(g2WeaponInstances[/*i*/item->giTag], 0, "*flash");
 				}
 				i++;
 			}
@@ -2569,34 +2569,34 @@ void CG_ShutDownG2Weapons(void)
 	
 	for ( i = 0; i < MAX_WEAPON_TABLE_SIZE; i++ )
 	{
-	    trap_G2API_CleanGhoul2Models (&g2WeaponInstances[i].ghoul2);
+	    cgi.G2API_CleanGhoul2Models (&g2WeaponInstances[i].ghoul2);
 	    
 	    weapon = CG_WeaponInfoUnsafe (g2WeaponInstances[i].weaponNum, g2WeaponInstances[i].weaponVariation);
 		weaponData = GetWeaponData( g2WeaponInstances[i].weaponNum, g2WeaponInstances[i].weaponVariation );
 	    if ( weapon != NULL )
 	    {
-	        trap_G2API_CleanGhoul2Models (&weapon->g2WorldModel);
-	        trap_G2API_CleanGhoul2Models (&weapon->g2ViewModel);
+	        cgi.G2API_CleanGhoul2Models (&weapon->g2WorldModel);
+	        cgi.G2API_CleanGhoul2Models (&weapon->g2ViewModel);
 			for(j = 0; j < weaponData->numFiringModes; j++)
 			{
-				trap_G2API_CleanGhoul2Models (&weapon->drawData[j].explosiveRender.tripmine.g2Model);
-				trap_G2API_CleanGhoul2Models (&weapon->drawData[j].explosiveRender.detpack.g2Model);
+				cgi.G2API_CleanGhoul2Models (&weapon->drawData[j].explosiveRender.tripmine.g2Model);
+				cgi.G2API_CleanGhoul2Models (&weapon->drawData[j].explosiveRender.detpack.g2Model);
 			}
-			//trap_G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.tripmine.g2Model);
-	        //trap_G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.detpack.g2Model);
-	        //trap_G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.tripmine.g2Model);
-	        //trap_G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.detpack.g2Model);
+			//cgi.G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.tripmine.g2Model);
+	        //cgi.G2API_CleanGhoul2Models (&weapon->primDrawData.explosiveRender.detpack.g2Model);
+	        //cgi.G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.tripmine.g2Model);
+	        //cgi.G2API_CleanGhoul2Models (&weapon->altDrawData.explosiveRender.detpack.g2Model);
 	    }
 	}
 	
 	/*for (i=0; i<MAX_WEAPONS; i++)
 	{
-		trap_G2API_CleanGhoul2Models(&g2WeaponInstances[i]);
+		cgi.G2API_CleanGhoul2Models(&g2WeaponInstances[i]);
 		
 		weapon = CG_WeaponInfo (i, 0);
 		if ( weapon && weapon->g2ViewModel )
         {
-            trap_G2API_CleanGhoul2Models (&weapon->g2ViewModel);
+            cgi.G2API_CleanGhoul2Models (&weapon->g2ViewModel);
         }
 	}*/
 }
@@ -2677,7 +2677,7 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, int weaponVariation
 
 			if (!ci)
 			{
-				trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/, weaponVariation), 0, toGhoul2, 1); 
+				cgi.G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/, weaponVariation), 0, toGhoul2, 1); 
 			}
 			else
 			{ //Try both the left hand saber and the right hand saber
@@ -2688,17 +2688,17 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, int weaponVariation
 					if (ci->saber[i].model[0] &&
 						ci->ghoul2Weapons[i])
 					{
-						trap_G2API_CopySpecificGhoul2Model(ci->ghoul2Weapons[i], 0, toGhoul2, i+1); 
+						cgi.G2API_CopySpecificGhoul2Model(ci->ghoul2Weapons[i], 0, toGhoul2, i+1); 
 					}
 					else if (ci->ghoul2Weapons[i])
 					{ //if the second saber has been removed, then be sure to remove it and free the instance.
-						qboolean g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2);
+						qboolean g2HasSecondSaber = cgi.G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2);
 
 						if (g2HasSecondSaber)
 						{ //remove it now since we're switching away from sabers
-							trap_G2API_RemoveGhoul2Model(&(toGhoul2), 2);
+							cgi.G2API_RemoveGhoul2Model(&(toGhoul2), 2);
 						}
-						trap_G2API_CleanGhoul2Models(&ci->ghoul2Weapons[i]);
+						cgi.G2API_CleanGhoul2Models(&ci->ghoul2Weapons[i]);
 					}
 
 					i++;
@@ -2707,30 +2707,30 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, int weaponVariation
 		}
 		else
 		{
-			qboolean g2HasSecondSaber = trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2);
+			qboolean g2HasSecondSaber = cgi.G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2);
 
 			if (g2HasSecondSaber)
 			{ //remove it now since we're switching away from sabers
-				trap_G2API_RemoveGhoul2Model(&(toGhoul2), 2);
+				cgi.G2API_RemoveGhoul2Model(&(toGhoul2), 2);
 			}
 
 			if (weaponNum == WP_EMPLACED_GUN)
 			{ //a bit of a hack to remove gun model when using an emplaced weap
-				if (trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1))
+				if (cgi.G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1))
 				{
-					trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1);
+					cgi.G2API_RemoveGhoul2Model(&(toGhoul2), 1);
 				}
 			}
 			else if (weaponNum == WP_MELEE)
 			{ //don't want a weapon on the model for this one
-				if (trap_G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1))
+				if (cgi.G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 1))
 				{
-					trap_G2API_RemoveGhoul2Model(&(toGhoul2), 1);
+					cgi.G2API_RemoveGhoul2Model(&(toGhoul2), 1);
 				}
 			}
 			else
 			{
-				trap_G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/, weaponVariation), 0, toGhoul2, 1); 
+				cgi.G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/, weaponVariation), 0, toGhoul2, 1); 
 			}
 		}
 	}
@@ -2740,9 +2740,9 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, int weaponVariation
 	    int i;
 	    for ( i = 0; i < MAX_SABERS; i++ )
 	    {
-	        if ( trap_G2API_HasGhoul2ModelOnIndex(&toGhoul2, i + 1) )
+	        if ( cgi.G2API_HasGhoul2ModelOnIndex(&toGhoul2, i + 1) )
 	        {
-	            trap_G2API_RemoveGhoul2Model (&toGhoul2, i + 1);
+	            cgi.G2API_RemoveGhoul2Model (&toGhoul2, i + 1);
 	        }
 	    }
 	}
@@ -2800,30 +2800,30 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 		cent->ghoul2weapon = CG_G2WeaponInstance(cent, ps->weapon, ps->weaponVariation);
 		if (cent->weapon == WP_SABER && cent->weapon != ps->weapon && !ps->saberHolstered)
 		{ //switching away from the saber
-			//trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberoffquick.wav" ));
+			//cgi.S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgi.S_RegisterSound( "sound/weapons/saber/saberoffquick.wav" ));
 			if (cgs.clientinfo[ps->clientNum].saber[0].soundOff && !ps->saberHolstered)
 			{
-				trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOff);
+				cgi.S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOff);
 			}
 
 			if (cgs.clientinfo[ps->clientNum].saber[1].soundOff &&
 				cgs.clientinfo[ps->clientNum].saber[1].model[0] &&
 				!ps->saberHolstered)
 			{
-				trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOff);
+				cgi.S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOff);
 			}
 		}
 		else if (ps->weapon == WP_SABER && cent->weapon != ps->weapon && !cent->saberWasInFlight)
 		{ //switching to the saber
-			//trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, trap_S_RegisterSound( "sound/weapons/saber/saberon.wav" ));
+			//cgi.S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgi.S_RegisterSound( "sound/weapons/saber/saberon.wav" ));
 			if (cgs.clientinfo[ps->clientNum].saber[0].soundOn)
 			{
-				trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOn);
+				cgi.S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[0].soundOn);
 			}
 
 			if (cgs.clientinfo[ps->clientNum].saber[1].soundOn)
 			{
-				trap_S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOn);
+				cgi.S_StartSound(cent->lerpOrigin, cent->currentState.number, CHAN_AUTO, cgs.clientinfo[ps->clientNum].saber[1].soundOn);
 			}
 
 			BG_SI_SetDesiredLength(&cgs.clientinfo[ps->clientNum].saber[0], 0, -1);
@@ -2916,14 +2916,13 @@ weaponInfo_t *CG_NextFreeWeaponInfo ( void )
 //=========================================================
 // Weapon event handling functions
 //=========================================================
-extern void trap_JKG_SetViewAngles( vec3_t viewangles ); // RAGE... holy fuck intellisense is being beyond fucking retarded. Keep this line if you want to fix that --eez
 static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponData, unsigned char firingMode )
 {
     const entityState_t *s = &cent->currentState;
     const weaponData_t *thisWeaponData = GetWeaponData (cg.snap->ps.weapon, cg.snap->ps.weaponVariation);
 	vec3_t *viewangles;
 
-	viewangles = (vec3_t *)trap_JKG_GetViewAngles();
+	viewangles = (vec3_t *)cgi.JKG_GetViewAngles();
 
     // Update the muzzle flash time, so we know to draw it in the render function.
     if ( (cent->shotCount + 1) == UINT_MAX )
@@ -2968,10 +2967,10 @@ static void JKG_FireBlaster ( centity_t *cent, const weaponDrawData_t *weaponDat
             channel = CHAN_WEAPON;
         }
         
-        trap_S_StartSound (NULL, s->number, channel, weaponData->weaponFire.generic.fireSound[index]);
+        cgi.S_StartSound (NULL, s->number, channel, weaponData->weaponFire.generic.fireSound[index]);
     }
 
-	trap_JKG_SetViewAngles(*viewangles);
+	cgi.JKG_SetViewAngles(*viewangles);
 }
 
 static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDrawData_t *weaponData )
@@ -2986,7 +2985,7 @@ static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDra
             forward[2] = 1.0f;
         }
         
-        trap_FX_PlayEffectID (
+        cgi.FX_PlayEffectID (
             weaponData->projectileRender.generic.projectileEffect,
             cent->lerpOrigin,
             forward,
@@ -2996,7 +2995,7 @@ static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDra
     
     if ( weaponData->projectileRender.generic.lightIntensity > 0.0f )
     {
-        trap_R_AddLightToScene (
+        cgi.R_AddLightToScene (
             cent->lerpOrigin,
              weaponData->projectileRender.generic.lightIntensity,
              weaponData->projectileRender.generic.lightColor[0],
@@ -3016,7 +3015,7 @@ static void JKG_RenderGenericProjectile ( const centity_t *cent, const weaponDra
         vec3_t velocity;
         BG_EvaluateTrajectory (&s->pos, cg.time, velocity);
         
-        trap_S_AddLoopingSound (s->number, cent->lerpOrigin, velocity, weaponData->projectileRender.generic.runSound);
+        cgi.S_AddLoopingSound (s->number, cent->lerpOrigin, velocity, weaponData->projectileRender.generic.runSound);
     }
     
     if ( weaponData->projectileRender.generic.projectileModel )
@@ -3063,7 +3062,7 @@ static void JKG_BounceSpecialGrenade ( const centity_t *cent, const weaponDrawDa
 {
     if ( weaponData->grenadeBounce.grenade.bounceSound[0] )
     {
-        trap_S_StartSound (NULL, cent->currentState.number, CHAN_BODY, weaponData->grenadeBounce.grenade.bounceSound[Q_irand (0, 1)]);
+        cgi.S_StartSound (NULL, cent->currentState.number, CHAN_BODY, weaponData->grenadeBounce.grenade.bounceSound[Q_irand (0, 1)]);
     }
 }
 
@@ -3071,7 +3070,7 @@ static void JKG_RenderGenericProjectileMiss ( const centity_t *cent, const weapo
 {
     if ( weaponData->projectileMiss.generic.impactEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileMiss.generic.impactEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileMiss.generic.impactEffect, origin, normal, -1, -1);
     }
 }
 
@@ -3079,7 +3078,7 @@ static void JKG_RenderGenericProjectileDeath ( const centity_t *cent, const weap
 {
     if ( weaponData->projectileRender.generic.deathEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileRender.generic.deathEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileRender.generic.deathEffect, origin, normal, -1, -1);
     }
 }
 
@@ -3087,7 +3086,7 @@ static void JKG_RenderGenericProjectileHitPlayer ( const weaponDrawData_t *weapo
 {
     if ( weaponData->projectileHitPlayer.generic.impactEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileHitPlayer.generic.impactEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileHitPlayer.generic.impactEffect, origin, normal, -1, -1);
     }
 }
 
@@ -3095,7 +3094,7 @@ static void JKG_RenderExplosiveProjectileMiss ( const centity_t *cent, const wea
 {
     if ( weaponData->projectileMiss.explosive.stickSound )
     {
-        trap_S_StartSound (NULL, cent->currentState.number, CHAN_WEAPON, weaponData->projectileMiss.explosive.stickSound);
+        cgi.S_StartSound (NULL, cent->currentState.number, CHAN_WEAPON, weaponData->projectileMiss.explosive.stickSound);
     }
 }
 
@@ -3103,12 +3102,12 @@ static void JKG_RenderGrenadeProjectileMiss ( const centity_t *cent, const weapo
 {
     if ( weaponData->projectileMiss.grenade.impactEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileMiss.grenade.impactEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileMiss.grenade.impactEffect, origin, normal, -1, -1);
     }
     
     if ( weaponData->projectileMiss.grenade.shockwaveEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileMiss.grenade.shockwaveEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileMiss.grenade.shockwaveEffect, origin, normal, -1, -1);
     }
 }
 
@@ -3116,12 +3115,12 @@ static void JKG_RenderGrenadeProjectileHitPlayer ( const weaponDrawData_t *weapo
 {
     if ( weaponData->projectileHitPlayer.grenade.impactEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileHitPlayer.grenade.impactEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileHitPlayer.grenade.impactEffect, origin, normal, -1, -1);
     }
     
     if ( weaponData->projectileMiss.grenade.shockwaveEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileMiss.grenade.shockwaveEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileMiss.grenade.shockwaveEffect, origin, normal, -1, -1);
     }
 }
 
@@ -3129,7 +3128,7 @@ static void JKG_RenderGenericProjectileDeflected ( const weaponDrawData_t *weapo
 {
     if ( weaponData->projectileDeflected.generic.deflectEffect )
     {
-        trap_FX_PlayEffectID (weaponData->projectileDeflected.generic.deflectEffect, origin, normal, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->projectileDeflected.generic.deflectEffect, origin, normal, -1, -1);
     }
 }
 
@@ -3137,7 +3136,7 @@ static void JKG_ChargeGenericWeapon ( const centity_t *cent, const weaponDrawDat
 {
     if ( weaponData->weaponCharge.chargingSound )
     {
-        trap_S_StartSound (NULL, cent->currentState.number, CHAN_WEAPON, weaponData->weaponCharge.chargingSound);
+        cgi.S_StartSound (NULL, cent->currentState.number, CHAN_WEAPON, weaponData->weaponCharge.chargingSound);
     }
 }
 
@@ -3145,13 +3144,13 @@ static void JKG_GetMuzzleLocation ( centity_t *cent, const vec3_t angles, vec3_t
 {
     mdxaBone_t boltMatrix;
     
-    if ( !trap_G2API_HasGhoul2ModelOnIndex (&cent->ghoul2, 1) )
+    if ( !cgi.G2API_HasGhoul2ModelOnIndex (&cent->ghoul2, 1) )
     {
         // No weapon model on this player
         return;
     }
     
-    if ( !trap_G2API_GetBoltMatrix (cent->ghoul2, 1, 0, &boltMatrix, angles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale) )
+    if ( !cgi.G2API_GetBoltMatrix (cent->ghoul2, 1, 0, &boltMatrix, angles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale) )
     {
         // Couldn't find the muzzle bolt
         return;
@@ -3195,15 +3194,15 @@ static __inline void JKG_RenderChargingEffect ( centity_t *cent, const vec3_t mu
     
     if ( isFirstPerson )
     {
-        trap_FX_PlayEntityEffectID (chargingEffect, muzzlePosition, axis, -1, -1, -1, -1);
+        cgi.FX_PlayEntityEffectID (chargingEffect, muzzlePosition, axis, -1, -1, -1, -1);
     }
     else
     {
-    	trap_FX_PlayBoltedEffectID (
+    	cgi.FX_PlayBoltedEffectID (
             chargingEffect,
             cent->lerpOrigin, cent->ghoul2, 0, cent->currentState.number, 1, 0, qfalse
         );
-        //trap_FX_PlayEffectID (chargingEffect, muzzlePosition, axis[0], -1, -1);
+        //cgi.FX_PlayEffectID (chargingEffect, muzzlePosition, axis[0], -1, -1);
     }
 
 #ifdef __EXPERIMENTAL_SHADOWS__
@@ -3265,7 +3264,7 @@ void JKG_RenderGenericWeaponWorld ( centity_t *cent, const weaponDrawData_t *wea
 	    
 	    if ( weaponData->weaponRender.generic.muzzleEffect )
 	    {
-	        trap_FX_PlayBoltedEffectID (
+	        cgi.FX_PlayBoltedEffectID (
 	            weaponData->weaponRender.generic.muzzleEffect,
 	            cent->lerpOrigin, cent->ghoul2, 0, s->number, 1, 0, qfalse
 	        );
@@ -3273,7 +3272,7 @@ void JKG_RenderGenericWeaponWorld ( centity_t *cent, const weaponDrawData_t *wea
 	    
 	    if ( weaponData->weaponRender.generic.muzzleLightIntensity > 0.0f )
 	    {
-	        trap_R_AddLightToScene (
+	        cgi.R_AddLightToScene (
 	            flashOrigin,
 	            weaponData->weaponRender.generic.muzzleLightIntensity + (rand() & 31),
 	            weaponData->weaponRender.generic.muzzleLightColor[0],
@@ -3290,7 +3289,7 @@ static void JKG_RenderGenericTraceline ( const weaponDrawData_t *weaponData, con
     {
         static const vec3_t WHITE = { 1.0f, 1.0f, 1.0f };
         
-        trap_FX_AddLine (
+        cgi.FX_AddLine (
             start, end,
             weaponData->tracelineRender.generic.minSize,
             weaponData->tracelineRender.generic.maxSize,
@@ -3354,7 +3353,7 @@ static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDra
         {
             if ( !JKG_IsTripMineArmed (cent) )
             {
-                trap_R_AddRefEntityToScene (&ent);
+                cgi.R_AddRefEntityToScene (&ent);
             }
             
             ent.renderfx &= ~RF_FORCE_ENT_ALPHA;
@@ -3364,7 +3363,7 @@ static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDra
 		    ent.customShader = cgs.media.cloakedShader;
 		}
 
-		trap_R_AddRefEntityToScene (&ent);
+		cgi.R_AddRefEntityToScene (&ent);
 		
 		if ( cent->currentState.owner != cg.snap->ps.clientNum && !TeamFriendly (cent->currentState.owner) && !(cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE)) )
 		{
@@ -3392,7 +3391,7 @@ static void JKG_RenderTripmineExplosive ( const centity_t *cent, const weaponDra
 				    
 				    for ( i = 0; i < max; i++ )
 				    {
-					    trap_FX_PlayEffectID (
+					    cgi.FX_PlayEffectID (
 				            weaponData->explosiveRender.tripmine.lineEffect,
 				            beamOrigin,
 				            cent->currentState.pos.trDelta,
@@ -3418,7 +3417,7 @@ static void JKG_RenderDetpackExplosive ( const centity_t *cent, const weaponDraw
             weaponData->explosiveRender.detpack.g2Radius
         );
         
-        trap_R_AddRefEntityToScene (&ent);
+        cgi.R_AddRefEntityToScene (&ent);
     }
 }
 
@@ -3436,7 +3435,7 @@ static void JKG_BlowGenericExplosive ( const centity_t *cent, const weaponDrawDa
             forward[1] = 1.0f;
         }
         
-        trap_FX_PlayEffectID (weaponData->explosiveBlow.generic.explodeEffect, s->origin, forward, -1, -1);
+        cgi.FX_PlayEffectID (weaponData->explosiveBlow.generic.explodeEffect, s->origin, forward, -1, -1);
 
 #ifdef __EXPERIMENTAL_SHADOWS__
 		CG_RecordLightPosition( s->origin );
@@ -3448,7 +3447,7 @@ static void JKG_ArmGenericExplosive ( const centity_t *cent, const weaponDrawDat
 {
     if ( weaponData->explosiveArm.armSound )
     {
-        trap_S_StartSound (NULL, cent->currentState.number, CHAN_WEAPON, weaponData->explosiveArm.armSound);
+        cgi.S_StartSound (NULL, cent->currentState.number, CHAN_WEAPON, weaponData->explosiveArm.armSound);
     }
 }
 
@@ -3587,7 +3586,7 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
         {
 			float currentFrame, animSpeed;
 			int startFrame,endFrame,flags; //Filler data to make the trap call not go kaboom
-			trap_G2API_GetBoneAnim(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, 0, 0);
+			cgi.G2API_GetBoneAnim(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, 0, 0);
 			hand.frame = CG_MapTorsoToWeaponFrame( ci, ceil(currentFrame), ps->torsoAnim );
 			hand.oldframe = CG_MapTorsoToWeaponFrame( ci, floor(currentFrame), ps->torsoAnim );
 			hand.backlerp = 1.0f - (currentFrame-floor(currentFrame));
@@ -3681,7 +3680,7 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
 	
 	if ( weaponData->weaponRender.generic.muzzleEffect )
 	{
-        trap_FX_PlayEntityEffectID (
+        cgi.FX_PlayEntityEffectID (
             weaponData->weaponRender.generic.muzzleEffect,
             muzzle.origin, muzzle.axis,
             -1, -1, -1, -1
@@ -3690,7 +3689,7 @@ static void JKG_RenderGenericWeaponView ( const weaponDrawData_t *weaponData )
     
     if ( weaponData->weaponRender.generic.muzzleLightIntensity > 0.0f )
     {
-        trap_R_AddLightToScene (
+        cgi.R_AddLightToScene (
             muzzle.origin,
             weaponData->weaponRender.generic.muzzleLightIntensity + (rand() & 31),
             weaponData->weaponRender.generic.muzzleLightColor[0],
@@ -4152,14 +4151,14 @@ void JKG_ToggleScope ( const centity_t *cent )
     {
         if ( weapon->scopeStartSound )
         {
-            trap_S_StartLocalSound (weapon->scopeStartSound, CHAN_AUTO);
+            cgi.S_StartLocalSound (weapon->scopeStartSound, CHAN_AUTO);
         }
     }
     else
     {
         if ( weapon->scopeStopSound )
         {
-            trap_S_StartLocalSound (weapon->scopeStopSound, CHAN_AUTO);
+            cgi.S_StartLocalSound (weapon->scopeStopSound, CHAN_AUTO);
         }
     }
 }
@@ -4169,7 +4168,7 @@ void JKG_RenderScope ( const centity_t *cent )
     const entityState_t *s = &cent->currentState;
     const weaponInfo_t *weapon = CG_WeaponInfo (s->weapon, s->weaponVariation);
     
-    trap_R_SetColor (colorTable[CT_WHITE]);
+    cgi.R_SetColor (colorTable[CT_WHITE]);
     if ( weapon->scopeShader )
     {
         CG_DrawPic (0.0f, 0.0f, 640.0f, 480.0f, weapon->scopeShader);
@@ -4187,7 +4186,7 @@ void JKG_ZoomScope ( const centity_t *cent )
     {
         if ( zoomSoundTime < cg.time || zoomSoundTime > (cg.time + 10000) )
 	    {
-		    trap_S_StartSound (cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, weapon->scopeLoopSound);
+		    cgi.S_StartSound (cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, weapon->scopeLoopSound);
 		    zoomSoundTime = cg.time + weapon->scopeSoundLoopTime;
 	    }
     }
