@@ -761,6 +761,9 @@ struct gclient_s {
 
 	vec3_t		oldOrigin;
 
+	// debounce time for accuracy
+	int			accuracyDebounce;
+
 	// sum up damage over an entire frame, so
 	// shotgun blasts give a single big kick
 	int			damage_armor;		// damage absorbed by armor

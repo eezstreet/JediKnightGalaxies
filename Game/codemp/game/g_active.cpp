@@ -832,6 +832,18 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			client->ps.stats[STAT_ARMOR]--;
 		}
 	}
+
+	// Replenish accuracy
+	if( client->accuracyDebounce <= level.time && client->ps.stats[STAT_ACCURACY] > 0 )
+	{
+		client->ps.stats[STAT_ACCURACY] -= 1;
+		if(client->ps.stats[STAT_ACCURACY] <= 0)
+		{
+			client->ps.stats[STAT_ACCURACY] = 0;
+		}
+		client->accuracyDebounce = level.time + 
+			GetWeaponData( client->ps.weapon, client->ps.weaponVariation )->firemodes[ent->s.firingMode].weaponAccuracy.msToDrainAccuracy;
+	}
 }
 
 /*

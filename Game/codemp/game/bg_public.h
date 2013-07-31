@@ -681,6 +681,7 @@ typedef enum {
 	// Jedi Knight Galaxies
 	STAT_MAX_ARMOR,					// Maximum shield/armor
 	STAT_AMMO,						// Ammo in current weapon (ps->ammo contains total ammo in clips))
+	STAT_ACCURACY,					// Extra accuracy rating from weapon
 	STAT_CAPTURE_ENTITYNUM			// Warzone Flag Capture Entity...
 } statIndex_t;
 

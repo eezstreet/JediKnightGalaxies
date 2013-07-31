@@ -149,6 +149,11 @@ typedef struct
 	float walkModifier;		// this gets used in the case of crouch-walking, regardless of walking button being pressed
 	float sightsModifier;	// is lerped during sights transition
 	float inAirModifier;	// if we're in the air period
+
+	// extra accuracy added on from weapon fire
+	int accuracyRatingPerShot;		// add this much accuracy rating from one shot
+	int msToDrainAccuracy;			// ms to drain 1 accuracy rating (NOTE: exploitable)
+	int maxAccuracyAdd;				// maximum amount that accuracy can be dropped by
 } weaponAccuracyDetails_t;
 
 typedef struct weaponFireModeStats_s

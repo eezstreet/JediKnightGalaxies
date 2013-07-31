@@ -4109,10 +4109,10 @@ void WP_CalculateSpread( float *pitch, float *yaw, float accuracyRating, float m
 
 vec3_t *WP_GetWeaponDirection( gentity_t *ent, int firemode, vec3_t forward )
 {
+
 	weaponData_t	*thisWeaponData = GetWeaponData( ent->s.weapon, ent->s.weaponVariation );
 	int				 fKnockBack		= ( float )thisWeaponData->firemodes[firemode].baseDamage;
 	static vec3_t	 fDirection;
-	float			 fAccuracyRating = thisWeaponData->firemodes[firemode].weaponAccuracy.accuracyRating;
 	float			 fSpreadModifiers = 1.0f;
 	vec3_t			 fAngles;
 		
@@ -4133,6 +4133,11 @@ vec3_t *WP_GetWeaponDirection( gentity_t *ent, int firemode, vec3_t forward )
 		bool bIsWalking		= (ent->client->pers.cmd.buttons & BUTTON_WALKING) && !BG_IsSprinting (&ent->client->ps, &ent->client->pers.cmd, qfalse);
 		bool bInIronsights  = (ent->client->pers.cmd.buttons & BUTTON_IRONSIGHTS);
 		bool bIsInAir		= (ent->client->ps.groundEntityNum == ENTITYNUM_NONE);
+
+		float fAccuracyRating =
+			thisWeaponData->firemodes[firemode].weaponAccuracy.accuracyRating + ent->client->ps.stats[STAT_ACCURACY];
+
+		int accuracyDrainDebounce = ( ent->client->accuracyDebounce > level.time ) ? 0 : thisWeaponData->firemodes[firemode].weaponAccuracy.msToDrainAccuracy;
 
 		/* Client is in air, might be using a jetpack or something, add some slop! */
 		if ( bIsInAir )
@@ -4193,6 +4198,18 @@ vec3_t *WP_GetWeaponDirection( gentity_t *ent, int firemode, vec3_t forward )
 
 			fAngles[PITCH] += pitch;
 			fAngles[YAW] += yaw;
+		}
+
+		/* We get more and more inaccurate every time we fire.
+		If we're firing from an awkward position (such as being
+		in mid-air), it takes us longer to recover from that shot. */
+		accuracyDrainDebounce *= fSpreadModifiers;
+
+		ent->client->accuracyDebounce = level.time + accuracyDrainDebounce;
+		ent->client->ps.stats[STAT_ACCURACY] += thisWeaponData->firemodes[firemode].weaponAccuracy.accuracyRatingPerShot;
+		if( ent->client->ps.stats[STAT_ACCURACY] > thisWeaponData->firemodes[firemode].weaponAccuracy.maxAccuracyAdd )
+		{
+			ent->client->ps.stats[STAT_ACCURACY] = thisWeaponData->firemodes[firemode].weaponAccuracy.maxAccuracyAdd;
 		}
 	}
 

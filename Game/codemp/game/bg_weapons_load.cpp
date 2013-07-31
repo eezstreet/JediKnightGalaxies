@@ -414,6 +414,15 @@ static void BG_ParseWeaponFireMode ( weaponFireModeStats_t *fireModeStats, cJSON
 
 		child = cJSON_GetObjectItem( node, "inAirModifier" );
 		fireModeStats->weaponAccuracy.inAirModifier = (float)cJSON_ToNumberOpt( child, 3.0f );
+
+		child = cJSON_GetObjectItem( node, "accuracyRatingPerShot" );
+		fireModeStats->weaponAccuracy.accuracyRatingPerShot = (int)cJSON_ToNumberOpt( child, 2 );
+
+		child = cJSON_GetObjectItem( node, "msToDrainAccuracy" );
+		fireModeStats->weaponAccuracy.msToDrainAccuracy = (int)cJSON_ToNumberOpt( child, 200 );
+
+		child = cJSON_GetObjectItem( node, "maxAccuracyAdd" );
+		fireModeStats->weaponAccuracy.maxAccuracyAdd = (int)cJSON_ToNumberOpt( child, 128 );
 	}
 	else
 	{
@@ -423,6 +432,9 @@ static void BG_ParseWeaponFireMode ( weaponFireModeStats_t *fireModeStats, cJSON
 		fireModeStats->weaponAccuracy.sightsModifier = 0.2f;
 		fireModeStats->weaponAccuracy.walkModifier = 1.55f;
 		fireModeStats->weaponAccuracy.inAirModifier = 3.0f;
+		fireModeStats->weaponAccuracy.accuracyRatingPerShot = 2;
+		fireModeStats->weaponAccuracy.msToDrainAccuracy = 200;
+		fireModeStats->weaponAccuracy.maxAccuracyAdd = 128;
 	}
     
     node = cJSON_GetObjectItem (fireModeNode, "projectilespeed");
