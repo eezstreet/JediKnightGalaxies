@@ -5954,8 +5954,10 @@ static void PM_Footsteps( void ) {
 		    
 		    footstep = qtrue;
 		}
-		else if ( !( pm->cmd.buttons & BUTTON_WALKING ) && ((!(pm->cmd.buttons & BUTTON_IRONSIGHTS && !pm->ps->isInSights)) || 
-			!(pm->ps->saberActionFlags & (1 << SAF_BLOCKING))) )		{//running
+		else if ( !( pm->cmd.buttons & BUTTON_WALKING ) &&							// We are not holding the walk button.
+			(!(pm->cmd.buttons & BUTTON_IRONSIGHTS)) &&		// We are not in sights
+			!(pm->ps->saberActionFlags & (1 << SAF_BLOCKING)) )						// We are not in block mode (note: legs-only)
+		{ // Running, in other words.
 			bobmove = 0.4f;	// faster speeds bob faster
 			if ( pm->ps->clientNum >= MAX_CLIENTS &&
 				pm_entSelf &&
