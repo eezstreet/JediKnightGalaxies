@@ -11261,6 +11261,11 @@ qboolean BG_IsSprinting ( const playerState_t *ps, const usercmd_t *cmd, qboolea
 		return qfalse;
 	}
 
+	if( ps->weaponstate == WEAPON_RELOADING )
+	{
+		return false; // Cannot sprint while reloading.
+	}
+
 	// Only when on the ground.
 	
 	if( PMOVE )
