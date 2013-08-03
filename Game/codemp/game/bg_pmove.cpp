@@ -8973,7 +8973,8 @@ void PM_AdjustAttackStates( pmove_t *pm )
 	if ( weapon->zoomType != ZOOM_NONE )
 	{
 		weaponData_t *wp = GetWeaponData( pm->ps->weapon, pm->ps->weaponVariation );
-		if ( pm->ps->weaponstate == WEAPON_READY || pm->ps->weaponstate == WEAPON_FIRING )
+		if ( pm->ps->weaponstate == WEAPON_READY || pm->ps->weaponstate == WEAPON_FIRING ||
+			pm->ps->weaponstate == WEAPON_IDLE || pm->ps->weaponstate == WEAPON_CHARGING)
 	    {
 			if ( (pm->cmd.buttons & BUTTON_IRONSIGHTS || pm->ps->isInSights) &&
 		            (pm->ps->ironsightsTime & IRONSIGHTS_MSB) &&
