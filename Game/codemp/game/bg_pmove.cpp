@@ -8305,7 +8305,7 @@ static void PM_Weapon( void )
 				if (pm->ps->torsoAnim == BOTH_MELEE1)
 				{
 #ifdef QAGAME
-				if (!(pm->ps->weapon == WP_MELEE
+				if ((pm->ps->weapon == WP_MELEE
 					// UQ1: NPCs can hit you with their rifle butt at close range...
 					|| (g_entities[pm->ps->clientNum].s.eType == ET_NPC 
 						&& pm->ps->weapon != WP_SABER 
